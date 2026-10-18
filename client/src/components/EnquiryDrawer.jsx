@@ -168,25 +168,23 @@ const EnquiryDrawer = () => {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
             {submissionSuccess ? (
-              <div className="text-center py-8 space-y-4 animate-fadeIn">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
-                  <CheckCircle className="w-10 h-10" />
+              <div className="text-center py-8 space-y-5 animate-fadeIn">
+                <div className="w-16 h-16 bg-amber-50 border border-brand-gold/30 rounded-full flex items-center justify-center mx-auto text-brand-gold shadow-sm">
+                  <CheckCircle className="w-9 h-9 text-brand-primary" />
                 </div>
                 
                 <h3 className="text-xl font-serif font-bold text-brand-primary">
-                  Enquiry Registered Successfully!
+                  Inquiry Received Successfully
                 </h3>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 inline-block">
-                  <p className="text-xs text-neutral-600 font-medium">Your Unique Reference ID:</p>
-                  <p className="text-lg font-mono font-bold text-brand-purple">
-                    {submissionSuccess.referenceId}
+                <div className="p-4 bg-brand-cream/70 border border-brand-border rounded-2xl max-w-sm mx-auto shadow-xs text-left space-y-2">
+                  <p className="text-xs text-neutral-700 leading-relaxed">
+                    Thank you for contacting <strong>Kandhari Tent & Caterers</strong>! Your inquiry has been received successfully. Our team will review your requirements and get in touch with you shortly.
+                  </p>
+                  <p className="text-[11px] text-neutral-500 border-t border-brand-border/60 pt-2">
+                    📍 Event coordination desk on Kanpur Road (Opp. Pillar No. 37), Lucknow.
                   </p>
                 </div>
-
-                <p className="text-sm text-neutral-600 leading-relaxed max-w-sm mx-auto">
-                  Thank you! Our event coordination desk will review equipment availability for your date and locality, and contact you directly with quote details.
-                </p>
 
                 {submissionSuccess.whatsappLink && (
                   <div className="pt-2">
@@ -194,22 +192,22 @@ const EnquiryDrawer = () => {
                       href={submissionSuccess.whatsappLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md transition flex items-center justify-center gap-2"
+                      className="w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-md transition flex items-center justify-center gap-2"
                     >
-                      <MessageCircle className="w-5 h-5" />
-                      <span>Send Summary Directly on WhatsApp</span>
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Open WhatsApp with Inquiry Summary</span>
                     </a>
-                    <p className="text-[11px] text-neutral-400 mt-2">
-                      Instant direct connection to our Lucknow booking desk (+91 9305465848)
+                    <p className="text-[11px] text-neutral-500 mt-2">
+                      Opens WhatsApp to send your prefilled details directly to our desk (+91 9305465848)
                     </p>
                   </div>
                 )}
 
                 <button
                   onClick={resetDrawer}
-                  className="mt-4 px-6 py-2.5 rounded-xl border border-neutral-300 text-neutral-700 hover:bg-neutral-50 text-sm font-medium transition"
+                  className="mt-3 px-6 py-2.5 rounded-xl border border-brand-border text-brand-primary hover:bg-brand-cream text-xs font-semibold transition"
                 >
-                  Continue Browsing
+                  Continue Exploring
                 </button>
               </div>
             ) : (

@@ -231,40 +231,42 @@ const ContactPage = () => {
               </div>
 
               {submissionSuccess ? (
-                <div className="text-center py-8 space-y-4 bg-purple-50/50 rounded-2xl p-6 border border-purple-100 animate-fadeIn">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
-                    <CheckCircle className="w-10 h-10" />
+                <div className="text-center py-8 space-y-4 bg-brand-cream/80 rounded-2xl p-6 border border-brand-border animate-fadeIn">
+                  <div className="w-16 h-16 bg-amber-50 border border-brand-gold/30 rounded-full flex items-center justify-center mx-auto text-brand-gold shadow-sm">
+                    <CheckCircle className="w-9 h-9 text-brand-primary" />
                   </div>
-                  <h3 className="text-lg font-serif font-bold text-brand-primary">
-                    Message Received Successfully!
+                  <h3 className="text-xl font-serif font-bold text-brand-primary">
+                    Inquiry Received Successfully
                   </h3>
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 inline-block">
-                    <p className="text-xs text-neutral-600 font-medium">Enquiry Reference ID:</p>
-                    <p className="text-lg font-mono font-bold text-brand-purple">
-                      {submissionSuccess.referenceId}
+                  <div className="p-4 bg-white/90 border border-brand-border rounded-xl max-w-sm mx-auto shadow-xs text-left space-y-2">
+                    <p className="text-xs text-neutral-700 leading-relaxed">
+                      Thank you for contacting <strong>Kandhari Tent & Caterers</strong>! Your inquiry has been received successfully. Our team will review your requirements and get in touch with you shortly.
+                    </p>
+                    <p className="text-[11px] text-neutral-500 border-t border-brand-border/60 pt-2">
+                      📍 Event desk located opposite Pillar No. 37, Kanpur Road, Lucknow.
                     </p>
                   </div>
-                  <p className="text-xs text-neutral-600 max-w-sm mx-auto leading-relaxed">
-                    Thank you! An event manager from Kandhari Tent & Caterers will get in touch with you shortly.
-                  </p>
                   {submissionSuccess.whatsappLink && (
                     <div className="pt-2">
                       <a
                         href={submissionSuccess.whatsappLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-2 shadow-sm transition"
+                        className="py-3 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs inline-flex items-center gap-2 shadow-sm transition"
                       >
                         <MessageCircle className="w-4 h-4" />
-                        <span>Send Details to WhatsApp</span>
+                        <span>Open WhatsApp with Inquiry Summary</span>
                       </a>
+                      <p className="text-[11px] text-neutral-500 mt-2">
+                        Opens WhatsApp to send your prefilled details directly to our booking desk (+91 9305465848)
+                      </p>
                     </div>
                   )}
                   <button
                     onClick={() => setSubmissionSuccess(null)}
-                    className="mt-3 text-xs text-neutral-500 hover:underline block mx-auto"
+                    className="mt-3 text-xs text-brand-primary font-semibold hover:underline block mx-auto"
                   >
-                    Submit another enquiry
+                    Submit another inquiry
                   </button>
                 </div>
               ) : (

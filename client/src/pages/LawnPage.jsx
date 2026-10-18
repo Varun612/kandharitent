@@ -80,7 +80,7 @@ const LawnPage = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
               onClick={() => setIsLawnModalOpen(true)}
-              className="px-8 py-4 rounded-2xl bg-brand-accent hover:bg-brand-accentLight text-white font-bold text-sm sm:text-base shadow-royal-lg transition transform hover:-translate-y-0.5 flex items-center gap-2"
+              className="px-8 py-4 rounded-2xl royal-gradient text-white font-bold text-xs sm:text-sm shadow-luxury hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center gap-2"
             >
               <Calendar className="w-5 h-5 text-brand-gold" />
               <span>Check Date Availability</span>
@@ -88,7 +88,7 @@ const LawnPage = () => {
 
             <a
               href="tel:9305465848"
-              className="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-semibold text-sm sm:text-base transition flex items-center gap-2"
+              className="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-brand-gold/30 text-white font-semibold text-xs sm:text-sm transition flex items-center gap-2"
             >
               <Phone className="w-4 h-4 text-brand-gold" />
               <span>Call Venue Desk: 9305465848</span>

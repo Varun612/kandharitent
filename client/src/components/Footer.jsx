@@ -15,15 +15,15 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-brand-dark text-neutral-300 pt-16 pb-8 border-t border-brand-purple/40">
+    <footer className="bg-brand-dark text-neutral-300 pt-16 pb-8 border-t border-brand-gold/25">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-neutral-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           
           {/* Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg royal-gradient flex items-center justify-center text-brand-gold border border-brand-gold/30">
-                <span className="text-xl font-serif font-black">K</span>
+              <div className="w-11 h-11 rounded-xl royal-gradient flex items-center justify-center text-brand-gold border border-brand-gold/40 shadow-luxury">
+                <span className="text-2xl font-serif font-black">K</span>
               </div>
               <div>
                 <h3 className="text-lg font-serif font-bold text-white leading-tight">

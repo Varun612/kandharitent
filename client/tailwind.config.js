@@ -8,17 +8,22 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: '#2e0854',     // Ultra deep royal purple
-          primary: '#4a0e4e',  // Deep royal maroon / purple
-          purple: '#581c87',   // Rich royal purple
-          accent: '#7c3aed',   // Referenced vibrant accent
-          accentLight: '#8b5cf6',
-          gold: '#c59a3f',     // Muted elegant royal gold
-          goldHover: '#b4852f',
-          goldLight: '#fdf3d8',
-          cream: '#faf7f2',    // Warm ivory / cream
-          creamDark: '#f3ede2',
-          surface: '#ffffff'
+          dark: '#1A0512',      // Deep royal obsidian plum
+          twilight: '#0F0218',  // Twilight sky deep violet-black
+          primary: '#4A0E2E',   // Imperial royal burgundy
+          plum: '#3D0C27',      // Rich velvet plum
+          purple: '#4A0E2E',    // Compatibility mapping to rich plum
+          accent: '#8C1D40',    // Regal deep carmine accent
+          accentLight: '#A8284F',
+          gold: '#C5A059',      // Restrained antique champagne gold
+          goldHover: '#B08A42',
+          goldLight: '#F5E6CA',
+          champagne: '#DFBE7C',
+          cream: '#FAF7F2',     // Sophisticated warm ivory canvas
+          creamDark: '#F3EDE2',
+          surface: '#FFFFFF',
+          card: '#FDFBF7',
+          border: '#EBE3D5'
         }
       },
       fontFamily: {
@@ -26,9 +31,11 @@ export default {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'royal': '0 10px 30px -5px rgba(74, 14, 78, 0.12), 0 4px 12px -2px rgba(124, 58, 237, 0.08)',
-        'royal-lg': '0 20px 40px -10px rgba(74, 14, 78, 0.2), 0 8px 16px -4px rgba(124, 58, 237, 0.12)',
-        'gold-glow': '0 0 25px rgba(197, 154, 63, 0.35)'
+        'royal': '0 10px 30px -5px rgba(42, 8, 27, 0.15), 0 4px 12px -2px rgba(197, 160, 89, 0.1)',
+        'royal-lg': '0 20px 45px -10px rgba(42, 8, 27, 0.28), 0 8px 20px -4px rgba(197, 160, 89, 0.15)',
+        'gold-subtle': '0 0 20px rgba(197, 160, 89, 0.25)',
+        'gold-glow': '0 0 35px rgba(223, 190, 124, 0.35)',
+        'luxury': '0 15px 35px -5px rgba(26, 5, 18, 0.2), 0 0 0 1px rgba(197, 160, 89, 0.15)'
       }
     },
   },

@@ -703,12 +703,15 @@ const AiChatAssistant = () => {
 
                 {/* Submitted Success Badge (Real Database Confirmation) */}
                 {submittedRef && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm text-center space-y-3">
-                    <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto" />
+                  <div className="bg-brand-cream/80 border border-brand-border rounded-2xl p-5 shadow-xs text-center space-y-3">
+                    <div className="w-12 h-12 bg-amber-50 border border-brand-gold/30 rounded-full flex items-center justify-center mx-auto text-brand-gold shadow-xs">
+                      <CheckCircle className="w-7 h-7 text-brand-primary" />
+                    </div>
                     <div>
-                      <p className="font-bold text-emerald-900 text-sm">Enquiry Registered in Database!</p>
-                      <p className="text-xs text-emerald-700 mt-0.5">Reference ID: <span className="font-mono font-bold">{submittedRef}</span></p>
-                      <p className="text-[11px] text-neutral-600 mt-1">Our team will contact you shortly to confirm equipment availability.</p>
+                      <p className="font-serif font-bold text-brand-primary text-base">Inquiry Received Successfully</p>
+                      <p className="text-xs text-neutral-700 mt-1 leading-relaxed">
+                        Thank you for contacting <strong>Kandhari Tent & Caterers</strong>! Your inquiry has been received. Our team will review your requirements and get in touch with you shortly.
+                      </p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-2 pt-1">
@@ -717,9 +720,9 @@ const AiChatAssistant = () => {
                           href={whatsappLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors shadow"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-700 text-white rounded-xl text-xs font-semibold hover:bg-emerald-800 transition-colors shadow"
                         >
-                          <span>Connect on WhatsApp</span>
+                          <span>Open WhatsApp Summary</span>
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       )}
@@ -728,10 +731,10 @@ const AiChatAssistant = () => {
                           setIsOpen(false);
                           navigate('/account');
                         }}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-brand-primary text-white rounded-xl text-xs font-bold hover:bg-brand-primary/95 transition-colors shadow"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-plum transition-colors shadow"
                       >
                         <User className="w-3.5 h-3.5 text-brand-gold" />
-                        <span>View in Portal</span>
+                        <span>Client Portal</span>
                       </button>
                     </div>
                   </div>

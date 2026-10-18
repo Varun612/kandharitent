@@ -193,47 +193,47 @@ const Navbar = () => {
                 }
 
                 return (
-                  <Link
-                    key={link.name}
-                    to={link.path}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
-                      isActive(link.path)
-                        ? 'text-brand-purple font-bold bg-purple-50'
-                        : link.highlight
-                        ? 'text-brand-primary bg-amber-50/70 border border-amber-200/60 hover:bg-amber-100/70'
-                        : 'text-neutral-700 hover:text-brand-purple hover:bg-neutral-50'
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                );
-              })}
-            </div>
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold tracking-wide transition ${
+                        isActive(link.path)
+                          ? 'text-brand-primary font-bold bg-brand-cream border border-brand-border/60'
+                          : link.highlight
+                          ? 'text-brand-primary bg-amber-50/80 border border-brand-gold/40 hover:bg-amber-100/70'
+                          : 'text-neutral-700 hover:text-brand-primary hover:bg-brand-cream/60'
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  );
+                })}
+              </div>
 
-            {/* Action Buttons: Enquiry Cart & Call */}
-            <div className="hidden sm:flex items-center gap-3">
-              <button
-                onClick={openDrawer}
-                className="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-brand-purple border border-purple-200 font-semibold text-sm transition shadow-sm"
-                aria-label="View Enquiry Cart"
-              >
-                <ShoppingBag className="w-4 h-4 text-brand-accent" />
-                <span>Enquiry List</span>
-                {totalItemsCount > 0 && (
-                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-extrabold leading-none text-white bg-brand-accent rounded-full animate-pulse">
-                    {totalItemsCount}
-                  </span>
-                )}
-              </button>
+              {/* Action Buttons: Enquiry Cart & Plan Event */}
+              <div className="hidden sm:flex items-center gap-3">
+                <button
+                  onClick={openDrawer}
+                  className="relative inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-brand-cream hover:bg-brand-creamDark text-brand-primary border border-brand-border font-semibold text-xs transition shadow-xs"
+                  aria-label="View Enquiry Cart"
+                >
+                  <ShoppingBag className="w-4 h-4 text-brand-gold" />
+                  <span>Enquiry Cart</span>
+                  {totalItemsCount > 0 && (
+                    <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-extrabold leading-none text-white bg-brand-accent rounded-full animate-pulse">
+                      {totalItemsCount}
+                    </span>
+                  )}
+                </button>
 
-              <Link
-                to="/lawn"
-                className="hidden xl:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl royal-gradient text-white text-sm font-semibold hover:opacity-95 shadow-royal transition"
-              >
-                <Calendar className="w-4 h-4 text-brand-gold" />
-                <span>Book the Lawn</span>
-              </Link>
-            </div>
+                <button
+                  onClick={openDrawer}
+                  className="hidden xl:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl royal-gradient text-white text-xs font-bold hover:opacity-95 shadow-luxury transition"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Plan Your Event</span>
+                </button>
+              </div>
 
             {/* Mobile Hamburger & Mobile Cart Trigger */}
             <div className="flex items-center gap-2 lg:hidden">
