@@ -291,6 +291,65 @@ const runTests = async () => {
       throw new Error('CSV export failed or missing created enquiry');
     }
 
+    // Test 11: Production 404 & Dual-Mount Routing Fix Verification
+    console.log('\n--- Test 11: Production 404 & Dual-Mount Routing Verification ---');
+    
+    // 11.1: Featured items on /api/items?featured=true
+    const featuredWithPrefix = await testEndpoint('/api/items?featured=true');
+    console.log(`[Dual-Mount] GET /api/items?featured=true: HTTP ${featuredWithPrefix.status} | Count: ${featuredWithPrefix.data.count}`);
+    if (featuredWithPrefix.status !== 200 || !featuredWithPrefix.data.success) {
+      throw new Error('Failed GET /api/items?featured=true');
+    }
+
+    // 11.2: Featured items on /items?featured=true (stripped prefix)
+    const featuredWithoutPrefix = await testEndpoint('/items?featured=true');
+    console.log(`[Dual-Mount] GET /items?featured=true: HTTP ${featuredWithoutPrefix.status} | Count: ${featuredWithoutPrefix.data.count}`);
+    if (featuredWithoutPrefix.status !== 200 || !featuredWithoutPrefix.data.success) {
+      throw new Error('Failed GET /items?featured=true');
+    }
+
+    // 11.3: Direct enquiry submission on /api/enquiries
+    const enquiryPayload = {
+      customerName: 'Rohit Verma',
+      phone: '9876543210',
+      eventDate: '2026-12-15',
+      locality: 'Alambagh, Lucknow',
+      serviceRequired: 'Wedding Tent & Catering',
+      guestCount: 350
+    };
+    const enquiryWithPrefix = await testEndpoint('/api/enquiries', {
+      method: 'POST',
+      body: JSON.stringify(enquiryPayload)
+    });
+    console.log(`[Dual-Mount] POST /api/enquiries: HTTP ${enquiryWithPrefix.status} | Success: ${enquiryWithPrefix.data.success}`);
+    if (enquiryWithPrefix.status !== 201 || !enquiryWithPrefix.data.success) {
+      throw new Error('Failed POST /api/enquiries');
+    }
+
+    // 11.4: Direct enquiry submission on /enquiries (stripped prefix)
+    const enquiryWithoutPrefix = await testEndpoint('/enquiries', {
+      method: 'POST',
+      body: JSON.stringify({ ...enquiryPayload, phone: '9876543211' })
+    });
+    console.log(`[Dual-Mount] POST /enquiries: HTTP ${enquiryWithoutPrefix.status} | Success: ${enquiryWithoutPrefix.data.success}`);
+    if (enquiryWithoutPrefix.status !== 201 || !enquiryWithoutPrefix.data.success) {
+      throw new Error('Failed POST /enquiries');
+    }
+
+    // 11.5: Health check without /api prefix
+    const healthNoPrefix = await testEndpoint('/health');
+    console.log(`[Dual-Mount] GET /health: HTTP ${healthNoPrefix.status} | Status: ${healthNoPrefix.data.status}`);
+    if (healthNoPrefix.status !== 200 || healthNoPrefix.data.status !== 'online') {
+      throw new Error('Failed GET /health');
+    }
+
+    // 11.6: Non-existent API route returns JSON 404 (NEVER HTML)
+    const notFoundRes = await testEndpoint('/api/non-existent-endpoint');
+    console.log(`[JSON 404] GET /api/non-existent-endpoint: HTTP ${notFoundRes.status} | JSON message: ${notFoundRes.data.message}`);
+    if (notFoundRes.status !== 404 || notFoundRes.data.success !== false) {
+      throw new Error('Expected 404 JSON for non-existent route');
+    }
+
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');

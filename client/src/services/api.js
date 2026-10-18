@@ -18,19 +18,40 @@ const request = async (endpoint, options = {}) => {
     ...(options.headers || {})
   };
 
+  const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+
   try {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
+    const res = await fetch(url, {
       ...options,
       headers
     });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || `Request failed with status ${res.status}`);
+    const contentType = res.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
+
+    let responseData;
+    if (isJson) {
+      try {
+        responseData = await res.json();
+      } catch (jsonErr) {
+        responseData = { message: 'Failed to parse JSON response from server' };
+      }
+    } else {
+      const text = await res.text();
+      // If server or CDN returned an HTML/plain text error page (e.g. 404 / 502 / 504)
+      const cleanSnippet = text.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().slice(0, 150);
+      throw new Error(`Server returned HTTP ${res.status}${cleanSnippet ? `: ${cleanSnippet}` : ''}`);
     }
-    return data;
+
+    if (!res.ok) {
+      const errMsg = (responseData && (responseData.message || responseData.error)) 
+        || `Request failed with status ${res.status}`;
+      throw new Error(errMsg);
+    }
+
+    return responseData;
   } catch (error) {
-    console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, error);
+    console.error(`API Error on [${options.method || 'GET'} ${endpoint}]:`, error.message || error);
     throw error;
   }
 };

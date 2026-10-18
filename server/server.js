@@ -35,23 +35,41 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Health Check
-app.get('/api/health', (req, res) => {
+// Health Check - supports both /api/health and /health
+const healthHandler = (req, res) => {
   res.json({
     status: 'online',
     business: 'Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow',
     database: isMongoConnected() ? 'MongoDB' : 'Resilient LocalStore (JSON)',
     timestamp: new Date().toISOString()
   });
-});
+};
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
+
+// Helper for dual mounting routes with and without /api prefix
+// This ensures compatibility across direct serverless execution, Vercel rewrites, and custom reverse proxies
+const mountDualRoute = (basePath, router) => {
+  const cleanPath = basePath.startsWith('/') ? basePath : `/${basePath}`;
+  app.use(`/api${cleanPath}`, router);
+  app.use(cleanPath, router);
+};
 
 // API Routes
-app.use('/api/items', itemRoutes);
-app.use('/api/enquiries', enquiryRoutes);
-app.use('/api/venue', venueRoutes);
-app.use('/api/gallery', galleryRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/chat', chatRoutes);
+mountDualRoute('/items', itemRoutes);
+mountDualRoute('/enquiries', enquiryRoutes);
+mountDualRoute('/venue', venueRoutes);
+mountDualRoute('/gallery', galleryRoutes);
+mountDualRoute('/auth', authRoutes);
+mountDualRoute('/chat', chatRoutes);
+
+// Catch-all 404 handler for API routes (always return JSON, never HTML)
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `API route not found: ${req.method} ${req.originalUrl || req.url}`
+  });
+});
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -74,11 +92,11 @@ const startServer = async () => {
   });
 };
 
-// Only listen when executed directly in non-serverless environment
-if (process.env.VERCEL !== '1' && !process.env.VERCEL_ENV && process.env.NODE_ENV !== 'test') {
+// Only listen when executed directly via `node server.js` in non-serverless environment
+if (require.main === module && process.env.VERCEL !== '1' && !process.env.VERCEL_ENV && process.env.NODE_ENV !== 'test') {
   startServer();
 } else {
-  // In serverless environments (e.g. Vercel), connect database asynchronously
+  // In serverless environments (e.g. Vercel) or when imported as a module, connect database asynchronously
   connectDB().catch(err => console.error('Serverless DB Connect Error:', err));
 }
 
