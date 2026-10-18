@@ -104,6 +104,16 @@ const classifyIntent = (text = '') => {
     return { intent: 'lighting_sound', category: 'Lighting' };
   }
 
+  // Equipment / furniture rental rates
+  if (
+    lower.includes('chair') || lower.includes('kursi') || lower.includes('sofa') ||
+    lower.includes('table') || lower.includes('mez') || lower.includes('carpet') ||
+    lower.includes('takhat') || lower.includes('gadda') || lower.includes('drum') ||
+    (lower.includes('rent') && !lower.includes('tent'))
+  ) {
+    return { intent: 'equipment_rates', category: 'Seating and furniture arrangements' };
+  }
+
   // Pricing or package enquiries
   if (
     lower.includes('price') || lower.includes('cost') || lower.includes('package') ||
@@ -248,12 +258,42 @@ const generateConversationalResponse = ({ userText, intentInfo, collectedState, 
     }
   }
 
-  // Case 2: Catering Menu
+  // Case 2: Catering Menu & Pricing
   if (intent === 'catering_menu') {
     if (isHindi) {
-      return `Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.`;
+      return `Kandhari Tent & Caterers me 100% Pure Vegetarian Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).
+
+• **Full Catering**: ₹750/vyakti (≥ 250 guests ke liye)
+• **Semi Catering**: ₹250/vyakti (buffet warmers, setup aur service staff)
+• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.
+
+Aap kis event date aur kitne guests ke liye menu plan kar rahe hain?`;
     }
-    return `At Kandhari Tent & Caterers, we tailor our catering and live buffet setups specifically to your family's preferences and dietary choices (Pure Veg, Awadhi specialties, Live Counters, Desserts). Since we do not publish rigid standard pricing without understanding your needs, could you share your event date and expected guest count so our manager can prepare a personalized menu proposal for you?`;
+    return `At Kandhari Tent & Caterers, our pure-vegetarian Awadhi banqueting covers 17 printed brochure courses (Welcome Drinks, Soups, Live Lucknowi Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).
+
+• **Full Catering Package**: ₹750 / person (for ≥ 250 guests)
+• **Semi Catering Package**: ₹250 / person (for ≥ 250 guests)
+• **Official Brochure Rule**: All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.
+
+For fewer than 250 guests, our catering manager confirms customized rates. What event date and estimated guest count are you planning for?`;
+  }
+
+  // Case 2.5: Equipment Rental Rates
+  if (intent === 'equipment_rates') {
+    if (isHindi) {
+      return `Kandhari Tent House ki verified per-unit rental rates niche di gayi hain:
+• **Chairs**: Highback Banquet Chair ₹70 | VIP Chair ₹50 | PVC Chair ₹20
+• **Sofas & Tables**: Maharaja 2-Seater Sofa ₹600 | Center Table ₹300 | Mez Set (2.5x5) ₹80 | Round Table ₹150–₹200
+• **Others**: Takhat ₹80 | Gadda ₹60 | Drum ₹100 | Red/3D Carpet ₹2/sq.ft
+
+Aapko apne event ke liye kitni chairs, sofas ya tables ki zaroorat hai?`;
+    }
+    return `Here are our official per-unit equipment rental rates from our warehouse:
+• **Chairs**: Highback Banquet Chair: ₹70 | VIP Chair: ₹50 | PVC Chair: ₹20
+• **Sofas & Tables**: Maharaja 2-Seater Sofa: ₹600 | Center Table: ₹300 | Mez Table Set (2.5×5 ft): ₹80 | Round Table with Cover: ₹150–₹200
+• **Bedding & Ground**: Takhat: ₹80 | Gadda (Mattress): ₹60 | Drum: ₹100 | Red/3D Carpet: ₹2 / sq.ft
+
+How many chairs, sofas, or tables would you like to reserve for your event?`;
   }
 
   // Case 3: Lawn Booking
@@ -275,9 +315,21 @@ const generateConversationalResponse = ({ userText, intentInfo, collectedState, 
   // Case 5: Pricing / Package
   if (intent === 'pricing_package') {
     if (isHindi) {
-      return `Kandhari Tent & Caterers me har event unique hota hai—tent size, decor specification, lawn duration aur equipment selection ke aadhar par custom quote prepare kiya jata hai. Kripya batayein aapka event kis date par hai aur kaun-kaun si services ki zaroorat hai?`;
+      return `Kandhari Tent & Caterers ke official verified booking packages:
+• **Standard Wedding Package (₹50,000)**: Complete waterproof tent canopy + lighting + fresh flower entrance/stage decor + DJ sound setup.
+• **Grand Royal Wedding Setup (₹1,10,000)**: Signature Kanpur Road setup jisme 20x200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16x24 ft Royal Stage, 16x16 ft Mandap, 2 Welcome Gates aur DJ shamil hai.
+• **Catering Packages**: Full Catering ₹750/person | Semi Catering ₹250/person (≥250 guests).
+• **Govt Contractors**: DRDO Lucknow approved seminar setup with 18% GST billing.
+
+Aap apne event ke liye kaun sa package explore karna chahenge?`;
     }
-    return `At Kandhari Tent & Caterers, we customize every quote based on your exact decor choices, tent dimensions, lighting specifications, and event date. To give you an accurate and fair proposal, could you let us know your planned event date and which services you need?`;
+    return `Here are our official verified event packages from Kandhari Tent & Caterers:
+• **Standard Wedding Package**: ₹50,000 all-inclusive (Waterproof Tent + Ambient Illumination + Fresh Flower Decor + DJ Sound).
+• **Grand Royal Wedding Setup**: ₹1,10,000 all-inclusive (VIP 20×200 ft gallery with lights & flowers, 14 Maharaja Sofas, 200 Highback Chairs with covers, 16×24 ft Stage, 16×16 ft Mandap, 2 Entrance Gates, DJ).
+• **Pure-Veg Catering**: Full Catering @ ₹750/person | Semi Catering @ ₹250/person (for ≥ 250 guests).
+• **Approved Government Contractors**: D.R.D.O. Lucknow approved seminar setups with official 18% GST invoices.
+
+Which package or setup best aligns with your celebration?`;
   }
 
   // Conversational Slot Filling Progression
@@ -338,9 +390,26 @@ You are the official, friendly, warm, and professional AI Event Advisor for Kand
 Contact numbers: 9305465848, 9307908994, 7355059566.
 Tagline: "Making Your Celebrations Memorable".
 
-CRITICAL BUSINESS RULES:
+OFFICIAL VERIFIED RATES & PACKAGES (QUOTE CONFIDENTLY WHEN ASKED):
+1. Catering Packages (100% Pure Vegetarian Awadhi Banqueting across 17 printed brochure courses):
+   - Full Catering: ₹750 / person (for ≥ 250 guests). Includes 17 courses: welcome drinks, soups, live chaat, barbecue tandoor, handi paneer, vegetables, breads, salad, and 2 hot desserts.
+   - Semi Catering: ₹250 / person (for ≥ 250 guests). Buffet warmers, layout, and service staff.
+   - Custom quote for < 250 guests.
+   - Official Service Rule: All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel provided by client.
+2. Complete Wedding Packages:
+   - Standard Wedding Package: ₹50,000 all-inclusive (Waterproof Tent + Ambient Illumination + Fresh Flower Decor + DJ Sound Setup).
+   - Grand Royal Wedding Setup (Kanpur Road Benchmark): ₹1,10,000 all-inclusive (20×200 ft illuminated passage gallery, 14 Maharaja 2-seater sofas, 200 Highback chairs with covers, round tables, grand 16×24 ft stage, 16×16 ft mandap, 2 entrance gates, DJ).
+3. Equipment Rentals (Per-Unit Verified Rates):
+   - Highback Chair: ₹70 | VIP Chair: ₹50 | PVC Chair: ₹20
+   - Maharaja 2-Seater Sofa: ₹600 | Center Table: ₹300
+   - Mez Table Set (2.5×5 ft): ₹80 | Round Table with Cover: ₹150–₹200
+   - Takhat: ₹80 | Gadda (Mattress): ₹60 | Drum: ₹100 | Red/3D Carpet: ₹2 / sq.ft
+4. Institutional / Government Credentials:
+   - Approved Government Contractors for Defence Research & Development Organisation (DRDO Lucknow). Seminars, heavy truss staging, podiums, ceremonial brass lamps, cordless audio, and 80+ LED par setups available with official 18% GST billing.
+
+CRITICAL CONVERSATIONAL GUIDELINES:
 1. Speak in English or Hindi/Hinglish depending on the customer's language. Use respectful Indian hospitality etiquette (e.g., Namaste, Ji).
-2. DO NOT INVENT fixed prices, packages, menus, or exact venue capacities. When asked about pricing or catering menus, explain that quotes are customized based on the event scale, date, and client preferences.
+2. Quote the verified rates above accurately. Never invent arbitrary unverified prices.
 3. Keep answers concise, natural, and helpful. Ask one useful question at a time to gather missing info (event type, date, locality, guest count, contact number).
 4. Do not re-ask details the customer has already provided.
 5. If the user asks for photos or gallery, acknowledge the category.

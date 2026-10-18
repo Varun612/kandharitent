@@ -6,6 +6,7 @@ const { requireAdminAuth } = require('../middleware/authMiddleware');
 // Public endpoints
 router.get('/menu', cateringController.getCateringMenu);
 router.get('/categories', cateringController.getCateringCategories);
+router.get('/packages', cateringController.getCateringPackages);
 router.post('/enquire', cateringController.submitCateringEnquiry);
 router.post('/enquiries', cateringController.submitCateringEnquiry);
 

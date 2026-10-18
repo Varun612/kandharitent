@@ -21,7 +21,9 @@ import {
   FileCheck2,
   Eye,
   Award,
-  Users
+  Users,
+  Building2,
+  Utensils
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useEnquiry } from '../context/EnquiryContext';
@@ -36,7 +38,7 @@ const HomePage = () => {
   const [isLawnModalOpen, setIsLawnModalOpen] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
-  const { openDrawer } = useEnquiry();
+  const { openDrawer, addItem } = useEnquiry();
 
   // Video reel state
   const videoRef = useRef(null);
@@ -173,6 +175,11 @@ const HomePage = () => {
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold" />
               <span>Kanpur Road Opp. Pillar No. 37</span>
+            </span>
+            <span className="hidden sm:inline text-neutral-500">•</span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-brand-gold" />
+              <span>Approved Govt Contractors (DRDO Lucknow)</span>
             </span>
             <span className="hidden sm:inline text-neutral-500">•</span>
             <span className="flex items-center gap-1.5">
@@ -481,6 +488,293 @@ const HomePage = () => {
                 <span className="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Awadhi Specialities</span>
                 <h4 className="text-sm font-serif font-bold">Stainless & Brass Chafing Warmers</h4>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4.8 SIGNATURE PACKAGES WITH VERIFIED RATES */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-brand-cream/50 rounded-3xl p-8 sm:p-12 border border-brand-border/80 shadow-luxury space-y-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-brand-border/80 pb-6">
+            <div className="max-w-2xl space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-amber-200/70 text-amber-900 border border-amber-300 uppercase tracking-widest">
+                  Direct Rate Slips & Official Contracts
+                </span>
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-brand-purple">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  DRDO Approved Contractor
+                </span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-serif font-black text-brand-primary">
+                Transparent All-Inclusive Packages
+              </h2>
+              <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                No hidden charges or inflated estimates. These are our authentic, verified contract packages for wedding banqueting, tent setups, and institutional seminars in Lucknow.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-neutral-500 hidden sm:inline">Need something bespoke?</span>
+              <button
+                onClick={openDrawer}
+                className="px-5 py-2.5 rounded-xl royal-gradient text-white font-bold text-xs shadow-md hover:opacity-95 transition"
+              >
+                Custom Package Quote
+              </button>
+            </div>
+          </div>
+
+          {/* Packages Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* 1. Full Catering */}
+            <div className="bg-white rounded-2xl p-6 border border-neutral-200/90 shadow-xs flex flex-col justify-between hover:border-brand-gold hover:shadow-luxury transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Pure-Veg Banqueting
+                  </span>
+                  <Utensils className="w-4 h-4 text-brand-gold" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-serif font-bold text-brand-primary group-hover:text-brand-purple transition">
+                    Full Catering Service
+                  </h3>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-2xl font-serif font-black text-brand-primary">₹750</span>
+                    <span className="text-xs text-neutral-500 font-medium">/ person</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">For ≥ 250 persons • Custom for &lt;250</p>
+                </div>
+                <ul className="space-y-2 text-xs text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>17 printed courses: Welcome drinks, soups, chaat, live barbecue, paneer, breads & 2 hot desserts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Snacks & starters served for 2 to 2.5 hours</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Illuminated buffet counters, melamine/bone china crockery & uniformed stewards</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <Link
+                  to="/catering"
+                  className="w-full py-2.5 rounded-xl royal-gradient text-white font-bold text-xs shadow-xs hover:opacity-95 transition flex items-center justify-center gap-1.5"
+                >
+                  <span>Select Dishes & Book</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-brand-gold" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 2. Semi Catering */}
+            <div className="bg-white rounded-2xl p-6 border border-neutral-200/90 shadow-xs flex flex-col justify-between hover:border-brand-gold hover:shadow-luxury transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    Service & Setup
+                  </span>
+                  <Sparkles className="w-4 h-4 text-brand-gold" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-serif font-bold text-brand-primary group-hover:text-brand-purple transition">
+                    Semi Catering Service
+                  </h3>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-2xl font-serif font-black text-brand-primary">₹250</span>
+                    <span className="text-xs text-neutral-500 font-medium">/ person</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">For ≥ 250 persons • Custom for &lt;250</p>
+                </div>
+                <ul className="space-y-2 text-xs text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Stainless & brass buffet counter warmers and setup</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Complete table service, clearing staff & supervisors</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Ideal for families providing own raw food materials</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <Link
+                  to="/catering"
+                  className="w-full py-2.5 rounded-xl bg-neutral-100 text-neutral-800 font-bold text-xs hover:bg-neutral-200 transition flex items-center justify-center gap-1.5"
+                >
+                  <span>Explore Semi Catering</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 3. Standard Wedding Package */}
+            <div className="bg-white rounded-2xl p-6 border-2 border-brand-gold/60 shadow-md flex flex-col justify-between hover:shadow-luxury transition-all relative group">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-gold text-brand-dark text-[10px] font-extrabold uppercase tracking-widest shadow-xs">
+                Most Popular
+              </div>
+              <div className="space-y-4 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-50 text-brand-purple border border-purple-200">
+                    Complete Wedding
+                  </span>
+                  <Award className="w-4 h-4 text-brand-gold" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-serif font-bold text-brand-primary group-hover:text-brand-purple transition">
+                    Standard Wedding Package
+                  </h3>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-2xl font-serif font-black text-brand-primary">₹50,000</span>
+                    <span className="text-xs text-neutral-500 font-medium">all inclusive</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">Official Handwritten Booking Slip Rate</p>
+                </div>
+                <ul className="space-y-2 text-xs text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Tent Setup:</strong> Complete waterproof covered shamiana canopy</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Illumination:</strong> Ambient lighting, spotlights, chandeliers</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Floral Decor:</strong> Fresh entrance gate & stage backdrop garland</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>DJ Sound:</strong> Professional wedding sound console & speakers</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: 'pkg-standard-wedding',
+                      name: 'Standard Wedding Package (Tent + Light + Flower + DJ - ₹50,000)',
+                      category: 'Package Deals',
+                      imageUrl: '/media/rich-decor/decor-1.jpg'
+                    }, 1);
+                  }}
+                  className="w-full py-2.5 rounded-xl royal-gradient text-white font-bold text-xs shadow-xs hover:opacity-95 transition flex items-center justify-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Enquire ₹50,000 Package</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 4. Grand Royal Wedding Setup */}
+            <div className="bg-white rounded-2xl p-6 border border-neutral-200/90 shadow-xs flex flex-col justify-between hover:border-brand-gold hover:shadow-luxury transition-all group">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                    Grand Royal
+                  </span>
+                  <Building2 className="w-4 h-4 text-brand-gold" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-serif font-bold text-brand-primary group-hover:text-brand-purple transition">
+                    Grand Royal Setup
+                  </h3>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-2xl font-serif font-black text-brand-primary">₹1,10,000</span>
+                    <span className="text-xs text-neutral-500 font-medium">all inclusive</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">Kanpur Road Signature Wedding Benchmark</p>
+                </div>
+                <ul className="space-y-2 text-xs text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>20×200 ft Grand Passage Gallery with lights & fresh flowers</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>14 Maharaja Sofas, 200 Highback Chairs with ribbon covers</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>16×24 ft Royal Stage, 16×16 ft Mandap, 2 Welcome Gates & DJ setup</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <button
+                  onClick={() => {
+                    addItem({
+                      id: 'pkg-grand-royal-wedding',
+                      name: 'Grand Royal Wedding Setup (VIP 20x200 Gallery, 14 Sofas, 200 Chairs, Stage, Mandap, DJ - ₹1,10,000)',
+                      category: 'Package Deals',
+                      imageUrl: '/media/rich-decor/IMG_3962.JPG'
+                    }, 1);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-neutral-900 text-white font-bold text-xs hover:bg-neutral-800 transition flex items-center justify-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Enquire ₹1,10,000 Setup</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* D.R.D.O. Approved Government Contractor Banner */}
+          <div className="bg-neutral-900 text-white p-6 rounded-2xl border border-brand-gold/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-brand-gold/20 border border-brand-gold/40 flex items-center justify-center text-brand-gold shrink-0">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-gold">
+                    Official Institutional Credentials
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-neutral-300">
+                    18% GST Compliant
+                  </span>
+                </div>
+                <h4 className="text-sm sm:text-base font-serif font-bold text-white">
+                  Approved Government Contractors — D.R.D.O. Lucknow Benchmarks
+                </h4>
+                <p className="text-xs text-neutral-300 max-w-2xl">
+                  Contracted for Defence Research & Development Organisation (DRDO Lucknow) seminars. Heavy truss staging, podiums, ceremonial brass diya lamps, cordless audio, and 80+ LED par setups available with official billing.
+                </p>
+              </div>
+            </div>
+            <div className="shrink-0 flex items-center gap-3">
+              <a
+                href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20We%20require%20an%20institutional%2Fcorporate%20seminar%20setup%20with%20GST%20quotation."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Govt / Corporate Desk</span>
+              </a>
+              <button
+                onClick={() => {
+                  addItem({
+                    id: 'pkg-corporate-institutional',
+                    name: 'Corporate & Government Seminar Setup (DRDO Approved Contractor Benchmark)',
+                    category: 'Package Deals',
+                    imageUrl: '/media/stage/stage-1.jpg'
+                  }, 1);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition"
+              >
+                Request Seminar Quote
+              </button>
             </div>
           </div>
         </div>

@@ -55,24 +55,52 @@ const CateringPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load menu data
+  // Official verified packages state
+  const [packages, setPackages] = useState([]);
+  const [selectedPackageId, setSelectedPackageId] = useState('pkg-full-catering');
+
+  // Load menu and packages data
   useEffect(() => {
-    const fetchMenu = async () => {
+    const fetchMenuAndPackages = async () => {
       setIsLoading(true);
       try {
-        const res = await api.getCateringMenu();
-        if (res.success) {
-          setCategories(res.categories || []);
-          setDishes(res.data || []);
+        const [menuRes, pkgRes] = await Promise.allSettled([
+          api.getCateringMenu(),
+          api.getCateringPackages()
+        ]);
+        if (menuRes.status === 'fulfilled' && menuRes.value.success) {
+          setCategories(menuRes.value.categories || []);
+          setDishes(menuRes.value.data || []);
+        }
+        if (pkgRes.status === 'fulfilled' && pkgRes.value.success) {
+          setPackages(pkgRes.value.data || []);
         }
       } catch (err) {
-        console.warn('Failed to fetch catering menu:', err);
+        console.warn('Failed to fetch catering data:', err);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchMenu();
+    fetchMenuAndPackages();
   }, []);
+
+  const activePackage = useMemo(() => {
+    return packages.find(p => p.id === selectedPackageId) || {
+      id: 'pkg-full-catering',
+      name: 'Royal Full Catering Package',
+      ratePerPerson: 750,
+      minGuests: 250,
+      description: 'Complete 17-Course Royal Spread'
+    };
+  }, [packages, selectedPackageId]);
+
+  const estimatedTotal = useMemo(() => {
+    const guests = Number(formData.guestCount) || 0;
+    if (guests >= 250 && activePackage?.ratePerPerson) {
+      return guests * activePackage.ratePerPerson;
+    }
+    return null;
+  }, [formData.guestCount, activePackage]);
 
   // Prefill user details if authenticated
   useEffect(() => {
@@ -156,13 +184,19 @@ const CateringPage = () => {
   // Generate WhatsApp formatted text
   const getWhatsAppMessage = () => {
     let msg = `*Namaste Kandhari Tent & Caterers!* 🙏\n`;
-    msg += `I have created a custom catering menu for my upcoming event at ${formData.eventVenue}.\n\n`;
-    msg += `*Event Details:*\n`;
-    msg += `• Name: ${formData.name || 'Guest'}\n`;
+    msg += `I have selected my catering menu for my upcoming celebration at ${formData.eventVenue}.\n\n`;
+    msg += `*Event & Package Details:*\n`;
+    msg += `• Name: ${formData.name || 'Valued Guest'}\n`;
     msg += `• Phone: ${formData.phone || 'N/A'}\n`;
     if (formData.eventDate) msg += `• Date: ${formData.eventDate}\n`;
-    msg += `• Estimated Guests: ${formData.guestCount}\n\n`;
-    msg += `*Selected Custom Menu (${totalSelectedCount} Dishes):*\n`;
+    msg += `• Estimated Guests: ${formData.guestCount}\n`;
+    msg += `• Chosen Package: *${activePackage?.name || 'Custom Catering'}*\n`;
+    if (estimatedTotal) {
+      msg += `• Benchmark Rate: ₹${activePackage.ratePerPerson}/person (Estimated Subtotal: ₹${estimatedTotal.toLocaleString('en-IN')})\n`;
+    } else {
+      msg += `• Pricing: Customised estimate based on menu selections (< 250 pax)\n`;
+    }
+    msg += `\n*Selected Custom Menu (${totalSelectedCount} Dishes across ${Object.keys(categoryCounts).length} Categories):*\n`;
 
     categories.forEach(cat => {
       const catSelected = Object.values(selectedDishes).filter(d => d.category === cat.name);
@@ -178,7 +212,8 @@ const CateringPage = () => {
       msg += `\n*Special Requirements:* ${formData.specialInstructions}\n`;
     }
 
-    msg += `\nPlease review my custom menu and provide a customized catering quotation. Thank you!`;
+    msg += `\n*Note:* All Snacks & Starters served for 2 to 2.5 hours only.\n`;
+    msg += `\nPlease confirm availability and provide a tailored catering proposal. Thank you!`;
     return encodeURIComponent(msg);
   };
 
@@ -209,6 +244,9 @@ const CateringPage = () => {
         eventVenue: formData.eventVenue,
         specialInstructions: formData.specialInstructions,
         selectedDishes: Object.values(selectedDishes),
+        selectedPackage: activePackage,
+        ratePerPerson: activePackage?.ratePerPerson || null,
+        estimatedTotal: estimatedTotal,
         userId: customerUser?.id || null
       };
 
@@ -315,6 +353,232 @@ const CateringPage = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Official Verified Banquet Packages Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 print:hidden">
+        <div className="bg-gradient-to-br from-white to-amber-50/40 rounded-3xl p-6 sm:p-8 border border-brand-gold/30 shadow-xl space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-brand-gold/15 text-brand-dark border border-brand-gold/30">
+                <Award className="w-3.5 h-3.5 text-brand-gold" />
+                <span>Authentic Booking Benchmarks (From Official Physical Rate Slips)</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-serif font-black text-brand-primary mt-2">
+                Choose Your Catering Plan & Live Estimate
+              </h2>
+              <p className="text-xs text-neutral-600 mt-1 max-w-2xl">
+                Grounded directly in Kandhari Tent &amp; Caterers official contract bookings. Select a package to calibrate your custom menu options and live estimated cost.
+              </p>
+            </div>
+            
+            {/* Service Rule Pill from Printed Menu */}
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 max-w-xs text-xs text-amber-900 flex items-start gap-2">
+              <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-[11px] leading-snug">
+                <strong>Official Menu Rule:</strong> All snacks &amp; starters served for <strong>2 to 2.5 hours only</strong>. Full buffet maintained throughout the event.
+              </p>
+            </div>
+          </div>
+
+          {/* 3 Package Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Package 1: Full Catering */}
+            <div 
+              onClick={() => setSelectedPackageId('pkg-full-catering')}
+              className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                selectedPackageId === 'pkg-full-catering'
+                  ? 'border-brand-purple bg-purple-50/40 shadow-md ring-2 ring-brand-purple/20'
+                  : 'border-neutral-200 bg-white hover:border-neutral-300'
+              }`}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-purple text-white">
+                    Most Popular
+                  </span>
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                    selectedPackageId === 'pkg-full-catering' ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300'
+                  }`}>
+                    {selectedPackageId === 'pkg-full-catering' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-serif font-bold text-base text-neutral-900">Royal Full Catering</h3>
+                  <p className="text-xs text-neutral-500">Comprehensive 17-Course Spread</p>
+                </div>
+
+                <div className="pt-1">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-brand-primary">₹750</span>
+                    <span className="text-xs text-neutral-500 font-medium">/ person (≥ 250 pax)</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                    Verified rate for weddings &amp; grand receptions
+                  </p>
+                </div>
+
+                <ul className="text-xs space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>All 17 course sections included</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Live Chinese, Italian &amp; Chokha Bati stalls</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Desserts &amp; traditional hot sweets</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Full chafing line with trained stewards</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Package 2: Semi Catering */}
+            <div 
+              onClick={() => setSelectedPackageId('pkg-semi-catering')}
+              className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                selectedPackageId === 'pkg-semi-catering'
+                  ? 'border-brand-purple bg-purple-50/40 shadow-md ring-2 ring-brand-purple/20'
+                  : 'border-neutral-200 bg-white hover:border-neutral-300'
+              }`}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
+                    Essential Banquet
+                  </span>
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                    selectedPackageId === 'pkg-semi-catering' ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300'
+                  }`}>
+                    {selectedPackageId === 'pkg-semi-catering' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-serif font-bold text-base text-neutral-900">Standard Semi Catering</h3>
+                  <p className="text-xs text-neutral-500">Daytime Functions &amp; Poojas</p>
+                </div>
+
+                <div className="pt-1">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-brand-primary">₹250</span>
+                    <span className="text-xs text-neutral-500 font-medium">/ person (≥ 250 pax)</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">
+                    Core main courses, breads &amp; drinks
+                  </p>
+                </div>
+
+                <ul className="text-xs space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Select core gravies &amp; dal</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Live tawa hot rotis &amp; rice</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Welcome beverage station</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Standard chafers &amp; service team</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Package 3: Custom / Under 250 */}
+            <div 
+              onClick={() => setSelectedPackageId('pkg-custom-catering')}
+              className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+                selectedPackageId === 'pkg-custom-catering'
+                  ? 'border-brand-purple bg-purple-50/40 shadow-md ring-2 ring-brand-purple/20'
+                  : 'border-neutral-200 bg-white hover:border-neutral-300'
+              }`}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    &lt; 250 Guests
+                  </span>
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                    selectedPackageId === 'pkg-custom-catering' ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300'
+                  }`}>
+                    {selectedPackageId === 'pkg-custom-catering' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-serif font-bold text-base text-neutral-900">Bespoke Gathering</h3>
+                  <p className="text-xs text-neutral-500">50 to 249 Guests</p>
+                </div>
+
+                <div className="pt-1">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-brand-primary">Custom Quote</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">
+                    Price varies based on dish choices
+                  </p>
+                </div>
+
+                <ul className="text-xs space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Flexible guest count (50-249 pax)</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Custom live counter selections</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Personalized catering manager estimate</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Delivered at Dwarka Shri Lawn or private venue</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Estimate Calculator Ribbon */}
+          {estimatedTotal && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+                  ₹
+                </div>
+                <div>
+                  <span className="font-bold text-emerald-950">
+                    Live Banquet Calculation: {activePackage.name}
+                  </span>
+                  <p className="text-emerald-800 text-[11px]">
+                    ₹{activePackage.ratePerPerson}/person × {formData.guestCount} guests
+                  </p>
+                </div>
+              </div>
+              <div className="text-left sm:text-right">
+                <span className="text-lg font-black text-emerald-900">
+                  ₹{estimatedTotal.toLocaleString('en-IN')}
+                </span>
+                <p className="text-[10px] text-emerald-700">Estimated banquet subtotal (excl. venue/decor)</p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -596,15 +860,20 @@ const CateringPage = () => {
       {/* Floating Bottom Menu Bar (Mobile & Quick Access) */}
       <div className="fixed bottom-4 left-4 right-4 z-40 max-w-xl mx-auto bg-brand-dark/95 backdrop-blur-md text-white rounded-2xl p-3 shadow-2xl border border-brand-purple/40 flex items-center justify-between gap-3 print:hidden">
         <div className="flex items-center gap-3 pl-2">
-          <div className="w-10 h-10 rounded-xl bg-brand-purple/40 border border-brand-gold/30 flex items-center justify-center text-brand-gold font-serif font-bold text-base">
+          <div className="w-10 h-10 rounded-xl bg-brand-purple/40 border border-brand-gold/30 flex items-center justify-center text-brand-gold font-serif font-bold text-base shrink-0">
             {totalSelectedCount}
           </div>
           <div>
-            <p className="text-xs font-bold text-neutral-100">
-              {totalSelectedCount === 0 ? 'No dishes selected yet' : `${totalSelectedCount} Dishes Chosen`}
+            <p className="text-xs font-bold text-neutral-100 flex items-center gap-1.5 flex-wrap">
+              <span>{totalSelectedCount === 0 ? 'No dishes selected yet' : `${totalSelectedCount} Dishes Chosen`}</span>
+              {estimatedTotal && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-500/30">
+                  ₹{estimatedTotal.toLocaleString('en-IN')}
+                </span>
+              )}
             </p>
             <p className="text-[10px] text-neutral-400">
-              {totalSelectedCount === 0 ? 'Select dishes from each category' : 'Tap to review custom menu'}
+              {activePackage?.name ? `${activePackage.name} (${activePackage.ratePerPerson ? `₹${activePackage.ratePerPerson}/pp` : 'Custom'})` : 'Tap to review'}
             </p>
           </div>
         </div>
@@ -644,15 +913,27 @@ const CateringPage = () => {
               {/* Drawer Header */}
               <div className="p-6 bg-brand-dark text-white border-b border-brand-purple/40 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-brand-gold">
-                    Banquet Selection
-                  </span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-brand-gold">
+                      Banquet Selection
+                    </span>
+                    {activePackage && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-brand-goldLight font-semibold border border-white/15">
+                        {activePackage.name}
+                      </span>
+                    )}
+                  </div>
                   <h3 className="text-lg font-serif font-bold text-neutral-100">
                     Your Custom Catering Menu
                   </h3>
-                  <p className="text-xs text-neutral-300">
-                    {totalSelectedCount} items selected across {Object.keys(categoryCounts).length} categories
-                  </p>
+                  <div className="flex items-center gap-2 text-xs text-neutral-300">
+                    <span>{totalSelectedCount} items chosen</span>
+                    {estimatedTotal && (
+                      <span className="text-emerald-400 font-bold">
+                        • Est: ₹{estimatedTotal.toLocaleString('en-IN')}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsDrawerOpen(false)}
@@ -778,6 +1059,10 @@ const CateringPage = () => {
                 </p>
 
                 <div className="bg-brand-cream/60 p-4 rounded-2xl border border-brand-border/60 text-xs text-neutral-700 text-left space-y-1.5">
+                  <p><strong>Selected Package:</strong> <span className="font-semibold text-brand-purple">{activePackage?.name || 'Custom Catering'}</span></p>
+                  {activePackage?.ratePerPerson ? (
+                    <p><strong>Estimated Budget:</strong> ₹{activePackage.ratePerPerson}/person {estimatedTotal ? `(approx. ₹${estimatedTotal.toLocaleString('en-IN')} for ${formData.guestCount} guests)` : ''}</p>
+                  ) : null}
                   <p><strong>Name:</strong> {formData.name}</p>
                   <p><strong>Phone:</strong> {formData.phone}</p>
                   <p><strong>Estimated Guests:</strong> {formData.guestCount}</p>
@@ -810,10 +1095,34 @@ const CateringPage = () => {
                     Tailored Pricing
                   </span>
                   <h3 className="text-xl font-serif font-bold text-brand-primary">
-                    Request Custom Catering Quote
+                    Request Catering Quote
                   </h3>
                   <p className="text-xs text-neutral-500">
-                    Reviewing {totalSelectedCount} custom dishes. Enter your event details below:
+                    Reviewing {totalSelectedCount} selected dishes. Enter your event details below:
+                  </p>
+                </div>
+
+                {/* Selected Package Banner in Modal */}
+                <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3.5 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-brand-primary flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
+                      {activePackage?.name || 'Custom Catering'}
+                    </span>
+                    <span className="font-extrabold text-brand-purple">
+                      {activePackage?.ratePerPerson ? `₹${activePackage.ratePerPerson}/person` : 'Custom Quote'}
+                    </span>
+                  </div>
+                  {activePackage?.ratePerPerson && formData.guestCount && (
+                    <div className="text-[11px] text-amber-800 flex items-center justify-between border-t border-amber-200/60 pt-1.5 font-medium">
+                      <span>Est. Catering Cost ({formData.guestCount} guests):</span>
+                      <span className="font-bold text-neutral-900">
+                        ₹{(activePackage.ratePerPerson * formData.guestCount).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-amber-700 italic border-t border-amber-200/40 pt-1">
+                    * Printed Menu Rule: All Snacks & Starters served for 2 to 2.5 hours only. Generator diesel provided by client.
                   </p>
                 </div>
 
@@ -935,13 +1244,18 @@ const CateringPage = () => {
             <p><strong>Customer:</strong> {formData.name || 'Valued Guest'}</p>
             <p><strong>Phone:</strong> {formData.phone || 'N/A'}</p>
             <p><strong>Venue:</strong> {formData.eventVenue}</p>
+            <p><strong>Package:</strong> {activePackage?.name || 'Custom Catering'} {activePackage?.ratePerPerson ? `(@ ₹${activePackage.ratePerPerson}/person)` : ''}</p>
           </div>
           <div>
             <p><strong>Event Date:</strong> {formData.eventDate || 'To be scheduled'}</p>
             <p><strong>Estimated Guests:</strong> {formData.guestCount}</p>
             <p><strong>Total Dishes:</strong> {totalSelectedCount}</p>
+            {activePackage?.ratePerPerson && formData.guestCount && (
+              <p><strong>Estimated Total:</strong> ₹{(activePackage.ratePerPerson * formData.guestCount).toLocaleString('en-IN')}</p>
+            )}
           </div>
         </div>
+        <p className="text-[11px] font-sans italic text-neutral-600 mb-4">* Note: All Snacks & Starters served for 2 to 2.5 hours only. Generator diesel to be provided by client.</p>
 
         <div className="space-y-4">
           {categories.map(cat => {

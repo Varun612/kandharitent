@@ -108,6 +108,12 @@ const runTests = async () => {
       throw new Error('Failed to submit catering quotation enquiry');
     }
 
+    // Test Packages Endpoint
+    const packagesRes = await testEndpoint('/api/catering/packages');
+    console.log(`[Packages] GET /api/catering/packages: HTTP ${packagesRes.status} | Total Packages: ${packagesRes.data.data?.length}`);
+    if (packagesRes.status !== 200 || !packagesRes.data.success || packagesRes.data.data?.length < 4) {
+      throw new Error('Expected at least 4 packages from /api/catering/packages');
+    }
 
     // 4. Venue & Lawn Details
     console.log('\n--- Test 4: Dwarka Shri Lawn Details ---');

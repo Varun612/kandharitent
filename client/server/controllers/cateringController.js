@@ -50,6 +50,20 @@ const getCateringCategories = async (req, res) => {
 };
 
 /**
+ * GET /api/catering/packages
+ * Returns verified catering & event packages from physical booking documents
+ */
+const getCateringPackages = async (req, res) => {
+  try {
+    const db = getLocalDb();
+    const packages = db.packages || [];
+    return res.json({ success: true, count: packages.length, data: packages });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Server error retrieving packages' });
+  }
+};
+
+/**
  * POST /api/catering/items (Admin)
  * Add a new dish to the catering menu
  */
@@ -175,7 +189,10 @@ const submitCateringEnquiry = async (req, res) => {
       locality,
       selectedDishes,
       specialInstructions,
-      userId
+      userId,
+      selectedPackage,
+      ratePerPerson,
+      estimatedTotal
     } = req.body;
 
     const finalPhone = (customerPhone || phone || whatsappNumber || '').toString().trim();
@@ -198,7 +215,10 @@ const submitCateringEnquiry = async (req, res) => {
       customerEmail: finalEmail,
       email: finalEmail,
       serviceType: 'Catering & Banquet Service',
-      serviceRequired: 'Awadhi Royal Catering & Banquet Menu',
+      serviceRequired: selectedPackage ? `Catering: ${selectedPackage.name || selectedPackage}` : 'Awadhi Royal Catering & Banquet Menu',
+      selectedPackage: selectedPackage || null,
+      ratePerPerson: ratePerPerson || null,
+      estimatedTotal: estimatedTotal || null,
       eventDate: eventDate || '',
       guestCount: Number(guestCount) || 200,
       locality: eventVenue || locality || 'Dwarka Shri Lawn, Kanpur Road',
@@ -209,7 +229,7 @@ const submitCateringEnquiry = async (req, res) => {
       customMenu: dishesList,
       totalDishesSelected: dishesList.length,
       createdAt: new Date().toISOString(),
-      notes: `Custom catering quotation requested for ${guestCount || 'unspecified'} guests with ${dishesList.length} selected dishes.`
+      notes: `Custom catering quotation requested for ${guestCount || 'unspecified'} guests with ${dishesList.length} selected dishes.${selectedPackage ? ` Package: ${selectedPackage.name || selectedPackage}` : ''}`
     };
 
     const db = getLocalDb();
@@ -225,7 +245,8 @@ const submitCateringEnquiry = async (req, res) => {
         customerName: enquiryRecord.customerName,
         eventDate: enquiryRecord.eventDate,
         guestCount: enquiryRecord.guestCount,
-        dishesCount: dishesList.length
+        dishesCount: dishesList.length,
+        selectedPackage: enquiryRecord.selectedPackage
       }
     });
   } catch (error) {
@@ -237,6 +258,7 @@ const submitCateringEnquiry = async (req, res) => {
 module.exports = {
   getCateringMenu,
   getCateringCategories,
+  getCateringPackages,
   addCateringItem,
   updateCateringItem,
   deleteCateringItem,

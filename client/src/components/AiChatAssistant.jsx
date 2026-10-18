@@ -60,13 +60,19 @@ const getClientAiResponse = (text) => {
 
   if (lower.includes('cater') || lower.includes('menu') || lower.includes('food') || lower.includes('khana') || lower.includes('dish') || lower.includes('starter') || lower.includes('sweet') || lower.includes('paneer') || lower.includes('chaat')) {
     return {
-      text: `We provide grand royal pure-vegetarian wedding catering with 14 specialized banquet categories:\n\n• **Welcome Starters & Drinks:** Kesar Thandai, Virgin Mojito, Awadhi Aam Panna\n• **Live Counters:** Lucknowi Matar Tikki Chaat, Kolkata Puchka (5 waters), Butter Pav Bhaji\n• **Barbecue & Tandoor:** Paneer Tikka Angara, Malai Shashlik, Tandoori Soya Chaap\n• **Royal Main Course:** Shahi Paneer Awadhi Khas, Royal Malai Kofta, Dal Makhani Bukhara, Shahi Dum Biryani\n• **Live International & Regional:** Live Pasta Station, Farmhouse Pizza, South Indian Dosa\n• **Desserts & Sweets:** Live Kesaria Jalebi with Rabri, Hot Gulab Jamun, Moong Dal Halwa, Banarasi Paan\n\n👉 You can design your customized menu with selection rules on our **[Catering Menu Page](/catering)**, or share your guest count for a quotation!`
+      text: `We provide 100% pure-vegetarian Awadhi banqueting across 17 printed brochure courses (Welcome Drinks, Soups, Live Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).\n\n• **Full Catering Package:** ₹750/person (for ≥250 guests)\n• **Semi Catering Package:** ₹250/person (for ≥250 guests; includes buffet warmers, setup & service staff)\n• **Printed Brochure Rule:** All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.\n\n👉 You can explore all 17 categories and design your custom menu directly on our **[Catering Page](/catering)**!`
     };
   }
 
-  if (lower.includes('rate') || lower.includes('price') || lower.includes('cost') || lower.includes('budget') || lower.includes('package') || lower.includes('quotation')) {
+  if (lower.includes('rate') || lower.includes('price') || lower.includes('cost') || lower.includes('budget') || lower.includes('package') || lower.includes('quotation') || lower.includes('kitna')) {
     return {
-      text: `At Kandhari Tent & Caterers, we offer tailored quotes with 100% transparent pricing and no hidden costs.\n\nBecause every event's space and equipment needs vary, please share your **event date**, **expected guests**, and **locality**, or call our desk directly at **9305465848** for an instant consultation.`
+      text: `Here are our official, verified booking packages and contract rates:\n\n• **Standard Wedding Package (₹50,000):** Waterproof Tent + Ambient Lighting + Fresh Flower Gate & Stage Decor + DJ Sound Setup.\n• **Grand Royal Wedding Setup (₹1,10,000):** Signature Kanpur Road setup with 20×200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16×24 ft Stage, 16×16 ft Mandap, 2 Gates & DJ.\n• **Catering:** Full Catering at ₹750/person | Semi Catering at ₹250/person (≥250 guests).\n• **Approved Govt Contractors:** DRDO Lucknow seminar setups with 18% GST billing.\n\nWould you like a tailored quotation for your specific event date?`
+    };
+  }
+
+  if (lower.includes('chair') || lower.includes('sofa') || lower.includes('table') || lower.includes('kursi') || lower.includes('furniture') || lower.includes('carpet') || lower.includes('takhat') || lower.includes('gadda') || (lower.includes('rent') && !lower.includes('tent'))) {
+    return {
+      text: `Here are our verified per-unit equipment rental rates from our Lucknow warehouse:\n\n• **Highback Banquet Chair:** ₹70 / pc\n• **VIP Chair:** ₹50 / pc | **PVC Chair:** ₹20 / pc\n• **Maharaja 2-Seater Sofa:** ₹600 / pc\n• **Center Table:** ₹300 / pc\n• **Mez Set (Table 2.5×5 ft):** ₹80 / set\n• **Round Table with Cover:** ₹150 – ₹200 / pc\n• **Takhat:** ₹80 | **Gadda (Mattress):** ₹60 | **Drum:** ₹100\n• **Red / 3D Carpet:** ₹2 / sq.ft\n\nAdd any item to your list in our **[Catalogue](/catalogue)** for an instant estimate!`
     };
   }
 
@@ -504,11 +510,11 @@ const AiChatAssistant = () => {
   // Quick Action Chips
   const quickActions = [
     'Aapke lawn ki photos hain?',
-    'Khaane ka menu bhejiye',
-    'Stage aur mandap decor dikhayein',
+    'Catering package & menu rate?',
+    'Wedding packages bataiye (₹50k / ₹1.1L)',
+    'Chairs & sofa rental rates kya hain?',
     'German hangar tent chahiye',
-    'Grand entrance gates dikhao',
-    'Mujhe custom quotation chahiye'
+    'Stage aur mandap decor dikhayein'
   ];
 
   return (

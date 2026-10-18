@@ -114,6 +114,7 @@ export const api = {
     return request(`/catering/menu${query ? `?${query}` : ''}`);
   },
   getCateringCategories: () => request('/catering/categories'),
+  getCateringPackages: () => request('/catering/packages'),
   submitCateringEnquiry: (enquiryData) => request('/catering/enquire', { method: 'POST', body: JSON.stringify(enquiryData) }),
   addCateringItem: (itemData) => request('/catering/items', { method: 'POST', body: JSON.stringify(itemData) }),
   updateCateringItem: (id, updates) => request(`/catering/items/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
