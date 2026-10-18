@@ -414,6 +414,78 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* 4.5 AWADHI ROYAL CATERING SHOWCASE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-neutral-200/80 shadow-luxury space-y-8">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div className="max-w-2xl space-y-3">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
+                <span>100% Pure Vegetarian Awadhi & North Indian Banqueting</span>
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-serif font-black text-brand-primary">
+                Royal Wedding Catering & Live Food Counters
+              </h2>
+              <p className="text-sm text-neutral-600 leading-relaxed">
+                Elevate your celebration with rich Lucknowi culinary heritage. From traditional <strong>Matar Ki Chaat</strong> and smoky <strong>Paneer Tikka Angara</strong> to slow-simmered <strong>Dal Bukhara</strong> and live <strong>Kesaria Jalebi with Rabri</strong>, we craft memorable dining experiences.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/catering"
+                className="px-6 py-3.5 rounded-xl royal-gradient text-white text-xs font-bold shadow-md hover:opacity-95 transition flex items-center gap-2"
+              >
+                <span>Design Custom Catering Menu</span>
+                <ArrowRight className="w-4 h-4 text-brand-gold" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Real Catering Setup Photos Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-neutral-100 shadow-xs border border-neutral-200">
+              <img
+                src="/media/catering/catering-1.jpg"
+                alt="Laser-cut illuminated buffet counter"
+                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end text-white">
+                <span className="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Live Presentation</span>
+                <h4 className="text-sm font-serif font-bold">Laser-Cut Illuminated Buffet Line</h4>
+              </div>
+            </div>
+
+            <div className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-neutral-100 shadow-xs border border-neutral-200">
+              <img
+                src="/media/catering/catering-2.jpg"
+                alt="Dwarka Shri Lawn banquet dining"
+                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end text-white">
+                <span className="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Lawn Banquets</span>
+                <h4 className="text-sm font-serif font-bold">Starlight Open-Air Food Counters</h4>
+              </div>
+            </div>
+
+            <div className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-neutral-100 shadow-xs border border-neutral-200">
+              <img
+                src="/media/catering/catering-3.jpg"
+                alt="Hot chafing dishes and Awadhi buffet"
+                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end text-white">
+                <span className="text-[10px] font-bold text-brand-gold uppercase tracking-wider">Awadhi Specialities</span>
+                <h4 className="text-sm font-serif font-bold">Stainless & Brass Chafing Warmers</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 5. CELEBRATION SHOWCASE & RENTAL CATEGORIES */}
       <section id="celebrations" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-3 mb-12">

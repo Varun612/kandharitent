@@ -1,25 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Eye, Image as ImageIcon, MessageSquare, ArrowRight } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Sparkles, Eye, Image as ImageIcon, MessageSquare, ArrowRight, Tag, CheckCircle2 } from 'lucide-react';
 import { api } from '../services/api';
 import GalleryViewer from '../components/GalleryViewer';
 
-const GALLERY_CATEGORIES = [
+export const GALLERY_SECTIONS = [
   'All',
-  'Entrances',
-  'Floral decoration',
-  'Lighting',
-  'Stage and mandap',
-  'Tent structures',
-  'Catering',
-  'Lawn and venue',
-  'Other events'
+  'Actual wedding and reception setups',
+  'Dwarka Shri Lawn venue and grounds',
+  'Stage and mandap designs',
+  'Tent structures and canopy layouts',
+  'Seating and furniture arrangements',
+  'Floral and lighting decor',
+  'Catering and food counters'
 ];
 
 const GalleryPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCat = searchParams.get('category') || 'All';
+
   const [galleryItems, setGalleryItems] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [categories, setCategories] = useState(GALLERY_SECTIONS);
+  const [selectedCategory, setSelectedCategory] = useState(initialCat);
   const [activeImageIndex, setActiveImageIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Sync category state with URL parameter if present
+  useEffect(() => {
+    const catParam = searchParams.get('category');
+    if (catParam && GALLERY_SECTIONS.includes(catParam)) {
+      setSelectedCategory(catParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -28,6 +40,9 @@ const GalleryPage = () => {
         const res = await api.getGallery(selectedCategory !== 'All' ? selectedCategory : undefined);
         if (res.success && res.data) {
           setGalleryItems(res.data);
+          if (res.categories && res.categories.length > 0) {
+            setCategories(['All', ...res.categories]);
+          }
         }
       } catch (err) {
         console.warn('Error fetching gallery items, using defaults', err);
@@ -37,6 +52,16 @@ const GalleryPage = () => {
     };
     fetchGallery();
   }, [selectedCategory]);
+
+  const handleCategoryChange = (cat) => {
+    setSelectedCategory(cat);
+    if (cat === 'All') {
+      searchParams.delete('category');
+      setSearchParams(searchParams);
+    } else {
+      setSearchParams({ category: cat });
+    }
+  };
 
   const activeImage = activeImageIndex !== null ? galleryItems[activeImageIndex] : null;
 
@@ -68,25 +93,25 @@ const GalleryPage = () => {
       
       {/* Header */}
       <div className="text-center space-y-3">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-gold text-brand-dark">
+        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-brand-gold/20 text-brand-gold border border-brand-gold/40">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Real Wedding & Celebration Showcase</span>
+          <span>Real Wedding & Banquet Showcase (Lucknow)</span>
         </span>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-black tracking-tight text-brand-primary">
           Event & Venue Gallery
         </h1>
         <p className="text-sm text-neutral-600 max-w-2xl mx-auto leading-relaxed">
-          Explore authentic photographs of our tent house structures, fresh flower mandaps, grand welcome gates, banquet dining, and celebrations hosted at <strong>Dwarka Shri Lawn</strong>, Kanpur Road, Lucknow.
+          Authentic photographs of our heavy German hangar tents, royal carved wedding stages, Vedic phera mandaps, illuminated catering lines, and majestic celebrations at <strong>Dwarka Shri Lawn</strong>, Kanpur Road, Lucknow.
         </p>
       </div>
 
-      {/* Filter Tabs */}
+      {/* 7-Section Filter Tabs */}
       <div className="flex justify-start sm:justify-center overflow-x-auto pb-2 no-scrollbar">
         <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-neutral-200 shadow-xs">
-          {GALLERY_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
                 selectedCategory === cat
                   ? 'royal-gradient text-white shadow-sm'
@@ -98,6 +123,26 @@ const GalleryPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Category Description Banner */}
+      {selectedCategory !== 'All' && (
+        <div className="bg-brand-cream/60 border border-brand-border/60 rounded-2xl p-4 flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-primary">
+              Showing Section: {selectedCategory}
+            </h3>
+            <p className="text-[11px] text-neutral-500 mt-0.5">
+              Genuine photographs from recent events and setups in Lucknow.
+            </p>
+          </div>
+          <button
+            onClick={() => handleCategoryChange('All')}
+            className="text-xs text-brand-purple font-semibold hover:underline"
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
 
       {/* Gallery Grid */}
       {isLoading ? (
@@ -111,10 +156,10 @@ const GalleryPage = () => {
         <div className="py-20 text-center bg-white rounded-3xl border border-dashed border-neutral-300 p-8 space-y-3">
           <ImageIcon className="w-12 h-12 text-neutral-300 mx-auto" />
           <h3 className="text-base font-serif font-bold text-neutral-800">
-            No photos found in this category
+            No photos found in this section
           </h3>
           <button
-            onClick={() => setSelectedCategory('All')}
+            onClick={() => handleCategoryChange('All')}
             className="px-4 py-2 rounded-xl bg-purple-50 text-brand-purple text-xs font-bold hover:bg-purple-100 transition"
           >
             Show All Photos
@@ -126,7 +171,7 @@ const GalleryPage = () => {
             <div
               key={item.id || index}
               onClick={() => setActiveImageIndex(index)}
-              className="group relative aspect-4/3 rounded-2xl overflow-hidden bg-neutral-100 shadow-sm hover:shadow-royal cursor-pointer transition duration-300"
+              className="group relative aspect-4/3 rounded-2xl overflow-hidden bg-neutral-100 shadow-sm hover:shadow-royal cursor-pointer transition duration-300 border border-neutral-200/60"
             >
               <img
                 src={item.imageUrl}
@@ -135,10 +180,16 @@ const GalleryPage = () => {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
 
+              {item.featured && (
+                <div className="absolute top-3 left-3 z-10 px-2 py-0.5 rounded-md bg-amber-500/90 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                  Featured
+                </div>
+              )}
+
               {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-5 flex flex-col justify-between text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-between text-white">
                 <div className="flex justify-between items-start">
-                  <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-brand-gold text-brand-dark uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-gold text-brand-dark uppercase tracking-wider truncate max-w-[200px]">
                     {item.category}
                   </span>
                   <div className="p-1.5 rounded-full bg-white/20 backdrop-blur-md">
@@ -148,7 +199,7 @@ const GalleryPage = () => {
 
                 <div className="space-y-2">
                   <div>
-                    <h3 className="text-sm font-serif font-bold text-white line-clamp-1">
+                    <h3 className="text-xs sm:text-sm font-serif font-bold text-white line-clamp-1">
                       {item.title}
                     </h3>
                     {item.caption && (
@@ -163,7 +214,7 @@ const GalleryPage = () => {
                     className="w-full py-1.5 bg-brand-gold text-neutral-950 font-bold text-[11px] rounded-lg hover:bg-yellow-400 transition-colors flex items-center justify-center gap-1.5 shadow"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Enquire About This Style</span>
+                    <span>Enquire About This Setup</span>
                   </button>
                 </div>
               </div>

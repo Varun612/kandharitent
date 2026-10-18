@@ -376,330 +376,670 @@
   },
   "gallery": [
     {
-      "id": "gal-ent-1",
-      "title": "Grand Illuminated Entrance Gate",
-      "category": "Entrances",
+      "id": "gal-wed-1",
+      "title": "Grand Royal Wedding Night Setup",
+      "category": "Actual wedding and reception setups",
+      "categorySlug": "wedding-receptions",
+      "eventType": "Wedding",
+      "tags": [
+        "Wedding",
+        "Grand Setup",
+        "Night Reception",
+        "Dwarka Shri Lawn"
+      ],
+      "imageUrl": "/media/weddings/wedding-1.jpg",
+      "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "gal-wed-2",
+      "title": "Starlight Lawn Reception Ambiance",
+      "category": "Actual wedding and reception setups",
+      "categorySlug": "wedding-receptions",
+      "eventType": "Reception",
+      "tags": [
+        "Reception",
+        "Lawn Lights",
+        "Outdoor Wedding"
+      ],
+      "imageUrl": "/media/weddings/wedding-2.jpg",
+      "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "gal-wed-3",
+      "title": "Grand Varmala Ceremony Stage & Lawn",
+      "category": "Actual wedding and reception setups",
+      "categorySlug": "wedding-receptions",
+      "eventType": "Varmala",
+      "tags": [
+        "Varmala",
+        "Stage",
+        "Grand Wedding"
+      ],
+      "imageUrl": "/media/weddings/wedding-3.jpg",
+      "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "gal-wed-4",
+      "title": "Royal Sangeet & Celebration Night",
+      "category": "Actual wedding and reception setups",
+      "categorySlug": "wedding-receptions",
+      "eventType": "Sangeet",
+      "tags": [
+        "Sangeet",
+        "Celebration",
+        "Dance Stage"
+      ],
+      "imageUrl": "/media/weddings/wedding-4.jpg",
+      "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "gal-lawn-1",
+      "title": "Dwarka Shri Lawn Panoramic Grounds",
+      "category": "Dwarka Shri Lawn venue and grounds",
+      "categorySlug": "lawn-venue",
+      "eventType": "Venue",
+      "tags": [
+        "Dwarka Shri Lawn",
+        "Kanpur Road",
+        "Lawn Grounds",
+        "Capacity 1200+"
+      ],
+      "imageUrl": "/media/lawns/lawn-main.jpg",
+      "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "gal-lawn-2",
+      "title": "Illuminated Evening Lawn Pathway",
+      "category": "Dwarka Shri Lawn venue and grounds",
+      "categorySlug": "lawn-venue",
+      "eventType": "Venue",
+      "tags": [
+        "Pathway",
+        "Garden Lighting",
+        "Kanpur Road"
+      ],
       "imageUrl": "/media/gate/gate-1.jpg",
-      "caption": "Illuminated archway welcome gate at Kanpur Road venue",
-      "featured": true
+      "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+      "featured": true,
+      "active": true
     },
     {
-      "id": "gal-ent-2",
-      "title": "Royal Draped Welcome Pathway",
-      "category": "Entrances",
-      "imageUrl": "/media/gate/gate-2.jpg",
-      "caption": "Red carpet walkway with floral side pilasters"
-    },
-    {
-      "id": "gal-ent-3",
-      "title": "Floral Arch Entrance Archway",
-      "category": "Entrances",
-      "imageUrl": "/media/gate/gate-3.jpg",
-      "caption": "Dense marigold and rose entrance framing"
-    },
-    {
-      "id": "gal-ent-4",
-      "title": "Stately Palace Entryway Design",
-      "category": "Entrances",
-      "imageUrl": "/media/gate/gate-4.jpg",
-      "caption": "Royal carved pillars with warm chandelier lighting"
-    },
-    {
-      "id": "gal-ent-5",
-      "title": "Traditional Toran & Tassel Gate",
-      "category": "Entrances",
-      "imageUrl": "/media/gate/gate-5.jpg",
-      "caption": "Festive traditional Indian wedding entrance"
-    },
-    {
-      "id": "gal-ent-6",
-      "title": "Modern LED Tunnel Entrance",
-      "category": "Entrances",
-      "imageUrl": "/media/gate/gate-6.jpg",
-      "caption": "Illuminated LED light tunnel for night receptions"
-    },
-    {
-      "id": "gal-flor-1",
-      "title": "Exotic Fresh Flower Stage Backdrop",
-      "category": "Floral decoration",
-      "imageUrl": "/media/stage/stage-1.jpg",
-      "caption": "Fresh roses, orchids, and carnation wall",
-      "featured": true
-    },
-    {
-      "id": "gal-flor-2",
-      "title": "Haldi Marigold Floral Canopy",
-      "category": "Floral decoration",
-      "imageUrl": "/media/haldi-mehendi/haldi-1.jpg",
-      "caption": "Traditional yellow and orange genda phool theme"
-    },
-    {
-      "id": "gal-flor-3",
-      "title": "Mandap Floral Bell Hangings",
-      "category": "Floral decoration",
-      "imageUrl": "/media/mandap/mandap-1.jpg",
-      "caption": "Sacred wedding mandap with cascading floral malas"
-    },
-    {
-      "id": "gal-flor-4",
-      "title": "Pastel Floral Stage Panels",
-      "category": "Floral decoration",
-      "imageUrl": "/media/stage/stage-5.jpg",
-      "caption": "Contemporary pastel theme with baby breath accents"
-    },
-    {
-      "id": "gal-flor-5",
-      "title": "Mehendi Swing Floral Wreath",
-      "category": "Floral decoration",
-      "imageUrl": "/media/haldi-mehendi/haldi-3.jpg",
-      "caption": "Decorated floral swing for bridal photoshoot"
-    },
-    {
-      "id": "gal-flor-6",
-      "title": "Temple Arch Floral Framing",
-      "category": "Floral decoration",
-      "imageUrl": "/media/mandap/mandap-3.jpg",
-      "caption": "Carved temple pillars adorned with fresh tuberose strings"
-    },
-    {
-      "id": "gal-light-1",
-      "title": "Royal Ceiling & Crystal Chandeliers",
-      "category": "Lighting",
-      "imageUrl": "/media/rich-decor/decor-2.jpg",
-      "caption": "Multi-tiered crystal chandeliers under shamiana draping",
-      "featured": true
-    },
-    {
-      "id": "gal-light-2",
-      "title": "Warm Ambience Fairy Light Canopy",
-      "category": "Lighting",
-      "imageUrl": "/media/rich-decor/decor-5.jpg",
-      "caption": "Starry night fairy light canopy over dinner lawn"
-    },
-    {
-      "id": "gal-light-3",
-      "title": "LED Par Stage Wash & Uplighters",
-      "category": "Lighting",
-      "imageUrl": "/media/rich-decor/decor-6.jpg",
-      "caption": "Full RGBW programmable wash lights for wedding stage"
-    },
-    {
-      "id": "gal-light-4",
-      "title": "Hanging Moroccan Warm Lanterns",
-      "category": "Lighting",
-      "imageUrl": "/media/rich-decor/decor-7.jpg",
-      "caption": "Vintage brass lighting accents along walkway"
-    },
-    {
-      "id": "gal-light-5",
-      "title": "Truss Mounted Sharpies & Spotlights",
-      "category": "Lighting",
-      "imageUrl": "/media/rich-decor/decor-9.jpg",
-      "caption": "Heavy duty aluminum truss lighting for sangeet performances"
-    },
-    {
-      "id": "gal-light-6",
-      "title": "Grand Chandelier Shamiana Dome",
-      "category": "Lighting",
-      "imageUrl": "/media/rich-decor/decor-10.jpg",
-      "caption": "Central luxury chandelier illuminating banquet hall"
+      "id": "gal-lawn-3",
+      "title": "Lawn Banquet Perimeter Setup",
+      "category": "Dwarka Shri Lawn venue and grounds",
+      "categorySlug": "lawn-venue",
+      "eventType": "Venue",
+      "tags": [
+        "Perimeter",
+        "Outdoor Banquet",
+        "Lucknow Venue"
+      ],
+      "imageUrl": "/media/weddings/wedding-5.jpg",
+      "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+      "featured": false,
+      "active": true
     },
     {
       "id": "gal-stg-1",
-      "title": "Royal Maharaja Reception Stage",
-      "category": "Stage and mandap",
-      "imageUrl": "/media/stage/stage-2.jpg",
-      "caption": "Grand stage with velvet draping and gold seating",
-      "featured": true
+      "title": "Carved Palace Arch Wedding Stage",
+      "category": "Stage and mandap designs",
+      "categorySlug": "stage-mandap",
+      "eventType": "Stage",
+      "tags": [
+        "Stage",
+        "Carved Arch",
+        "Royal Backdrop",
+        "Chairs"
+      ],
+      "imageUrl": "/media/stage/stage-1.jpg",
+      "caption": "Elaborate royal Rajasthani palace-style jharokha carved stage backdrop with warm spotlighting.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-stg-2",
-      "title": "Sacred Vedic Mandap Setup",
-      "category": "Stage and mandap",
-      "imageUrl": "/media/mandap/mandap-2.jpg",
-      "caption": "Traditional 4-pillar sacred wedding mandap with havan kund area"
+      "title": "Fresh Rose & Marigold Vedic Mandap",
+      "category": "Stage and mandap designs",
+      "categorySlug": "stage-mandap",
+      "eventType": "Mandap",
+      "tags": [
+        "Mandap",
+        "Fresh Flowers",
+        "Pheras",
+        "Vedic"
+      ],
+      "imageUrl": "/media/mandap/mandap-1.jpg",
+      "caption": "Four-pillar sacred phera mandap draped with thousands of fresh fragrant roses and carnations.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-stg-3",
-      "title": "Modern Geometrical Stage Backdrop",
-      "category": "Stage and mandap",
-      "imageUrl": "/media/stage/stage-3.jpg",
-      "caption": "Contemporary ring ceremony backdrop with warm backlighting"
+      "title": "Modern Geometric Floral Stage",
+      "category": "Stage and mandap designs",
+      "categorySlug": "stage-mandap",
+      "eventType": "Stage",
+      "tags": [
+        "Modern Stage",
+        "Floral Ring",
+        "LED Profile"
+      ],
+      "imageUrl": "/media/stage/stage-4.jpg",
+      "caption": "Contemporary ring-motif stage structure with suspended crystal chandeliers and plush carpeting.",
+      "featured": false,
+      "active": true
     },
     {
       "id": "gal-stg-4",
-      "title": "Lotus Themed Mandap Pavilion",
-      "category": "Stage and mandap",
-      "imageUrl": "/media/mandap/mandap-4.jpg",
-      "caption": "Aesthetic open-air mandap overlooking lawn"
+      "title": "Traditional Brass Diya Kund Mandap",
+      "category": "Stage and mandap designs",
+      "categorySlug": "stage-mandap",
+      "eventType": "Mandap",
+      "tags": [
+        "Mandap",
+        "Traditional Diya",
+        "Havan Kund"
+      ],
+      "imageUrl": "/media/mandap/mandap-3.jpg",
+      "caption": "Dedicated phera mandap platform equipped with brass havan kund and family seating cushions.",
+      "featured": false,
+      "active": true
     },
     {
       "id": "gal-stg-5",
-      "title": "Carved Royal Jharokha Stage",
-      "category": "Stage and mandap",
-      "imageUrl": "/media/stage/stage-4.jpg",
-      "caption": "Traditional Rajasthani carved jharokha elements"
-    },
-    {
-      "id": "gal-stg-6",
-      "title": "Pillared Grand Mandap Dome",
-      "category": "Stage and mandap",
-      "imageUrl": "/media/mandap/mandap-5.jpg",
-      "caption": "Domed mandap setup with rich marigold ornamentation"
+      "title": "Grand Reception Backdrop with Golden Filigree",
+      "category": "Stage and mandap designs",
+      "categorySlug": "stage-mandap",
+      "eventType": "Stage",
+      "tags": [
+        "Filigree",
+        "Gold Accent",
+        "Maharaja Sofa"
+      ],
+      "imageUrl": "/media/stage/stage-10.jpg",
+      "caption": "Extensive 40-foot wide reception stage with warm amber uplighting and carved side panels.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-tnt-1",
-      "title": "German Waterproof Hangar Tent",
-      "category": "Tent structures",
-      "imageUrl": "/media/rich-decor/decor-1.jpg",
-      "caption": "High-clearance German aluminum structure for all-weather events",
-      "featured": true
+      "title": "All-Weather German Waterproof Hangar Tent",
+      "category": "Tent structures and canopy layouts",
+      "categorySlug": "tent-structures",
+      "eventType": "Tent Structure",
+      "tags": [
+        "German Hangar",
+        "Waterproof",
+        "Pillarless",
+        "Heavy Aluminum"
+      ],
+      "imageUrl": "/media/tents/tent-1.jpg",
+      "caption": "Sturdy pillarless clear-span German hangar tent ensuring zero weather disruption and uninterrupted sightlines.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-tnt-2",
-      "title": "Royal Embroidered Ceiling Shamiana",
-      "category": "Tent structures",
-      "imageUrl": "/media/rich-decor/decor-3.jpg",
-      "caption": "Intricate Lucknowi chikan and velvet ceiling lining"
+      "title": "Royal Velvet & Silk Ceiling Draping",
+      "category": "Tent structures and canopy layouts",
+      "categorySlug": "tent-structures",
+      "eventType": "Tent Structure",
+      "tags": [
+        "Ceiling Draping",
+        "Silk Fabrics",
+        "Pleated Canopy"
+      ],
+      "imageUrl": "/media/tents/tent-2.jpg",
+      "caption": "Multi-tiered pleated ceiling drapery in festive gold, champagne ivory, and rich maroon tones.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-tnt-3",
-      "title": "Arabian High-Peak Pagoda Canopies",
-      "category": "Tent structures",
-      "imageUrl": "/media/rich-decor/decor-4.jpg",
-      "caption": "Individual pagoda canopies for VIP dining and live counters"
+      "title": "Outdoor Gazebo & Canopy Dining Pavilion",
+      "category": "Tent structures and canopy layouts",
+      "categorySlug": "tent-structures",
+      "eventType": "Tent Structure",
+      "tags": [
+        "Gazebo",
+        "Dining Pavilion",
+        "Lawn Tent"
+      ],
+      "imageUrl": "/media/tents/tent-3.jpg",
+      "caption": "Dedicated covered food counter pavilion keeping live counters hygienic and comfortable.",
+      "featured": false,
+      "active": true
     },
     {
-      "id": "gal-tnt-4",
-      "title": "Silk Draped Food Court Pavilion",
-      "category": "Tent structures",
-      "imageUrl": "/media/rich-decor/decor-8.jpg",
-      "caption": "Spacious food marquee with air circulation ducts"
+      "id": "gal-furn-1",
+      "title": "VIP Maharaja Carved Gold Seating",
+      "category": "Seating and furniture arrangements",
+      "categorySlug": "seating-furniture",
+      "eventType": "Furniture",
+      "tags": [
+        "Maharaja Sofa",
+        "Gold Carved",
+        "VIP Seating",
+        "Stage Sofa"
+      ],
+      "imageUrl": "/media/seating/seating-1.jpg",
+      "caption": "Original royal high-back dual seating with carved gilt borders and plush velvet upholstery.",
+      "featured": true,
+      "active": true
     },
     {
-      "id": "gal-tnt-5",
-      "title": "Luxury Double-Pole Marquee Tent",
-      "category": "Tent structures",
-      "imageUrl": "/media/rich-decor/decor-11.jpg",
-      "caption": "Classic heavy tent house canvas shelter"
+      "id": "gal-furn-2",
+      "title": "Round Banquet Tables with Full-Drop Skirting",
+      "category": "Seating and furniture arrangements",
+      "categorySlug": "seating-furniture",
+      "eventType": "Furniture",
+      "tags": [
+        "Banquet Table",
+        "Table Linens",
+        "Chairs"
+      ],
+      "imageUrl": "/media/tables/table-1.jpg",
+      "caption": "60-inch round dining tables with spotless floor-length linens, runners, and floral centerpieces.",
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "gal-furn-3",
+      "title": "Royal Lucknowi Baithak & Masnad Setup",
+      "category": "Seating and furniture arrangements",
+      "categorySlug": "seating-furniture",
+      "eventType": "Furniture",
+      "tags": [
+        "Baithak",
+        "Masnad",
+        "Floor Seating",
+        "Mehendi"
+      ],
+      "imageUrl": "/media/seating/seating-3.jpg",
+      "caption": "Traditional Nawabi floor baithak setup with thick mattresses and embroidered bolsters for Mehendi and Sangeet.",
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "gal-furn-4",
+      "title": "Premium Velvet Cushion Banquet Chairs",
+      "category": "Seating and furniture arrangements",
+      "categorySlug": "seating-furniture",
+      "eventType": "Furniture",
+      "tags": [
+        "Banquet Chairs",
+        "Chair Covers",
+        "Ribbons"
+      ],
+      "imageUrl": "/media/seating/seating-2.jpg",
+      "caption": "Heavy-gauge steel banquet chairs with thick cushioning and clean ivory or maroon slipcovers.",
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "gal-flr-1",
+      "title": "Warm Fairy Light Canopy & Chandelier Cluster",
+      "category": "Floral and lighting decor",
+      "categorySlug": "floral-lighting",
+      "eventType": "Lighting",
+      "tags": [
+        "Fairy Lights",
+        "Chandeliers",
+        "Twilight Glow"
+      ],
+      "imageUrl": "/media/lighting/light-1.jpg",
+      "caption": "Overhead golden fairy light curtains with warm vintage bulb accents creating magical evening ambiance.",
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "gal-flr-2",
+      "title": "Vibrant Yellow Marigold Haldi Decor",
+      "category": "Floral and lighting decor",
+      "categorySlug": "floral-lighting",
+      "eventType": "Haldi",
+      "tags": [
+        "Haldi Decor",
+        "Marigold",
+        "Yellow Draping",
+        "Selfie Point"
+      ],
+      "imageUrl": "/media/haldi-mehendi/haldi-1.jpg",
+      "caption": "Traditional bright yellow and orange marigold floral strings, brass urlis, and festive gota work.",
+      "featured": true,
+      "active": true
+    },
+    {
+      "id": "gal-flr-3",
+      "title": "Royal Draped Pathway with Hanging Lanterns",
+      "category": "Floral and lighting decor",
+      "categorySlug": "floral-lighting",
+      "eventType": "Entrance",
+      "tags": [
+        "Lanterns",
+        "Draped Walkway",
+        "Red Carpet"
+      ],
+      "imageUrl": "/media/gate/gate-2.jpg",
+      "caption": "Grand welcome passage lined with illuminated Moroccon lanterns and floral side urns.",
+      "featured": false,
+      "active": true
+    },
+    {
+      "id": "gal-flr-4",
+      "title": "Intricate Fresh Blossom Backdrop Urns",
+      "category": "Floral and lighting decor",
+      "categorySlug": "floral-lighting",
+      "eventType": "Floral Decor",
+      "tags": [
+        "Fresh Flowers",
+        "Orchids",
+        "Lilies",
+        "Roses"
+      ],
+      "imageUrl": "/media/lighting/light-3.jpg",
+      "caption": "Exotic orchid, Asiatic lily, and red rose arrangements curated fresh on the day of the event.",
+      "featured": false,
+      "active": true
     },
     {
       "id": "gal-cat-1",
-      "title": "8ft Modular Buffet Setup with Skirting",
-      "category": "Catering",
-      "imageUrl": "/media/tables/table-2.jpg",
-      "caption": "Multi-tier catering buffet line with heat-resistant counter tops",
-      "featured": true
+      "title": "Luxury Illuminated Laser-Cut Buffet Counter",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Buffet Counter",
+        "Laser Cut",
+        "Illuminated",
+        "Chafing Dishes"
+      ],
+      "imageUrl": "/media/catering/catering-1.jpg",
+      "caption": "Gold-finish illuminated buffet counter with ornate laser-cut motifs, brass urn centerpieces, and heavy chafing warmers.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-cat-2",
-      "title": "Live Food Station Canopy Counters",
-      "category": "Catering",
-      "imageUrl": "/media/tables/table-3.jpg",
-      "caption": "Dedicated live counters with decorative valances"
+      "title": "Long Banquet Dining Buffet Station",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Food Counter",
+        "Banquet Line",
+        "Lawn Dining"
+      ],
+      "imageUrl": "/media/catering/catering-2.jpg",
+      "caption": "Multi-dish banquet dining counter on Dwarka Shri Lawn grounds illuminated with overhead fairy lights.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-cat-3",
-      "title": "Dessert & Mocktail Display Bar",
-      "category": "Catering",
-      "imageUrl": "/media/tables/table-4.jpg",
-      "caption": "Illuminated presentation counter for beverages and sweets"
+      "title": "Royal Awadhi Main Course Buffet Line",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Awadhi Buffet",
+        "Hot Chafers",
+        "Silk Backdrop"
+      ],
+      "imageUrl": "/media/catering/catering-3.jpg",
+      "caption": "Symmetrical banquet buffet table with backlit geometric panels, polished chafers, and golden backdrop curtains.",
+      "featured": true,
+      "active": true
     },
     {
       "id": "gal-cat-4",
-      "title": "Stainless Steel Roll-Top Chafers",
-      "category": "Catering",
-      "imageUrl": "/media/tables/table-5.jpg",
-      "caption": "Hygienic brass and stainless roll-top dish warmers"
+      "title": "Premium Stainless & Brass Chafing Presentation",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Chafing Dishes",
+        "Food Warmers",
+        "Brass Samovars"
+      ],
+      "imageUrl": "/media/catering/catering-4.jpg",
+      "caption": "Close perspective of heavy stainless steel rolled-lid food warmers and illuminated counter detailing.",
+      "featured": false,
+      "active": true
     },
     {
       "id": "gal-cat-5",
-      "title": "Banquet Dining Table Arrangement",
-      "category": "Catering",
-      "imageUrl": "/media/tables/table-6.jpg",
-      "caption": "Clean dining tables with crisp linens and cutlery setup"
+      "title": "Live Snacks & Chaat Display Counter",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Chaat Counter",
+        "Live Station",
+        "Lucknowi Food"
+      ],
+      "imageUrl": "/media/catering/catering-5.jpg",
+      "caption": "Dedicated interactive live food counter designed for quick service and high guest turnover.",
+      "featured": false,
+      "active": true
     },
     {
-      "id": "gal-lwn-1",
-      "title": "Dwarka Shri Lawn Evening Celebration",
-      "category": "Lawn and venue",
-      "imageUrl": "/media/lawns/lawn-main.jpg",
-      "caption": "Panoramic view of Dwarka Shri Lawn, Kanpur Road Lucknow",
-      "featured": true
+      "id": "gal-cat-6",
+      "title": "Dessert & Traditional Sweets Display Station",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Desserts",
+        "Sweets Station",
+        "Ice Cream Parlour"
+      ],
+      "imageUrl": "/media/catering/catering-6.jpg",
+      "caption": "Decorated sweet counter presenting hot gulab jamun, kesar jalebi, halwa, and artisanal ice cream.",
+      "featured": true,
+      "active": true
     },
     {
-      "id": "gal-lwn-2",
-      "title": "Grand Venue Entrance on Kanpur Road",
-      "category": "Lawn and venue",
-      "imageUrl": "/media/gate/gate-1.jpg",
-      "caption": "Stately entry gate opposite Pillar 37 Daroga Kheda"
+      "id": "gal-cat-7",
+      "title": "Royal Welcome Mocktail & Beverage Bar",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Mocktail Bar",
+        "Welcome Drinks",
+        "Beverage Counter"
+      ],
+      "imageUrl": "/media/catering/catering-7.jpg",
+      "caption": "Eye-catching illuminated drink station serving fresh mint mojitos, kesar thandai, and chilled coolers upon guest entry.",
+      "featured": false,
+      "active": true
     },
     {
-      "id": "gal-lwn-3",
-      "title": "Round Table Lawn Dining Zone",
-      "category": "Lawn and venue",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "caption": "Lush green lawn seating with 60-inch banquet tables"
-    },
-    {
-      "id": "gal-lwn-4",
-      "title": "Covered Weatherproof Lawn Wing",
-      "category": "Lawn and venue",
-      "imageUrl": "/media/rich-decor/decor-12.jpg",
-      "caption": "Adjoining semi-covered pavilion for weather protection"
-    },
-    {
-      "id": "gal-lwn-5",
-      "title": "Lawn Illumination & Open Sky View",
-      "category": "Lawn and venue",
-      "imageUrl": "/media/rich-decor/decor-1.jpg",
-      "caption": "Evening lighting setting up the lawn for reception celebration"
-    },
-    {
-      "id": "gal-oth-1",
-      "title": "Haldi Ceremony Floral Gadda Baithak",
-      "category": "Other events",
-      "imageUrl": "/media/haldi-mehendi/haldi-2.jpg",
-      "caption": "Vibrant daytime pre-wedding setup",
-      "featured": true
-    },
-    {
-      "id": "gal-oth-2",
-      "title": "Traditional Lucknowi Royal Baithak",
-      "category": "Other events",
-      "imageUrl": "/media/seating/seating-1.jpg",
-      "caption": "Low seating with masnad bolsters for Sangeet and Mehendi"
-    },
-    {
-      "id": "gal-oth-3",
-      "title": "VIP Maharaja Lounge Arrangement",
-      "category": "Other events",
-      "imageUrl": "/media/seating/seating-2.jpg",
-      "caption": "Carved golden sofas for dignitary & elder family seating"
-    },
-    {
-      "id": "gal-oth-4",
-      "title": "Colourful Festive Canopy Setup",
-      "category": "Other events",
-      "imageUrl": "/media/haldi-mehendi/haldi-4.jpg",
-      "caption": "Yellow and green draping for ring ceremony"
-    },
-    {
-      "id": "gal-oth-5",
-      "title": "Engagement Ring Ceremony Seating",
-      "category": "Other events",
-      "imageUrl": "/media/seating/seating-3.jpg",
-      "caption": "Intimate stage seating for roka or ring exchange"
-    },
-    {
-      "id": "gal-oth-6",
-      "title": "Cushioned Banquet Hall Seating",
-      "category": "Other events",
-      "imageUrl": "/media/seating/seating-4.jpg",
-      "caption": "Arrangement for birthday party and family anniversary celebration"
+      "id": "gal-cat-8",
+      "title": "Full Banquet Service & Service Staff Staging",
+      "category": "Catering and food counters",
+      "categorySlug": "catering-counters",
+      "eventType": "Catering",
+      "tags": [
+        "Catering Staff",
+        "Banquet Service",
+        "Hygienic Setup"
+      ],
+      "imageUrl": "/media/catering/catering-8.jpg",
+      "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+      "featured": false,
+      "active": true
     }
   ],
   "enquiries": [
+    {
+      "id": "ENQ-158235",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T21:15:39.734Z"
+    },
+    {
+      "id": "ENQ-541005",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T21:15:39.724Z"
+    },
+    {
+      "id": "ENQ-891030",
+      "customerId": "cust-mvebrbex-m4hy6",
+      "conversationId": "conv-mvebrbji-gd287",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792358139115@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 2:45:39 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 2:45:39 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 2:45:39 AM]: Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.\n\n[USER - 2:45:39 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 2:45:39 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 2:45:39 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 2:45:39 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-20",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-259220",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T21:15:39.432Z"
+    },
+    {
+      "id": "ENQ-1792358139104",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-18T21:15:39.104Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
     {
       "id": "enq-1001",
       "enquiryType": "rental",
@@ -763,8 +1103,276 @@
       "createdAt": "2026-10-16T18:15:37.182Z"
     }
   ],
-  "conversations": [],
-  "users": [],
+  "conversations": [
+    {
+      "id": "conv-mvebrbji-gd287",
+      "customerId": "cust-mvebrbex-m4hy6",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-891030",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvebrbji-73lch",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-18T21:15:39.438Z"
+        },
+        {
+          "id": "msg-mvebrbjw-4y04g",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-18T21:15:39.452Z"
+        },
+        {
+          "id": "msg-mvebrbjw-9b20m",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-18T21:15:39.452Z"
+        },
+        {
+          "id": "msg-mvebrbkp-ys648",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-18T21:15:39.481Z"
+        },
+        {
+          "id": "msg-mvebrbkp-3ql52",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-18T21:15:39.481Z"
+        },
+        {
+          "id": "msg-mvebrbl2-a5wsl",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-18T21:15:39.494Z"
+        },
+        {
+          "id": "msg-mvebrbl2-a3av9",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-18T21:15:39.494Z"
+        },
+        {
+          "id": "msg-mvebrbli-l3j92",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-891030**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-18T21:15:39.510Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-18T21:15:39.494Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "cust-mvebrbex-m4hy6",
+      "name": "Vikas Malhotra",
+      "email": "client_1792358139115@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$ShXel1cO2N2rqfbSkOYITOtV/wX7cyc.6cTNb7YZrvpC/JuMhUFA.",
+      "role": "customer",
+      "createdAt": "2026-10-18T21:15:39.273Z"
+    },
+    {
+      "id": "cust-mvebrbpw-dd2o1",
+      "name": "Another Customer",
+      "email": "intruder_1792358139522@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$AXe6WQma9EwUoRJikOK78Om7uuazcjmed6H7BpVxkbhiy7OMdcTi6",
+      "role": "customer",
+      "createdAt": "2026-10-18T21:15:39.668Z"
+    }
+  ],
   "adminUsers": [
     {
       "id": "admin-1",
@@ -772,5 +1380,1001 @@
       "passwordHash": "\\/3v5yAODkF6.e6k1.t0Y.2cceS94j.rRk8c/c45uLwIe",
       "role": "admin"
     }
+  ],
+  "cateringCategories": [
+    {
+      "id": "cat-sec-1",
+      "name": "Welcome Drinks and Starters",
+      "slug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "order": 1
+    },
+    {
+      "id": "cat-sec-2",
+      "name": "Soups",
+      "slug": "soups",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 2
+    },
+    {
+      "id": "cat-sec-3",
+      "name": "Chaat and Snacks",
+      "slug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "order": 3
+    },
+    {
+      "id": "cat-sec-4",
+      "name": "Barbecue and Tandoor",
+      "slug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "order": 4
+    },
+    {
+      "id": "cat-sec-5",
+      "name": "Main Course: Paneer Specialities",
+      "slug": "paneer-specialities",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 5
+    },
+    {
+      "id": "cat-sec-6",
+      "name": "Main Course: Seasonal Vegetables and Koftas",
+      "slug": "seasonal-vegetables-koftas",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 6
+    },
+    {
+      "id": "cat-sec-7",
+      "name": "Dal Varieties",
+      "slug": "dal-varieties",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 7
+    },
+    {
+      "id": "cat-sec-8",
+      "name": "Rice and Pulao",
+      "slug": "rice-pulao",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 8
+    },
+    {
+      "id": "cat-sec-9",
+      "name": "Chinese Counter",
+      "slug": "chinese-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 9
+    },
+    {
+      "id": "cat-sec-10",
+      "name": "Italian Counter",
+      "slug": "italian-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 10
+    },
+    {
+      "id": "cat-sec-11",
+      "name": "Indian Regional Counters",
+      "slug": "regional-counters",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "order": 11
+    },
+    {
+      "id": "cat-sec-12",
+      "name": "Assorted Indian Breads and Rotis",
+      "slug": "breads-rotis",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "order": 12
+    },
+    {
+      "id": "cat-sec-13",
+      "name": "Salad Bar, Raita, and Accompaniments",
+      "slug": "salad-raita",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "order": 13
+    },
+    {
+      "id": "cat-sec-14",
+      "name": "Desserts and Traditional Sweets",
+      "slug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "order": 14
+    }
+  ],
+  "cateringMenu": [
+    {
+      "id": "cat-wd-1",
+      "category": "Welcome Drinks and Starters",
+      "categorySlug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Kesar Thandai (Royal Dry Fruit Infused)",
+      "description": "Traditional rich thandai infused with saffron, crushed almonds, pistachios, fennel, and green cardamom.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 1
+    },
+    {
+      "id": "cat-wd-2",
+      "category": "Welcome Drinks and Starters",
+      "categorySlug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Fresh Virgin Mint Mojito",
+      "description": "Crisp garden fresh mint muddled with fresh lime wedges, brown sugar syrup, and chilled sparkling soda.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 2
+    },
+    {
+      "id": "cat-wd-3",
+      "category": "Welcome Drinks and Starters",
+      "categorySlug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Blue Lagoon Citrus Cooler",
+      "description": "Vibrant curacao-flavored sparkling citrus mocktail served over crushed ice with fresh lemon wheels.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 3
+    },
+    {
+      "id": "cat-wd-4",
+      "category": "Welcome Drinks and Starters",
+      "categorySlug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Awadhi Aam Panna Cooler",
+      "description": "Authentic roasted raw mango cooler spiced with rock salt, toasted cumin, and fresh garden mint.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 4
+    },
+    {
+      "id": "cat-wd-5",
+      "category": "Welcome Drinks and Starters",
+      "categorySlug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Fresh Strawberry Colada",
+      "description": "Velvety blend of fresh strawberry coulis, creamy coconut milk, and crushed pineapple.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 5
+    },
+    {
+      "id": "cat-wd-6",
+      "category": "Welcome Drinks and Starters",
+      "categorySlug": "welcome-drinks",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Espresso & Kulhad Masala Chai Live Counter",
+      "description": "Steaming hot clay-kulhad masala chai brewed with fresh ginger and cardamom, paired with bean-to-cup espresso.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 6
+    },
+    {
+      "id": "cat-soup-1",
+      "category": "Soups",
+      "categorySlug": "soups",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Cream of Ripe Tomato Soup",
+      "description": "Velvety red tomato soup garnished with fresh dairy cream and herbed butter croutons.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 7
+    },
+    {
+      "id": "cat-soup-2",
+      "category": "Soups",
+      "categorySlug": "soups",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Sweet Corn Vegetable Soup",
+      "description": "Subtly sweet and creamy broth packed with golden American corn kernels and diced spring vegetables.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 8
+    },
+    {
+      "id": "cat-soup-3",
+      "category": "Soups",
+      "categorySlug": "soups",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Hot & Sour Vegetable Soup",
+      "description": "Zesty Indo-Chinese broth infused with chilli paste, dark vinegar, shredded mushrooms, and bamboo shoots.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 9
+    },
+    {
+      "id": "cat-soup-4",
+      "category": "Soups",
+      "categorySlug": "soups",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Lemon Coriander Clear Soup",
+      "description": "Refreshing herbal vegetable broth spiked with fresh cilantro leaves, ginger juliennes, and lime zest.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 10
+    },
+    {
+      "id": "cat-chaat-1",
+      "category": "Chaat and Snacks",
+      "categorySlug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Lucknowi Matar Ki Tikki Chaat",
+      "description": "Crisp golden green-pea and potato patties pan-grilled on large tawa, served with spiced yoghurt and sonth chutney.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 11
+    },
+    {
+      "id": "cat-chaat-2",
+      "category": "Chaat and Snacks",
+      "categorySlug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Kolkata Puchka & Golgappe (5 Flavors)",
+      "description": "Crisp wheat and semolina puris stuffed with spiced potatoes and chickpeas, served with hing, pudina, khatta-meetha, garlic, and jaljeera waters.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 12
+    },
+    {
+      "id": "cat-chaat-3",
+      "category": "Chaat and Snacks",
+      "categorySlug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Kurkuri Palak Patta Chaat",
+      "description": "Crispy tempura-fried spinach leaves drizzled with sweetened dahi, tart imli sonth, mint reduction, and crunchy sev.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 13
+    },
+    {
+      "id": "cat-chaat-4",
+      "category": "Chaat and Snacks",
+      "categorySlug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Royal Shahi Raj Kachori",
+      "description": "Giant crispy kachori stuffed with moong sprouts, bhallas, boiled potatoes, sweetened yoghurt, pomegranate pearls, and nuts.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 14
+    },
+    {
+      "id": "cat-chaat-5",
+      "category": "Chaat and Snacks",
+      "categorySlug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Agra Bhalla Papdi Chaat",
+      "description": "Soft lentil dumplings and crispy flour wafers layered with whipped curd, roasted cumin, and sweet-tangy chutney.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 15
+    },
+    {
+      "id": "cat-chaat-6",
+      "category": "Chaat and Snacks",
+      "categorySlug": "chaat-snacks",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Live Butter Pav Bhaji Station",
+      "description": "Spiced mash of mixed seasonal vegetables simmered on large iron griddle with dollops of Amul butter, served with soft toasted pavs.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 16
+    },
+    {
+      "id": "cat-bbq-1",
+      "category": "Barbecue and Tandoor",
+      "categorySlug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Paneer Tikka Angara",
+      "description": "Succulent cubes of fresh cottage cheese marinated in smoky mustard oil, Kashmiri chilli, and tandoori spices, char-grilled with peppers.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 17
+    },
+    {
+      "id": "cat-bbq-2",
+      "category": "Barbecue and Tandoor",
+      "categorySlug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Malai Paneer Shashlik",
+      "description": "Mild, melt-in-mouth paneer cubes marinated in rich cashew paste, hung curd, fresh cream, and aromatic green cardamom.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 18
+    },
+    {
+      "id": "cat-bbq-3",
+      "category": "Barbecue and Tandoor",
+      "categorySlug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Tandoori Stuffed Soya Chaap",
+      "description": "Charcoal-roasted soya chaap stuffed with spiced paneer and dry fruits, tossed in herb butter and chaat masala.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 19
+    },
+    {
+      "id": "cat-bbq-4",
+      "category": "Barbecue and Tandoor",
+      "categorySlug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Crispy Dahi Ke Kebab / Sholay",
+      "description": "Golden crusted rolls filled with hung curd, bell peppers, fresh mint, and mild Awadhi spices.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 20
+    },
+    {
+      "id": "cat-bbq-5",
+      "category": "Barbecue and Tandoor",
+      "categorySlug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Awadhi Hara Bhara Kebab",
+      "description": "Patties of blanched spinach, sweet green peas, and potatoes shallow fried in desi ghee, crowned with cashew nut.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 21
+    },
+    {
+      "id": "cat-bbq-6",
+      "category": "Barbecue and Tandoor",
+      "categorySlug": "barbecue-tandoor",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Tandoori Stuffed Mushroom Buttons",
+      "description": "Fresh button mushrooms stuffed with spiced cheese & herbs, roasted over charcoal coals.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 22
+    },
+    {
+      "id": "cat-pan-1",
+      "category": "Main Course: Paneer Specialities",
+      "categorySlug": "paneer-specialities",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Shahi Paneer Awadhi Khas",
+      "description": "Fresh cottage cheese triangles simmered in velvety white gravy crafted with cashew paste, khoya, and saffron.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 23
+    },
+    {
+      "id": "cat-pan-2",
+      "category": "Main Course: Paneer Specialities",
+      "categorySlug": "paneer-specialities",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Paneer Lababdar",
+      "description": "Cubes of cottage cheese along with grated paneer cooked in a rich, chunky onion-tomato gravy with kasuri methi.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 24
+    },
+    {
+      "id": "cat-pan-3",
+      "category": "Main Course: Paneer Specialities",
+      "categorySlug": "paneer-specialities",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Paneer Butter Masala",
+      "description": "Classic favorite: soft cottage cheese in smooth tomato-makhani gravy with liberal butter and fresh cream.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 25
+    },
+    {
+      "id": "cat-pan-4",
+      "category": "Main Course: Paneer Specialities",
+      "categorySlug": "paneer-specialities",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Kadai Paneer Peshawari",
+      "description": "Paneer and crunchy bell peppers tossed with freshly pounded coriander seeds, dry red chillies, and thick onion gravy.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 26
+    },
+    {
+      "id": "cat-pan-5",
+      "category": "Main Course: Paneer Specialities",
+      "categorySlug": "paneer-specialities",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Handi Dum Paneer",
+      "description": "Slow-cooked in earthen handi pots with whole spices, caramelised onions, and fresh cream.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 27
+    },
+    {
+      "id": "cat-veg-1",
+      "category": "Main Course: Seasonal Vegetables and Koftas",
+      "categorySlug": "seasonal-vegetables-koftas",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Royal Malai Kofta",
+      "description": "Golden fried paneer and mawa dumplings served in luscious, sweet-and-savory cashew cream sauce.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 28
+    },
+    {
+      "id": "cat-veg-2",
+      "category": "Main Course: Seasonal Vegetables and Koftas",
+      "categorySlug": "seasonal-vegetables-koftas",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Dum Aloo Banarasi / Kashmiri",
+      "description": "Baby potatoes pricked and slow-simmered in rich Kashmiri chilli and fennel-infused tomato gravy.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 29
+    },
+    {
+      "id": "cat-veg-3",
+      "category": "Main Course: Seasonal Vegetables and Koftas",
+      "categorySlug": "seasonal-vegetables-koftas",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Mix Vegetable Diwani Handi",
+      "description": "Medley of seasonal carrots, green peas, cauliflower, beans, and baby corn in aromatic gravy.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 30
+    },
+    {
+      "id": "cat-veg-4",
+      "category": "Main Course: Seasonal Vegetables and Koftas",
+      "categorySlug": "seasonal-vegetables-koftas",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Methi Malai Matar",
+      "description": "Fresh fenugreek leaves and tender green peas cooked in rich reduced milk and fragrant spices.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 31
+    },
+    {
+      "id": "cat-veg-5",
+      "category": "Main Course: Seasonal Vegetables and Koftas",
+      "categorySlug": "seasonal-vegetables-koftas",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Gobhi Adraki Masala",
+      "description": "Cauliflower florets and green peas stir-fried with fragrant ginger slivers and whole cumin.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 32
+    },
+    {
+      "id": "cat-dal-1",
+      "category": "Dal Varieties",
+      "categorySlug": "dal-varieties",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Dal Bukhara / Dal Makhani",
+      "description": "Whole black lentils and kidney beans slow-cooked overnight with churned white butter, cream, and tomato coulis.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 33
+    },
+    {
+      "id": "cat-dal-2",
+      "category": "Dal Varieties",
+      "categorySlug": "dal-varieties",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Pilibhit Yellow Dal Tadka (Desi Ghee)",
+      "description": "Creamy toor dal double-tempered with pure cow ghee, burnt garlic, cumin, and whole Kashmiri chillies.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 34
+    },
+    {
+      "id": "cat-dal-3",
+      "category": "Dal Varieties",
+      "categorySlug": "dal-varieties",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Rajasthani Dal Panchmel",
+      "description": "Authentic five-lentil delicacy cooked with dry mango powder, asafoetida, and traditional spices.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 35
+    },
+    {
+      "id": "cat-dal-4",
+      "category": "Dal Varieties",
+      "categorySlug": "dal-varieties",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Amritsari Pindi Chhole",
+      "description": "Dark, tea-infused rustic chickpeas cooked with dried pomegranate seeds, carom, and green chillies.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 36
+    },
+    {
+      "id": "cat-rice-1",
+      "category": "Rice and Pulao",
+      "categorySlug": "rice-pulao",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Awadhi Shahi Veg Dum Biryani",
+      "description": "Long-grain aged basmati rice layered with seasonal vegetables, saffron-infused milk, and fried onions, cooked under dum.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 37
+    },
+    {
+      "id": "cat-rice-2",
+      "category": "Rice and Pulao",
+      "categorySlug": "rice-pulao",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Kashmiri Mewa Pulao",
+      "description": "Fragrant basmati rice gently sweetened and studded with golden raisins, cashews, almonds, and pomegranate.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 38
+    },
+    {
+      "id": "cat-rice-3",
+      "category": "Rice and Pulao",
+      "categorySlug": "rice-pulao",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Jeera Matar Pulao",
+      "description": "Fluffy basmati rice tempered with roasted cumin seeds and fresh green peas in desi ghee.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 39
+    },
+    {
+      "id": "cat-rice-4",
+      "category": "Rice and Pulao",
+      "categorySlug": "rice-pulao",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Steamed Dehraduni Basmati Rice",
+      "description": "Plain aromatic aged basmati rice cooked to fluffy perfection.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 40
+    },
+    {
+      "id": "cat-chin-1",
+      "category": "Chinese Counter",
+      "categorySlug": "chinese-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Veg Hakka Noodles",
+      "description": "Wok-tossed noodles with shredded bell peppers, cabbage, carrots, spring onions, and light soya sauce.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 41
+    },
+    {
+      "id": "cat-chin-2",
+      "category": "Chinese Counter",
+      "categorySlug": "chinese-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Crispy Honey Chilli Potato",
+      "description": "Crisp potato fingers glazed in spicy sweet red chilli sauce, honey, and toasted sesame seeds.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 42
+    },
+    {
+      "id": "cat-chin-3",
+      "category": "Chinese Counter",
+      "categorySlug": "chinese-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Veg Manchurian (Dry / Gravy)",
+      "description": "Crispy mixed vegetable spheres tossed in dark soya garlic sauce with spring onions.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 43
+    },
+    {
+      "id": "cat-chin-4",
+      "category": "Chinese Counter",
+      "categorySlug": "chinese-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Golden Vegetable Spring Rolls",
+      "description": "Thin crispy rolls packed with glass noodles and shredded vegetables, served with sweet chilli dip.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 44
+    },
+    {
+      "id": "cat-ita-1",
+      "category": "Italian Counter",
+      "categorySlug": "italian-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Live Pasta Station (Penne & Fusilli)",
+      "description": "Chef live cooking station offering creamy Alfredo white sauce, spicy Arrabbiata red sauce, or mixed pink sauce with olives, mushrooms, and bell peppers.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 45
+    },
+    {
+      "id": "cat-ita-2",
+      "category": "Italian Counter",
+      "categorySlug": "italian-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Wood-Fired Style Farmhouse Pizza",
+      "description": "Crispy thin crust topped with Italian tomato sauce, melted mozzarella, capsicum, sweet corn, and jalapenos.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 46
+    },
+    {
+      "id": "cat-ita-3",
+      "category": "Italian Counter",
+      "categorySlug": "italian-counter",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Cheesy Garlic Breadsticks with Dip",
+      "description": "Oven-toasted French baguette slices loaded with garlic butter, mozzarella, and Italian oregano.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 47
+    },
+    {
+      "id": "cat-reg-1",
+      "category": "Indian Regional Counters",
+      "categorySlug": "regional-counters",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "South Indian Live Dosa & Idli Counter",
+      "description": "Live griddle preparation of paper masala dosas, onion uttapams, and steamed idlis with drumstick sambhar, coconut and tomato chutneys.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 48
+    },
+    {
+      "id": "cat-reg-2",
+      "category": "Indian Regional Counters",
+      "categorySlug": "regional-counters",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Rajasthani Dal Baati Churma",
+      "description": "Traditional oven-baked wheat baatis crushed and soaked in pure desi ghee, served with spicy panchmel dal and sweet jaggery churma.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 49
+    },
+    {
+      "id": "cat-reg-3",
+      "category": "Indian Regional Counters",
+      "categorySlug": "regional-counters",
+      "selectionRule": "Any 2",
+      "maxSelect": 2,
+      "name": "Amritsari Stuffed Kulcha Counter",
+      "description": "Crispy clay-oven baked aloo & paneer kulchas brushed with white butter, served with spicy chana and imli pyaz chutney.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 50
+    },
+    {
+      "id": "cat-brd-1",
+      "category": "Assorted Indian Breads and Rotis",
+      "categorySlug": "breads-rotis",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Butter Naan & Garlic Naan",
+      "description": "Tandoor-baked refined flour flatbread brushed with butter and minced garlic flakes.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 51
+    },
+    {
+      "id": "cat-brd-2",
+      "category": "Assorted Indian Breads and Rotis",
+      "categorySlug": "breads-rotis",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Tandoori Roti (Plain & Butter)",
+      "description": "Whole wheat flatbread baked directly on the clay tandoor walls.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 52
+    },
+    {
+      "id": "cat-brd-3",
+      "category": "Assorted Indian Breads and Rotis",
+      "categorySlug": "breads-rotis",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Missi Roti & Laccha Paratha",
+      "description": "Spiced gram flour flatbread with carom seeds, alongside layered flaky wheat paratha.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 53
+    },
+    {
+      "id": "cat-brd-4",
+      "category": "Assorted Indian Breads and Rotis",
+      "categorySlug": "breads-rotis",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Live Roomali Roti Counter",
+      "description": "Ultra-thin, handkerchief-soft roomali roti tossed in the air and cooked on inverted kadai.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 54
+    },
+    {
+      "id": "cat-brd-5",
+      "category": "Assorted Indian Breads and Rotis",
+      "categorySlug": "breads-rotis",
+      "selectionRule": "Any 4",
+      "maxSelect": 4,
+      "name": "Crispy Bedmi Puri",
+      "description": "Puffed whole wheat and spiced urad dal puris served piping hot.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 55
+    },
+    {
+      "id": "cat-sld-1",
+      "category": "Salad Bar, Raita, and Accompaniments",
+      "categorySlug": "salad-raita",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Boondi & Pineapple Raita",
+      "description": "Thick whipped yoghurt tempered with roasted cumin, crisp gram flour boondi, and sweet pineapple chunks.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 56
+    },
+    {
+      "id": "cat-sld-2",
+      "category": "Salad Bar, Raita, and Accompaniments",
+      "categorySlug": "salad-raita",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Fresh Organic Green Salad Platter",
+      "description": "Crisp garden cucumbers, carrots, tomatoes, radish, beetroot, and green chillies with lemon wedges.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 57
+    },
+    {
+      "id": "cat-sld-3",
+      "category": "Salad Bar, Raita, and Accompaniments",
+      "categorySlug": "salad-raita",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Creamy Russian Salad",
+      "description": "Diced apples, pineapple, potatoes, and peas tossed in velvety sweet mayonnaise.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 58
+    },
+    {
+      "id": "cat-sld-4",
+      "category": "Salad Bar, Raita, and Accompaniments",
+      "categorySlug": "salad-raita",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Pickled Sirka Baby Onions & Chutneys",
+      "description": "Vinegar-soaked pearl onions, alongside mint-coriander dip, tangy sonth, and spicy mango pickles.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 59
+    },
+    {
+      "id": "cat-sld-5",
+      "category": "Salad Bar, Raita, and Accompaniments",
+      "categorySlug": "salad-raita",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Assorted Papad & Masala Crisps",
+      "description": "Fried and roasted urad papad, rice fryums, and masala crisps.",
+      "dietary": "Veg",
+      "isPopular": false,
+      "isActive": true,
+      "order": 60
+    },
+    {
+      "id": "cat-dss-1",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Hot Gulab Jamun with Rabri",
+      "description": "Deep-fried khoya dumplings soaked in fragrant cardamom sugar syrup, crowned with chilled thickened rabri.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 61
+    },
+    {
+      "id": "cat-dss-2",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Live Kesaria Jalebi with Rabri",
+      "description": "Crispy spiraled jalebis fried live in pure desi ghee, dipped in saffron syrup, served with creamy lacchedar rabri.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 62
+    },
+    {
+      "id": "cat-dss-3",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Desi Ghee Moong Dal Halwa",
+      "description": "Rich traditional Rajasthani halwa prepared with split yellow lentils, liberal desi ghee, mawa, and crushed almonds.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 63
+    },
+    {
+      "id": "cat-dss-4",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Lucknowi Shahi Tukda",
+      "description": "Crispy ghee-fried bread triangles drenched in condensed saffron milk, silver vark, and toasted nuts.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 64
+    },
+    {
+      "id": "cat-dss-5",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Royal Rasmalai",
+      "description": "Spongy cottage cheese discs soaked in clotted milk flavoured with saffron, green cardamom, and pistachios.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 65
+    },
+    {
+      "id": "cat-dss-6",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Artisanal Ice Cream Parlour & Kulfi",
+      "description": "Choice of classic butterscotch, Alphonso mango, Belgian chocolate, and traditional Matka Kulfi with falooda.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 66
+    },
+    {
+      "id": "cat-dss-7",
+      "category": "Desserts and Traditional Sweets",
+      "categorySlug": "desserts-sweets",
+      "selectionRule": "Any 3",
+      "maxSelect": 3,
+      "name": "Live Royal Banarasi Meetha Paan Counter",
+      "description": "Fresh betel leaves rolled with sweet gulkand, saunf, supari-free flavours, dry fruits, and silver leaf.",
+      "dietary": "Veg",
+      "isPopular": true,
+      "isActive": true,
+      "order": 67
+    }
+  ],
+  "galleryCategories": [
+    "Actual wedding and reception setups",
+    "Dwarka Shri Lawn venue and grounds",
+    "Stage and mandap designs",
+    "Tent structures and canopy layouts",
+    "Seating and furniture arrangements",
+    "Floral and lighting decor",
+    "Catering and food counters"
   ]
 }

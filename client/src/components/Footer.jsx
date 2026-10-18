@@ -82,6 +82,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/catering" className="text-brand-goldLight hover:text-white transition flex items-center gap-1.5 font-medium">
+                  <ArrowRight className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Royal Catering & Menu Designer</span>
+                </Link>
+              </li>
+              <li>
                 <Link to="/services" className="hover:text-brand-gold transition flex items-center gap-1.5">
                   <ArrowRight className="w-3.5 h-3.5 text-neutral-500" />
                   <span>Services & Tenting</span>

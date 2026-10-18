@@ -58,9 +58,9 @@ const getClientAiResponse = (text) => {
     };
   }
 
-  if (lower.includes('cater') || lower.includes('menu') || lower.includes('food') || lower.includes('khana')) {
+  if (lower.includes('cater') || lower.includes('menu') || lower.includes('food') || lower.includes('khana') || lower.includes('dish') || lower.includes('starter') || lower.includes('sweet') || lower.includes('paneer') || lower.includes('chaat')) {
     return {
-      text: `We coordinate delicious pure-vegetarian and multi-cuisine catering for celebrations:\n\n• **Live Counters:** Lucknow Chaat, South Indian Dosa, Chinese, Live Tandoor & Kebabs\n• **Royal Main Course:** Shahi Paneer, Dal Makhani, Dum Biryani, Assorted Breads\n• **Desserts:** Hot Jalebi with Rabdi, Gulab Jamun, Moong Dal Halwa, Ice Cream\n\nShare your expected guest count and date to get our customized menu package!`
+      text: `We provide grand royal pure-vegetarian wedding catering with 14 specialized banquet categories:\n\n• **Welcome Starters & Drinks:** Kesar Thandai, Virgin Mojito, Awadhi Aam Panna\n• **Live Counters:** Lucknowi Matar Tikki Chaat, Kolkata Puchka (5 waters), Butter Pav Bhaji\n• **Barbecue & Tandoor:** Paneer Tikka Angara, Malai Shashlik, Tandoori Soya Chaap\n• **Royal Main Course:** Shahi Paneer Awadhi Khas, Royal Malai Kofta, Dal Makhani Bukhara, Shahi Dum Biryani\n• **Live International & Regional:** Live Pasta Station, Farmhouse Pizza, South Indian Dosa\n• **Desserts & Sweets:** Live Kesaria Jalebi with Rabri, Hot Gulab Jamun, Moong Dal Halwa, Banarasi Paan\n\n👉 You can design your customized menu with selection rules on our **[Catering Menu Page](/catering)**, or share your guest count for a quotation!`
     };
   }
 
@@ -73,6 +73,12 @@ const getClientAiResponse = (text) => {
   if (lower.includes('stage') || lower.includes('decor') || lower.includes('mandap') || lower.includes('flower') || lower.includes('light')) {
     return {
       text: `Our decoration setups include:\n\n• Grand floral mandaps (Fresh & Artificial floral styling)\n• Royal reception stage backdrops with crystal chandeliers\n• Welcoming entrance arches with fairy light tunnels\n• Cold pyros, dry ice fog, and ambient LED lighting\n\nPlease check our Gallery page or let us know your preferred theme!`
+    };
+  }
+
+  if (lower.includes('gallery') || lower.includes('photo') || lower.includes('picture') || lower.includes('real image') || lower.includes('album')) {
+    return {
+      text: `Explore our genuine Lucknow event photographs in the **[Event & Venue Gallery](/gallery)** across 7 dedicated sections:\n\n1. Actual wedding & reception setups\n2. Dwarka Shri Lawn venue & grounds\n3. Stage and mandap designs\n4. Tent structures & canopy layouts\n5. Seating & furniture arrangements\n6. Floral & lighting decor\n7. Catering & food counters\n\nAll photos feature real setups from our warehouse and Kanpur Road venue!`
     };
   }
 

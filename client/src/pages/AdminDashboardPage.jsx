@@ -25,7 +25,11 @@ import {
   ChevronDown,
   X,
   Share2,
-  Clock
+  Clock,
+  UtensilsCrossed,
+  Flame,
+  Tag,
+  Check
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -65,13 +69,48 @@ const AdminDashboardPage = () => {
   const [venue, setVenue] = useState(null);
   const [newAmenity, setNewAmenity] = useState({ title: '', description: '', icon: 'CheckCircle' });
 
-  // Gallery state
+  // Gallery state (7 Sections)
   const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryCategories, setGalleryCategories] = useState([]);
+  const [gallerySectionFilter, setGallerySectionFilter] = useState('all');
+  const [isGalleryEditModalOpen, setIsGalleryEditModalOpen] = useState(false);
+  const [editingGalleryItem, setEditingGalleryItem] = useState(null);
+  const [galleryEditFormData, setGalleryEditFormData] = useState({
+    title: '',
+    category: 'Actual wedding and reception setups',
+    imageUrl: '',
+    caption: '',
+    eventType: 'Wedding',
+    tags: '',
+    featured: false
+  });
   const [newGalleryPhoto, setNewGalleryPhoto] = useState({
     title: '',
-    category: 'Weddings',
-    imageUrl: '/media/stage/stage-1.jpg',
-    caption: ''
+    category: 'Actual wedding and reception setups',
+    imageUrl: '/media/catering/catering-1.jpg',
+    caption: '',
+    eventType: 'Wedding',
+    tags: 'Wedding, Setup',
+    featured: false
+  });
+
+  // Catering Menu state (14 Categories)
+  const [cateringDishes, setCateringDishes] = useState([]);
+  const [cateringCategories, setCateringCategories] = useState([]);
+  const [cateringCategoryFilter, setCateringCategoryFilter] = useState('all');
+  const [cateringSearchQuery, setCateringSearchQuery] = useState('');
+  const [isCateringModalOpen, setIsCateringModalOpen] = useState(false);
+  const [editingCateringDish, setEditingCateringDish] = useState(null);
+  const [cateringFormData, setCateringFormData] = useState({
+    name: '',
+    category: 'Welcome Drinks and Starters',
+    description: '',
+    selectionRule: 'Any 3',
+    maxSelect: 3,
+    dietary: 'Veg',
+    isPopular: false,
+    isActive: true,
+    order: 1
   });
 
   const [notification, setNotification] = useState(null);
@@ -95,7 +134,16 @@ const AdminDashboardPage = () => {
       if (venueRes.success) setVenue(venueRes.data);
 
       const galRes = await api.getGallery();
-      if (galRes.success) setGalleryItems(galRes.data);
+      if (galRes.success) {
+        setGalleryItems(galRes.data || []);
+        if (galRes.categories) setGalleryCategories(galRes.categories);
+      }
+
+      const catRes = await api.getCateringMenu({ activeOnly: 'false' });
+      if (catRes.success) {
+        setCateringDishes(catRes.data || []);
+        setCateringCategories(catRes.categories || []);
+      }
     } catch (err) {
       console.warn('Dashboard data fetch error:', err.message);
     } finally {
@@ -253,7 +301,7 @@ const AdminDashboardPage = () => {
     }
   };
 
-  // --- GALLERY ACTIONS ---
+  // --- GALLERY ACTIONS (7 Sections) ---
   const handleAddGalleryPhoto = async (e) => {
     e.preventDefault();
     if (!newGalleryPhoto.title || !newGalleryPhoto.imageUrl) return;
@@ -263,11 +311,70 @@ const AdminDashboardPage = () => {
         setGalleryItems(prev => [res.data, ...prev]);
         setNewGalleryPhoto({
           title: '',
-          category: 'Weddings',
-          imageUrl: '/media/stage/stage-1.jpg',
-          caption: ''
+          category: 'Actual wedding and reception setups',
+          imageUrl: '/media/catering/catering-1.jpg',
+          caption: '',
+          eventType: 'Wedding',
+          tags: 'Wedding, Setup',
+          featured: false
         });
-        showNotification('Photo added to gallery');
+        showNotification('Photo added to gallery successfully');
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
+  const handleEditGalleryPhoto = (item) => {
+    setEditingGalleryItem(item);
+    setGalleryEditFormData({
+      title: item.title || '',
+      category: item.category || 'Actual wedding and reception setups',
+      imageUrl: item.imageUrl || '',
+      caption: item.caption || '',
+      eventType: item.eventType || 'Wedding',
+      tags: Array.isArray(item.tags) ? item.tags.join(', ') : (item.tags || ''),
+      featured: Boolean(item.featured)
+    });
+    setIsGalleryEditModalOpen(true);
+  };
+
+  const handleSaveGalleryEdit = async (e) => {
+    e.preventDefault();
+    if (!editingGalleryItem) return;
+    try {
+      const tagsArr = typeof galleryEditFormData.tags === 'string'
+        ? galleryEditFormData.tags.split(',').map(t => t.trim()).filter(Boolean)
+        : galleryEditFormData.tags;
+
+      const updates = {
+        title: galleryEditFormData.title,
+        category: galleryEditFormData.category,
+        caption: galleryEditFormData.caption,
+        eventType: galleryEditFormData.eventType,
+        tags: tagsArr,
+        featured: galleryEditFormData.featured
+      };
+
+      const res = await api.updateGalleryItem(editingGalleryItem.id, updates);
+      if (res.success) {
+        setGalleryItems(prev => prev.map(g => g.id === editingGalleryItem.id ? res.data : g));
+        showNotification('Gallery photo updated successfully');
+        setIsGalleryEditModalOpen(false);
+        setEditingGalleryItem(null);
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
+  const handleToggleGalleryFeatured = async (item) => {
+    try {
+      const nextFeatured = !item.featured;
+      const res = await api.updateGalleryItem(item.id, { featured: nextFeatured });
+      if (res.success) {
+        setGalleryItems(prev => prev.map(g => g.id === item.id ? { ...g, featured: nextFeatured } : g));
+        showNotification(`Photo ${nextFeatured ? 'marked as Featured' : 'unmarked from Featured'}`);
       }
     } catch (err) {
       showNotification(err.message, 'error');
@@ -280,7 +387,90 @@ const AdminDashboardPage = () => {
       const res = await api.deleteGalleryItem(id);
       if (res.success) {
         setGalleryItems(prev => prev.filter(g => g.id !== id));
-        showNotification('Photo removed');
+        showNotification('Photo removed from gallery');
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
+  // --- CATERING MENU ACTIONS ---
+  const handleOpenAddCateringModal = () => {
+    setEditingCateringDish(null);
+    setCateringFormData({
+      name: '',
+      category: cateringCategories[0]?.name || 'Welcome Drinks and Starters',
+      description: '',
+      selectionRule: 'Any 2',
+      maxSelect: 2,
+      dietary: 'Veg',
+      isPopular: false,
+      isActive: true,
+      order: cateringDishes.length + 1
+    });
+    setIsCateringModalOpen(true);
+  };
+
+  const handleOpenEditCateringModal = (dish) => {
+    setEditingCateringDish(dish);
+    setCateringFormData({
+      name: dish.name || '',
+      category: dish.category || 'Welcome Drinks and Starters',
+      description: dish.description || '',
+      selectionRule: dish.selectionRule || 'Any 2',
+      maxSelect: dish.maxSelect || 2,
+      dietary: dish.dietary || 'Veg',
+      isPopular: Boolean(dish.isPopular),
+      isActive: dish.isActive !== false,
+      order: dish.order || 1
+    });
+    setIsCateringModalOpen(true);
+  };
+
+  const handleSaveCateringDish = async (e) => {
+    e.preventDefault();
+    if (!cateringFormData.name.trim()) return;
+    try {
+      if (editingCateringDish) {
+        const res = await api.updateCateringItem(editingCateringDish.id, cateringFormData);
+        if (res.success) {
+          setCateringDishes(prev => prev.map(d => d.id === editingCateringDish.id ? res.data : d));
+          showNotification('Catering dish updated successfully');
+        }
+      } else {
+        const res = await api.addCateringItem(cateringFormData);
+        if (res.success) {
+          setCateringDishes(prev => [...prev, res.data]);
+          showNotification('New catering dish added successfully');
+        }
+      }
+      setIsCateringModalOpen(false);
+      setEditingCateringDish(null);
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
+  const handleToggleCateringActive = async (dish) => {
+    try {
+      const nextStatus = !dish.isActive;
+      const res = await api.updateCateringItem(dish.id, { isActive: nextStatus });
+      if (res.success) {
+        setCateringDishes(prev => prev.map(d => d.id === dish.id ? { ...d, isActive: nextStatus } : d));
+        showNotification(`Dish marked as ${nextStatus ? 'Active' : 'Inactive'}`);
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
+  const handleDeleteCateringDish = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this dish from the menu?')) return;
+    try {
+      const res = await api.deleteCateringItem(id);
+      if (res.success) {
+        setCateringDishes(prev => prev.filter(d => d.id !== id));
+        showNotification('Dish removed from catering menu');
       }
     } catch (err) {
       showNotification(err.message, 'error');
@@ -406,6 +596,18 @@ const AdminDashboardPage = () => {
           >
             <ImageIcon className="w-4 h-4 text-brand-gold" />
             <span>Photo Gallery ({galleryItems.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('catering')}
+            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'catering'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <UtensilsCrossed className="w-4 h-4 text-brand-gold" />
+            <span>Catering Menu ({cateringDishes.length})</span>
           </button>
         </div>
       </div>
@@ -636,6 +838,24 @@ const AdminDashboardPage = () => {
                             <div key={idx} className="bg-white px-3 py-1.5 rounded-xl border border-neutral-200 flex justify-between items-center shadow-xs">
                               <span className="font-semibold text-neutral-800 truncate pr-2">{it.name}</span>
                               <span className="font-bold text-brand-purple shrink-0">Qty: {it.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Custom Catering Menu Dishes */}
+                    {enq.customMenu && enq.customMenu.length > 0 && (
+                      <div className="bg-amber-50/60 p-3.5 rounded-2xl border border-amber-200 text-xs">
+                        <strong className="text-brand-primary block mb-2 font-bold flex items-center gap-1.5">
+                          <UtensilsCrossed className="w-4 h-4 text-brand-gold" />
+                          <span>Custom Catering Menu Selected ({enq.customMenu.length} dishes):</span>
+                        </strong>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                          {enq.customMenu.map((d, idx) => (
+                            <div key={idx} className="bg-white px-3 py-1.5 rounded-xl border border-amber-200 flex justify-between items-center shadow-xs">
+                              <span className="font-semibold text-neutral-800 truncate pr-2">{d.name}</span>
+                              <span className="text-[10px] text-amber-800 bg-amber-100/60 px-1.5 py-0.5 rounded font-medium">{d.category}</span>
                             </div>
                           ))}
                         </div>
@@ -937,10 +1157,31 @@ const AdminDashboardPage = () => {
         {activeTab === 'gallery' && (
           <div className="space-y-8">
             
+            {/* Filter by 7 Key Sections */}
+            <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2 overflow-x-auto w-full pb-1 sm:pb-0 scrollbar-none">
+                <span className="text-[11px] font-bold text-neutral-500 whitespace-nowrap">Section:</span>
+                {['all', 'Actual wedding and reception setups', 'Dwarka Shri Lawn venue and grounds', 'Stage and mandap designs', 'Tent structures and canopy layouts', 'Seating and furniture arrangements', 'Floral and lighting decor', 'Catering and food counters'].map((sec) => (
+                  <button
+                    key={sec}
+                    onClick={() => setGallerySectionFilter(sec)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                      gallerySectionFilter === sec
+                        ? 'royal-gradient text-white shadow-xs'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                    }`}
+                  >
+                    {sec === 'all' ? 'All Sections' : sec}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Add Real Event Photo Form */}
             <form onSubmit={handleAddGalleryPhoto} className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200/80 shadow-sm space-y-4">
               <h3 className="text-base font-serif font-bold text-brand-primary flex items-center gap-2">
                 <Plus className="w-5 h-5 text-brand-gold" />
-                <span>Add Real Event Photo to Gallery</span>
+                <span>Add Real Lucknow Event Photo to Gallery</span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -949,24 +1190,27 @@ const AdminDashboardPage = () => {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Evening Mandap Setup"
+                    placeholder="e.g. Royal Laser-Cut Buffet Line"
                     value={newGalleryPhoto.title}
                     onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, title: e.target.value })}
-                    className="w-full p-2 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">Category</label>
+                  <label className="block font-semibold text-neutral-700 mb-1">Gallery Section *</label>
                   <select
                     value={newGalleryPhoto.category}
                     onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, category: e.target.value })}
-                    className="w-full p-2 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white"
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white"
                   >
-                    <option value="Weddings">Weddings</option>
-                    <option value="Lawn Setups">Lawn Setups</option>
-                    <option value="Stage Decor">Stage Decor</option>
-                    <option value="Lighting">Lighting</option>
+                    <option value="Actual wedding and reception setups">1. Actual wedding and reception setups</option>
+                    <option value="Dwarka Shri Lawn venue and grounds">2. Dwarka Shri Lawn venue and grounds</option>
+                    <option value="Stage and mandap designs">3. Stage and mandap designs</option>
+                    <option value="Tent structures and canopy layouts">4. Tent structures and canopy layouts</option>
+                    <option value="Seating and furniture arrangements">5. Seating and furniture arrangements</option>
+                    <option value="Floral and lighting decor">6. Floral and lighting decor</option>
+                    <option value="Catering and food counters">7. Catering and food counters</option>
                   </select>
                 </div>
 
@@ -975,21 +1219,56 @@ const AdminDashboardPage = () => {
                   <input
                     type="text"
                     required
-                    placeholder="/media/..."
+                    placeholder="/media/catering/catering-1.jpg"
                     value={newGalleryPhoto.imageUrl}
                     onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, imageUrl: e.target.value })}
-                    className="w-full p-2 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                   />
                 </div>
 
-                <div className="sm:col-span-3">
-                  <label className="block font-semibold text-neutral-700 mb-1">Caption (Optional)</label>
+                <div>
+                  <label className="block font-semibold text-neutral-700 mb-1">Event Type</label>
                   <input
                     type="text"
-                    placeholder="Brief description of the setup..."
+                    placeholder="Wedding, Reception, Catering..."
+                    value={newGalleryPhoto.eventType}
+                    onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, eventType: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-neutral-700 mb-1">Tags (Comma separated)</label>
+                  <input
+                    type="text"
+                    placeholder="Buffet, Luxury, Gold..."
+                    value={newGalleryPhoto.tags}
+                    onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, tags: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="newPhotoFeatured"
+                    checked={newGalleryPhoto.featured}
+                    onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, featured: e.target.checked })}
+                    className="w-4 h-4 text-brand-purple rounded"
+                  />
+                  <label htmlFor="newPhotoFeatured" className="font-semibold text-neutral-700 cursor-pointer">
+                    Feature in Showcase
+                  </label>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block font-semibold text-neutral-700 mb-1">Caption / Description</label>
+                  <input
+                    type="text"
+                    placeholder="Detailed description of banquet counter, tent structure, or stage decor..."
                     value={newGalleryPhoto.caption}
                     onChange={(e) => setNewGalleryPhoto({ ...newGalleryPhoto, caption: e.target.value })}
-                    className="w-full p-2 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                   />
                 </div>
               </div>
@@ -999,34 +1278,226 @@ const AdminDashboardPage = () => {
                 className="py-2.5 px-6 rounded-xl royal-gradient text-white text-xs font-bold shadow-md hover:opacity-95 transition flex items-center gap-2"
               >
                 <Plus className="w-4 h-4 text-brand-gold" />
-                <span>Upload to Gallery</span>
+                <span>Upload Photograph to Gallery</span>
               </button>
             </form>
 
             {/* Gallery Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {galleryItems.map((item) => (
-                <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-xs relative group">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className="w-full aspect-4/3 object-cover"
-                  />
-                  <div className="p-3">
-                    <span className="text-[10px] font-bold text-brand-purple bg-purple-50 px-2 py-0.5 rounded">
-                      {item.category}
-                    </span>
-                    <h4 className="font-bold text-xs text-neutral-900 mt-1 truncate">{item.title}</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {galleryItems
+                .filter(it => gallerySectionFilter === 'all' || it.category === gallerySectionFilter)
+                .map((item) => (
+                  <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-xs relative group flex flex-col justify-between">
+                    <div className="relative aspect-4/3 bg-neutral-100">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {item.featured && (
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white uppercase tracking-wider shadow">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-brand-purple bg-purple-50 px-2 py-0.5 rounded truncate block">
+                          {item.category}
+                        </span>
+                        <h4 className="font-bold text-xs text-neutral-900 mt-1 line-clamp-1">{item.title}</h4>
+                        {item.caption && (
+                          <p className="text-[11px] text-neutral-500 line-clamp-2 mt-0.5">{item.caption}</p>
+                        )}
+                      </div>
+
+                      <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleGalleryFeatured(item)}
+                          className={`text-[11px] font-bold px-2 py-1 rounded-md transition ${
+                            item.featured 
+                              ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' 
+                              : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                          }`}
+                        >
+                          {item.featured ? '★ Featured' : '☆ Feature'}
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleEditGalleryPhoto(item)}
+                            className="p-1.5 rounded-lg text-neutral-600 hover:text-brand-purple hover:bg-neutral-100 transition"
+                            title="Edit Photo Details"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteGalleryPhoto(item.id)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                            title="Remove Photo"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteGalleryPhoto(item.id)}
-                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-rose-600 transition"
-                    title="Remove Photo"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                ))}
+            </div>
+
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB 5: CATERING MENU MANAGER (14 Categories)
+           ======================================================== */}
+        {activeTab === 'catering' && (
+          <div className="space-y-6">
+
+            {/* Stats Header */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Total Catering Dishes</p>
+                <p className="text-2xl font-serif font-black text-brand-primary mt-1">{cateringDishes.length}</p>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Banqueting Categories</p>
+                <p className="text-2xl font-serif font-black text-amber-600 mt-1">{cateringCategories.length}</p>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Active on Public Menu</p>
+                <p className="text-2xl font-serif font-black text-emerald-600 mt-1">
+                  {cateringDishes.filter(d => d.isActive !== false).length}
+                </p>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">Banquet Specials</p>
+                <p className="text-2xl font-serif font-black text-purple-600 mt-1">
+                  {cateringDishes.filter(d => d.isPopular).length}
+                </p>
+              </div>
+            </div>
+
+            {/* Filter, Search & Add Dish Bar */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 items-center w-full md:w-auto flex-1">
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    value={cateringSearchQuery}
+                    onChange={(e) => setCateringSearchQuery(e.target.value)}
+                    placeholder="Search dish name, description..."
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-accent outline-none"
+                  />
                 </div>
-              ))}
+
+                <select
+                  value={cateringCategoryFilter}
+                  onChange={(e) => setCateringCategoryFilter(e.target.value)}
+                  className="w-full sm:w-auto p-2 text-xs border border-neutral-200 rounded-xl bg-neutral-50 outline-none focus:bg-white"
+                >
+                  <option value="all">All 14 Categories ({cateringDishes.length})</option>
+                  {cateringCategories.map(c => (
+                    <option key={c.id} value={c.name}>{c.name} ({c.selectionRule})</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleOpenAddCateringModal}
+                className="w-full sm:w-auto py-2.5 px-5 rounded-xl royal-gradient text-white text-xs font-bold shadow-md hover:opacity-95 transition flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4 text-brand-gold" />
+                <span>Add New Catering Dish</span>
+              </button>
+            </div>
+
+            {/* Catering Dishes Cards / Table */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {cateringDishes
+                .filter(d => {
+                  const matchesCat = cateringCategoryFilter === 'all' || d.category === cateringCategoryFilter;
+                  const q = cateringSearchQuery.toLowerCase();
+                  const matchesSearch = !q || d.name.toLowerCase().includes(q) || (d.description && d.description.toLowerCase().includes(q));
+                  return matchesCat && matchesSearch;
+                })
+                .map((dish) => (
+                  <div
+                    key={dish.id}
+                    className={`bg-white rounded-2xl p-5 border transition shadow-xs flex flex-col justify-between ${
+                      dish.isActive === false ? 'opacity-60 bg-neutral-50 border-neutral-200' : 'border-neutral-200/90'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 inline-block mb-1">
+                            {dish.category} ({dish.selectionRule})
+                          </span>
+                          <h4 className="text-sm font-bold text-neutral-900 leading-snug">
+                            {dish.name}
+                          </h4>
+                        </div>
+
+                        <span className="w-3.5 h-3.5 rounded-xs border border-emerald-600 flex items-center justify-center shrink-0 mt-1" title="100% Pure Vegetarian">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-neutral-500 leading-relaxed line-clamp-3">
+                        {dish.description}
+                      </p>
+                    </div>
+
+                    <div className="pt-4 mt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCateringActive(dish)}
+                          className={`text-[10px] font-bold px-2 py-1 rounded-md transition ${
+                            dish.isActive !== false
+                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                              : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                          }`}
+                        >
+                          {dish.isActive !== false ? '● Active' : '○ Inactive'}
+                        </button>
+
+                        {dish.isPopular && (
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                            Special
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditCateringModal(dish)}
+                          className="p-1.5 rounded-lg text-neutral-600 hover:text-brand-purple hover:bg-neutral-100 transition"
+                          title="Edit Dish"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCateringDish(dish.id)}
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                          title="Delete Dish"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
 
           </div>
@@ -1168,6 +1639,257 @@ const AdminDashboardPage = () => {
               </div>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* EDIT GALLERY PHOTO MODAL */}
+      {isGalleryEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-neutral-200 flex flex-col max-h-[90vh]">
+            <div className="royal-gradient p-5 text-white flex justify-between items-center">
+              <h3 className="font-serif font-bold text-lg">Edit Gallery Photograph</h3>
+              <button
+                onClick={() => setIsGalleryEditModalOpen(false)}
+                className="p-1 text-white/80 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveGalleryEdit} className="p-6 overflow-y-auto space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-neutral-700 mb-1">Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={galleryEditFormData.title}
+                  onChange={(e) => setGalleryEditFormData({ ...galleryEditFormData, title: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-neutral-700 mb-1">Gallery Section *</label>
+                <select
+                  value={galleryEditFormData.category}
+                  onChange={(e) => setGalleryEditFormData({ ...galleryEditFormData, category: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white"
+                >
+                  <option value="Actual wedding and reception setups">1. Actual wedding and reception setups</option>
+                  <option value="Dwarka Shri Lawn venue and grounds">2. Dwarka Shri Lawn venue and grounds</option>
+                  <option value="Stage and mandap designs">3. Stage and mandap designs</option>
+                  <option value="Tent structures and canopy layouts">4. Tent structures and canopy layouts</option>
+                  <option value="Seating and furniture arrangements">5. Seating and furniture arrangements</option>
+                  <option value="Floral and lighting decor">6. Floral and lighting decor</option>
+                  <option value="Catering and food counters">7. Catering and food counters</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-neutral-700 mb-1">Event Type</label>
+                  <input
+                    type="text"
+                    value={galleryEditFormData.eventType}
+                    onChange={(e) => setGalleryEditFormData({ ...galleryEditFormData, eventType: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-neutral-700 mb-1">Tags (Comma-separated)</label>
+                  <input
+                    type="text"
+                    value={galleryEditFormData.tags}
+                    onChange={(e) => setGalleryEditFormData({ ...galleryEditFormData, tags: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-neutral-700 mb-1">Caption</label>
+                <textarea
+                  rows={2}
+                  value={galleryEditFormData.caption}
+                  onChange={(e) => setGalleryEditFormData({ ...galleryEditFormData, caption: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="modalGalleryFeatured"
+                  checked={galleryEditFormData.featured}
+                  onChange={(e) => setGalleryEditFormData({ ...galleryEditFormData, featured: e.target.checked })}
+                  className="w-4 h-4 text-brand-purple rounded"
+                />
+                <label htmlFor="modalGalleryFeatured" className="text-xs font-semibold text-neutral-700 cursor-pointer">
+                  Featured in Highlights
+                </label>
+              </div>
+
+              <div className="pt-3 flex gap-2">
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md hover:opacity-95 transition"
+                >
+                  Save Photo Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsGalleryEditModalOpen(false)}
+                  className="w-full py-3 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-bold hover:bg-neutral-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE / EDIT CATERING DISH MODAL */}
+      {isCateringModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-neutral-200 flex flex-col max-h-[90vh]">
+            <div className="royal-gradient p-5 text-white flex justify-between items-center">
+              <h3 className="font-serif font-bold text-lg">
+                {editingCateringDish ? 'Edit Catering Dish' : 'Add New Dish to Catering Menu'}
+              </h3>
+              <button
+                onClick={() => setIsCateringModalOpen(false)}
+                className="p-1 text-white/80 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCateringDish} className="p-6 overflow-y-auto space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-neutral-700 mb-1">Dish Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Shahi Paneer Awadhi Khas"
+                  value={cateringFormData.name}
+                  onChange={(e) => setCateringFormData({ ...cateringFormData, name: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-neutral-700 mb-1">Category *</label>
+                  <select
+                    value={cateringFormData.category}
+                    onChange={(e) => {
+                      const selectedCat = cateringCategories.find(c => c.name === e.target.value);
+                      setCateringFormData({
+                        ...cateringFormData,
+                        category: e.target.value,
+                        selectionRule: selectedCat?.selectionRule || cateringFormData.selectionRule,
+                        maxSelect: selectedCat?.maxSelect || cateringFormData.maxSelect
+                      });
+                    }}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white"
+                  >
+                    {cateringCategories.map(c => (
+                      <option key={c.id} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-neutral-700 mb-1">Category Rule & Limit</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. Any 2"
+                      value={cateringFormData.selectionRule}
+                      onChange={(e) => setCateringFormData({ ...cateringFormData, selectionRule: e.target.value })}
+                      className="w-2/3 p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={cateringFormData.maxSelect}
+                      onChange={(e) => setCateringFormData({ ...cateringFormData, maxSelect: Number(e.target.value) })}
+                      className="w-1/3 p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-neutral-700 mb-1">Dish Description & Ingredients</label>
+                <textarea
+                  rows={2}
+                  placeholder="Authentic preparation style, spices, garnishing..."
+                  value={cateringFormData.description}
+                  onChange={(e) => setCateringFormData({ ...cateringFormData, description: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="catDishPopular"
+                    checked={cateringFormData.isPopular}
+                    onChange={(e) => setCateringFormData({ ...cateringFormData, isPopular: e.target.checked })}
+                    className="w-4 h-4 text-brand-purple rounded"
+                  />
+                  <label htmlFor="catDishPopular" className="font-semibold text-neutral-700 cursor-pointer">
+                    Banquet Special
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="catDishActive"
+                    checked={cateringFormData.isActive}
+                    onChange={(e) => setCateringFormData({ ...cateringFormData, isActive: e.target.checked })}
+                    className="w-4 h-4 text-brand-purple rounded"
+                  />
+                  <label htmlFor="catDishActive" className="font-semibold text-neutral-700 cursor-pointer">
+                    Active on Menu
+                  </label>
+                </div>
+
+                <div>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Order"
+                    value={cateringFormData.order}
+                    onChange={(e) => setCateringFormData({ ...cateringFormData, order: Number(e.target.value) })}
+                    className="w-full p-2 border border-neutral-300 rounded-xl text-center"
+                    title="Display Sort Order"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex gap-2">
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md hover:opacity-95 transition"
+                >
+                  {editingCateringDish ? 'Save Changes' : 'Add Dish to Menu'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCateringModalOpen(false)}
+                  className="w-full py-3 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-bold hover:bg-neutral-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

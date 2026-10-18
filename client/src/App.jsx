@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import CataloguePage from './pages/CataloguePage';
 import LawnPage from './pages/LawnPage';
+import CateringPage from './pages/CateringPage';
 import ServicesPage from './pages/ServicesPage';
 import ToolsPage from './pages/ToolsPage';
 import AiCreativeDirectorPage from './pages/AiCreativeDirectorPage';
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/catalogue" element={<CataloguePage />} />
                 <Route path="/lawn" element={<LawnPage />} />
+                <Route path="/catering" element={<CateringPage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/tools" element={<ToolsPage />} />
                 <Route path="/tools/creative-director" element={<AiCreativeDirectorPage />} />

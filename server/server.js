@@ -10,6 +10,7 @@ const venueRoutes = require('./routes/venueRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const cateringRoutes = require('./routes/cateringRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -89,6 +90,7 @@ mountDualRoute('/venue', venueRoutes);
 mountDualRoute('/gallery', galleryRoutes);
 mountDualRoute('/auth', authRoutes);
 mountDualRoute('/chat', chatRoutes);
+mountDualRoute('/catering', cateringRoutes);
 
 // Catch-all 404 handler for API routes (always return JSON, never HTML)
 app.use((req, res) => {

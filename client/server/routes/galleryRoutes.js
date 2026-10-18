@@ -8,6 +8,7 @@ router.get('/', galleryController.getGalleryItems);
 
 // Protected Admin routes
 router.post('/', requireAdminAuth, galleryController.addGalleryItem);
+router.put('/:id', requireAdminAuth, galleryController.updateGalleryItem);
 router.delete('/:id', requireAdminAuth, galleryController.deleteGalleryItem);
 
 module.exports = router;

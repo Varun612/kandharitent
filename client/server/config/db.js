@@ -59,8 +59,8 @@ const loadLocalStore = () => {
         localDb = parsed;
         if (!localDb.conversations) localDb.conversations = [];
         if (!localDb.users) localDb.users = [];
-        // Ensure all 8 categories exist in gallery
-        if (!localDb.gallery || localDb.gallery.length < seedData.galleryItems.length) {
+        // Ensure gallery exists
+        if (!localDb.gallery || localDb.gallery.length === 0) {
           localDb.gallery = [...seedData.galleryItems];
         }
         console.log('[LocalStore] Loaded persistent data successfully');
@@ -73,6 +73,9 @@ const loadLocalStore = () => {
     console.warn('[LocalStore] Could not read localStore.json, using defaults:', err.message);
   }
 };
+
+// Immediately initialize localDb from localStore.json
+loadLocalStore();
 
 const saveLocalStore = () => {
   try {

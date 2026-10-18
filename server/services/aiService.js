@@ -17,31 +17,28 @@ try {
 // Category mapping helper for 5-photo gallery retrieval
 const normalizeGalleryCategory = (text = '') => {
   const lower = text.toLowerCase();
-  if (lower.includes('gate') || lower.includes('entrance') || lower.includes('entry') || lower.includes('dwar')) {
-    return 'Entrances';
-  }
-  if (lower.includes('flower') || lower.includes('floral') || lower.includes('phool') || lower.includes('haldi') || lower.includes('mehendi')) {
-    return 'Floral decoration';
-  }
-  if (lower.includes('light') || lower.includes('chandelier') || lower.includes('roshni') || lower.includes('jhumar') || lower.includes('led')) {
-    return 'Lighting';
-  }
-  if (lower.includes('stage') || lower.includes('mandap') || lower.includes('jaimala') || lower.includes('reception stage')) {
-    return 'Stage and mandap';
-  }
-  if (lower.includes('tent') || lower.includes('hangar') || lower.includes('canopy') || lower.includes('shamiana') || lower.includes('waterproof')) {
-    return 'Tent structures';
-  }
-  if (lower.includes('cater') || lower.includes('food') || lower.includes('khana') || lower.includes('buffet') || lower.includes('chafer')) {
-    return 'Catering';
+  if (lower.includes('wedding') || lower.includes('reception') || lower.includes('shaadi') || lower.includes('setup')) {
+    return 'Actual wedding and reception setups';
   }
   if (lower.includes('lawn') || lower.includes('venue') || lower.includes('ground') || lower.includes('dwarka') || lower.includes('garden')) {
-    return 'Lawn and venue';
+    return 'Dwarka Shri Lawn venue and grounds';
   }
-  if (lower.includes('seating') || lower.includes('chair') || lower.includes('sofa') || lower.includes('table') || lower.includes('other')) {
-    return 'Other events';
+  if (lower.includes('stage') || lower.includes('mandap') || lower.includes('jaimala') || lower.includes('gate') || lower.includes('entrance') || lower.includes('entry')) {
+    return 'Stage and mandap designs';
   }
-  return null;
+  if (lower.includes('tent') || lower.includes('hangar') || lower.includes('canopy') || lower.includes('shamiana') || lower.includes('waterproof')) {
+    return 'Tent structures and canopy layouts';
+  }
+  if (lower.includes('seating') || lower.includes('chair') || lower.includes('sofa') || lower.includes('furniture') || lower.includes('table') || lower.includes('maharaja')) {
+    return 'Seating and furniture arrangements';
+  }
+  if (lower.includes('light') || lower.includes('chandelier') || lower.includes('flower') || lower.includes('floral') || lower.includes('decor') || lower.includes('phool') || lower.includes('led')) {
+    return 'Floral and lighting decor';
+  }
+  if (lower.includes('cater') || lower.includes('food') || lower.includes('khana') || lower.includes('buffet') || lower.includes('counter') || lower.includes('chaat') || lower.includes('paneer')) {
+    return 'Catering and food counters';
+  }
+  return 'Dwarka Shri Lawn venue and grounds';
 };
 
 // Intent Classification
@@ -412,6 +409,15 @@ const processChatMessage = async ({
       for (const b of broader) {
         if (!matches.some(m => m.id === b.id)) {
           matches.push(b);
+        }
+      }
+    }
+    // If still under 5 photos, backfill from other gallery photos so user receives 5 highlights
+    if (matches.length < 5) {
+      for (const b of availableGallery) {
+        if (!matches.some(m => m.id === b.id)) {
+          matches.push(b);
+          if (matches.length >= 5) break;
         }
       }
     }

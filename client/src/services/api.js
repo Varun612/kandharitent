@@ -102,10 +102,22 @@ export const api = {
   addAmenity: (amenityData) => request('/venue/amenities', { method: 'POST', body: JSON.stringify(amenityData) }),
   deleteAmenity: (id) => request(`/venue/amenities/${id}`, { method: 'DELETE' }),
 
-  // Gallery (8 categories supported)
+  // Gallery (7 Key Wedding & Event Sections)
   getGallery: (category) => request(`/gallery${category ? `?category=${encodeURIComponent(category)}` : ''}`),
   addGalleryItem: (itemData) => request('/gallery', { method: 'POST', body: JSON.stringify(itemData) }),
+  updateGalleryItem: (id, updates) => request(`/gallery/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
   deleteGalleryItem: (id) => request(`/gallery/${id}`, { method: 'DELETE' }),
+
+  // Catering Menu & Custom Enquiries
+  getCateringMenu: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/catering/menu${query ? `?${query}` : ''}`);
+  },
+  getCateringCategories: () => request('/catering/categories'),
+  submitCateringEnquiry: (enquiryData) => request('/catering/enquire', { method: 'POST', body: JSON.stringify(enquiryData) }),
+  addCateringItem: (itemData) => request('/catering/items', { method: 'POST', body: JSON.stringify(itemData) }),
+  updateCateringItem: (id, updates) => request(`/catering/items/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
+  deleteCateringItem: (id) => request(`/catering/items/${id}`, { method: 'DELETE' }),
 
   // Customer Authentication & Portal
   customerRegister: (userData) => request('/auth/register', { method: 'POST', body: JSON.stringify(userData) }),

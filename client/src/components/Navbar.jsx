@@ -28,6 +28,7 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Rental Catalogue', path: '/catalogue' },
     { name: 'Dwarka Shri Lawn', path: '/lawn', highlight: true },
+    { name: 'Catering Menu', path: '/catering', highlight: true },
     { name: 'Services', path: '/services' },
     { 
       name: 'Tools', 

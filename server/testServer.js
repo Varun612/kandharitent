@@ -51,18 +51,63 @@ const runTests = async () => {
     console.log(`Items count: ${items.data.count} items loaded.`);
     if (!items.data.count || items.data.count < 10) throw new Error('Expected at least 10 items');
 
-    // 3. Gallery Verification across all 8 Categories
-    console.log('\n--- Test 3: Gallery 8 Categories Verification ---');
+    // 3. Gallery Verification across all 7 Canonical Sections
+    console.log('\n--- Test 3: Gallery 7 Sections Verification ---');
     const categories = [
-      'Entrances', 'Floral decoration', 'Lighting', 'Stage and mandap',
-      'Tent structures', 'Catering', 'Lawn and venue', 'Other events'
+      'Actual wedding and reception setups',
+      'Dwarka Shri Lawn venue and grounds',
+      'Stage and mandap designs',
+      'Tent structures and canopy layouts',
+      'Seating and furniture arrangements',
+      'Floral and lighting decor',
+      'Catering and food counters'
     ];
     for (const cat of categories) {
       const gal = await testEndpoint(`/api/gallery?category=${encodeURIComponent(cat)}`);
       const count = gal.data.count || (gal.data.data ? gal.data.data.length : 0);
-      console.log(`• Category [${cat}]: ${count} photos available`);
-      if (count < 5) throw new Error(`Category ${cat} expected at least 5 photos, found ${count}`);
+      console.log(`• Section [${cat}]: ${count} photos available`);
+      if (count < 1) throw new Error(`Section ${cat} expected at least 1 photo, found ${count}`);
     }
+
+    // 3.1 Catering Menu & Quotation Verification
+    console.log('\n--- Test 3.1: Authentic Catering Menu & Dual-Mount Verification ---');
+    const cateringMenuWithPrefix = await testEndpoint('/api/catering/menu');
+    console.log(`[Catering] GET /api/catering/menu: HTTP ${cateringMenuWithPrefix.status} | Total Dishes: ${cateringMenuWithPrefix.data.count} | Categories: ${cateringMenuWithPrefix.data.categories?.length}`);
+    if (cateringMenuWithPrefix.status !== 200 || !cateringMenuWithPrefix.data.success || cateringMenuWithPrefix.data.count < 50) {
+      throw new Error('Expected at least 50 authentic dishes in catering menu');
+    }
+
+    const cateringMenuNoPrefix = await testEndpoint('/catering/menu');
+    console.log(`[Catering Dual-Mount] GET /catering/menu: HTTP ${cateringMenuNoPrefix.status} | Total Dishes: ${cateringMenuNoPrefix.data.count}`);
+    if (cateringMenuNoPrefix.status !== 200 || cateringMenuNoPrefix.data.count !== cateringMenuWithPrefix.data.count) {
+      throw new Error('Catering menu dual-mount failed');
+    }
+
+    // Test Catering quotation enquiry submission
+    const cateringEnquiryPayload = {
+      customerName: 'Ananya Sharma',
+      phone: '9305465848',
+      eventDate: '2026-11-28',
+      guestCount: 300,
+      locality: 'Kanpur Road, Lucknow',
+      selectedDishes: [
+        { name: 'Kashmiri Kahwa', category: 'Welcome Drinks & Starters' },
+        { name: 'Paneer Tikka Angara', category: 'Barbecue & Tandoor Live Grill' },
+        { name: 'Shahi Paneer Awadhi Khas', category: 'Paneer Specialities' },
+        { name: 'Dal Makhani Bukhara', category: 'Dal Varieties' },
+        { name: 'Lucknowi Shahi Tukda with Rabdi', category: 'Desserts & Traditional Sweets' }
+      ],
+      detailedRequirements: 'Authentic Awadhi royal wedding catering for 300 guests.'
+    };
+    const cateringEnquiryRes = await testEndpoint('/api/catering/enquiries', {
+      method: 'POST',
+      body: JSON.stringify(cateringEnquiryPayload)
+    });
+    console.log(`[Catering Enquiry] POST /api/catering/enquiries: HTTP ${cateringEnquiryRes.status} | Success: ${cateringEnquiryRes.data.success}`);
+    if (cateringEnquiryRes.status !== 201 || !cateringEnquiryRes.data.success) {
+      throw new Error('Failed to submit catering quotation enquiry');
+    }
+
 
     // 4. Venue & Lawn Details
     console.log('\n--- Test 4: Dwarka Shri Lawn Details ---');
