@@ -1,10 +1,10 @@
 const { isMongoConnected, getLocalDb, saveLocalStore } = require('../config/db');
 const Gallery = require('../models/Gallery');
 
-// GET /api/gallery - Retrieve gallery items, optional category filter
+// GET /api/gallery - Retrieve gallery items, optional category, mediaType, search, pagination
 const getGalleryItems = async (req, res) => {
   try {
-    const { category, section, featuredOnly } = req.query;
+    const { category, section, featuredOnly, mediaType, search, page, limit } = req.query;
     const filterCat = category || section;
 
     const db = getLocalDb();
@@ -13,10 +13,27 @@ const getGalleryItems = async (req, res) => {
     // Filter by active status (default show active)
     items = items.filter(it => it.active !== false);
 
+    // Filter by category
     if (filterCat && filterCat !== 'All') {
       items = items.filter(it => 
         (it.category && it.category.toLowerCase() === filterCat.toLowerCase()) ||
         (it.categorySlug && it.categorySlug.toLowerCase() === filterCat.toLowerCase())
+      );
+    }
+
+    // Filter by mediaType ('image' or 'video')
+    if (mediaType && mediaType !== 'All') {
+      items = items.filter(it => (it.mediaType || 'image').toLowerCase() === mediaType.toLowerCase());
+    }
+
+    // Filter by search query
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      items = items.filter(it => 
+        (it.title && it.title.toLowerCase().includes(q)) ||
+        (it.caption && it.caption.toLowerCase().includes(q)) ||
+        (it.category && it.category.toLowerCase().includes(q)) ||
+        (Array.isArray(it.tags) && it.tags.some(t => t.toLowerCase().includes(q)))
       );
     }
 
@@ -25,20 +42,42 @@ const getGalleryItems = async (req, res) => {
     }
 
     const categories = db.galleryCategories || [
-      'Actual wedding and reception setups',
+      'Wedding and reception setups',
       'Dwarka Shri Lawn venue and grounds',
       'Stage and mandap designs',
       'Tent structures and canopy layouts',
       'Seating and furniture arrangements',
-      'Floral and lighting decor',
-      'Catering and food counters'
+      'Floral decoration and lighting',
+      'Catering and food counters',
+      'Other event photographs'
     ];
+
+    const totalCount = items.length;
+
+    // Optional server-side pagination
+    let paginatedItems = items;
+    let pageNum = null;
+    let totalPages = null;
+    let hasMore = false;
+
+    if (page && limit) {
+      pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.max(1, parseInt(limit, 10) || 24);
+      totalPages = Math.ceil(totalCount / limitNum);
+      const startIndex = (pageNum - 1) * limitNum;
+      paginatedItems = items.slice(startIndex, startIndex + limitNum);
+      hasMore = pageNum < totalPages;
+    }
 
     return res.json({
       success: true,
-      count: items.length,
+      count: paginatedItems.length,
+      totalCount,
+      page: pageNum,
+      totalPages,
+      hasMore,
       categories,
-      data: items
+      data: paginatedItems
     });
   } catch (error) {
     console.error('Error in getGalleryItems:', error);

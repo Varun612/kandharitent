@@ -538,26 +538,35 @@ const HomePage = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-serif font-bold text-brand-primary group-hover:text-brand-purple transition">
-                    Full Catering Service
+                    Royal Catering Packages
                   </h3>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-2xl font-serif font-black text-brand-primary">₹750</span>
-                    <span className="text-xs text-neutral-500 font-medium">/ person</span>
+                  <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-2xl font-serif font-black text-emerald-800">₹650</span>
+                    <span className="text-xs text-neutral-500 font-medium">/ person (&gt; 500 pax)</span>
                   </div>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">For ≥ 250 persons • Custom for &lt;250</p>
+                  <p className="text-[11px] text-brand-primary font-semibold mt-0.5">
+                    Veg Platter ₹650 &bull; Non-Veg Platter ₹850 (&gt; 500 pax)
+                  </p>
+                  <p className="text-[10px] text-neutral-500">
+                    ₹750/person for 250–500 pax &bull; Custom quote for &lt;250 pax
+                  </p>
                 </div>
                 <ul className="space-y-2 text-xs text-neutral-600 pt-2 border-t border-neutral-100">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>17 printed courses: Welcome drinks, soups, chaat, live barbecue, paneer, breads & 2 hot desserts</span>
+                    <span><strong>Above 500 Guests:</strong> Veg @ ₹650/pp &bull; Non-Veg @ ₹850/pp</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Snacks & starters served for 2 to 2.5 hours</span>
+                    <span><strong>17 Printed Courses:</strong> Welcome drinks, live chaat, tandoor &amp; hot sweets</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Illuminated buffet counters, melamine/bone china crockery & uniformed stewards</span>
+                    <span><strong>Official Rule:</strong> All snacks served strictly for 2 to 2.5 hours</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Illuminated counters &amp; bone china; rate varies by dishes &amp; pax count</span>
                   </li>
                 </ul>
               </div>

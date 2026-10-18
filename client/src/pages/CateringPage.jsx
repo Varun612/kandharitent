@@ -86,18 +86,25 @@ const CateringPage = () => {
 
   const activePackage = useMemo(() => {
     return packages.find(p => p.id === selectedPackageId) || {
-      id: 'pkg-full-catering',
-      name: 'Royal Full Catering Package',
-      ratePerPerson: 750,
-      minGuests: 250,
-      description: 'Complete 17-Course Royal Spread'
+      id: 'pkg-veg-grand-500',
+      name: 'Grand Royal Veg Platter (> 500 Guests)',
+      ratePerPerson: 650,
+      guestTier: '> 500 pax',
+      description: 'Complete pure-veg Awadhi banqueting across 17 printed brochure courses for grand celebrations of 500+ guests.'
     };
   }, [packages, selectedPackageId]);
 
   const estimatedTotal = useMemo(() => {
     const guests = Number(formData.guestCount) || 0;
-    if (guests >= 250 && activePackage?.ratePerPerson) {
-      return guests * activePackage.ratePerPerson;
+    if (!activePackage?.ratePerPerson) return null;
+
+    if (activePackage.id === 'pkg-veg-grand-500' || activePackage.id === 'pkg-nonveg-grand-500') {
+      if (guests >= 500) return guests * activePackage.ratePerPerson;
+      return null;
+    }
+    if (activePackage.id === 'pkg-full-catering' || activePackage.id === 'pkg-semi-catering') {
+      if (guests >= 250) return guests * activePackage.ratePerPerson;
+      return null;
     }
     return null;
   }, [formData.guestCount, activePackage]);
@@ -382,23 +389,201 @@ const CateringPage = () => {
             </div>
           </div>
 
-          {/* 3 Package Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Package 1: Full Catering */}
+          {/* Tiered Catering Pricing Rule Banner */}
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-xs text-amber-950 space-y-1.5">
+            <div className="flex items-center gap-2 font-bold text-sm text-brand-primary">
+              <Sparkles className="w-4 h-4 text-brand-gold" />
+              <span>Tiered Catering Pricing Structure (Official Rate Guidelines)</span>
+            </div>
+            <p className="leading-relaxed text-neutral-700">
+              <strong>Above 500 Guests:</strong> Special bulk rates — <strong>Grand Veg Platter @ ₹650/person</strong> &bull; <strong>Grand Non-Veg Platter @ ₹850/person</strong>.
+              <br />
+              <strong>250 to 500 Guests:</strong> Standard benchmark — <strong>Royal Full Catering @ ₹750/person</strong> &bull; <strong>Semi Catering @ ₹250/person</strong>.
+              <br />
+              <strong>Under 250 Guests:</strong> If guest numbers decrease, the rate per plate increases and varies based on specific dishes and live counters selected.
+              <br />
+              <strong>Service Rule:</strong> All snacks and starters served for <strong>2 to 2.5 hours only</strong>. Client provides generator diesel.
+            </p>
+          </div>
+
+          {/* Guest Count Quick Adjuster */}
+          <div className="bg-white rounded-2xl p-4 border border-neutral-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-brand-purple" />
+              <span className="font-bold text-neutral-800">Your Estimated Guest Count:</span>
+              <input
+                type="number"
+                min="50"
+                max="5000"
+                step="50"
+                value={formData.guestCount}
+                onChange={(e) => setFormData(prev => ({ ...prev, guestCount: Math.max(1, parseInt(e.target.value) || 0) }))}
+                className="w-24 px-3 py-1.5 rounded-lg border border-neutral-300 font-bold text-brand-primary text-center focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+              />
+              <span className="text-neutral-500 font-medium">pax</span>
+            </div>
+
+            {/* Quick preset buttons */}
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              <span className="text-[11px] text-neutral-400 font-semibold mr-1">Presets:</span>
+              {[150, 300, 500, 700, 1000].map(cnt => (
+                <button
+                  key={cnt}
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, guestCount: cnt }));
+                    if (cnt >= 500 && (selectedPackageId === 'pkg-full-catering' || selectedPackageId === 'pkg-custom-catering')) {
+                      setSelectedPackageId('pkg-veg-grand-500');
+                    } else if (cnt < 500 && cnt >= 250 && (selectedPackageId === 'pkg-veg-grand-500' || selectedPackageId === 'pkg-nonveg-grand-500')) {
+                      setSelectedPackageId('pkg-full-catering');
+                    } else if (cnt < 250) {
+                      setSelectedPackageId('pkg-custom-catering');
+                    }
+                  }}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
+                    Number(formData.guestCount) === cnt
+                      ? 'royal-gradient text-white shadow-xs'
+                      : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                >
+                  {cnt} pax
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 5 Package Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            
+            {/* Card 1: Grand Veg Platter (> 500 pax) */}
+            <div 
+              onClick={() => setSelectedPackageId('pkg-veg-grand-500')}
+              className={`cursor-pointer rounded-2xl p-4.5 border-2 transition-all relative flex flex-col justify-between ${
+                selectedPackageId === 'pkg-veg-grand-500'
+                  ? 'border-emerald-600 bg-emerald-50/50 shadow-md ring-2 ring-emerald-600/20'
+                  : 'border-neutral-200 bg-white hover:border-neutral-300'
+              }`}
+            >
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-700 text-white">
+                    &gt; 500 Pax Deal
+                  </span>
+                  <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center ${
+                    selectedPackageId === 'pkg-veg-grand-500' ? 'border-emerald-700 bg-emerald-700 text-white' : 'border-neutral-300'
+                  }`}>
+                    {selectedPackageId === 'pkg-veg-grand-500' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-serif font-bold text-sm text-neutral-900 leading-snug">Grand Royal Veg</h3>
+                  <p className="text-[11px] text-neutral-500">Above 500 Guests</p>
+                </div>
+
+                <div className="pt-0.5">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-emerald-800">₹650</span>
+                    <span className="text-[11px] text-neutral-500 font-medium">/ person</span>
+                  </div>
+                  <p className="text-[10px] text-emerald-700 font-semibold mt-0.5">
+                    Verified rate for &gt; 500 pax
+                  </p>
+                </div>
+
+                <ul className="text-[11px] space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Complete 17-course Awadhi veg spread</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Live Chaat, Barbecue Tandoor &amp; Kesaria Jalebi</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Snacks strictly 2 to 2.5 hours</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Illuminated counters &amp; bone china crockery</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Card 2: Grand Non-Veg Platter (> 500 pax) */}
+            <div 
+              onClick={() => setSelectedPackageId('pkg-nonveg-grand-500')}
+              className={`cursor-pointer rounded-2xl p-4.5 border-2 transition-all relative flex flex-col justify-between ${
+                selectedPackageId === 'pkg-nonveg-grand-500'
+                  ? 'border-amber-600 bg-amber-50/50 shadow-md ring-2 ring-amber-600/20'
+                  : 'border-neutral-200 bg-white hover:border-neutral-300'
+              }`}
+            >
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-700 text-white">
+                    Non-Veg &gt; 500
+                  </span>
+                  <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center ${
+                    selectedPackageId === 'pkg-nonveg-grand-500' ? 'border-amber-700 bg-amber-700 text-white' : 'border-neutral-300'
+                  }`}>
+                    {selectedPackageId === 'pkg-nonveg-grand-500' && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-serif font-bold text-sm text-neutral-900 leading-snug">Grand Royal Non-Veg</h3>
+                  <p className="text-[11px] text-neutral-500">Above 500 Guests</p>
+                </div>
+
+                <div className="pt-0.5">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-amber-900">₹850</span>
+                    <span className="text-[11px] text-neutral-500 font-medium">/ person</span>
+                  </div>
+                  <p className="text-[10px] text-amber-700 font-semibold mt-0.5">
+                    Mutton &amp; Chicken Curries + Kebabs
+                  </p>
+                </div>
+
+                <ul className="text-[11px] space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Mutton/Chicken curries &amp; live kebabs</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Full vegetarian buffet counters included</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Snacks strictly 2 to 2.5 hours</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Luxury brass &amp; stainless chafing line</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Card 3: Royal Full Catering (250–500 pax) */}
             <div 
               onClick={() => setSelectedPackageId('pkg-full-catering')}
-              className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+              className={`cursor-pointer rounded-2xl p-4.5 border-2 transition-all relative flex flex-col justify-between ${
                 selectedPackageId === 'pkg-full-catering'
                   ? 'border-brand-purple bg-purple-50/40 shadow-md ring-2 ring-brand-purple/20'
                   : 'border-neutral-200 bg-white hover:border-neutral-300'
               }`}
             >
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-purple text-white">
-                    Most Popular
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-purple text-white">
+                    250–500 Pax
                   </span>
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                  <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center ${
                     selectedPackageId === 'pkg-full-catering' ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300'
                   }`}>
                     {selectedPackageId === 'pkg-full-catering' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -406,56 +591,56 @@ const CateringPage = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif font-bold text-base text-neutral-900">Royal Full Catering</h3>
-                  <p className="text-xs text-neutral-500">Comprehensive 17-Course Spread</p>
+                  <h3 className="font-serif font-bold text-sm text-neutral-900 leading-snug">Royal Full Catering</h3>
+                  <p className="text-[11px] text-neutral-500">250 to 500 Guests</p>
                 </div>
 
-                <div className="pt-1">
+                <div className="pt-0.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-black text-brand-primary">₹750</span>
-                    <span className="text-xs text-neutral-500 font-medium">/ person (≥ 250 pax)</span>
+                    <span className="text-[11px] text-neutral-500 font-medium">/ person</span>
                   </div>
-                  <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">
-                    Verified rate for weddings &amp; grand receptions
+                  <p className="text-[10px] text-emerald-700 font-semibold mt-0.5">
+                    Signature wedding standard
                   </p>
                 </div>
 
-                <ul className="text-xs space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <ul className="text-[11px] space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span>All 17 course sections included</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Live Chinese, Italian &amp; Chokha Bati stalls</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Live Chinese, Italian &amp; Chokha Bati</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Desserts &amp; traditional hot sweets</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Snacks served for 2 to 2.5 hours</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Full chafing line with trained stewards</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Full chafing line &amp; trained stewards</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Package 2: Semi Catering */}
+            {/* Card 4: Semi Catering (≥ 250 pax) */}
             <div 
               onClick={() => setSelectedPackageId('pkg-semi-catering')}
-              className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+              className={`cursor-pointer rounded-2xl p-4.5 border-2 transition-all relative flex flex-col justify-between ${
                 selectedPackageId === 'pkg-semi-catering'
                   ? 'border-brand-purple bg-purple-50/40 shadow-md ring-2 ring-brand-purple/20'
                   : 'border-neutral-200 bg-white hover:border-neutral-300'
               }`}
             >
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
-                    Essential Banquet
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">
+                    Service &ge; 250
                   </span>
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                  <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center ${
                     selectedPackageId === 'pkg-semi-catering' ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300'
                   }`}>
                     {selectedPackageId === 'pkg-semi-catering' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -463,56 +648,56 @@ const CateringPage = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif font-bold text-base text-neutral-900">Standard Semi Catering</h3>
-                  <p className="text-xs text-neutral-500">Daytime Functions &amp; Poojas</p>
+                  <h3 className="font-serif font-bold text-sm text-neutral-900 leading-snug">Standard Semi Catering</h3>
+                  <p className="text-[11px] text-neutral-500">&ge; 250 Guests</p>
                 </div>
 
-                <div className="pt-1">
+                <div className="pt-0.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-black text-brand-primary">₹250</span>
-                    <span className="text-xs text-neutral-500 font-medium">/ person (≥ 250 pax)</span>
+                    <span className="text-[11px] text-neutral-500 font-medium">/ person</span>
                   </div>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">
-                    Core main courses, breads &amp; drinks
+                  <p className="text-[10px] text-neutral-500 mt-0.5">
+                    Daytime events &amp; poojas
                   </p>
                 </div>
 
-                <ul className="text-xs space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Select core gravies &amp; dal</span>
+                <ul className="text-[11px] space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Stainless &amp; brass counter warmers</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Live tawa hot rotis &amp; rice</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Table service &amp; clearing staff</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Welcome beverage station</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Host arranges raw food items</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Standard chafers &amp; service team</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Formal layout &amp; supervisors</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Package 3: Custom / Under 250 */}
+            {/* Card 5: Custom / Under 250 pax */}
             <div 
               onClick={() => setSelectedPackageId('pkg-custom-catering')}
-              className={`cursor-pointer rounded-2xl p-5 border-2 transition-all relative flex flex-col justify-between ${
+              className={`cursor-pointer rounded-2xl p-4.5 border-2 transition-all relative flex flex-col justify-between ${
                 selectedPackageId === 'pkg-custom-catering'
                   ? 'border-brand-purple bg-purple-50/40 shadow-md ring-2 ring-brand-purple/20'
                   : 'border-neutral-200 bg-white hover:border-neutral-300'
               }`}
             >
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                    &lt; 250 Guests
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    &lt; 250 Pax
                   </span>
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                  <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center ${
                     selectedPackageId === 'pkg-custom-catering' ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300'
                   }`}>
                     {selectedPackageId === 'pkg-custom-catering' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -520,43 +705,44 @@ const CateringPage = () => {
                 </div>
 
                 <div>
-                  <h3 className="font-serif font-bold text-base text-neutral-900">Bespoke Gathering</h3>
-                  <p className="text-xs text-neutral-500">50 to 249 Guests</p>
+                  <h3 className="font-serif font-bold text-sm text-neutral-900 leading-snug">Bespoke Gathering</h3>
+                  <p className="text-[11px] text-neutral-500">50 to 249 Guests</p>
                 </div>
 
-                <div className="pt-1">
+                <div className="pt-0.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-xl font-bold text-brand-primary">Custom Quote</span>
                   </div>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">
-                    Price varies based on dish choices
+                  <p className="text-[10px] text-neutral-500 mt-0.5">
+                    Rate increases for smaller pax
                   </p>
                 </div>
 
-                <ul className="text-xs space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>Flexible guest count (50-249 pax)</span>
+                <ul className="text-[11px] space-y-1.5 text-neutral-600 pt-2 border-t border-neutral-100">
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Price per plate varies with menu</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>Custom live counter selections</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Intimate gathering arrangements</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>Personalized catering manager estimate</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Direct catering manager consultation</span>
                   </li>
-                  <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>Delivered at Dwarka Shri Lawn or private venue</span>
+                  <li className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Dwarka Shri Lawn or private venue</span>
                   </li>
                 </ul>
               </div>
             </div>
+
           </div>
 
           {/* Live Estimate Calculator Ribbon */}
-          {estimatedTotal && (
+          {estimatedTotal ? (
             <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
@@ -577,6 +763,28 @@ const CateringPage = () => {
                 </span>
                 <p className="text-[10px] text-emerald-700">Estimated banquet subtotal (excl. venue/decor)</p>
               </div>
+            </div>
+          ) : (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>
+                  {Number(formData.guestCount) < 250 ? (
+                    <>For gatherings under 250 guests, per-plate price increases and varies based on menu choices. Select dishes below for a bespoke quote.</>
+                  ) : (selectedPackageId === 'pkg-veg-grand-500' || selectedPackageId === 'pkg-nonveg-grand-500') && Number(formData.guestCount) < 500 ? (
+                    <>The ₹{activePackage.ratePerPerson}/person rate is discounted for gatherings above 500 guests. For 250–500 guests, choose our ₹750/person Royal Full package, or set your guest count to &ge; 500.</>
+                  ) : (
+                    <>Custom rate depends on selected menu items and live counter setup.</>
+                  )}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuotationModalOpen(true)}
+                className="self-start sm:self-auto px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 transition"
+              >
+                Request Custom Quote
+              </button>
             </div>
           )}
         </div>

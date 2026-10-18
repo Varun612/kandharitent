@@ -261,21 +261,25 @@ const generateConversationalResponse = ({ userText, intentInfo, collectedState, 
   // Case 2: Catering Menu & Pricing
   if (intent === 'catering_menu') {
     if (isHindi) {
-      return `Kandhari Tent & Caterers me 100% Pure Vegetarian Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).
+      return `Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).
 
-• **Full Catering**: ₹750/vyakti (≥ 250 guests ke liye)
-• **Semi Catering**: ₹250/vyakti (buffet warmers, setup aur service staff)
+Hamare tiered catering rates:
+• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti
+• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti
+• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.
 • **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.
 
 Aap kis event date aur kitne guests ke liye menu plan kar rahe hain?`;
     }
-    return `At Kandhari Tent & Caterers, our pure-vegetarian Awadhi banqueting covers 17 printed brochure courses (Welcome Drinks, Soups, Live Lucknowi Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).
+    return `At Kandhari Tent & Caterers, our banqueting covers 17 printed brochure courses (Welcome Drinks, Soups, Live Lucknowi Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).
 
-• **Full Catering Package**: ₹750 / person (for ≥ 250 guests)
-• **Semi Catering Package**: ₹250 / person (for ≥ 250 guests)
+Our tiered catering rates:
+• **Above 500 Guests**: Grand Veg Platter @ ₹650 / person | Grand Non-Veg Platter @ ₹850 / person
+• **250 to 500 Guests**: Royal Full Catering @ ₹750 / person (Veg) | Standard Semi Catering @ ₹250 / person
+• **Under 250 Guests / Custom**: As guest count decreases, per-plate price increases and varies based on specific menu courses.
 • **Official Brochure Rule**: All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.
 
-For fewer than 250 guests, our catering manager confirms customized rates. What event date and estimated guest count are you planning for?`;
+What event date and estimated guest count are you planning for?`;
   }
 
   // Case 2.5: Equipment Rental Rates
@@ -316,17 +320,17 @@ How many chairs, sofas, or tables would you like to reserve for your event?`;
   if (intent === 'pricing_package') {
     if (isHindi) {
       return `Kandhari Tent & Caterers ke official verified booking packages:
+• **Catering Packages**: >500 pax: Veg @ ₹650/vyakti | Non-Veg @ ₹850/vyakti; 250–500 pax: Full Catering @ ₹750/vyakti | Semi Catering @ ₹250/vyakti; < 250 pax par custom quote (rate increases for smaller pax).
 • **Standard Wedding Package (₹50,000)**: Complete waterproof tent canopy + lighting + fresh flower entrance/stage decor + DJ sound setup.
 • **Grand Royal Wedding Setup (₹1,10,000)**: Signature Kanpur Road setup jisme 20x200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16x24 ft Royal Stage, 16x16 ft Mandap, 2 Welcome Gates aur DJ shamil hai.
-• **Catering Packages**: Full Catering ₹750/person | Semi Catering ₹250/person (≥250 guests).
 • **Govt Contractors**: DRDO Lucknow approved seminar setup with 18% GST billing.
 
 Aap apne event ke liye kaun sa package explore karna chahenge?`;
     }
     return `Here are our official verified event packages from Kandhari Tent & Caterers:
+• **Catering Packages**: >500 pax: Veg @ ₹650/person | Non-Veg @ ₹850/person; 250–500 pax: Royal Full @ ₹750/person | Semi Catering @ ₹250/person; < 250 pax: custom quotation (rate varies with menu).
 • **Standard Wedding Package**: ₹50,000 all-inclusive (Waterproof Tent + Ambient Illumination + Fresh Flower Decor + DJ Sound).
 • **Grand Royal Wedding Setup**: ₹1,10,000 all-inclusive (VIP 20×200 ft gallery with lights & flowers, 14 Maharaja Sofas, 200 Highback Chairs with covers, 16×24 ft Stage, 16×16 ft Mandap, 2 Entrance Gates, DJ).
-• **Pure-Veg Catering**: Full Catering @ ₹750/person | Semi Catering @ ₹250/person (for ≥ 250 guests).
 • **Approved Government Contractors**: D.R.D.O. Lucknow approved seminar setups with official 18% GST invoices.
 
 Which package or setup best aligns with your celebration?`;
@@ -391,10 +395,10 @@ Contact numbers: 9305465848, 9307908994, 7355059566.
 Tagline: "Making Your Celebrations Memorable".
 
 OFFICIAL VERIFIED RATES & PACKAGES (QUOTE CONFIDENTLY WHEN ASKED):
-1. Catering Packages (100% Pure Vegetarian Awadhi Banqueting across 17 printed brochure courses):
-   - Full Catering: ₹750 / person (for ≥ 250 guests). Includes 17 courses: welcome drinks, soups, live chaat, barbecue tandoor, handi paneer, vegetables, breads, salad, and 2 hot desserts.
-   - Semi Catering: ₹250 / person (for ≥ 250 guests). Buffet warmers, layout, and service staff.
-   - Custom quote for < 250 guests.
+1. Tiered Catering Packages (Awadhi Banqueting across 17 printed brochure courses):
+   - Above 500 guests: Grand Veg Platter @ ₹650 / person | Grand Non-Veg Platter @ ₹850 / person.
+   - 250 to 500 guests: Royal Full Catering @ ₹750 / person (Veg) | Standard Semi Catering @ ₹250 / person.
+   - Under 250 guests: Per-plate rate increases for smaller guest counts and varies based on selected dishes.
    - Official Service Rule: All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel provided by client.
 2. Complete Wedding Packages:
    - Standard Wedding Package: ₹50,000 all-inclusive (Waterproof Tent + Ambient Illumination + Fresh Flower Decor + DJ Sound Setup).

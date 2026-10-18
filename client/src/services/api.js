@@ -102,8 +102,14 @@ export const api = {
   addAmenity: (amenityData) => request('/venue/amenities', { method: 'POST', body: JSON.stringify(amenityData) }),
   deleteAmenity: (id) => request(`/venue/amenities/${id}`, { method: 'DELETE' }),
 
-  // Gallery (7 Key Wedding & Event Sections)
-  getGallery: (category) => request(`/gallery${category ? `?category=${encodeURIComponent(category)}` : ''}`),
+  // Gallery (8 Canonical Wedding & Event Sections)
+  getGallery: (params) => {
+    if (typeof params === 'string') {
+      return request(`/gallery${params ? `?category=${encodeURIComponent(params)}` : ''}`);
+    }
+    const query = new URLSearchParams(params || {}).toString();
+    return request(`/gallery${query ? `?${query}` : ''}`);
+  },
   addGalleryItem: (itemData) => request('/gallery', { method: 'POST', body: JSON.stringify(itemData) }),
   updateGalleryItem: (id, updates) => request(`/gallery/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
   deleteGalleryItem: (id) => request(`/gallery/${id}`, { method: 'DELETE' }),

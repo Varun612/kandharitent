@@ -60,13 +60,13 @@ const getClientAiResponse = (text) => {
 
   if (lower.includes('cater') || lower.includes('menu') || lower.includes('food') || lower.includes('khana') || lower.includes('dish') || lower.includes('starter') || lower.includes('sweet') || lower.includes('paneer') || lower.includes('chaat')) {
     return {
-      text: `We provide 100% pure-vegetarian Awadhi banqueting across 17 printed brochure courses (Welcome Drinks, Soups, Live Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).\n\n• **Full Catering Package:** ₹750/person (for ≥250 guests)\n• **Semi Catering Package:** ₹250/person (for ≥250 guests; includes buffet warmers, setup & service staff)\n• **Printed Brochure Rule:** All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.\n\n👉 You can explore all 17 categories and design your custom menu directly on our **[Catering Page](/catering)**!`
+      text: `We provide authentic Awadhi banqueting across 17 printed brochure courses (Welcome Drinks, Soups, Live Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).\n\n• **Above 500 Guests:** Grand Veg Platter @ ₹650 / person | Grand Non-Veg Platter @ ₹850 / person\n• **250 to 500 Guests:** Royal Full Catering @ ₹750 / person (Veg) | Semi Catering @ ₹250 / person\n• **Under 250 Guests:** Per-plate price increases and varies based on specific menu courses.\n• **Printed Brochure Rule:** All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.\n\n👉 You can design your custom menu and calculate estimates directly on our **[Catering Page](/catering)**!`
     };
   }
 
   if (lower.includes('rate') || lower.includes('price') || lower.includes('cost') || lower.includes('budget') || lower.includes('package') || lower.includes('quotation') || lower.includes('kitna')) {
     return {
-      text: `Here are our official, verified booking packages and contract rates:\n\n• **Standard Wedding Package (₹50,000):** Waterproof Tent + Ambient Lighting + Fresh Flower Gate & Stage Decor + DJ Sound Setup.\n• **Grand Royal Wedding Setup (₹1,10,000):** Signature Kanpur Road setup with 20×200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16×24 ft Stage, 16×16 ft Mandap, 2 Gates & DJ.\n• **Catering:** Full Catering at ₹750/person | Semi Catering at ₹250/person (≥250 guests).\n• **Approved Govt Contractors:** DRDO Lucknow seminar setups with 18% GST billing.\n\nWould you like a tailored quotation for your specific event date?`
+      text: `Here are our official, verified booking packages and contract rates:\n\n• **Catering Tiers:** >500 pax: Veg @ ₹650/pp &bull; Non-Veg @ ₹850/pp | 250–500 pax: Full @ ₹750/pp &bull; Semi @ ₹250/pp | <250 pax: Custom quotation.\n• **Standard Wedding Package (₹50,000):** Waterproof Tent + Ambient Lighting + Fresh Flower Gate & Stage Decor + DJ Sound Setup.\n• **Grand Royal Wedding Setup (₹1,10,000):** Signature Kanpur Road setup with 20×200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16×24 ft Stage, 16×16 ft Mandap, 2 Gates & DJ.\n• **Approved Govt Contractors:** DRDO Lucknow seminar setups with 18% GST billing.\n\nWould you like a tailored quotation for your specific event date?`
     };
   }
 
@@ -82,9 +82,9 @@ const getClientAiResponse = (text) => {
     };
   }
 
-  if (lower.includes('gallery') || lower.includes('photo') || lower.includes('picture') || lower.includes('real image') || lower.includes('album')) {
+  if (lower.includes('gallery') || lower.includes('photo') || lower.includes('picture') || lower.includes('real image') || lower.includes('album') || lower.includes('video')) {
     return {
-      text: `Explore our genuine Lucknow event photographs in the **[Event & Venue Gallery](/gallery)** across 7 dedicated sections:\n\n1. Actual wedding & reception setups\n2. Dwarka Shri Lawn venue & grounds\n3. Stage and mandap designs\n4. Tent structures & canopy layouts\n5. Seating & furniture arrangements\n6. Floral & lighting decor\n7. Catering & food counters\n\nAll photos feature real setups from our warehouse and Kanpur Road venue!`
+      text: `Explore over 220 authentic Lucknow event photographs and video walkthrough reels in our **[Event & Venue Gallery](/gallery)** across 8 dedicated sections:\n\n1. Wedding and reception setups\n2. Dwarka Shri Lawn venue and grounds\n3. Stage and mandap designs\n4. Tent structures and canopy layouts\n5. Seating and furniture arrangements\n6. Floral decoration and lighting\n7. Catering and food counters\n8. Other event photographs\n\nAll photos and walkthrough reels feature genuine setups from our warehouse and Kanpur Road venue!`
     };
   }
 
