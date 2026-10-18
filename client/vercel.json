@@ -1,8 +1,33 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "server/**"
+    }
+  },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/api",
+      "destination": "/api"
+    },
+    {
+      "source": "/items",
+      "destination": "/api"
+    },
+    {
+      "source": "/venue",
+      "destination": "/api"
+    },
+    {
+      "source": "/enquiries",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api|items|venue|enquiries).*)",
       "destination": "/index.html"
     }
   ]
