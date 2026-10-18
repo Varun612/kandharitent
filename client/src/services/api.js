@@ -3,7 +3,8 @@
  * Connects to Express backend with bearer token authentication for customer and admin endpoints.
  */
 
-const API_BASE = '/api';
+const rawApiBase = import.meta.env?.VITE_API_URL || '/api';
+const API_BASE = rawApiBase.endsWith('/') ? rawApiBase.slice(0, -1) : rawApiBase;
 
 const getAuthHeaders = () => {
   // Use customer token if present, or admin token
@@ -18,7 +19,10 @@ const request = async (endpoint, options = {}) => {
     ...(options.headers || {})
   };
 
-  const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = (cleanEndpoint.startsWith('/api') && API_BASE === '/api')
+    ? cleanEndpoint
+    : `${API_BASE}${cleanEndpoint.startsWith('/api') ? cleanEndpoint.replace(/^\/api/, '') : cleanEndpoint}`;
 
   try {
     const res = await fetch(url, {

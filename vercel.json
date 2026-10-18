@@ -1,17 +1,35 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "server/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api"
     },
     {
       "source": "/api",
-      "destination": "/api/index.js"
+      "destination": "/api"
     },
     {
-      "source": "/(.*)",
+      "source": "/items",
+      "destination": "/api"
+    },
+    {
+      "source": "/venue",
+      "destination": "/api"
+    },
+    {
+      "source": "/enquiries",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api|items|venue|enquiries).*)",
       "destination": "/index.html"
     }
   ]

@@ -8,12 +8,19 @@ const path = require('path');
 const seedData = require('../seed/seedData');
 
 let isMongoConnected = false;
-const dataDir = path.join(__dirname, '../data');
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL_ENV;
+const dataDir = isServerless ? path.join('/tmp', 'kandhari-data') : path.join(__dirname, '../data');
 const storeFilePath = path.join(dataDir, 'localStore.json');
+const bundledSeedPath = path.join(__dirname, '../data/localStore.json');
 
-// Ensure local data store directory exists
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+// Ensure local data store directory exists safely
+try {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+} catch (e) {
+  // If filesystem is read-only, continue safely in-memory
+  console.warn('[LocalStore] Operating in-memory mode:', e.message);
 }
 
 // In-Memory & Local JSON Store
@@ -39,8 +46,14 @@ let localDb = {
 // Initialize or load from localStore.json if it exists
 const loadLocalStore = () => {
   try {
+    let content = null;
     if (fs.existsSync(storeFilePath)) {
-      const content = fs.readFileSync(storeFilePath, 'utf8');
+      content = fs.readFileSync(storeFilePath, 'utf8');
+    } else if (fs.existsSync(bundledSeedPath)) {
+      content = fs.readFileSync(bundledSeedPath, 'utf8');
+    }
+
+    if (content) {
       const parsed = JSON.parse(content);
       if (parsed && parsed.items && parsed.items.length > 0) {
         localDb = parsed;
@@ -50,11 +63,11 @@ const loadLocalStore = () => {
         if (!localDb.gallery || localDb.gallery.length < seedData.galleryItems.length) {
           localDb.gallery = [...seedData.galleryItems];
         }
-        console.log('[LocalStore] Loaded persistent data from localStore.json');
+        console.log('[LocalStore] Loaded persistent data successfully');
         return;
       }
     }
-    // Save initial seed to file
+    // Save initial seed to file if writable
     saveLocalStore();
   } catch (err) {
     console.warn('[LocalStore] Could not read localStore.json, using defaults:', err.message);
@@ -63,9 +76,12 @@ const loadLocalStore = () => {
 
 const saveLocalStore = () => {
   try {
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
     fs.writeFileSync(storeFilePath, JSON.stringify(localDb, null, 2), 'utf8');
   } catch (err) {
-    console.error('[LocalStore] Error saving store:', err.message);
+    console.warn('[LocalStore] Warning saving store (in-memory remains current):', err.message);
   }
 };
 

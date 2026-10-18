@@ -23,6 +23,17 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Normalize req.url when Vercel serverless rewrites point to /api
+app.use((req, res, next) => {
+  const matchedPath = req.headers['x-matched-path'] || req.headers['x-now-route-matches'];
+  if (matchedPath && (req.url === '/api' || req.url === '/' || req.url.startsWith('/api?'))) {
+    const queryIdx = req.url.indexOf('?');
+    const queryPart = queryIdx !== -1 ? req.url.substring(queryIdx) : '';
+    req.url = matchedPath + (matchedPath.includes('?') ? '' : queryPart);
+  }
+  next();
+});
+
 // Ensure database connection is ready for incoming requests in serverless environments
 app.use(async (req, res, next) => {
   if (!isMongoConnected() && process.env.MONGODB_URI) {
@@ -46,6 +57,22 @@ const healthHandler = (req, res) => {
 };
 app.get('/api/health', healthHandler);
 app.get('/health', healthHandler);
+
+// Root and /api entrypoint check
+app.get(['/', '/api', '/api/'], (req, res) => {
+  res.json({
+    name: 'Kandhari Tent & Caterers API',
+    status: 'online',
+    business: 'Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow',
+    endpoints: {
+      items: '/api/items',
+      venue: '/api/venue',
+      enquiries: '/api/enquiries',
+      gallery: '/api/gallery',
+      health: '/api/health'
+    }
+  });
+});
 
 // Helper for dual mounting routes with and without /api prefix
 // This ensures compatibility across direct serverless execution, Vercel rewrites, and custom reverse proxies
