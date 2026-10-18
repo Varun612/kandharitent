@@ -148,19 +148,28 @@ const getCustomerEnquiries = async (req, res) => {
 
     let enquiries = [];
     if (isMongoConnected()) {
-      enquiries = await Enquiry.find({
+      const unclaimedQuery = {
+        customerId: { $in: [null, ''] },
         $or: [
-          { customerId: customerId },
-          { phone: customerPhone },
-          { email: customerEmail }
+          ...(customerPhone ? [{ phone: customerPhone }] : []),
+          ...(customerEmail ? [{ email: customerEmail }] : [])
         ]
-      }).sort({ createdAt: -1 });
+      };
+
+      const orConditions = [{ customerId: customerId }];
+      if (unclaimedQuery.$or.length > 0) {
+        orConditions.push(unclaimedQuery);
+      }
+
+      enquiries = await Enquiry.find({ $or: orConditions }).sort({ createdAt: -1 });
     } else {
       const localDb = getLocalDb();
-      enquiries = localDb.enquiries.filter(e => 
+      enquiries = (localDb.enquiries || []).filter(e => 
         e.customerId === customerId ||
-        (customerPhone && e.phone === customerPhone) ||
-        (customerEmail && e.email && e.email.toLowerCase() === customerEmail.toLowerCase())
+        (!e.customerId && (
+          (customerPhone && e.phone === customerPhone) ||
+          (customerEmail && e.email && e.email.toLowerCase() === customerEmail.toLowerCase())
+        ))
       );
     }
 

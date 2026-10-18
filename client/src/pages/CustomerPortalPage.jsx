@@ -171,14 +171,21 @@ const CustomerPortalPage = ({ onOpenChatWithId }) => {
                         </p>
                       </div>
 
-                      <div className="text-right text-xs text-neutral-500">
+                      <div className="text-right text-xs text-neutral-500 space-y-1">
                         <div className="flex items-center gap-1.5 md:justify-end">
                           <Calendar className="w-3.5 h-3.5 text-brand-gold" />
                           <span className="font-semibold text-neutral-800">Date: {enq.eventDate}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 md:justify-end mt-1">
+                        {enq.guestCount > 0 && (
+                          <div className="flex items-center gap-1.5 md:justify-end">
+                            <span className="text-[11px] bg-purple-50 text-brand-purple font-bold px-2 py-0.5 rounded border border-purple-100">
+                              {enq.guestCount} Guests Expected
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 md:justify-end">
                           <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>{enq.locality}</span>
+                          <span>{enq.locality || 'Lucknow'}</span>
                         </div>
                       </div>
                     </div>

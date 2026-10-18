@@ -25,6 +25,8 @@ const CustomerAuthPage = () => {
     setError('');
   };
 
+  const hasPendingChatEnquiry = typeof window !== 'undefined' && !!sessionStorage.getItem('kandhari_pending_chat_enquiry');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -44,6 +46,10 @@ const CustomerAuthPage = () => {
           throw new Error('Please provide both email and password.');
         }
         await customerLogin({ email: formData.email, password: formData.password });
+      }
+
+      if (hasPendingChatEnquiry) {
+        window.dispatchEvent(new CustomEvent('open-ai-chat'));
       }
       navigate(from, { replace: true });
     } catch (err) {
@@ -71,6 +77,16 @@ const CustomerAuthPage = () => {
             Track your event enquiries, quotations & chat history
           </p>
         </div>
+
+        {/* Pending Inquiry Notice Banner */}
+        {hasPendingChatEnquiry && (
+          <div className="bg-amber-50 border-b border-amber-200/80 p-3.5 text-xs text-amber-900 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="font-medium leading-relaxed">
+              Please sign in or create an account to submit your inquiry. Your event details will be retained while you sign in.
+            </p>
+          </div>
+        )}
 
         {/* Tab switch */}
         <div className="flex border-b border-neutral-200">

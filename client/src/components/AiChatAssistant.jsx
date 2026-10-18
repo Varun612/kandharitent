@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { 
   MessageSquare, X, Send, Sparkles, RefreshCw, 
   CheckCircle, ArrowRight, Image as ImageIcon, MapPin, 
-  Calendar, Phone, ExternalLink, ChevronDown, Minimize2, Maximize2
+  Calendar, Phone, ExternalLink, ChevronDown, Minimize2, Maximize2,
+  Lock, Mail, User, ShieldCheck, Edit3, AlertCircle
 } from 'lucide-react';
 
 // Extract phone and details from text
@@ -120,7 +122,30 @@ const AiChatAssistant = () => {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const { isCustomerAuthenticated, customerUser } = useAuth();
+  const navigate = useNavigate();
+  const { isCustomerAuthenticated, customerUser, customerLogin, customerRegister } = useAuth();
+
+  // Auth Modal State (Chat -> Auth flow)
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('register'); // 'register' or 'login'
+  const [authForm, setAuthForm] = useState({ name: '', email: '', phone: '', password: '' });
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+
+  // Review & Edit Summary Modal State
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    customerName: '',
+    phone: '',
+    whatsappNumber: '',
+    eventType: 'Wedding / Celebration',
+    eventDate: '',
+    locality: 'Kanpur Road, Lucknow',
+    guestCount: 300,
+    serviceRequired: 'Tent-house equipment rentals and venue setup',
+    notes: ''
+  });
+  const [reviewError, setReviewError] = useState('');
 
   // Scroll to bottom on new message
   const scrollToBottom = () => {
@@ -319,27 +344,156 @@ const AiChatAssistant = () => {
     }
   };
 
-  const handleSubmitEnquiry = async () => {
+  // Prepare Review Form based on collected state & customer account details
+  const prepareReviewForm = () => {
+    const state = conversation?.collectedState || {};
+    setReviewForm({
+      customerName: customerUser?.name || state.customerName || '',
+      phone: customerUser?.phone || state.phone || '',
+      whatsappNumber: customerUser?.phone || state.whatsappNumber || state.phone || '',
+      eventType: state.eventType || 'Wedding / Celebration',
+      eventDate: state.eventDate || '',
+      locality: state.locality || 'Kanpur Road, Lucknow',
+      guestCount: state.guestCount || 300,
+      serviceRequired: (state.selectedServices && state.selectedServices.length > 0)
+        ? state.selectedServices.join(', ')
+        : 'Tent-house equipment rentals and venue setup',
+      notes: state.specialRequests || ''
+    });
+    setReviewError('');
+  };
+
+  // Critical Journey: Initiate Submission -> Check Auth -> Modal or Review
+  const handleInitiateSubmission = () => {
+    if (!isCustomerAuthenticated) {
+      // 1. Preserve collected state in sessionStorage
+      const pendingData = {
+        conversationId: conversation?.id,
+        collectedState: conversation?.collectedState || {}
+      };
+      sessionStorage.setItem('kandhari_pending_chat_enquiry', JSON.stringify(pendingData));
+
+      // 2. Pre-fill auth form if name/phone detected in chat
+      setAuthForm({
+        name: conversation?.collectedState?.customerName || '',
+        email: '',
+        phone: conversation?.collectedState?.phone || '',
+        password: ''
+      });
+      setAuthError('');
+      setAuthModalOpen(true);
+      return;
+    }
+
+    // Already signed in: go straight to review & edit
+    prepareReviewForm();
+    setReviewModalOpen(true);
+  };
+
+  // Handle Auth submission from inline modal
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      if (authMode === 'register') {
+        if (!authForm.name.trim() || !authForm.email.trim() || !authForm.phone.trim() || !authForm.password) {
+          throw new Error('Please fill in all fields to create your customer account.');
+        }
+        const cleanPhone = authForm.phone.replace(/[\s-]/g, '');
+        if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+          throw new Error('Please enter a valid 10-digit Indian mobile number.');
+        }
+        await customerRegister({
+          name: authForm.name.trim(),
+          email: authForm.email.trim(),
+          phone: cleanPhone,
+          password: authForm.password
+        });
+      } else {
+        if (!authForm.email.trim() || !authForm.password) {
+          throw new Error('Please provide both your email address and password.');
+        }
+        await customerLogin({
+          email: authForm.email.trim(),
+          password: authForm.password
+        });
+      }
+
+      // Successfully authenticated! Close auth modal and open Review & Edit
+      setAuthModalOpen(false);
+      prepareReviewForm();
+      setReviewModalOpen(true);
+    } catch (err) {
+      setAuthError(err.message || 'Authentication failed. Please verify your credentials.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Final submission of edited enquiry with customer's verified token
+  const handleConfirmSubmit = async (e) => {
+    e.preventDefault();
     if (!conversation?.id || submittingEnquiry) return;
+    setReviewError('');
+
+    if (!reviewForm.customerName.trim()) {
+      setReviewError('Please enter your full name.');
+      return;
+    }
+    const cleanPhone = reviewForm.phone.replace(/[\s-]/g, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setReviewError('Please provide a valid 10-digit mobile number.');
+      return;
+    }
+    if (!reviewForm.eventDate.trim()) {
+      setReviewError('Please provide your proposed event date.');
+      return;
+    }
+
     setSubmittingEnquiry(true);
 
     try {
-      const res = await api.submitChatEnquiry(conversation.id);
+      const payload = {
+        customerName: reviewForm.customerName.trim(),
+        phone: cleanPhone,
+        whatsappNumber: reviewForm.whatsappNumber ? reviewForm.whatsappNumber.replace(/[\s-]/g, '') : cleanPhone,
+        eventType: reviewForm.eventType,
+        eventDate: reviewForm.eventDate.trim(),
+        locality: reviewForm.locality,
+        guestCount: parseInt(reviewForm.guestCount, 10) || 0,
+        serviceRequired: reviewForm.serviceRequired,
+        notes: reviewForm.notes.trim()
+      };
+
+      const res = await api.submitChatEnquiry(conversation.id, payload);
       if (res.success) {
+        // Clear pending sessionStorage
+        sessionStorage.removeItem('kandhari_pending_chat_enquiry');
+
         setSubmittedRef(res.referenceNumber);
         setWhatsappLink(res.whatsappUrl);
+        setReviewModalOpen(false);
+
         // Refresh conversation to show confirmed message
         const updated = await api.getChat(conversation.id);
         if (updated.success) {
           setMessages(updated.conversation.messages);
         }
+      } else {
+        setReviewError(res.message || 'Could not submit enquiry. Please call us directly.');
       }
     } catch (err) {
       console.error('Failed to submit enquiry from chat:', err);
+      setReviewError(err.message || 'Network error submitting enquiry.');
     } finally {
       setSubmittingEnquiry(false);
     }
   };
+
+  // Check if pending inquiry is stored in sessionStorage
+  const hasPendingInquiry = !submittedRef && typeof window !== 'undefined' && !!sessionStorage.getItem('kandhari_pending_chat_enquiry');
 
   // Quick Action Chips
   const quickActions = [
@@ -438,7 +592,24 @@ const AiChatAssistant = () => {
           </div>
 
           {!isMinimized && (
-            <>
+            <div className="flex-1 flex flex-col relative overflow-hidden">
+              
+              {/* Pending Inquiry Resume Banner */}
+              {hasPendingInquiry && !authModalOpen && !reviewModalOpen && (
+                <div className="bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-amber-500/10 border-b border-amber-200/80 px-4 py-2 flex items-center justify-between text-xs text-neutral-800">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>In-progress event enquiry saved.</span>
+                  </div>
+                  <button
+                    onClick={handleInitiateSubmission}
+                    className="px-2.5 py-1 bg-brand-primary text-white font-bold rounded-lg text-[10px] hover:bg-brand-primary/95 transition-colors"
+                  >
+                    Resume & Submit
+                  </button>
+                </div>
+              )}
+
               {/* Message History Feed */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-cream/30 text-xs">
                 {messages.map((msg, index) => (
@@ -493,13 +664,25 @@ const AiChatAssistant = () => {
                   </div>
                 ))}
 
-                {/* Slot Summary Card & Confirmation Button */}
+                {/* Slot Summary Card & Initiation Button */}
                 {conversation?.collectedState?.phone && !submittedRef && (
-                  <div className="bg-purple-50/90 border border-brand-purple/30 rounded-2xl p-4 shadow-sm space-y-2">
-                    <div className="flex items-center gap-2 text-brand-purple font-bold text-xs">
-                      <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      <span>Ready to Submit Official Enquiry</span>
+                  <div className="bg-purple-50/90 border border-brand-purple/30 rounded-2xl p-4 shadow-sm space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-brand-purple font-bold text-xs">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <span>Ready to Submit Official Enquiry</span>
+                      </div>
+                      {isCustomerAuthenticated ? (
+                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                          Signed In
+                        </span>
+                      ) : (
+                        <span className="text-[10px] bg-purple-100 text-brand-purple font-semibold px-2 py-0.5 rounded-full">
+                          Sign In Required
+                        </span>
+                      )}
                     </div>
+
                     <div className="text-[11px] text-neutral-600 space-y-0.5 bg-white p-2.5 rounded-xl border border-purple-100">
                       {conversation.collectedState.eventType && <p>• <b>Event:</b> {conversation.collectedState.eventType}</p>}
                       {conversation.collectedState.eventDate && <p>• <b>Date:</b> {conversation.collectedState.eventDate}</p>}
@@ -507,34 +690,50 @@ const AiChatAssistant = () => {
                       {conversation.collectedState.locality && <p>• <b>Location:</b> {conversation.collectedState.locality}</p>}
                       {conversation.collectedState.phone && <p>• <b>Phone:</b> {conversation.collectedState.phone}</p>}
                     </div>
+
                     <button
-                      onClick={handleSubmitEnquiry}
-                      disabled={submittingEnquiry}
-                      className="w-full py-2 bg-gradient-to-r from-brand-primary to-brand-purple text-white font-bold rounded-xl text-xs hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5 shadow"
+                      onClick={handleInitiateSubmission}
+                      className="w-full py-2.5 bg-gradient-to-r from-brand-primary to-brand-purple text-white font-bold rounded-xl text-xs hover:opacity-95 transition-opacity flex items-center justify-center gap-1.5 shadow"
                     >
-                      {submittingEnquiry ? 'Submitting...' : 'Submit Official Enquiry to Owner'}
+                      <span>{isCustomerAuthenticated ? 'Review Details & Submit Enquiry' : 'Sign In to Review & Submit Enquiry'}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
 
-                {/* Submitted Success Badge */}
+                {/* Submitted Success Badge (Real Database Confirmation) */}
                 {submittedRef && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 shadow-sm text-center space-y-2">
-                    <CheckCircle className="w-6 h-6 text-emerald-600 mx-auto" />
-                    <p className="font-bold text-emerald-900 text-xs">Enquiry Submitted Successfully!</p>
-                    <p className="text-[11px] text-emerald-700">Reference: <span className="font-mono font-bold">{submittedRef}</span></p>
-                    {whatsappLink && (
-                      <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors shadow"
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm text-center space-y-3">
+                    <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto" />
+                    <div>
+                      <p className="font-bold text-emerald-900 text-sm">Enquiry Registered in Database!</p>
+                      <p className="text-xs text-emerald-700 mt-0.5">Reference ID: <span className="font-mono font-bold">{submittedRef}</span></p>
+                      <p className="text-[11px] text-neutral-600 mt-1">Our team will contact you shortly to confirm equipment availability.</p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                      {whatsappLink && (
+                        <a
+                          href={whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors shadow"
+                        >
+                          <span>Connect on WhatsApp</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                      <button
+                        onClick={() => {
+                          setIsOpen(false);
+                          navigate('/account');
+                        }}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-brand-primary text-white rounded-xl text-xs font-bold hover:bg-brand-primary/95 transition-colors shadow"
                       >
-                        <span>Connect on WhatsApp</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
+                        <User className="w-3.5 h-3.5 text-brand-gold" />
+                        <span>View in Portal</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -587,7 +786,306 @@ const AiChatAssistant = () => {
                   <Send className="w-4 h-4" />
                 </button>
               </form>
-            </>
+
+              {/* MODAL 1: Customer Auth Modal (Sign In / Register) */}
+              {authModalOpen && (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex items-center justify-center p-3 animate-fadeIn">
+                  <div className="bg-white rounded-2xl w-full max-h-[92%] flex flex-col shadow-2xl overflow-hidden border border-neutral-200">
+                    {/* Header */}
+                    <div className="bg-brand-primary text-white p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-brand-gold" />
+                        <h4 className="font-serif text-sm font-bold">
+                          {authMode === 'register' ? 'Create Customer Account' : 'Sign In to Account'}
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setAuthModalOpen(false)}
+                        className="text-neutral-300 hover:text-white p-1 rounded-lg"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Required Prompt Banner */}
+                    <div className="bg-amber-50 border-b border-amber-200/80 px-4 py-2.5 text-xs text-amber-900 flex items-start gap-2">
+                      <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <p className="font-medium leading-relaxed">
+                        Please sign in or create an account to submit your inquiry. Your event details will be retained while you sign in.
+                      </p>
+                    </div>
+
+                    {/* Mode Switcher */}
+                    <div className="flex border-b border-neutral-200 bg-neutral-50 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                        className={`flex-1 py-2.5 font-bold transition-colors ${
+                          authMode === 'register' 
+                            ? 'bg-white text-brand-purple border-b-2 border-brand-purple' 
+                            : 'text-neutral-500 hover:text-neutral-800'
+                        }`}
+                      >
+                        Create Account
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setAuthMode('login'); setAuthError(''); }}
+                        className={`flex-1 py-2.5 font-bold transition-colors ${
+                          authMode === 'login' 
+                            ? 'bg-white text-brand-purple border-b-2 border-brand-purple' 
+                            : 'text-neutral-500 hover:text-neutral-800'
+                        }`}
+                      >
+                        Sign In
+                      </button>
+                    </div>
+
+                    {/* Form */}
+                    <form onSubmit={handleAuthSubmit} className="p-4 space-y-3 overflow-y-auto text-xs">
+                      {authError && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                          <span>{authError}</span>
+                        </div>
+                      )}
+
+                      {authMode === 'register' && (
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Your Full Name</label>
+                          <div className="relative">
+                            <User className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-3" />
+                            <input
+                              type="text"
+                              value={authForm.name}
+                              onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
+                              placeholder="e.g. Vikas Malhotra"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-neutral-600 font-bold mb-1">Email Address</label>
+                        <div className="relative">
+                          <Mail className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-3" />
+                          <input
+                            type="email"
+                            value={authForm.email}
+                            onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                            placeholder="vikas@example.com"
+                            className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {authMode === 'register' && (
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Mobile Number (10 Digits)</label>
+                          <div className="relative">
+                            <Phone className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-3" />
+                            <input
+                              type="tel"
+                              value={authForm.phone}
+                              onChange={(e) => setAuthForm({ ...authForm, phone: e.target.value })}
+                              placeholder="9839123456"
+                              maxLength={10}
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-neutral-600 font-bold mb-1">Password</label>
+                        <div className="relative">
+                          <Lock className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-3" />
+                          <input
+                            type="password"
+                            value={authForm.password}
+                            onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                            placeholder="••••••••"
+                            className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setAuthModalOpen(false)}
+                          className="flex-1 py-2.5 bg-neutral-100 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-200 transition-colors"
+                        >
+                          Back to Chat
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={authLoading}
+                          className="flex-1 py-2.5 bg-gradient-to-r from-brand-primary to-brand-purple text-white font-bold rounded-xl hover:opacity-95 transition-opacity disabled:opacity-50"
+                        >
+                          {authLoading ? 'Verifying...' : (authMode === 'register' ? 'Register & Continue' : 'Sign In & Continue')}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL 2: Review & Edit Summary Modal */}
+              {reviewModalOpen && (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex items-center justify-center p-3 animate-fadeIn">
+                  <div className="bg-white rounded-2xl w-full max-h-[95%] flex flex-col shadow-2xl overflow-hidden border border-neutral-200">
+                    {/* Header */}
+                    <div className="bg-brand-primary text-white p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Edit3 className="w-4 h-4 text-brand-gold" />
+                        <div>
+                          <h4 className="font-serif text-sm font-bold">Review & Confirm Event Details</h4>
+                          <p className="text-[10px] text-neutral-300">Verified Account: {customerUser?.email}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setReviewModalOpen(false)}
+                        className="text-neutral-300 hover:text-white p-1 rounded-lg"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Review Form */}
+                    <form onSubmit={handleConfirmSubmit} className="p-4 space-y-3 overflow-y-auto text-xs">
+                      {reviewError && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                          <span>{reviewError}</span>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Your Name</label>
+                          <input
+                            type="text"
+                            value={reviewForm.customerName}
+                            onChange={(e) => setReviewForm({ ...reviewForm, customerName: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Mobile Phone</label>
+                          <input
+                            type="tel"
+                            value={reviewForm.phone}
+                            onChange={(e) => setReviewForm({ ...reviewForm, phone: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                            maxLength={10}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Event Type</label>
+                          <select
+                            value={reviewForm.eventType}
+                            onChange={(e) => setReviewForm({ ...reviewForm, eventType: e.target.value })}
+                            className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple bg-white"
+                          >
+                            <option value="Wedding">Wedding</option>
+                            <option value="Reception">Reception</option>
+                            <option value="Pre-Wedding Ceremony">Pre-Wedding (Haldi/Mehendi)</option>
+                            <option value="Birthday Party">Birthday Party</option>
+                            <option value="Corporate / Exhibition">Corporate / Exhibition</option>
+                            <option value="Other Celebration">Other Celebration</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Proposed Event Date</label>
+                          <input
+                            type="text"
+                            value={reviewForm.eventDate}
+                            onChange={(e) => setReviewForm({ ...reviewForm, eventDate: e.target.value })}
+                            placeholder="e.g. 20 November 2026"
+                            className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Locality in Lucknow</label>
+                          <input
+                            type="text"
+                            value={reviewForm.locality}
+                            onChange={(e) => setReviewForm({ ...reviewForm, locality: e.target.value })}
+                            placeholder="e.g. Kanpur Road / Daroga Kheda"
+                            className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-neutral-600 font-bold mb-1">Expected Guests</label>
+                          <input
+                            type="number"
+                            value={reviewForm.guestCount}
+                            onChange={(e) => setReviewForm({ ...reviewForm, guestCount: e.target.value })}
+                            min="10"
+                            max="5000"
+                            className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-neutral-600 font-bold mb-1">Services Needed</label>
+                        <input
+                          type="text"
+                          value={reviewForm.serviceRequired}
+                          onChange={(e) => setReviewForm({ ...reviewForm, serviceRequired: e.target.value })}
+                          className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-neutral-600 font-bold mb-1">Additional Notes / Special Requests</label>
+                        <textarea
+                          rows={2}
+                          value={reviewForm.notes}
+                          onChange={(e) => setReviewForm({ ...reviewForm, notes: e.target.value })}
+                          placeholder="Specific themes, waterproof German tent, floral mandap, etc."
+                          className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
+                        />
+                      </div>
+
+                      <div className="pt-2 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setReviewModalOpen(false)}
+                          className="flex-1 py-2.5 bg-neutral-100 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-200 transition-colors"
+                        >
+                          Edit Later
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={submittingEnquiry}
+                          className="flex-1 py-2.5 bg-gradient-to-r from-brand-primary to-brand-purple text-white font-bold rounded-xl hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center justify-center gap-1.5"
+                        >
+                          {submittingEnquiry ? 'Submitting...' : 'Confirm & Submit'}
+                          <CheckCircle className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}

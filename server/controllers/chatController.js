@@ -322,40 +322,65 @@ const submitEnquiryFromChat = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Conversation not found.' });
     }
 
+    // Check conversation ownership if it belongs to another customer
+    if (conv.customerId && req.user) {
+      if (req.user.role !== 'admin' && req.user.id !== conv.customerId) {
+        return res.status(403).json({ success: false, message: 'Unauthorized. This conversation belongs to another customer.' });
+      }
+    }
+
+    const customerId = req.user ? req.user.id : (conv.customerId || null);
+    if (req.user && !conv.customerId) {
+      conv.customerId = req.user.id;
+    }
+
     const state = conv.collectedState || {};
     const refNumber = `ENQ-${Math.floor(100000 + Math.random() * 900000)}`;
 
+    const customerName = (req.body.customerName && req.body.customerName.trim()) || (req.user && req.user.name) || state.customerName || 'Customer via Chat';
+    const phone = (req.body.phone && req.body.phone.trim()) || (req.user && req.user.phone) || state.phone || '9305465848';
+    const whatsappNumber = (req.body.whatsappNumber && req.body.whatsappNumber.trim()) || req.body.phone || state.whatsappNumber || (req.user && req.user.phone) || phone;
+    const email = (req.body.email && req.body.email.trim()) || (req.user && req.user.email) || '';
+    const eventType = (req.body.eventType && req.body.eventType.trim()) || state.eventType || 'Celebration';
+    const eventDate = (req.body.eventDate && req.body.eventDate.trim()) || state.eventDate || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];
+    const locality = (req.body.locality && req.body.locality.trim()) || state.locality || 'Lucknow, Uttar Pradesh';
+    const guestCount = req.body.guestCount !== undefined ? parseInt(req.body.guestCount, 10) : (state.guestCount || 0);
+    const serviceRequired = (req.body.serviceRequired && req.body.serviceRequired.trim()) || (state.selectedServices && state.selectedServices.length > 0 
+      ? state.selectedServices.join(', ') 
+      : 'Event Planning & Decoration Consultation');
+    const servicesList = Array.isArray(req.body.servicesList) ? req.body.servicesList : (state.selectedServices || []);
+    const budgetRange = (req.body.budgetRange && req.body.budgetRange.trim()) || state.budget || 'Custom Quote on Request';
+    const userNotes = req.body.notes ? req.body.notes.trim() : (state.specialRequests || '');
+
+    const transcript = (conv.messages || [])
+      .map(m => `[${(m.role || 'user').toUpperCase()} - ${new Date(m.timestamp || Date.now()).toLocaleTimeString()}]: ${m.content}`)
+      .join('\n\n');
+
     const newEnquiry = {
       id: refNumber,
-      customerId: conv.customerId || (req.user ? req.user.id : null),
+      customerId,
       conversationId: conv.id,
       enquiryType: 'chat',
-      customerName: state.customerName || (req.body.customerName || 'Customer via Chat'),
-      phone: state.phone || (req.body.phone || '9305465848'),
-      whatsappNumber: state.whatsappNumber || state.phone || '',
-      preferredContactMethod: state.preferredContactMethod || 'Phone',
-      serviceRequired: state.selectedServices && state.selectedServices.length > 0 
-        ? state.selectedServices.join(', ') 
-        : 'Event Planning & Decoration Consultation',
-      servicesList: state.selectedServices || [],
-      eventDate: state.eventDate || req.body.eventDate || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-      locality: state.locality || 'Lucknow, Uttar Pradesh',
-      eventType: state.eventType || 'Celebration',
-      guestCount: state.guestCount || 0,
-      budgetRange: state.budget || 'Custom Quote on Request',
-      detailedRequirements: `Generated via AI Chat Assistant. Intent: ${conv.recognizedIntent}. Special Notes: ${state.specialRequests || 'None'}`,
+      customerName,
+      phone,
+      whatsappNumber,
+      email,
+      preferredContactMethod: req.body.preferredContactMethod || state.preferredContactMethod || 'Phone',
+      serviceRequired,
+      servicesList,
+      eventDate,
+      locality,
+      eventType,
+      guestCount,
+      budgetRange,
+      detailedRequirements: userNotes || `Generated via AI Chat Assistant. Intent: ${conv.recognizedIntent}.`,
+      notes: `Customer Chat Interaction Transcript:\n${transcript}${userNotes ? `\n\nClient Notes: ${userNotes}` : ''}`,
       consentGiven: true,
       status: 'New',
       referredTo: '',
       nextFollowUpDate: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0],
       internalNotes: `Auto-submitted from AI Chat (Conversation ID: ${conv.id})`
     };
-
-    const transcript = (conv.messages || [])
-      .map(m => `[${(m.role || 'user').toUpperCase()} - ${new Date(m.timestamp || Date.now()).toLocaleTimeString()}]: ${m.content}`)
-      .join('\n\n');
-
-    newEnquiry.notes = `Customer Chat Interaction Transcript:\n${transcript}\n\nSpecial Requests: ${state.specialRequests || 'None'}`;
 
     if (isMongoConnected()) {
       await Enquiry.deleteMany({ conversationId: conv.id });

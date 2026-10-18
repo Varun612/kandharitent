@@ -68,7 +68,7 @@ const submitEnquiry = async (req, res) => {
 
     const enquiryData = {
       id: enquiryId,
-      customerId: (req.user ? req.user.id : null) || req.body.customerId || null,
+      customerId: req.user ? req.user.id : null,
       conversationId: req.body.conversationId || null,
       enquiryType: enquiryType || 'rental',
       customerName,
@@ -341,9 +341,57 @@ const deleteEnquiry = async (req, res) => {
   }
 };
 
+// GET /api/enquiries/:id - Customer (own) or Admin access
+const getEnquiryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let enquiry = null;
+
+    if (isMongoConnected()) {
+      enquiry = await Enquiry.findOne({ $or: [{ id }, { _id: id }] });
+    } else {
+      const db = getLocalDb();
+      enquiry = (db.enquiries || []).find(e => e.id === id);
+    }
+
+    if (!enquiry) {
+      return res.status(404).json({ success: false, message: 'Enquiry not found' });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Authentication required to view enquiry details.' });
+    }
+
+    // Admin can view any enquiry
+    if (req.user.role === 'admin') {
+      return res.json({ success: true, data: enquiry });
+    }
+
+    // Customer can only view their own enquiry
+    if (enquiry.customerId && enquiry.customerId === req.user.id) {
+      return res.json({ success: true, data: enquiry });
+    }
+
+    // If enquiry is unclaimed (customerId is null/empty), allow if phone/email matches customer
+    if (!enquiry.customerId) {
+      const matchesPhone = req.user.phone && enquiry.phone === req.user.phone;
+      const matchesEmail = req.user.email && enquiry.email && enquiry.email.toLowerCase() === req.user.email.toLowerCase();
+      if (matchesPhone || matchesEmail) {
+        return res.json({ success: true, data: enquiry });
+      }
+    }
+
+    return res.status(403).json({ success: false, message: 'Forbidden. You do not have permission to view this enquiry.' });
+  } catch (error) {
+    console.error('Error fetching enquiry by ID:', error);
+    return res.status(500).json({ success: false, message: 'Server error retrieving enquiry' });
+  }
+};
+
 module.exports = {
   submitEnquiry,
   getEnquiries,
+  getEnquiryById,
   updateEnquiryStatus,
   exportEnquiriesCSV,
   deleteEnquiry

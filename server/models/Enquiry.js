@@ -41,7 +41,7 @@ const enquirySchema = new mongoose.Schema({
   consentGiven: { type: Boolean, default: true },
   status: {
     type: String,
-    enum: ['New', 'Contacted', 'In Discussion', 'Quoted', 'Converted', 'Closed'],
+    enum: ['New', 'Contacted', 'In Discussion', 'Quoted', 'Converted', 'Confirmed', 'Referred', 'Closed'],
     default: 'New'
   },
   referredTo: { type: String, default: '' },

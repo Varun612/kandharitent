@@ -53,6 +53,7 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return request(`/enquiries${query ? `?${query}` : ''}`);
   },
+  getEnquiryById: (id) => request(`/enquiries/${id}`),
   updateEnquiryStatus: (id, statusData) => request(`/enquiries/${id}/status`, { method: 'PUT', body: JSON.stringify(statusData) }),
   deleteEnquiry: (id) => request(`/enquiries/${id}`, { method: 'DELETE' }),
   exportCSV: async () => {
