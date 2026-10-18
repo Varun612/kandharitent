@@ -23,6 +23,18 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Ensure database connection is ready for incoming requests in serverless environments
+app.use(async (req, res, next) => {
+  if (!isMongoConnected() && process.env.MONGODB_URI) {
+    try {
+      await connectDB();
+    } catch (e) {
+      // Graceful fallback to localStore
+    }
+  }
+  next();
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({

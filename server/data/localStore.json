@@ -701,6 +701,32 @@
   ],
   "enquiries": [
     {
+      "id": "ENQ-877579",
+      "customerId": "cust-mve41pp8-ysugb",
+      "conversationId": "conv-mve41pwk-zl7hf",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Dwarka Shri Lawn Booking",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "20 November",
+      "locality": "Kanpur Road, Lucknow",
+      "eventType": "Wedding",
+      "guestCount": 400,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Generated via AI Chat Assistant. Intent: general_planning. Special Notes: None",
+      "consentGiven": true,
+      "status": "In Discussion",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-20",
+      "internalNotes": "Client contacted via phone; discussed German hangar and stage floral package.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 11:09:47 PM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 11:09:47 PM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 11:09:47 PM]: Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.\n\n[USER - 11:09:47 PM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 11:09:47 PM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Lawn and venue** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 11:09:47 PM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 11:09:47 PM]: Shukriya! Maine aapki requirements note kar li hain:\n• Event: Wedding\n• Date: 20 November\n• Guests: 400\n• Location: Kanpur Road, Lucknow\n• Contact: 9839123456\n\nKya main ye official enquiry Kandhari Tent & Caterers ke owner ko review aur quotation ke liye submit kar doon?\n\nSpecial Requests: None"
+    },
+    {
       "id": "ENQ-731660",
       "customerId": "cust-mvdtygta-zbd56",
       "conversationId": "conv-mvdtygxf-ubnj7",
@@ -1565,6 +1591,163 @@
         }
       ],
       "lastActivityAt": "2026-10-18T12:57:19.971Z"
+    },
+    {
+      "id": "conv-mve41pwk-zl7hf",
+      "customerId": "cust-mve41pp8-ysugb",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "Vikas Malhotra",
+        "phone": "9839123456",
+        "whatsappNumber": "9839123456",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-877579",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mve41pwk-qcrjz",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-18T17:39:47.684Z"
+        },
+        {
+          "id": "msg-mve41px2-bx25l",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-18T17:39:47.702Z"
+        },
+        {
+          "id": "msg-mve41px2-2k7ar",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-1",
+              "title": "8ft Modular Buffet Setup with Skirting",
+              "category": "Catering",
+              "imageUrl": "/media/tables/table-2.jpg",
+              "caption": "Multi-tier catering buffet line with heat-resistant counter tops",
+              "featured": true
+            },
+            {
+              "id": "gal-cat-2",
+              "title": "Live Food Station Canopy Counters",
+              "category": "Catering",
+              "imageUrl": "/media/tables/table-3.jpg",
+              "caption": "Dedicated live counters with decorative valances"
+            },
+            {
+              "id": "gal-cat-3",
+              "title": "Dessert & Mocktail Display Bar",
+              "category": "Catering",
+              "imageUrl": "/media/tables/table-4.jpg",
+              "caption": "Illuminated presentation counter for beverages and sweets"
+            },
+            {
+              "id": "gal-cat-4",
+              "title": "Stainless Steel Roll-Top Chafers",
+              "category": "Catering",
+              "imageUrl": "/media/tables/table-5.jpg",
+              "caption": "Hygienic brass and stainless roll-top dish warmers"
+            },
+            {
+              "id": "gal-cat-5",
+              "title": "Banquet Dining Table Arrangement",
+              "category": "Catering",
+              "imageUrl": "/media/tables/table-6.jpg",
+              "caption": "Clean dining tables with crisp linens and cutlery setup"
+            }
+          ],
+          "timestamp": "2026-10-18T17:39:47.702Z"
+        },
+        {
+          "id": "msg-mve41py4-hy5gc",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-18T17:39:47.740Z"
+        },
+        {
+          "id": "msg-mve41py4-xvicb",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Lawn and venue** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Lawn and venue",
+          "galleryImages": [
+            {
+              "id": "gal-lwn-1",
+              "title": "Dwarka Shri Lawn Evening Celebration",
+              "category": "Lawn and venue",
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Panoramic view of Dwarka Shri Lawn, Kanpur Road Lucknow",
+              "featured": true
+            },
+            {
+              "id": "gal-lwn-2",
+              "title": "Grand Venue Entrance on Kanpur Road",
+              "category": "Lawn and venue",
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Stately entry gate opposite Pillar 37 Daroga Kheda"
+            },
+            {
+              "id": "gal-lwn-3",
+              "title": "Round Table Lawn Dining Zone",
+              "category": "Lawn and venue",
+              "imageUrl": "/media/tables/table-1.jpg",
+              "caption": "Lush green lawn seating with 60-inch banquet tables"
+            },
+            {
+              "id": "gal-lwn-4",
+              "title": "Covered Weatherproof Lawn Wing",
+              "category": "Lawn and venue",
+              "imageUrl": "/media/rich-decor/decor-12.jpg",
+              "caption": "Adjoining semi-covered pavilion for weather protection"
+            },
+            {
+              "id": "gal-lwn-5",
+              "title": "Lawn Illumination & Open Sky View",
+              "category": "Lawn and venue",
+              "imageUrl": "/media/rich-decor/decor-1.jpg",
+              "caption": "Evening lighting setting up the lawn for reception celebration"
+            }
+          ],
+          "timestamp": "2026-10-18T17:39:47.740Z"
+        },
+        {
+          "id": "msg-mve41pye-t4c0f",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-18T17:39:47.750Z"
+        },
+        {
+          "id": "msg-mve41pye-ne9oh",
+          "role": "assistant",
+          "content": "Shukriya! Maine aapki requirements note kar li hain:\n• Event: Wedding\n• Date: 20 November\n• Guests: 400\n• Location: Kanpur Road, Lucknow\n• Contact: 9839123456\n\nKya main ye official enquiry Kandhari Tent & Caterers ke owner ko review aur quotation ke liye submit kar doon?",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-18T17:39:47.750Z"
+        },
+        {
+          "id": "msg-mve41pyz-xre52",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-877579**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-18T17:39:47.771Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-18T17:39:47.750Z"
     }
   ],
   "users": [
@@ -1648,6 +1831,24 @@
       "passwordHash": "$2a$10$mh8TO7ceUbo.Hiz1Zy6CQul6an4xJR1UIu6Mu/Bb0WEmCZQY1LO..",
       "role": "customer",
       "createdAt": "2026-10-18T12:57:20.261Z"
+    },
+    {
+      "id": "cust-mve41pp8-ysugb",
+      "name": "Vikas Malhotra",
+      "email": "client_1792345186993@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$mLZVjPwswOrCpF4zj1SAEOU3lVDfsZMOrkdxVYfH5nBLvx3r5FAP2",
+      "role": "customer",
+      "createdAt": "2026-10-18T17:39:47.420Z"
+    },
+    {
+      "id": "cust-mve41q42-hi7hu",
+      "name": "Another User",
+      "email": "intruder_1792345187779@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$zTqDAxHGddJE9VyCpvhpI.W6Vy8SsWBRCpcP3atRwj5rYRtUql3Jm",
+      "role": "customer",
+      "createdAt": "2026-10-18T17:39:47.954Z"
     }
   ]
 }

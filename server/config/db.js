@@ -71,6 +71,7 @@ const saveLocalStore = () => {
 
 // Connect to MongoDB with graceful fallback
 const connectDB = async () => {
+  if (isMongoConnected) return;
   const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kandhari_tent';
   
   loadLocalStore();

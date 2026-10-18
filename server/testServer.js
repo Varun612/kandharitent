@@ -16,6 +16,7 @@
  * 7. Admin Authentication, Status Pipeline, and CSV Export
  */
 
+process.env.NODE_ENV = 'test';
 const app = require('./server');
 const http = require('http');
 
