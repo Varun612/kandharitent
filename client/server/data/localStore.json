@@ -1,284 +1,333 @@
 {
   "items": [
     {
-      "id": "item-001",
-      "name": "VIP Royal 2-Seater Sofa Setup",
+      "id": "item-chair-pvc",
+      "name": "Plastic PVC Chair",
       "category": "Chairs & Seating",
       "categoryId": "chairs-seating",
-      "description": "Carved gold & velvet high-back 2-seater sofa with matching side armrests for wedding stage and VIP baithak.",
-      "rentalPrice": 600,
-      "priceUnit": "per day / unit",
-      "availableQuantity": 20,
+      "description": "Sturdy, stackable commercial white PVC chair. Easy setup for large gatherings and dining areas.",
+      "rentalPrice": 15,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
+      "availableQuantity": 500,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in D.R.D.O. and Raju Juneja booking slips @ Rs 600.",
+      "imageUrl": "/media/seating/seating-2.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-chair-velvet",
+      "name": "Velvet Chair with Cover",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Cushioned banquet chair fitted with clean fitted royal velvet slipcover and ribbon tie.",
+      "rentalPrice": 45,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
+      "availableQuantity": 300,
+      "availabilityStatus": "Available",
       "imageUrl": "/media/seating/seating-1.jpg",
       "featured": true
     },
     {
-      "id": "item-002",
-      "name": "Premium Highback Kursi (Velvet Banquet Chair)",
+      "id": "item-chair-highback",
+      "name": "High-Back Chair with Cover",
       "category": "Chairs & Seating",
       "categoryId": "chairs-seating",
-      "description": "Heavy-gauge steel highback banquet chair with thick cushioning and clean ivory or maroon slipcovers.",
-      "rentalPrice": 70,
-      "priceUnit": "per chair / day",
-      "availableQuantity": 500,
+      "description": "Heavy ergonomic high-back banquet chair draped with luxury fabric cover for formal wedding seating.",
+      "rentalPrice": 75,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
+      "availableQuantity": 250,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja & DRDO slips @ Rs 70.",
-      "imageUrl": "/media/seating/seating-2.jpg",
+      "imageUrl": "/media/seating/seating-1.jpg",
       "featured": true
     },
     {
-      "id": "item-003",
-      "name": "VIP Chairs with Armrest",
-      "category": "Chairs & Seating",
-      "categoryId": "chairs-seating",
-      "description": "Comfortable cushioned VIP chairs suitable for seminars, front-row wedding seating, and corporate delegates.",
-      "rentalPrice": 50,
-      "priceUnit": "per chair / day",
-      "availableQuantity": 200,
+      "id": "item-table-set",
+      "name": "Table Set (2.5 × 5 feet)",
+      "category": "Tables",
+      "categoryId": "tables",
+      "description": "Heavy wooden dining table set (2.5 × 5 ft) with clean matching linen cover for buffet & seating.",
+      "rentalPrice": 75,
+      "priceUnit": "per set",
+      "billingUnit": "per set",
+      "durationSensitive": false,
+      "availableQuantity": 80,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 50.",
-      "imageUrl": "/media/seating/seating-2.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-004",
-      "name": "PVC Heavy Duty Chairs",
-      "category": "Chairs & Seating",
-      "categoryId": "chairs-seating",
-      "description": "Moulded virgin plastic chairs for general gathering, halwai area, and outdoor lawn seating.",
-      "rentalPrice": 20,
-      "priceUnit": "per chair / day",
-      "availableQuantity": 300,
-      "availabilityStatus": "Available",
-      "internalNotes": "Standard verified rate Rs 20.",
-      "imageUrl": "/media/seating/seating-2.jpg",
+      "imageUrl": "/media/tables/table-1.jpg",
       "featured": false
     },
     {
-      "id": "item-005",
-      "name": "Gadda & Baithak Set (Mattress)",
+      "id": "item-table-round",
+      "name": "Round Table with Cover",
+      "category": "Tables",
+      "categoryId": "tables",
+      "description": "60-inch round banquet table seating 6–8 guests with floor-length royal fabric cover.",
+      "rentalPrice": 200,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 40,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/tables/table-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-winter-gadda",
+      "name": "Winter Gadda Set (Baithak Mattress)",
       "category": "Chairs & Seating",
       "categoryId": "chairs-seating",
-      "description": "Dense cotton floor mattresses (gadda) for traditional Nawabi baithak, mehendi lounge, or halwai resting.",
-      "rentalPrice": 60,
-      "priceUnit": "per gadda / day",
-      "availableQuantity": 80,
+      "description": "Quilted winter cotton gadda set with white bedsheet and bolster pillows for traditional floor baithak.",
+      "rentalPrice": 150,
+      "priceUnit": "per set per day",
+      "billingUnit": "per set per day",
+      "durationSensitive": true,
+      "availableQuantity": 50,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 60.",
       "imageUrl": "/media/seating/seating-3.jpg",
       "featured": false
     },
     {
-      "id": "item-006",
-      "name": "Round Banquet Table (60-inch)",
+      "id": "item-table-center",
+      "name": "Centre Table (VIP Coffee Table)",
       "category": "Tables",
       "categoryId": "tables",
-      "description": "60-inch round dining table accommodating 8 guests with floor-length satin/damask linen and frills.",
-      "rentalPrice": 180,
-      "priceUnit": "per table / day",
-      "availableQuantity": 30,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO (Rs 150) and Raju Juneja (Rs 200) slips.",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-007",
-      "name": "Mez Set (Dining Table Set 2.5 x 5)",
-      "category": "Tables",
-      "categoryId": "tables",
-      "description": "Sturdy rectangular buffet and dining table (2.5 x 5 ft) with clean table cloth and skirting.",
-      "rentalPrice": 80,
-      "priceUnit": "per set / day",
-      "availableQuantity": 100,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 80.",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-008",
-      "name": "Central Table (VIP Coffee Table)",
-      "category": "Tables",
-      "categoryId": "tables",
-      "description": "Glass-top polished central coffee table paired with 2-seater VIP sofas.",
-      "rentalPrice": 300,
-      "priceUnit": "per table / day",
+      "description": "Polished wooden VIP coffee table for placement in front of Maharaja 2-seater sofas.",
+      "rentalPrice": 400,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
       "availableQuantity": 25,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 300.",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-009",
-      "name": "Takhat (Heavy Wooden Cot)",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Solid wooden takhat for halwai preparation, puja setups, or musicians.",
-      "rentalPrice": 80,
-      "priceUnit": "per takhat / day",
-      "availableQuantity": 15,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 80.",
-      "imageUrl": "/media/stage/stage-1.jpg",
+      "imageUrl": "/media/tables/table-2.jpg",
       "featured": false
     },
     {
-      "id": "item-010",
-      "name": "Halwai Drum & Water Barrel",
-      "category": "Other Event Equipment",
-      "categoryId": "other-equipment",
-      "description": "Clean, heavy-duty stainless/fibre water drums for kitchen and catering preparations.",
-      "rentalPrice": 100,
-      "priceUnit": "per drum / day",
-      "availableQuantity": 20,
+      "id": "item-sofa-2seater",
+      "name": "Two-Seater Maharaja Sofa",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Carved royal velvet 2-seater stage sofa for bride-groom stage, VIP lounge, and family baithak.",
+      "rentalPrice": 800,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 14,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 100.",
-      "imageUrl": "/media/catering/catering-8.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-011",
-      "name": "Red Carpet & 3D Walkway Carpet",
-      "category": "Lighting & Decoration",
-      "categoryId": "lighting-decor",
-      "description": "Plush crimson red and 3D textured aisle runners for VIP passage, mandap walkway, and grand gallery.",
-      "rentalPrice": 2.0,
-      "priceUnit": "per sq.ft",
-      "availableQuantity": 10000,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO & Raju Juneja slips @ Rs 2/sq.ft.",
-      "imageUrl": "/media/gate/gate-2.jpg",
+      "imageUrl": "/media/seating/seating-1.jpg",
       "featured": true
     },
     {
-      "id": "item-012",
-      "name": "Truss Food Stall (10 x 10 / 10 x 20)",
-      "category": "Tents & Canopies",
-      "categoryId": "tents-canopies",
-      "description": "Modern aluminium box truss stall frame for live chaat, pasta, barbecue, and dessert counters.",
-      "rentalPrice": 500,
-      "priceUnit": "per stall / day",
-      "availableQuantity": 20,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 500.",
-      "imageUrl": "/media/catering/catering-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-013",
-      "name": "Illuminated Welcome Arch Gate (12 x 12)",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Grand welcome arch gate with decorative fabric draping and built-in lighting.",
-      "rentalPrice": 1000,
-      "priceUnit": "per gate / day",
-      "availableQuantity": 6,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 1000.",
-      "imageUrl": "/media/gate/gate-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-014",
-      "name": "Modular Elevated Stage Setup",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Heavy-duty steel stage framing with 2.5 ft elevation, carpeted surface, and side staircases.",
-      "rentalPrice": 15,
-      "priceUnit": "per sq.ft (e.g. 20x16 = Rs 4,800)",
-      "availableQuantity": 2000,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 15/sq.ft.",
-      "imageUrl": "/media/stage/stage-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-015",
-      "name": "Aluminium Box Truss Stage Covering",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Structural aluminium box truss covering overhead stage for light rigging, profile spots, and flower hangings.",
-      "rentalPrice": 10,
-      "priceUnit": "per sq.ft (e.g. 24x18 = Rs 4,320)",
-      "availableQuantity": 1500,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 10/sq.ft.",
-      "imageUrl": "/media/lighting/light-1.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-016",
-      "name": "Executive Wooden Seminar Podium",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Polished teak finish conference rostrum/podium equipped with microphone clamp and reading lamp.",
+      "id": "item-jumbo-cooler",
+      "name": "Jumbo Desert Cooler",
+      "category": "Fans & Coolers",
+      "categoryId": "fans-coolers",
+      "description": "High-power industrial metal body jumbo desert cooler with copper motor and honey-comb cooling pads.",
       "rentalPrice": 1500,
-      "priceUnit": "per day",
-      "availableQuantity": 4,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 20,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 1,500.",
-      "imageUrl": "/media/stage/stage-4.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-017",
-      "name": "Traditional Brass Diya Inauguration Lamp",
-      "category": "Wedding & Party Essentials",
-      "categoryId": "wedding-essentials",
-      "description": "Classic 5-tier brass diya lamp for auspicious ceremony inauguration and deep prajwalan.",
-      "rentalPrice": 500,
-      "priceUnit": "per day",
-      "availableQuantity": 5,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 500.",
-      "imageUrl": "/media/mandap/mandap-3.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-018",
-      "name": "Sound System with Cordless Mics & Amplifier",
-      "category": "Lighting & Decoration",
-      "categoryId": "lighting-decor",
-      "description": "2 Speaker boxes, 1 cordless mic, 1 podium gooseneck mic, and powerful amplifier for speeches and music.",
-      "rentalPrice": 6000,
-      "priceUnit": "per day",
-      "availableQuantity": 6,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 6,000.",
-      "imageUrl": "/media/weddings/wedding-4.jpg",
+      "imageUrl": "/media/fans/cooler-1.jpg",
       "featured": true
     },
     {
-      "id": "item-019",
-      "name": "Parda Wall Drapery (12 x 18)",
+      "id": "item-tent-normal",
+      "name": "Normal Tent / Pandal (Shamiana Setup)",
       "category": "Tents & Canopies",
       "categoryId": "tents-canopies",
-      "description": "High privacy side fabric partitions with steel pipe frame for perimeter enclosure.",
-      "rentalPrice": 200,
-      "priceUnit": "per panel / day",
-      "availableQuantity": 50,
+      "description": "Traditional heavy-gauge shamiana with ceiling lining, side walls, and waterproof top cover. Dimensions: 10×20, 20×20, 20×30 ft.",
+      "rentalPrice": 5,
+      "ratePerSqFt": 5,
+      "priceUnit": "per sq.ft per day",
+      "billingUnit": "per sq ft per day",
+      "isAreaBased": true,
+      "durationSensitive": true,
+      "availableDimensions": [
+        {
+          "length": 10,
+          "width": 20,
+          "area": 200,
+          "label": "10 × 20 ft (200 sq.ft) — ₹1,000/day"
+        },
+        {
+          "length": 20,
+          "width": 20,
+          "area": 400,
+          "label": "20 × 20 ft (400 sq.ft) — ₹2,000/day"
+        },
+        {
+          "length": 20,
+          "width": 30,
+          "area": 600,
+          "label": "20 × 30 ft (600 sq.ft) — ₹3,000/day"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 20,
+        "width": 30
+      },
+      "availableQuantity": 10,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO & Tokyo slips @ Rs 200.",
+      "imageUrl": "/media/tents/tent-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-tent-halwai",
+      "name": "Halwai Kitchen Pandal",
+      "category": "Tents & Canopies",
+      "categoryId": "tents-canopies",
+      "description": "Enclosed fire-resistant kitchen & cooking pandal setup specifically for caterers and halwai teams.",
+      "rentalPrice": 5,
+      "ratePerSqFt": 5,
+      "priceUnit": "per sq.ft per day",
+      "billingUnit": "per sq ft per day",
+      "isAreaBased": true,
+      "durationSensitive": true,
+      "availableDimensions": [
+        {
+          "length": 10,
+          "width": 20,
+          "area": 200,
+          "label": "10 × 20 ft (200 sq.ft) — ₹1,000/day"
+        },
+        {
+          "length": 20,
+          "width": 20,
+          "area": 400,
+          "label": "20 × 20 ft (400 sq.ft) — ₹2,000/day"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 10,
+        "width": 20
+      },
+      "availableQuantity": 8,
+      "availabilityStatus": "Available",
       "imageUrl": "/media/tents/tent-2.jpg",
       "featured": false
     },
     {
-      "id": "item-020",
-      "name": "All-Weather German Hangar Tent Structure",
+      "id": "item-tent-waterproof",
+      "name": "Waterproof German Hangar Pandal",
       "category": "Tents & Canopies",
       "categoryId": "tents-canopies",
-      "description": "Clear-span waterproof German aluminium hangar tent suitable for all seasons with zero central pillars.",
-      "rentalPrice": 18,
+      "description": "Heavy structural German aluminum curved hangar. 100% weather-sealed, wind-tested, luxury wedding canopy.",
+      "rentalPrice": 30,
+      "ratePerSqFt": 30,
       "priceUnit": "per sq.ft",
-      "availableQuantity": 15000,
+      "billingUnit": "per sq ft",
+      "isAreaBased": true,
+      "durationSensitive": false,
+      "availableDimensions": [
+        {
+          "length": 20,
+          "width": 30,
+          "area": 600,
+          "label": "20 × 30 ft (600 sq.ft)"
+        },
+        {
+          "length": 30,
+          "width": 50,
+          "area": 1500,
+          "label": "30 × 50 ft (1,500 sq.ft)"
+        },
+        {
+          "length": 40,
+          "width": 80,
+          "area": 3200,
+          "label": "40 × 80 ft (3,200 sq.ft)"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 20,
+        "width": 30
+      },
+      "availableQuantity": 5,
       "availabilityStatus": "Available",
-      "internalNotes": "Custom sizing (e.g. 20x40, 20x120, 20x200).",
-      "imageUrl": "/media/tents/tent-1.jpg",
+      "imageUrl": "/media/rich-decor/decor-1.jpg",
       "featured": true
+    },
+    {
+      "id": "item-carpet-red",
+      "name": "Red Velvet / 3D Walkway Carpet",
+      "category": "Wedding & Party Essentials",
+      "categoryId": "wedding-essentials",
+      "description": "Clean, heavy-traffic red ceremonial runner and 3D walkway carpeting for entrance passages and mandaps.",
+      "rentalPrice": 3,
+      "ratePerSqFt": 3,
+      "priceUnit": "per sq.ft per day",
+      "billingUnit": "per sq ft per day",
+      "isAreaBased": true,
+      "durationSensitive": true,
+      "availableDimensions": [
+        {
+          "length": 10,
+          "width": 20,
+          "area": 200,
+          "label": "10 × 20 ft (200 sq.ft) — ₹600/day"
+        },
+        {
+          "length": 10,
+          "width": 40,
+          "area": 400,
+          "label": "10 × 40 ft (400 sq.ft) — ₹1,200/day"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 10,
+        "width": 20
+      },
+      "availableQuantity": 20,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/carpets/carpet-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-stage-modular",
+      "name": "Modular Elevated Stage Setup",
+      "category": "Stage & Platform Equipment",
+      "categoryId": "stage-platform",
+      "description": "Sturdy iron box frame modular stage with commercial ply top and red velvet carpeting.",
+      "rentalPrice": 15,
+      "priceUnit": "per sq.ft",
+      "billingUnit": "per sq ft",
+      "availableQuantity": 10,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/stage/stage-1.jpg",
+      "featured": false
+    },
+    {
+      "id": "item-gate-welcome",
+      "name": "Illuminated Welcome Arch Gate",
+      "category": "Lighting & Decoration",
+      "categoryId": "lighting-decor",
+      "description": "12 × 12 ft grand entrance truss archway adorned with ambient filament lights and floral framing.",
+      "rentalPrice": 1000,
+      "priceUnit": "per gate / day",
+      "billingUnit": "per gate / day",
+      "availableQuantity": 6,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/gate/gate-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-sound-system",
+      "name": "Sound System with Cordless Mics & Amplifier",
+      "category": "Other Event Equipment",
+      "categoryId": "other-equipment",
+      "description": "High-fidelity audio sound console with 2 cordless handheld mics, speaker columns, and sound operator.",
+      "rentalPrice": 6000,
+      "priceUnit": "per day",
+      "billingUnit": "per day",
+      "availableQuantity": 4,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/stage/stage-1.jpg",
+      "featured": false
     }
   ],
   "categories": [
@@ -6193,6 +6242,326 @@
   ],
   "enquiries": [
     {
+      "id": "ENQ-880386",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T22:05:47.591Z"
+    },
+    {
+      "id": "ENQ-568670",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T22:05:47.580Z"
+    },
+    {
+      "id": "ENQ-561479",
+      "customerId": "cust-mvedjs66-cd5tv",
+      "conversationId": "conv-mvedjsch-iqqtp",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792361146809@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 3:35:47 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 3:35:47 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 3:35:47 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 3:35:47 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 3:35:47 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 3:35:47 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 3:35:47 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-20",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-955537",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T22:05:47.182Z"
+    },
+    {
+      "id": "ENQ-1792361146792",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-18T22:05:46.792Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
+      "id": "ENQ-117540",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T21:35:39.094Z"
+    },
+    {
+      "id": "ENQ-221897",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T21:35:39.087Z"
+    },
+    {
+      "id": "ENQ-172159",
+      "customerId": "cust-mvech0s4-zwln1",
+      "conversationId": "conv-mvech0xp-mwpok",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792359338353@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 3:05:38 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 3:05:38 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 3:05:38 AM]: Kandhari Tent & Caterers me 100% Pure Vegetarian Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\n• **Full Catering**: ₹750/vyakti (≥ 250 guests ke liye)\n• **Semi Catering**: ₹250/vyakti (buffet warmers, setup aur service staff)\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 3:05:38 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 3:05:38 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 3:05:38 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 3:05:38 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-20",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-130968",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "New",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-18T21:35:38.740Z"
+    },
+    {
+      "id": "ENQ-1792359338339",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-18T21:35:38.339Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
       "id": "ENQ-158235",
       "customerId": null,
       "conversationId": null,
@@ -6272,7 +6641,7 @@
       "guestCount": 450,
       "budgetRange": "Custom Quote on Request",
       "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
-      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 2:45:39 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 2:45:39 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 2:45:39 AM]: Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate\u2014kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.\n\n[USER - 2:45:39 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 2:45:39 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 2:45:39 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 2:45:39 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 2:45:39 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 2:45:39 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 2:45:39 AM]: Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.\n\n[USER - 2:45:39 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 2:45:39 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 2:45:39 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 2:45:39 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
       "consentGiven": true,
       "status": "Confirmed",
       "referredTo": "",
@@ -6362,7 +6731,7 @@
       "eventVenueAddress": "Near Phoenix Mall, Alambagh",
       "eventType": "Wedding Reception",
       "guestCount": 350,
-      "budgetRange": "\u20b91,50,000 - \u20b93,00,000",
+      "budgetRange": "₹1,50,000 - ₹3,00,000",
       "items": [
         {
           "itemId": "item-002",
@@ -6401,7 +6770,7 @@
       "eventVenueAddress": "Dwarka Shri Lawn, Opp. Pillar No. 37",
       "eventType": "Wedding & Reception",
       "guestCount": 450,
-      "budgetRange": "\u20b93,00,000+",
+      "budgetRange": "₹3,00,000+",
       "items": [],
       "notes": "Checking availability for daughter wedding reception. Need full lawn setup with German hangar.",
       "consentGiven": true,
@@ -6451,7 +6820,7 @@
         {
           "id": "msg-mvebrbjw-9b20m",
           "role": "assistant",
-          "content": "Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate\u2014kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.",
+          "content": "Kandhari Tent & Caterers me hum premium catering aur buffet coordination provide karte hain. Har event ka menu customer ki pasand (Pure Veg / Multi-Cuisine, Live Chaat counters, Desserts) ke anusaar customize kiya jata hai. Hum fixed artificial rate nahi lagate—kripya batayein aapke event me lagbhag kitne guests expected hain aur event kab hai, taaki hum customized menu proposal prepare kar sakein.",
           "intent": "catering_menu",
           "galleryCategory": "Catering",
           "galleryImages": [
@@ -6660,6 +7029,502 @@
         }
       ],
       "lastActivityAt": "2026-10-18T21:15:39.494Z"
+    },
+    {
+      "id": "conv-mvech0xp-mwpok",
+      "customerId": "cust-mvech0s4-zwln1",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-172159",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvech0xp-r4md1",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-18T21:35:38.749Z"
+        },
+        {
+          "id": "msg-mvech0y4-rszr4",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-18T21:35:38.765Z"
+        },
+        {
+          "id": "msg-mvech0y5-4r789",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me 100% Pure Vegetarian Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\n• **Full Catering**: ₹750/vyakti (≥ 250 guests ke liye)\n• **Semi Catering**: ₹250/vyakti (buffet warmers, setup aur service staff)\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-18T21:35:38.765Z"
+        },
+        {
+          "id": "msg-mvech0z4-wzxdu",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-18T21:35:38.800Z"
+        },
+        {
+          "id": "msg-mvech0z4-ayeh0",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-18T21:35:38.800Z"
+        },
+        {
+          "id": "msg-mvech0zf-sj6tc",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-18T21:35:38.811Z"
+        },
+        {
+          "id": "msg-mvech0zf-he8ad",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-18T21:35:38.811Z"
+        },
+        {
+          "id": "msg-mvech0zy-ekip4",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-172159**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-18T21:35:38.830Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-18T21:35:38.811Z"
+    },
+    {
+      "id": "conv-mvedjsch-iqqtp",
+      "customerId": "cust-mvedjs66-cd5tv",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-561479",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvedjsch-gira6",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-18T22:05:47.201Z"
+        },
+        {
+          "id": "msg-mvedjse1-2xjku",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-18T22:05:47.257Z"
+        },
+        {
+          "id": "msg-mvedjse1-wqe1l",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-18T22:05:47.257Z"
+        },
+        {
+          "id": "msg-mvedjsfd-r8u8y",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-18T22:05:47.305Z"
+        },
+        {
+          "id": "msg-mvedjsfd-kuc8j",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-18T22:05:47.305Z"
+        },
+        {
+          "id": "msg-mvedjsfs-fjnb3",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-18T22:05:47.320Z"
+        },
+        {
+          "id": "msg-mvedjsfs-6pysn",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-18T22:05:47.320Z"
+        },
+        {
+          "id": "msg-mvedjsgn-8sajn",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-561479**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-18T22:05:47.351Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-18T22:05:47.320Z"
     }
   ],
   "users": [
@@ -6680,6 +7545,42 @@
       "passwordHash": "$2a$10$AXe6WQma9EwUoRJikOK78Om7uuazcjmed6H7BpVxkbhiy7OMdcTi6",
       "role": "customer",
       "createdAt": "2026-10-18T21:15:39.668Z"
+    },
+    {
+      "id": "cust-mvech0s4-zwln1",
+      "name": "Vikas Malhotra",
+      "email": "client_1792359338353@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$bUoXUtH1dJXWHvBQj518Iu/yYL0/GWv5nhc5tuoMl4VihM3EaK.Ne",
+      "role": "customer",
+      "createdAt": "2026-10-18T21:35:38.548Z"
+    },
+    {
+      "id": "cust-mvech157-v9130",
+      "name": "Another Customer",
+      "email": "intruder_1792359338842@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$rehwr7lPyz5YZKjG6hZpAO.zmobmpeJ3XZNZaXZUCdANVcyg5ChTK",
+      "role": "customer",
+      "createdAt": "2026-10-18T21:35:39.019Z"
+    },
+    {
+      "id": "cust-mvedjs66-cd5tv",
+      "name": "Vikas Malhotra",
+      "email": "client_1792361146809@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$935kmfV87JNFMk92IfajQOlQYAy/9Dg5.WqIDJeMom69uR0ebvfUa",
+      "role": "customer",
+      "createdAt": "2026-10-18T22:05:46.974Z"
+    },
+    {
+      "id": "cust-mvedjsl4-enr0e",
+      "name": "Another Customer",
+      "email": "intruder_1792361147368@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$f4njPF/mV4rdtlmw9Ifmh.FdpFvDuzBTuhSeWKIaOOdeXb8IDuxgu",
+      "role": "customer",
+      "createdAt": "2026-10-18T22:05:47.512Z"
     }
   ],
   "adminUsers": [
@@ -6840,7 +7741,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 1
+      "order": 1,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-002",
@@ -6853,7 +7755,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 2
+      "order": 2,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-003",
@@ -6866,7 +7769,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 3
+      "order": 3,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-004",
@@ -6879,7 +7783,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 4
+      "order": 4,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-005",
@@ -6892,7 +7797,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 5
+      "order": 5,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-006",
@@ -6905,7 +7811,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 6
+      "order": 6,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-007",
@@ -6918,7 +7825,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 7
+      "order": 7,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-008",
@@ -6931,7 +7839,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 8
+      "order": 8,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-009",
@@ -6944,7 +7853,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 9
+      "order": 9,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-010",
@@ -6957,7 +7867,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 10
+      "order": 10,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-011",
@@ -6970,7 +7881,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 11
+      "order": 11,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-012",
@@ -6983,7 +7895,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 12
+      "order": 12,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-013",
@@ -6996,7 +7909,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 13
+      "order": 13,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-014",
@@ -7009,7 +7923,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 14
+      "order": 14,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-015",
@@ -7022,7 +7937,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 15
+      "order": 15,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-016",
@@ -7035,7 +7951,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 16
+      "order": 16,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-017",
@@ -7048,7 +7965,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 17
+      "order": 17,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-018",
@@ -7061,7 +7979,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 18
+      "order": 18,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-019",
@@ -7074,7 +7993,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 19
+      "order": 19,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-020",
@@ -7087,7 +8007,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 20
+      "order": 20,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-021",
@@ -7100,7 +8021,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 21
+      "order": 21,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-022",
@@ -7113,7 +8035,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 22
+      "order": 22,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-023",
@@ -7126,7 +8049,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 23
+      "order": 23,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-024",
@@ -7139,7 +8063,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 24
+      "order": 24,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-025",
@@ -7152,7 +8077,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 25
+      "order": 25,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-026",
@@ -7165,7 +8091,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 26
+      "order": 26,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-027",
@@ -7178,7 +8105,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 27
+      "order": 27,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-028",
@@ -7191,7 +8119,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 28
+      "order": 28,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-029",
@@ -7204,7 +8133,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 29
+      "order": 29,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-030",
@@ -7217,7 +8147,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 30
+      "order": 30,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-031",
@@ -7230,7 +8161,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 31
+      "order": 31,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-032",
@@ -7243,7 +8175,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 32
+      "order": 32,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-033",
@@ -7256,7 +8189,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 33
+      "order": 33,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-034",
@@ -7269,7 +8203,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 34
+      "order": 34,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-035",
@@ -7282,7 +8217,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 35
+      "order": 35,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-036",
@@ -7295,7 +8231,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 36
+      "order": 36,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-037",
@@ -7308,7 +8245,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 37
+      "order": 37,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-038",
@@ -7321,7 +8259,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 38
+      "order": 38,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-039",
@@ -7334,7 +8273,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 39
+      "order": 39,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-040",
@@ -7347,7 +8287,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 40
+      "order": 40,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-041",
@@ -7360,7 +8301,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 41
+      "order": 41,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-042",
@@ -7373,7 +8315,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 42
+      "order": 42,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-043",
@@ -7386,7 +8329,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 43
+      "order": 43,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-044",
@@ -7399,7 +8343,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 44
+      "order": 44,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-045",
@@ -7412,7 +8357,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 45
+      "order": 45,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-046",
@@ -7425,7 +8371,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 46
+      "order": 46,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-047",
@@ -7438,7 +8385,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 47
+      "order": 47,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-048",
@@ -7451,7 +8399,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 48
+      "order": 48,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-049",
@@ -7464,7 +8413,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 49
+      "order": 49,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-050",
@@ -7477,7 +8427,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 50
+      "order": 50,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-051",
@@ -7490,7 +8441,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 51
+      "order": 51,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-052",
@@ -7503,7 +8455,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 52
+      "order": 52,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-053",
@@ -7516,7 +8469,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 53
+      "order": 53,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-054",
@@ -7529,7 +8483,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 54
+      "order": 54,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-055",
@@ -7542,7 +8497,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 55
+      "order": 55,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-056",
@@ -7555,7 +8511,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 56
+      "order": 56,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-057",
@@ -7568,7 +8525,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 57
+      "order": 57,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-058",
@@ -7581,7 +8539,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 58
+      "order": 58,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-059",
@@ -7594,7 +8553,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 59
+      "order": 59,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-060",
@@ -7607,7 +8567,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 60
+      "order": 60,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-061",
@@ -7620,7 +8581,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 61
+      "order": 61,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-062",
@@ -7633,7 +8595,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 62
+      "order": 62,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-063",
@@ -7646,7 +8609,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 63
+      "order": 63,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-064",
@@ -7659,7 +8623,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 64
+      "order": 64,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-065",
@@ -7672,7 +8637,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 65
+      "order": 65,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-066",
@@ -7685,7 +8651,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 66
+      "order": 66,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-067",
@@ -7698,7 +8665,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 67
+      "order": 67,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-068",
@@ -7711,7 +8679,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 68
+      "order": 68,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-069",
@@ -7724,7 +8693,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 69
+      "order": 69,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-070",
@@ -7737,7 +8707,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 70
+      "order": 70,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-071",
@@ -7750,7 +8721,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 71
+      "order": 71,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-072",
@@ -7763,7 +8735,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 72
+      "order": 72,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-073",
@@ -7776,7 +8749,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 73
+      "order": 73,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-074",
@@ -7789,7 +8763,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 74
+      "order": 74,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-075",
@@ -7802,7 +8777,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 75
+      "order": 75,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-076",
@@ -7815,7 +8791,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 76
+      "order": 76,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-077",
@@ -7828,7 +8805,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 77
+      "order": 77,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-078",
@@ -7841,7 +8819,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 78
+      "order": 78,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-079",
@@ -7854,7 +8833,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 79
+      "order": 79,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-080",
@@ -7867,7 +8847,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 80
+      "order": 80,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-081",
@@ -7880,7 +8861,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 81
+      "order": 81,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-082",
@@ -7893,7 +8875,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 82
+      "order": 82,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-083",
@@ -7906,7 +8889,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 83
+      "order": 83,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-084",
@@ -7919,7 +8903,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 84
+      "order": 84,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-085",
@@ -7932,7 +8917,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 85
+      "order": 85,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-086",
@@ -7945,7 +8931,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 86
+      "order": 86,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-087",
@@ -7958,7 +8945,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 87
+      "order": 87,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-088",
@@ -7971,7 +8959,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 88
+      "order": 88,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-089",
@@ -7984,7 +8973,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 89
+      "order": 89,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-090",
@@ -7997,7 +8987,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 90
+      "order": 90,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-091",
@@ -8010,7 +9001,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 91
+      "order": 91,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-092",
@@ -8023,7 +9015,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 92
+      "order": 92,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-093",
@@ -8036,7 +9029,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 93
+      "order": 93,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-094",
@@ -8049,7 +9043,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 94
+      "order": 94,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-095",
@@ -8062,7 +9057,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 95
+      "order": 95,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-096",
@@ -8075,7 +9071,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 96
+      "order": 96,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-097",
@@ -8088,7 +9085,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 97
+      "order": 97,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-098",
@@ -8101,7 +9099,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 98
+      "order": 98,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-099",
@@ -8114,7 +9113,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 99
+      "order": 99,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-100",
@@ -8127,7 +9127,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 100
+      "order": 100,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-101",
@@ -8140,7 +9141,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 101
+      "order": 101,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-102",
@@ -8153,7 +9155,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 102
+      "order": 102,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-103",
@@ -8166,7 +9169,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 103
+      "order": 103,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-104",
@@ -8179,7 +9183,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 104
+      "order": 104,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-105",
@@ -8192,7 +9197,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 105
+      "order": 105,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-106",
@@ -8205,7 +9211,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 106
+      "order": 106,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-107",
@@ -8218,7 +9225,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 107
+      "order": 107,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-108",
@@ -8231,7 +9239,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 108
+      "order": 108,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-109",
@@ -8244,7 +9253,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 109
+      "order": 109,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-110",
@@ -8257,7 +9267,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 110
+      "order": 110,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-111",
@@ -8270,7 +9281,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 111
+      "order": 111,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-112",
@@ -8283,7 +9295,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 112
+      "order": 112,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-113",
@@ -8296,7 +9309,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 113
+      "order": 113,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-114",
@@ -8309,7 +9323,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 114
+      "order": 114,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-115",
@@ -8322,7 +9337,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 115
+      "order": 115,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-116",
@@ -8335,7 +9351,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 116
+      "order": 116,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-117",
@@ -8348,7 +9365,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 117
+      "order": 117,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-118",
@@ -8361,7 +9379,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 118
+      "order": 118,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-119",
@@ -8374,7 +9393,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 119
+      "order": 119,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-120",
@@ -8387,7 +9407,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 120
+      "order": 120,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-121",
@@ -8400,7 +9421,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 121
+      "order": 121,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-122",
@@ -8413,7 +9435,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 122
+      "order": 122,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-123",
@@ -8426,7 +9449,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 123
+      "order": 123,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-124",
@@ -8439,7 +9463,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 124
+      "order": 124,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-125",
@@ -8452,7 +9477,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 125
+      "order": 125,
+      "imageUrl": "/media/food/dessert.jpg"
     }
   ],
   "galleryCategories": [
@@ -8474,7 +9500,7 @@
       "guestTier": "> 500 pax",
       "description": "Complete pure-veg Awadhi banqueting across 17 printed brochure courses for grand celebrations of 500+ guests. All snacks & starters served for 2 to 2.5 hours only.",
       "features": [
-        "\u20b9650 per person for above 500 pax",
+        "₹650 per person for above 500 pax",
         "17 printed brochure courses included",
         "Live Chaat, Barbecue Tandoor & Kesaria Jalebi Rabri",
         "Snacks served strictly 2 to 2.5 hours",
@@ -8490,7 +9516,7 @@
       "guestTier": "> 500 pax",
       "description": "Grand Awadhi non-vegetarian feast featuring succulent mutton & chicken gravies, tandoori kebabs, alongside complete vegetarian selections for 500+ guests.",
       "features": [
-        "\u20b9850 per person for above 500 pax",
+        "₹850 per person for above 500 pax",
         "Awadhi Galawati/Seekh Kebabs & Chicken/Mutton Curries",
         "Complete vegetarian counters & live breads included",
         "Starters served for 2 to 2.5 hours only",
@@ -8500,13 +9526,13 @@
     },
     {
       "id": "pkg-full-catering",
-      "name": "Royal Full Catering Package (250\u2013500 Guests)",
+      "name": "Royal Full Catering Package (250–500 Guests)",
       "category": "Catering Packages",
       "ratePerPerson": 750,
-      "guestTier": "250\u2013500 pax",
+      "guestTier": "250–500 pax",
       "description": "Full pure-veg Awadhi banqueting from welcome drinks, live chaat, handi paneer, breads to hot sweets. (Rate increases for < 250 pax).",
       "features": [
-        "\u20b9750 per person for 250\u2013500 guests",
+        "₹750 per person for 250–500 guests",
         "17 printed brochure courses",
         "All snacks served for 2 to 2.5 hours",
         "Client provides generator diesel",
@@ -8516,13 +9542,13 @@
     },
     {
       "id": "pkg-semi-catering",
-      "name": "Standard Semi Catering Package (\u2265 250 Guests)",
+      "name": "Standard Semi Catering Package (≥ 250 Guests)",
       "category": "Catering Packages",
       "ratePerPerson": 250,
-      "guestTier": "\u2265 250 pax",
+      "guestTier": "≥ 250 pax",
       "description": "Buffet warmers, counter presentation, and uniformed service staff for clients providing raw ingredients.",
       "features": [
-        "\u20b9250 per person for \u2265 250 guests",
+        "₹250 per person for ≥ 250 guests",
         "Complete chafing warmers & service gear",
         "Punctual serving & clearing stewards",
         "Ideal when raw food materials are arranged by host"
@@ -8562,12 +9588,12 @@
       "name": "Grand Royal Wedding Setup (Kanpur Road Benchmark)",
       "category": "Wedding Packages",
       "price": 110000,
-      "description": "VIP 20\u00d7200 ft gallery with lights & flowers, 14 Maharaja Sofas, 200 Highback Chairs with covers, 16\u00d724 ft Stage, 16\u00d716 ft Mandap, 2 Gates, DJ.",
+      "description": "VIP 20×200 ft gallery with lights & flowers, 14 Maharaja Sofas, 200 Highback Chairs with covers, 16×24 ft Stage, 16×16 ft Mandap, 2 Gates, DJ.",
       "features": [
-        "20\u00d7200 ft grand passage gallery with chandeliers & fresh flowers",
+        "20×200 ft grand passage gallery with chandeliers & fresh flowers",
         "14 Maharaja velvet 2-seater sofas & center tables",
         "200 Highback banquet chairs with ribbon covers",
-        "16\u00d724 ft Royal stage + 16\u00d716 ft Mandap + 2 Grand Gates",
+        "16×24 ft Royal stage + 16×16 ft Mandap + 2 Grand Gates",
         "Complete DJ sound console & operator"
       ],
       "isActive": true
@@ -8577,9 +9603,9 @@
       "name": "Institutional & Corporate Seminar Setup (D.R.D.O. Approved)",
       "category": "Institutional Packages",
       "price": 85500,
-      "description": "Heavy truss stage 20\u00d716, podium, ceremonial brass diya lamp, cordless audio, 80 LED par setup, 18% GST billing.",
+      "description": "Heavy truss stage 20×16, podium, ceremonial brass diya lamp, cordless audio, 80 LED par setup, 18% GST billing.",
       "features": [
-        "Heavy truss stage 20\u00d716 with black masking & carpet",
+        "Heavy truss stage 20×16 with black masking & carpet",
         "Wooden executive podium with DRDO/Institutional branding space",
         "Traditional ceremonial brass diya inaugural lamp",
         "Cordless collar & handheld microphone audio system",

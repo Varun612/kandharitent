@@ -12,6 +12,7 @@ router.post('/enquiries', cateringController.submitCateringEnquiry);
 
 // Admin dish management endpoints
 router.post('/items', requireAdminAuth, cateringController.addCateringItem);
+router.post('/items/:id/generate-image', requireAdminAuth, cateringController.generateCateringItemImage);
 router.put('/items/:id', requireAdminAuth, cateringController.updateCateringItem);
 router.delete('/items/:id', requireAdminAuth, cateringController.deleteCateringItem);
 

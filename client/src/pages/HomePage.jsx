@@ -201,8 +201,9 @@ const HomePage = () => {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-brand-border aspect-4/5 group">
               <img
-                src="/media/rich-decor/IMG_3962.JPG"
+                src="/media/rich-decor/decor-1.jpg"
                 alt="Grand wedding decor by Kandhari Tent & Caterers in Lucknow"
+                onError={(e) => { e.currentTarget.src = '/media/rich-decor/decor-2.jpg'; }}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-transparent to-transparent" />
@@ -726,7 +727,7 @@ const HomePage = () => {
                       id: 'pkg-grand-royal-wedding',
                       name: 'Grand Royal Wedding Setup (VIP 20x200 Gallery, 14 Sofas, 200 Chairs, Stage, Mandap, DJ - ₹1,10,000)',
                       category: 'Package Deals',
-                      imageUrl: '/media/rich-decor/IMG_3962.JPG'
+                      imageUrl: '/media/rich-decor/decor-1.jpg'
                     }, 1);
                   }}
                   className="w-full py-2.5 rounded-xl bg-neutral-900 text-white font-bold text-xs hover:bg-neutral-800 transition flex items-center justify-center gap-1.5"

@@ -1,9 +1,28 @@
 import React from 'react';
-import { Plus, Eye, CheckCircle2, AlertTriangle, XCircle, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Eye, CheckCircle2, AlertTriangle, XCircle, Sparkles, Lock } from 'lucide-react';
 import { useEnquiry } from '../context/EnquiryContext';
+import { useAuth } from '../context/AuthContext';
 
 const ItemCard = ({ item, onSelectDetail }) => {
   const { addItem } = useEnquiry();
+  const { isCustomerAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAddItem = () => {
+    if (!isCustomerAuthenticated) {
+      sessionStorage.setItem('kandhari_pending_rental_item', JSON.stringify({ item, quantity: 1 }));
+      navigate('/login', {
+        state: {
+          from: { pathname: window.location.pathname },
+          action: 'add_to_cart',
+          itemName: item.name
+        }
+      });
+      return;
+    }
+    addItem(item, 1);
+  };
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -37,6 +56,15 @@ const ItemCard = ({ item, onSelectDetail }) => {
     }
   };
 
+  const isArea = item.isAreaBased || item.ratePerSqFt;
+  const priceDisplay = isArea
+    ? `₹${item.ratePerSqFt || 5} / sq ft`
+    : (item.rentalPrice ? `₹${item.rentalPrice.toLocaleString('en-IN')}` : 'Quote on request');
+
+  const unitDisplay = isArea
+    ? (item.billingUnit || 'per sq ft')
+    : (item.billingUnit || 'per piece');
+
   return (
     <div className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm hover:shadow-royal transition-all duration-300 flex flex-col justify-between">
       {/* Image & Badges */}
@@ -45,6 +73,10 @@ const ItemCard = ({ item, onSelectDetail }) => {
           src={item.imageUrl}
           alt={item.name}
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = '/media/rich-decor/decor-1.jpg';
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
@@ -89,11 +121,16 @@ const ItemCard = ({ item, onSelectDetail }) => {
         {/* Pricing Notice & Actions */}
         <div className="pt-3 border-t border-neutral-100 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-brand-primary font-bold bg-amber-50/80 px-2.5 py-1 rounded-md border border-amber-200/60">
-              Custom Quote on Request
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-serif font-bold text-brand-primary">
+                {priceDisplay}
+              </span>
+              <span className="text-[10px] text-neutral-400">
+                {unitDisplay}
+              </span>
+            </div>
             <span className="text-[11px] text-neutral-400 font-medium">
-              Qty: {item.availableQuantity > 0 ? `${item.availableQuantity} units` : 'On order'}
+              Qty: {item.availableQuantity > 0 ? `${item.availableQuantity} units` : 'Available'}
             </span>
           </div>
 
@@ -107,12 +144,22 @@ const ItemCard = ({ item, onSelectDetail }) => {
             </button>
 
             <button
-              onClick={() => addItem(item, 1)}
+              onClick={handleAddItem}
               disabled={item.availabilityStatus === 'Out of Stock'}
+              title={!isCustomerAuthenticated ? 'Sign in to add items to cart' : 'Add to cart'}
               className="py-2 px-3 rounded-xl royal-gradient hover:opacity-95 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition disabled:opacity-40"
             >
-              <Plus className="w-3.5 h-3.5 text-brand-gold" />
-              <span>Add to List</span>
+              {!isCustomerAuthenticated ? (
+                <>
+                  <Lock className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Book Item</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Add to List</span>
+                </>
+              )}
             </button>
           </div>
         </div>

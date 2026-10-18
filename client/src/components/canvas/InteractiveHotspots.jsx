@@ -21,7 +21,7 @@ const HOTSPOTS = [
     view: 'canopy',
     category: 'Lighting & Decor',
     description: 'Hundreds of suspended warm ambient fairy lights with faceted crystal chandeliers casting twilight radiance.',
-    mediaPath: '/media/rich-decor/IMG_3962.JPG'
+    mediaPath: '/media/rich-decor/decor-1.jpg'
   },
   {
     id: 'lawn',

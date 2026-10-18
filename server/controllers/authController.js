@@ -83,36 +83,43 @@ const customerRegister = async (req, res) => {
   }
 };
 
-// 2. POST /api/auth/customer-login (Customer Login)
+// 2. POST /api/auth/customer-login (Customer Login via Email or Phone)
 const customerLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phone, identifier, password } = req.body;
+    const loginId = (identifier || email || phone || '').trim().toLowerCase();
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    if (!loginId || !password) {
+      return res.status(400).json({ success: false, message: 'Mobile number or email, and password are required.' });
     }
-
-    const cleanEmail = email.trim().toLowerCase();
 
     let user = null;
     let validPassword = false;
 
     if (isMongoConnected()) {
-      user = await User.findOne({ email: cleanEmail });
+      user = await User.findOne({
+        $or: [
+          { email: loginId },
+          { phone: loginId }
+        ]
+      });
       if (user) {
         validPassword = await user.comparePassword(password);
       }
     } else {
       const localDb = getLocalDb();
       if (!localDb.users) localDb.users = [];
-      user = localDb.users.find(u => u.email.toLowerCase() === cleanEmail);
+      user = localDb.users.find(u => 
+        (u.email && u.email.toLowerCase() === loginId) || 
+        (u.phone && u.phone.toLowerCase() === loginId)
+      );
       if (user) {
         validPassword = await bcrypt.compare(password, user.passwordHash);
       }
     }
 
     if (!user || !validPassword) {
-      return res.status(401).json({ success: false, message: 'Invalid email address or password.' });
+      return res.status(401).json({ success: false, message: 'Invalid mobile/email or password.' });
     }
 
     const token = jwt.sign(
@@ -289,6 +296,14 @@ const getDashboardStats = async (req, res) => {
       const availableItems = await Item.countDocuments({ availabilityStatus: 'Available' });
       const totalEnquiries = await Enquiry.countDocuments();
       const newEnquiries = await Enquiry.countDocuments({ status: 'New' });
+      const underReview = await Enquiry.countDocuments({ status: 'Under Review' });
+      const quotationPrepared = await Enquiry.countDocuments({ status: 'Quotation Prepared' });
+      const confirmed = await Enquiry.countDocuments({ status: 'Confirmed' });
+      const advancePending = await Enquiry.countDocuments({ status: 'Advance Pending' });
+      const partiallyPaid = await Enquiry.countDocuments({ status: 'Partially Paid' });
+      const fullyPaid = await Enquiry.countDocuments({ status: 'Fully Paid' });
+      const completed = await Enquiry.countDocuments({ status: 'Completed' });
+      const cancelled = await Enquiry.countDocuments({ status: 'Cancelled' });
       const contactedEnquiries = await Enquiry.countDocuments({ status: 'Contacted' });
       const inDiscussionEnquiries = await Enquiry.countDocuments({ status: 'In Discussion' });
       const quotedEnquiries = await Enquiry.countDocuments({ status: 'Quoted' });
@@ -302,6 +317,14 @@ const getDashboardStats = async (req, res) => {
           availableItems,
           totalEnquiries,
           newEnquiries,
+          underReview,
+          quotationPrepared,
+          confirmed,
+          advancePending,
+          partiallyPaid,
+          fullyPaid,
+          completed,
+          cancelled,
           contactedEnquiries,
           inDiscussionEnquiries,
           quotedEnquiries,
@@ -312,8 +335,8 @@ const getDashboardStats = async (req, res) => {
     }
 
     const db = getLocalDb();
-    const items = db.items;
-    const enquiries = db.enquiries;
+    const items = db.items || [];
+    const enquiries = db.enquiries || [];
 
     return res.json({
       success: true,
@@ -322,6 +345,14 @@ const getDashboardStats = async (req, res) => {
         availableItems: items.filter(it => it.availabilityStatus === 'Available').length,
         totalEnquiries: enquiries.length,
         newEnquiries: enquiries.filter(e => e.status === 'New').length,
+        underReview: enquiries.filter(e => e.status === 'Under Review').length,
+        quotationPrepared: enquiries.filter(e => e.status === 'Quotation Prepared').length,
+        confirmed: enquiries.filter(e => e.status === 'Confirmed').length,
+        advancePending: enquiries.filter(e => e.status === 'Advance Pending').length,
+        partiallyPaid: enquiries.filter(e => e.status === 'Partially Paid').length,
+        fullyPaid: enquiries.filter(e => e.status === 'Fully Paid').length,
+        completed: enquiries.filter(e => e.status === 'Completed').length,
+        cancelled: enquiries.filter(e => e.status === 'Cancelled').length,
         contactedEnquiries: enquiries.filter(e => e.status === 'Contacted').length,
         inDiscussionEnquiries: enquiries.filter(e => e.status === 'In Discussion').length,
         quotedEnquiries: enquiries.filter(e => e.status === 'Quoted').length,

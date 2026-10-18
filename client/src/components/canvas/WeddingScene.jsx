@@ -33,7 +33,7 @@ export const WeddingScene = ({ onOpenHotspotDetail }) => {
       <div className="relative w-full h-[85vh] royal-gradient flex items-center justify-center text-white p-6">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay"
-          style={{ backgroundImage: `url('/media/rich-decor/IMG_3962.JPG')` }}
+          style={{ backgroundImage: `url('/media/rich-decor/decor-1.jpg')` }}
         />
         <div className="relative text-center max-w-lg space-y-4">
           <Sparkles className="w-10 h-10 text-brand-gold mx-auto" />

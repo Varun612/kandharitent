@@ -255,6 +255,83 @@ const submitCateringEnquiry = async (req, res) => {
   }
 };
 
+/**
+ * Helper to get category fallback photo
+ */
+const getCategoryFallbackImage = (category = '') => {
+  const cat = category.toLowerCase();
+  if (cat.includes('starter') || cat.includes('bar-be-que')) return '/media/food/starter.jpg';
+  if (cat.includes('chaat') || cat.includes('snack')) return '/media/food/chaat.jpg';
+  if (cat.includes('soup')) return '/media/food/soup.jpg';
+  if (cat.includes('paneer')) return '/media/food/paneer.jpg';
+  if (cat.includes('rice') || cat.includes('basmati')) return '/media/food/rice.jpg';
+  if (cat.includes('roti') || cat.includes('bread') || cat.includes('handi')) return '/media/food/breads.jpg';
+  if (cat.includes('dessert') || cat.includes('meetha') || cat.includes('sweet')) return '/media/food/dessert.jpg';
+  return '/media/food/vegetable.jpg';
+};
+
+/**
+ * POST /api/catering/items/:id/generate-image (Admin)
+ * Generate food photograph using Gemini Imagen or map curated photo
+ */
+const generateCateringItemImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { prompt: customPrompt } = req.body;
+    const db = getLocalDb();
+
+    if (!db.cateringMenu) db.cateringMenu = [];
+    const idx = db.cateringMenu.findIndex(it => it.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, message: 'Dish not found' });
+    }
+
+    const dish = db.cateringMenu[idx];
+    const categoryFallback = getCategoryFallbackImage(dish.category);
+    let finalImageUrl = categoryFallback;
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const { GoogleGenAI } = require('@google/genai');
+        const ai = new GoogleGenAI({ apiKey });
+        const generationPrompt = customPrompt || 
+          `High-end gourmet food photography of Indian wedding banquet dish: ${dish.name}. Luxury presentation, garnished with fresh herbs, silver vark or saffron, warm ambient royal wedding buffet lighting, fine china tableware, 4k ultra-detailed, commercial food magazine style.`;
+
+        const response = await ai.models.generateImages({
+          model: 'imagen-3.0-generate-002',
+          prompt: generationPrompt,
+          config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/jpeg',
+            aspectRatio: '16:9'
+          }
+        });
+
+        if (response?.generatedImages?.[0]?.image?.imageBytes) {
+          const base64Bytes = response.generatedImages[0].image.imageBytes;
+          finalImageUrl = `data:image/jpeg;base64,${base64Bytes}`;
+        }
+      } catch (genErr) {
+        console.warn('Gemini Imagen generation skipped or failed, using curated photo:', genErr.message || genErr);
+      }
+    }
+
+    db.cateringMenu[idx].imageUrl = finalImageUrl;
+    saveLocalStore();
+
+    return res.json({
+      success: true,
+      data: db.cateringMenu[idx],
+      imageUrl: finalImageUrl,
+      message: 'Dish image generated and updated successfully'
+    });
+  } catch (error) {
+    console.error('Error generating catering item image:', error);
+    return res.status(500).json({ success: false, message: 'Server error generating dish image' });
+  }
+};
+
 module.exports = {
   getCateringMenu,
   getCateringCategories,
@@ -262,5 +339,6 @@ module.exports = {
   addCateringItem,
   updateCateringItem,
   deleteCateringItem,
+  generateCateringItemImage,
   submitCateringEnquiry
 };

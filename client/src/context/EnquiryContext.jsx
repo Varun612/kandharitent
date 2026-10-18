@@ -12,8 +12,27 @@ export const EnquiryProvider = ({ children }) => {
     }
   });
 
+  const [startDate, setStartDate] = useState(() => {
+    return localStorage.getItem('kandhari_rental_start_date') || '';
+  });
+
+  const [endDate, setEndDate] = useState(() => {
+    return localStorage.getItem('kandhari_rental_end_date') || '';
+  });
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeModalItem, setActiveModalItem] = useState(null);
+
+  // Sync dates
+  useEffect(() => {
+    if (startDate) localStorage.setItem('kandhari_rental_start_date', startDate);
+    else localStorage.removeItem('kandhari_rental_start_date');
+  }, [startDate]);
+
+  useEffect(() => {
+    if (endDate) localStorage.setItem('kandhari_rental_end_date', endDate);
+    else localStorage.removeItem('kandhari_rental_end_date');
+  }, [endDate]);
 
   // Sync to localStorage
   useEffect(() => {
@@ -24,37 +43,65 @@ export const EnquiryProvider = ({ children }) => {
     }
   }, [enquiryList]);
 
-  const addItem = (item, quantity = 1) => {
+  // Listen for pending items added after login
+  useEffect(() => {
+    const handlePendingAdd = (e) => {
+      if (e.detail) {
+        const { item, quantity, dimensions, length, width } = e.detail;
+        addItem(item, quantity || 1, { dimensions, length, width });
+      }
+    };
+    window.addEventListener('kandhari-add-pending-item', handlePendingAdd);
+    return () => window.removeEventListener('kandhari-add-pending-item', handlePendingAdd);
+  }, []);
+
+  const addItem = (item, quantity = 1, config = {}) => {
     setEnquiryList(prev => {
-      const existingIndex = prev.findIndex(it => it.id === item.id);
+      const length = config.length || item.defaultDimensions?.length || 0;
+      const width = config.width || item.defaultDimensions?.width || 0;
+      const dimensions = config.dimensions || (length && width ? `${length} × ${width} ft` : '');
+      const itemKey = dimensions ? `${item.id}-${dimensions}` : item.id;
+      
+      const existingIndex = prev.findIndex(it => (it.itemKey || it.id) === itemKey);
+
       if (existingIndex > -1) {
         const updated = [...prev];
         updated[existingIndex].quantity += quantity;
         return updated;
       } else {
         return [...prev, {
+          itemKey,
           id: item.id,
           name: item.name,
           category: item.category,
           imageUrl: item.imageUrl,
-          quantity: quantity
+          quantity: quantity,
+          unitRate: item.rentalPrice || item.rate || 0,
+          ratePerSqFt: item.ratePerSqFt || 0,
+          billingUnit: item.billingUnit || '',
+          isAreaBased: !!(item.isAreaBased || (length && width)),
+          dimensions,
+          length,
+          width,
+          areaSqFt: length * width,
+          durationSensitive: item.durationSensitive || false
         }];
       }
     });
     setIsDrawerOpen(true);
   };
 
-  const removeItem = (itemId) => {
-    setEnquiryList(prev => prev.filter(it => it.id !== itemId));
+  const removeItem = (itemKeyOrId) => {
+    setEnquiryList(prev => prev.filter(it => (it.itemKey || it.id) !== itemKeyOrId));
   };
 
-  const updateQuantity = (itemId, newQuantity) => {
+  const updateQuantity = (itemKeyOrId, newQuantity) => {
     const qty = parseInt(newQuantity, 10);
     if (isNaN(qty) || qty <= 0) {
-      removeItem(itemId);
+      removeItem(itemKeyOrId);
       return;
     }
-    setEnquiryList(prev => prev.map(it => it.id === itemId ? { ...it, quantity: qty } : it));
+    setEnquiryList(prev => prev.map(it => (it.itemKey || it.id) === itemKeyOrId ? { ...it, quantity: qty } : it));
   };
 
   const clearList = () => {
@@ -71,6 +118,10 @@ export const EnquiryProvider = ({ children }) => {
       updateQuantity,
       clearList,
       totalItemsCount,
+      startDate,
+      setStartDate,
+      endDate,
+      setEndDate,
       isDrawerOpen,
       setIsDrawerOpen,
       openDrawer: () => setIsDrawerOpen(true),
@@ -90,3 +141,4 @@ export const useEnquiry = () => {
   }
   return context;
 };
+

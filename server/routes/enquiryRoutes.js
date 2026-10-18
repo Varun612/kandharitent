@@ -11,6 +11,7 @@ router.post('/', optionalAuth, validateEnquiryInput, enquiryController.submitEnq
 router.get('/export/csv', requireAdminAuth, enquiryController.exportEnquiriesCSV);
 router.get('/', requireAdminAuth, enquiryController.getEnquiries);
 router.put('/:id/status', requireAdminAuth, enquiryController.updateEnquiryStatus);
+router.put('/:id/quotation', requireAdminAuth, enquiryController.updateEnquiryQuotation);
 router.delete('/:id', requireAdminAuth, enquiryController.deleteEnquiry);
 router.get('/:id', optionalAuth, enquiryController.getEnquiryById);
 

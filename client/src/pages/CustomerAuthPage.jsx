@@ -26,6 +26,8 @@ const CustomerAuthPage = () => {
   };
 
   const hasPendingChatEnquiry = typeof window !== 'undefined' && !!sessionStorage.getItem('kandhari_pending_chat_enquiry');
+  const hasPendingRentalItem = typeof window !== 'undefined' && !!sessionStorage.getItem('kandhari_pending_rental_item');
+  const requestedItemName = location.state?.itemName;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,9 +45,19 @@ const CustomerAuthPage = () => {
         await customerRegister(formData);
       } else {
         if (!formData.email || !formData.password) {
-          throw new Error('Please provide both email and password.');
+          throw new Error('Please provide your mobile number/email and password.');
         }
-        await customerLogin({ email: formData.email, password: formData.password });
+        await customerLogin({ identifier: formData.email, password: formData.password });
+      }
+
+      if (hasPendingRentalItem) {
+        try {
+          const parsed = JSON.parse(sessionStorage.getItem('kandhari_pending_rental_item'));
+          sessionStorage.removeItem('kandhari_pending_rental_item');
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('kandhari-add-pending-item', { detail: parsed }));
+          }, 150);
+        } catch (e) {}
       }
 
       if (hasPendingChatEnquiry) {
@@ -74,12 +86,22 @@ const CustomerAuthPage = () => {
             Kandhari Tent & Caterers & Dwarka Shri Lawn
           </p>
           <p className="text-neutral-400 text-xs mt-0.5">
-            Track your event enquiries, quotations & chat history
+            Track your event enquiries, quotations & bookings
           </p>
         </div>
 
+        {/* Pending Rental Item Notice Banner */}
+        {hasPendingRentalItem && (
+          <div className="bg-amber-50 border-b border-amber-200/80 p-3.5 text-xs text-amber-900 flex items-start gap-2">
+            <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="font-medium leading-relaxed">
+              Please sign in or create an account to book {requestedItemName ? `"${requestedItemName}"` : 'rental equipment'}. Your item will be added to your order automatically once signed in.
+            </p>
+          </div>
+        )}
+
         {/* Pending Inquiry Notice Banner */}
-        {hasPendingChatEnquiry && (
+        {hasPendingChatEnquiry && !hasPendingRentalItem && (
           <div className="bg-amber-50 border-b border-amber-200/80 p-3.5 text-xs text-amber-900 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="font-medium leading-relaxed">
@@ -147,18 +169,18 @@ const CustomerAuthPage = () => {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-1">
-                Email Address
+                {isRegister ? 'Email Address' : 'Mobile Number or Email'}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
-                  type="email"
+                  type={isRegister ? 'email' : 'text'}
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="name@example.com"
+                  placeholder={isRegister ? 'name@example.com' : 'Enter 10-digit mobile or email'}
                   className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
                   required
                 />

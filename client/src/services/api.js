@@ -80,6 +80,7 @@ export const api = {
   },
   getEnquiryById: (id) => request(`/enquiries/${id}`),
   updateEnquiryStatus: (id, statusData) => request(`/enquiries/${id}/status`, { method: 'PUT', body: JSON.stringify(statusData) }),
+  updateEnquiryQuotation: (id, quotationData) => request(`/enquiries/${id}/quotation`, { method: 'PUT', body: JSON.stringify(quotationData) }),
   deleteEnquiry: (id) => request(`/enquiries/${id}`, { method: 'DELETE' }),
   exportCSV: async () => {
     const res = await fetch(`${API_BASE}/enquiries/export/csv`, {
@@ -124,6 +125,7 @@ export const api = {
   submitCateringEnquiry: (enquiryData) => request('/catering/enquire', { method: 'POST', body: JSON.stringify(enquiryData) }),
   addCateringItem: (itemData) => request('/catering/items', { method: 'POST', body: JSON.stringify(itemData) }),
   updateCateringItem: (id, updates) => request(`/catering/items/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
+  generateFoodImage: (id, prompt) => request(`/catering/items/${id}/generate-image`, { method: 'POST', body: JSON.stringify({ prompt }) }),
   deleteCateringItem: (id) => request(`/catering/items/${id}`, { method: 'DELETE' }),
 
   // Customer Authentication & Portal

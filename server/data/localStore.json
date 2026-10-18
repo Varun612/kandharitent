@@ -1,284 +1,333 @@
 {
   "items": [
     {
-      "id": "item-001",
-      "name": "VIP Royal 2-Seater Sofa Setup",
+      "id": "item-chair-pvc",
+      "name": "Plastic PVC Chair",
       "category": "Chairs & Seating",
       "categoryId": "chairs-seating",
-      "description": "Carved gold & velvet high-back 2-seater sofa with matching side armrests for wedding stage and VIP baithak.",
-      "rentalPrice": 600,
-      "priceUnit": "per day / unit",
-      "availableQuantity": 20,
+      "description": "Sturdy, stackable commercial white PVC chair. Easy setup for large gatherings and dining areas.",
+      "rentalPrice": 15,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
+      "availableQuantity": 500,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in D.R.D.O. and Raju Juneja booking slips @ Rs 600.",
+      "imageUrl": "/media/seating/seating-2.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-chair-velvet",
+      "name": "Velvet Chair with Cover",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Cushioned banquet chair fitted with clean fitted royal velvet slipcover and ribbon tie.",
+      "rentalPrice": 45,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
+      "availableQuantity": 300,
+      "availabilityStatus": "Available",
       "imageUrl": "/media/seating/seating-1.jpg",
       "featured": true
     },
     {
-      "id": "item-002",
-      "name": "Premium Highback Kursi (Velvet Banquet Chair)",
+      "id": "item-chair-highback",
+      "name": "High-Back Chair with Cover",
       "category": "Chairs & Seating",
       "categoryId": "chairs-seating",
-      "description": "Heavy-gauge steel highback banquet chair with thick cushioning and clean ivory or maroon slipcovers.",
-      "rentalPrice": 70,
-      "priceUnit": "per chair / day",
-      "availableQuantity": 500,
+      "description": "Heavy ergonomic high-back banquet chair draped with luxury fabric cover for formal wedding seating.",
+      "rentalPrice": 75,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
+      "availableQuantity": 250,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja & DRDO slips @ Rs 70.",
-      "imageUrl": "/media/seating/seating-2.jpg",
+      "imageUrl": "/media/seating/seating-1.jpg",
       "featured": true
     },
     {
-      "id": "item-003",
-      "name": "VIP Chairs with Armrest",
-      "category": "Chairs & Seating",
-      "categoryId": "chairs-seating",
-      "description": "Comfortable cushioned VIP chairs suitable for seminars, front-row wedding seating, and corporate delegates.",
-      "rentalPrice": 50,
-      "priceUnit": "per chair / day",
-      "availableQuantity": 200,
+      "id": "item-table-set",
+      "name": "Table Set (2.5 × 5 feet)",
+      "category": "Tables",
+      "categoryId": "tables",
+      "description": "Heavy wooden dining table set (2.5 × 5 ft) with clean matching linen cover for buffet & seating.",
+      "rentalPrice": 75,
+      "priceUnit": "per set",
+      "billingUnit": "per set",
+      "durationSensitive": false,
+      "availableQuantity": 80,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 50.",
-      "imageUrl": "/media/seating/seating-2.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-004",
-      "name": "PVC Heavy Duty Chairs",
-      "category": "Chairs & Seating",
-      "categoryId": "chairs-seating",
-      "description": "Moulded virgin plastic chairs for general gathering, halwai area, and outdoor lawn seating.",
-      "rentalPrice": 20,
-      "priceUnit": "per chair / day",
-      "availableQuantity": 300,
-      "availabilityStatus": "Available",
-      "internalNotes": "Standard verified rate Rs 20.",
-      "imageUrl": "/media/seating/seating-2.jpg",
+      "imageUrl": "/media/tables/table-1.jpg",
       "featured": false
     },
     {
-      "id": "item-005",
-      "name": "Gadda & Baithak Set (Mattress)",
+      "id": "item-table-round",
+      "name": "Round Table with Cover",
+      "category": "Tables",
+      "categoryId": "tables",
+      "description": "60-inch round banquet table seating 6–8 guests with floor-length royal fabric cover.",
+      "rentalPrice": 200,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 40,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/tables/table-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-winter-gadda",
+      "name": "Winter Gadda Set (Baithak Mattress)",
       "category": "Chairs & Seating",
       "categoryId": "chairs-seating",
-      "description": "Dense cotton floor mattresses (gadda) for traditional Nawabi baithak, mehendi lounge, or halwai resting.",
-      "rentalPrice": 60,
-      "priceUnit": "per gadda / day",
-      "availableQuantity": 80,
+      "description": "Quilted winter cotton gadda set with white bedsheet and bolster pillows for traditional floor baithak.",
+      "rentalPrice": 150,
+      "priceUnit": "per set per day",
+      "billingUnit": "per set per day",
+      "durationSensitive": true,
+      "availableQuantity": 50,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 60.",
       "imageUrl": "/media/seating/seating-3.jpg",
       "featured": false
     },
     {
-      "id": "item-006",
-      "name": "Round Banquet Table (60-inch)",
+      "id": "item-table-center",
+      "name": "Centre Table (VIP Coffee Table)",
       "category": "Tables",
       "categoryId": "tables",
-      "description": "60-inch round dining table accommodating 8 guests with floor-length satin/damask linen and frills.",
-      "rentalPrice": 180,
-      "priceUnit": "per table / day",
-      "availableQuantity": 30,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO (Rs 150) and Raju Juneja (Rs 200) slips.",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-007",
-      "name": "Mez Set (Dining Table Set 2.5 x 5)",
-      "category": "Tables",
-      "categoryId": "tables",
-      "description": "Sturdy rectangular buffet and dining table (2.5 x 5 ft) with clean table cloth and skirting.",
-      "rentalPrice": 80,
-      "priceUnit": "per set / day",
-      "availableQuantity": 100,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 80.",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-008",
-      "name": "Central Table (VIP Coffee Table)",
-      "category": "Tables",
-      "categoryId": "tables",
-      "description": "Glass-top polished central coffee table paired with 2-seater VIP sofas.",
-      "rentalPrice": 300,
-      "priceUnit": "per table / day",
+      "description": "Polished wooden VIP coffee table for placement in front of Maharaja 2-seater sofas.",
+      "rentalPrice": 400,
+      "priceUnit": "per piece",
+      "billingUnit": "per piece",
+      "durationSensitive": false,
       "availableQuantity": 25,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 300.",
-      "imageUrl": "/media/tables/table-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-009",
-      "name": "Takhat (Heavy Wooden Cot)",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Solid wooden takhat for halwai preparation, puja setups, or musicians.",
-      "rentalPrice": 80,
-      "priceUnit": "per takhat / day",
-      "availableQuantity": 15,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 80.",
-      "imageUrl": "/media/stage/stage-1.jpg",
+      "imageUrl": "/media/tables/table-2.jpg",
       "featured": false
     },
     {
-      "id": "item-010",
-      "name": "Halwai Drum & Water Barrel",
-      "category": "Other Event Equipment",
-      "categoryId": "other-equipment",
-      "description": "Clean, heavy-duty stainless/fibre water drums for kitchen and catering preparations.",
-      "rentalPrice": 100,
-      "priceUnit": "per drum / day",
-      "availableQuantity": 20,
+      "id": "item-sofa-2seater",
+      "name": "Two-Seater Maharaja Sofa",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Carved royal velvet 2-seater stage sofa for bride-groom stage, VIP lounge, and family baithak.",
+      "rentalPrice": 800,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 14,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 100.",
-      "imageUrl": "/media/catering/catering-8.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-011",
-      "name": "Red Carpet & 3D Walkway Carpet",
-      "category": "Lighting & Decoration",
-      "categoryId": "lighting-decor",
-      "description": "Plush crimson red and 3D textured aisle runners for VIP passage, mandap walkway, and grand gallery.",
-      "rentalPrice": 2,
-      "priceUnit": "per sq.ft",
-      "availableQuantity": 10000,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO & Raju Juneja slips @ Rs 2/sq.ft.",
-      "imageUrl": "/media/gate/gate-2.jpg",
+      "imageUrl": "/media/seating/seating-1.jpg",
       "featured": true
     },
     {
-      "id": "item-012",
-      "name": "Truss Food Stall (10 x 10 / 10 x 20)",
-      "category": "Tents & Canopies",
-      "categoryId": "tents-canopies",
-      "description": "Modern aluminium box truss stall frame for live chaat, pasta, barbecue, and dessert counters.",
-      "rentalPrice": 500,
-      "priceUnit": "per stall / day",
-      "availableQuantity": 20,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 500.",
-      "imageUrl": "/media/catering/catering-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-013",
-      "name": "Illuminated Welcome Arch Gate (12 x 12)",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Grand welcome arch gate with decorative fabric draping and built-in lighting.",
-      "rentalPrice": 1000,
-      "priceUnit": "per gate / day",
-      "availableQuantity": 6,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in Raju Juneja slip @ Rs 1000.",
-      "imageUrl": "/media/gate/gate-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-014",
-      "name": "Modular Elevated Stage Setup",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Heavy-duty steel stage framing with 2.5 ft elevation, carpeted surface, and side staircases.",
-      "rentalPrice": 15,
-      "priceUnit": "per sq.ft (e.g. 20x16 = Rs 4,800)",
-      "availableQuantity": 2000,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 15/sq.ft.",
-      "imageUrl": "/media/stage/stage-1.jpg",
-      "featured": true
-    },
-    {
-      "id": "item-015",
-      "name": "Aluminium Box Truss Stage Covering",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Structural aluminium box truss covering overhead stage for light rigging, profile spots, and flower hangings.",
-      "rentalPrice": 10,
-      "priceUnit": "per sq.ft (e.g. 24x18 = Rs 4,320)",
-      "availableQuantity": 1500,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 10/sq.ft.",
-      "imageUrl": "/media/lighting/light-1.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-016",
-      "name": "Executive Wooden Seminar Podium",
-      "category": "Stage & Platform Equipment",
-      "categoryId": "stage-platform",
-      "description": "Polished teak finish conference rostrum/podium equipped with microphone clamp and reading lamp.",
+      "id": "item-jumbo-cooler",
+      "name": "Jumbo Desert Cooler",
+      "category": "Fans & Coolers",
+      "categoryId": "fans-coolers",
+      "description": "High-power industrial metal body jumbo desert cooler with copper motor and honey-comb cooling pads.",
       "rentalPrice": 1500,
-      "priceUnit": "per day",
-      "availableQuantity": 4,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 20,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 1,500.",
-      "imageUrl": "/media/stage/stage-4.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-017",
-      "name": "Traditional Brass Diya Inauguration Lamp",
-      "category": "Wedding & Party Essentials",
-      "categoryId": "wedding-essentials",
-      "description": "Classic 5-tier brass diya lamp for auspicious ceremony inauguration and deep prajwalan.",
-      "rentalPrice": 500,
-      "priceUnit": "per day",
-      "availableQuantity": 5,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO invoice @ Rs 500.",
-      "imageUrl": "/media/mandap/mandap-3.jpg",
-      "featured": false
-    },
-    {
-      "id": "item-018",
-      "name": "Sound System with Cordless Mics & Amplifier",
-      "category": "Lighting & Decoration",
-      "categoryId": "lighting-decor",
-      "description": "2 Speaker boxes, 1 cordless mic, 1 podium gooseneck mic, and powerful amplifier for speeches and music.",
-      "rentalPrice": 6000,
-      "priceUnit": "per day",
-      "availableQuantity": 6,
-      "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO Lucknow invoice @ Rs 6,000.",
-      "imageUrl": "/media/weddings/wedding-4.jpg",
+      "imageUrl": "/media/fans/cooler-1.jpg",
       "featured": true
     },
     {
-      "id": "item-019",
-      "name": "Parda Wall Drapery (12 x 18)",
+      "id": "item-tent-normal",
+      "name": "Normal Tent / Pandal (Shamiana Setup)",
       "category": "Tents & Canopies",
       "categoryId": "tents-canopies",
-      "description": "High privacy side fabric partitions with steel pipe frame for perimeter enclosure.",
-      "rentalPrice": 200,
-      "priceUnit": "per panel / day",
-      "availableQuantity": 50,
+      "description": "Traditional heavy-gauge shamiana with ceiling lining, side walls, and waterproof top cover. Dimensions: 10×20, 20×20, 20×30 ft.",
+      "rentalPrice": 5,
+      "ratePerSqFt": 5,
+      "priceUnit": "per sq.ft per day",
+      "billingUnit": "per sq ft per day",
+      "isAreaBased": true,
+      "durationSensitive": true,
+      "availableDimensions": [
+        {
+          "length": 10,
+          "width": 20,
+          "area": 200,
+          "label": "10 × 20 ft (200 sq.ft) — ₹1,000/day"
+        },
+        {
+          "length": 20,
+          "width": 20,
+          "area": 400,
+          "label": "20 × 20 ft (400 sq.ft) — ₹2,000/day"
+        },
+        {
+          "length": 20,
+          "width": 30,
+          "area": 600,
+          "label": "20 × 30 ft (600 sq.ft) — ₹3,000/day"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 20,
+        "width": 30
+      },
+      "availableQuantity": 10,
       "availabilityStatus": "Available",
-      "internalNotes": "Verified in DRDO & Tokyo slips @ Rs 200.",
+      "imageUrl": "/media/tents/tent-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-tent-halwai",
+      "name": "Halwai Kitchen Pandal",
+      "category": "Tents & Canopies",
+      "categoryId": "tents-canopies",
+      "description": "Enclosed fire-resistant kitchen & cooking pandal setup specifically for caterers and halwai teams.",
+      "rentalPrice": 5,
+      "ratePerSqFt": 5,
+      "priceUnit": "per sq.ft per day",
+      "billingUnit": "per sq ft per day",
+      "isAreaBased": true,
+      "durationSensitive": true,
+      "availableDimensions": [
+        {
+          "length": 10,
+          "width": 20,
+          "area": 200,
+          "label": "10 × 20 ft (200 sq.ft) — ₹1,000/day"
+        },
+        {
+          "length": 20,
+          "width": 20,
+          "area": 400,
+          "label": "20 × 20 ft (400 sq.ft) — ₹2,000/day"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 10,
+        "width": 20
+      },
+      "availableQuantity": 8,
+      "availabilityStatus": "Available",
       "imageUrl": "/media/tents/tent-2.jpg",
       "featured": false
     },
     {
-      "id": "item-020",
-      "name": "All-Weather German Hangar Tent Structure",
+      "id": "item-tent-waterproof",
+      "name": "Waterproof German Hangar Pandal",
       "category": "Tents & Canopies",
       "categoryId": "tents-canopies",
-      "description": "Clear-span waterproof German aluminium hangar tent suitable for all seasons with zero central pillars.",
-      "rentalPrice": 18,
+      "description": "Heavy structural German aluminum curved hangar. 100% weather-sealed, wind-tested, luxury wedding canopy.",
+      "rentalPrice": 30,
+      "ratePerSqFt": 30,
       "priceUnit": "per sq.ft",
-      "availableQuantity": 15000,
+      "billingUnit": "per sq ft",
+      "isAreaBased": true,
+      "durationSensitive": false,
+      "availableDimensions": [
+        {
+          "length": 20,
+          "width": 30,
+          "area": 600,
+          "label": "20 × 30 ft (600 sq.ft)"
+        },
+        {
+          "length": 30,
+          "width": 50,
+          "area": 1500,
+          "label": "30 × 50 ft (1,500 sq.ft)"
+        },
+        {
+          "length": 40,
+          "width": 80,
+          "area": 3200,
+          "label": "40 × 80 ft (3,200 sq.ft)"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 20,
+        "width": 30
+      },
+      "availableQuantity": 5,
       "availabilityStatus": "Available",
-      "internalNotes": "Custom sizing (e.g. 20x40, 20x120, 20x200).",
-      "imageUrl": "/media/tents/tent-1.jpg",
+      "imageUrl": "/media/rich-decor/decor-1.jpg",
       "featured": true
+    },
+    {
+      "id": "item-carpet-red",
+      "name": "Red Velvet / 3D Walkway Carpet",
+      "category": "Wedding & Party Essentials",
+      "categoryId": "wedding-essentials",
+      "description": "Clean, heavy-traffic red ceremonial runner and 3D walkway carpeting for entrance passages and mandaps.",
+      "rentalPrice": 3,
+      "ratePerSqFt": 3,
+      "priceUnit": "per sq.ft per day",
+      "billingUnit": "per sq ft per day",
+      "isAreaBased": true,
+      "durationSensitive": true,
+      "availableDimensions": [
+        {
+          "length": 10,
+          "width": 20,
+          "area": 200,
+          "label": "10 × 20 ft (200 sq.ft) — ₹600/day"
+        },
+        {
+          "length": 10,
+          "width": 40,
+          "area": 400,
+          "label": "10 × 40 ft (400 sq.ft) — ₹1,200/day"
+        }
+      ],
+      "defaultDimensions": {
+        "length": 10,
+        "width": 20
+      },
+      "availableQuantity": 20,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/carpets/carpet-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-stage-modular",
+      "name": "Modular Elevated Stage Setup",
+      "category": "Stage & Platform Equipment",
+      "categoryId": "stage-platform",
+      "description": "Sturdy iron box frame modular stage with commercial ply top and red velvet carpeting.",
+      "rentalPrice": 15,
+      "priceUnit": "per sq.ft",
+      "billingUnit": "per sq ft",
+      "availableQuantity": 10,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/stage/stage-1.jpg",
+      "featured": false
+    },
+    {
+      "id": "item-gate-welcome",
+      "name": "Illuminated Welcome Arch Gate",
+      "category": "Lighting & Decoration",
+      "categoryId": "lighting-decor",
+      "description": "12 × 12 ft grand entrance truss archway adorned with ambient filament lights and floral framing.",
+      "rentalPrice": 1000,
+      "priceUnit": "per gate / day",
+      "billingUnit": "per gate / day",
+      "availableQuantity": 6,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/gate/gate-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-sound-system",
+      "name": "Sound System with Cordless Mics & Amplifier",
+      "category": "Other Event Equipment",
+      "categoryId": "other-equipment",
+      "description": "High-fidelity audio sound console with 2 cordless handheld mics, speaker columns, and sound operator.",
+      "rentalPrice": 6000,
+      "priceUnit": "per day",
+      "billingUnit": "per day",
+      "availableQuantity": 4,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/stage/stage-1.jpg",
+      "featured": false
     }
   ],
   "categories": [
@@ -7692,7 +7741,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 1
+      "order": 1,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-002",
@@ -7705,7 +7755,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 2
+      "order": 2,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-003",
@@ -7718,7 +7769,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 3
+      "order": 3,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-004",
@@ -7731,7 +7783,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 4
+      "order": 4,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-005",
@@ -7744,7 +7797,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 5
+      "order": 5,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-006",
@@ -7757,7 +7811,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 6
+      "order": 6,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-007",
@@ -7770,7 +7825,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 7
+      "order": 7,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-008",
@@ -7783,7 +7839,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 8
+      "order": 8,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-009",
@@ -7796,7 +7853,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 9
+      "order": 9,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-010",
@@ -7809,7 +7867,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 10
+      "order": 10,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-011",
@@ -7822,7 +7881,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 11
+      "order": 11,
+      "imageUrl": "/media/food/chaat.jpg"
     },
     {
       "id": "dish-012",
@@ -7835,7 +7895,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 12
+      "order": 12,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-013",
@@ -7848,7 +7909,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 13
+      "order": 13,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-014",
@@ -7861,7 +7923,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 14
+      "order": 14,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-015",
@@ -7874,7 +7937,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 15
+      "order": 15,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-016",
@@ -7887,7 +7951,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 16
+      "order": 16,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-017",
@@ -7900,7 +7965,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 17
+      "order": 17,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-018",
@@ -7913,7 +7979,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 18
+      "order": 18,
+      "imageUrl": "/media/food/soup.jpg"
     },
     {
       "id": "dish-019",
@@ -7926,7 +7993,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 19
+      "order": 19,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-020",
@@ -7939,7 +8007,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 20
+      "order": 20,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-021",
@@ -7952,7 +8021,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 21
+      "order": 21,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-022",
@@ -7965,7 +8035,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 22
+      "order": 22,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-023",
@@ -7978,7 +8049,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 23
+      "order": 23,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-024",
@@ -7991,7 +8063,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 24
+      "order": 24,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-025",
@@ -8004,7 +8077,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 25
+      "order": 25,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-026",
@@ -8017,7 +8091,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 26
+      "order": 26,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-027",
@@ -8030,7 +8105,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 27
+      "order": 27,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-028",
@@ -8043,7 +8119,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 28
+      "order": 28,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-029",
@@ -8056,7 +8133,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 29
+      "order": 29,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-030",
@@ -8069,7 +8147,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 30
+      "order": 30,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-031",
@@ -8082,7 +8161,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 31
+      "order": 31,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-032",
@@ -8095,7 +8175,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 32
+      "order": 32,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-033",
@@ -8108,7 +8189,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 33
+      "order": 33,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-034",
@@ -8121,7 +8203,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 34
+      "order": 34,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-035",
@@ -8134,7 +8217,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 35
+      "order": 35,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-036",
@@ -8147,7 +8231,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 36
+      "order": 36,
+      "imageUrl": "/media/food/starter.jpg"
     },
     {
       "id": "dish-037",
@@ -8160,7 +8245,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 37
+      "order": 37,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-038",
@@ -8173,7 +8259,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 38
+      "order": 38,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-039",
@@ -8186,7 +8273,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 39
+      "order": 39,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-040",
@@ -8199,7 +8287,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 40
+      "order": 40,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-041",
@@ -8212,7 +8301,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 41
+      "order": 41,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-042",
@@ -8225,7 +8315,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 42
+      "order": 42,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-043",
@@ -8238,7 +8329,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 43
+      "order": 43,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-044",
@@ -8251,7 +8343,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 44
+      "order": 44,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-045",
@@ -8264,7 +8357,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 45
+      "order": 45,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-046",
@@ -8277,7 +8371,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 46
+      "order": 46,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-047",
@@ -8290,7 +8385,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 47
+      "order": 47,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-048",
@@ -8303,7 +8399,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 48
+      "order": 48,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-049",
@@ -8316,7 +8413,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 49
+      "order": 49,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-050",
@@ -8329,7 +8427,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 50
+      "order": 50,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-051",
@@ -8342,7 +8441,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 51
+      "order": 51,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-052",
@@ -8355,7 +8455,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 52
+      "order": 52,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-053",
@@ -8368,7 +8469,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 53
+      "order": 53,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-054",
@@ -8381,7 +8483,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 54
+      "order": 54,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-055",
@@ -8394,7 +8497,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 55
+      "order": 55,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-056",
@@ -8407,7 +8511,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 56
+      "order": 56,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-057",
@@ -8420,7 +8525,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 57
+      "order": 57,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-058",
@@ -8433,7 +8539,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 58
+      "order": 58,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-059",
@@ -8446,7 +8553,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 59
+      "order": 59,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-060",
@@ -8459,7 +8567,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 60
+      "order": 60,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-061",
@@ -8472,7 +8581,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 61
+      "order": 61,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-062",
@@ -8485,7 +8595,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 62
+      "order": 62,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-063",
@@ -8498,7 +8609,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 63
+      "order": 63,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-064",
@@ -8511,7 +8623,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 64
+      "order": 64,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-065",
@@ -8524,7 +8637,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 65
+      "order": 65,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-066",
@@ -8537,7 +8651,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 66
+      "order": 66,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-067",
@@ -8550,7 +8665,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 67
+      "order": 67,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-068",
@@ -8563,7 +8679,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 68
+      "order": 68,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-069",
@@ -8576,7 +8693,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 69
+      "order": 69,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-070",
@@ -8589,7 +8707,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 70
+      "order": 70,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-071",
@@ -8602,7 +8721,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 71
+      "order": 71,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-072",
@@ -8615,7 +8735,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 72
+      "order": 72,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-073",
@@ -8628,7 +8749,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 73
+      "order": 73,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-074",
@@ -8641,7 +8763,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 74
+      "order": 74,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-075",
@@ -8654,7 +8777,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 75
+      "order": 75,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-076",
@@ -8667,7 +8791,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 76
+      "order": 76,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-077",
@@ -8680,7 +8805,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 77
+      "order": 77,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-078",
@@ -8693,7 +8819,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 78
+      "order": 78,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-079",
@@ -8706,7 +8833,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 79
+      "order": 79,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-080",
@@ -8719,7 +8847,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 80
+      "order": 80,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-081",
@@ -8732,7 +8861,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 81
+      "order": 81,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-082",
@@ -8745,7 +8875,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 82
+      "order": 82,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-083",
@@ -8758,7 +8889,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 83
+      "order": 83,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-084",
@@ -8771,7 +8903,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 84
+      "order": 84,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-085",
@@ -8784,7 +8917,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 85
+      "order": 85,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-086",
@@ -8797,7 +8931,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 86
+      "order": 86,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-087",
@@ -8810,7 +8945,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 87
+      "order": 87,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-088",
@@ -8823,7 +8959,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 88
+      "order": 88,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-089",
@@ -8836,7 +8973,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 89
+      "order": 89,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-090",
@@ -8849,7 +8987,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 90
+      "order": 90,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-091",
@@ -8862,7 +9001,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 91
+      "order": 91,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-092",
@@ -8875,7 +9015,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 92
+      "order": 92,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-093",
@@ -8888,7 +9029,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 93
+      "order": 93,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-094",
@@ -8901,7 +9043,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 94
+      "order": 94,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-095",
@@ -8914,7 +9057,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 95
+      "order": 95,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-096",
@@ -8927,7 +9071,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 96
+      "order": 96,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-097",
@@ -8940,7 +9085,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 97
+      "order": 97,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-098",
@@ -8953,7 +9099,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 98
+      "order": 98,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-099",
@@ -8966,7 +9113,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 99
+      "order": 99,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-100",
@@ -8979,7 +9127,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 100
+      "order": 100,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-101",
@@ -8992,7 +9141,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 101
+      "order": 101,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-102",
@@ -9005,7 +9155,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 102
+      "order": 102,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-103",
@@ -9018,7 +9169,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 103
+      "order": 103,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-104",
@@ -9031,7 +9183,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 104
+      "order": 104,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-105",
@@ -9044,7 +9197,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 105
+      "order": 105,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-106",
@@ -9057,7 +9211,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 106
+      "order": 106,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-107",
@@ -9070,7 +9225,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 107
+      "order": 107,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-108",
@@ -9083,7 +9239,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 108
+      "order": 108,
+      "imageUrl": "/media/food/breads.jpg"
     },
     {
       "id": "dish-109",
@@ -9096,7 +9253,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 109
+      "order": 109,
+      "imageUrl": "/media/food/paneer.jpg"
     },
     {
       "id": "dish-110",
@@ -9109,7 +9267,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 110
+      "order": 110,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-111",
@@ -9122,7 +9281,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 111
+      "order": 111,
+      "imageUrl": "/media/food/vegetable.jpg"
     },
     {
       "id": "dish-112",
@@ -9135,7 +9295,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 112
+      "order": 112,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-113",
@@ -9148,7 +9309,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 113
+      "order": 113,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-114",
@@ -9161,7 +9323,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 114
+      "order": 114,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-115",
@@ -9174,7 +9337,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 115
+      "order": 115,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-116",
@@ -9187,7 +9351,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 116
+      "order": 116,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-117",
@@ -9200,7 +9365,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 117
+      "order": 117,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-118",
@@ -9213,7 +9379,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 118
+      "order": 118,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-119",
@@ -9226,7 +9393,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 119
+      "order": 119,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-120",
@@ -9239,7 +9407,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 120
+      "order": 120,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-121",
@@ -9252,7 +9421,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 121
+      "order": 121,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-122",
@@ -9265,7 +9435,8 @@
       "dietary": "Veg",
       "isPopular": true,
       "isActive": true,
-      "order": 122
+      "order": 122,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-123",
@@ -9278,7 +9449,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 123
+      "order": 123,
+      "imageUrl": "/media/food/rice.jpg"
     },
     {
       "id": "dish-124",
@@ -9291,7 +9463,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 124
+      "order": 124,
+      "imageUrl": "/media/food/dessert.jpg"
     },
     {
       "id": "dish-125",
@@ -9304,7 +9477,8 @@
       "dietary": "Veg",
       "isPopular": false,
       "isActive": true,
-      "order": 125
+      "order": 125,
+      "imageUrl": "/media/food/dessert.jpg"
     }
   ],
   "galleryCategories": [

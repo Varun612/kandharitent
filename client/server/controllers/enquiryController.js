@@ -1,5 +1,6 @@
 const { isMongoConnected, getLocalDb, saveLocalStore } = require('../config/db');
 const Enquiry = require('../models/Enquiry');
+const { calculateOrderPricing } = require('../services/pricingEngine');
 
 const BUSINESS_WHATSAPP = process.env.WHATSAPP_PHONE || '919305465848';
 
@@ -15,6 +16,9 @@ const generateWhatsAppLink = (enquiry) => {
   }
   message += `*Service:* ${enquiry.serviceRequired || 'Event Rentals'}\n`;
   message += `*Event Date:* ${enquiry.eventDate}\n`;
+  if (enquiry.rentalDays && enquiry.rentalDays > 1) {
+    message += `*Rental Duration:* ${enquiry.rentalDays} days (${enquiry.startDate} to ${enquiry.endDate})\n`;
+  }
   message += `*Locality in Lucknow:* ${enquiry.locality || 'Kanpur Road'}\n`;
 
   if (enquiry.eventVenueAddress) {
@@ -27,8 +31,13 @@ const generateWhatsAppLink = (enquiry) => {
   } else if (enquiry.items && enquiry.items.length > 0) {
     message += `*Requested Rental Equipment:*\n`;
     enquiry.items.forEach((it, idx) => {
-      message += `  ${idx + 1}. ${it.name} - Qty: ${it.quantity}\n`;
+      const dim = it.dimensions ? ` (${it.dimensions})` : '';
+      const total = it.lineTotal ? ` - ₹${it.lineTotal.toLocaleString('en-IN')}` : '';
+      message += `  ${idx + 1}. ${it.name}${dim} - Qty: ${it.quantity}${total}\n`;
     });
+    if (enquiry.grandTotal > 0) {
+      message += `*Estimated Total:* ₹${enquiry.grandTotal.toLocaleString('en-IN')} (incl. cartage & labour)\n`;
+    }
   }
 
   if (enquiry.budgetRange && enquiry.budgetRange !== 'Flexible') {
@@ -54,17 +63,38 @@ const submitEnquiry = async (req, res) => {
       email,
       serviceRequired,
       eventDate,
+      startDate,
+      endDate,
       locality,
       eventVenueAddress,
       eventType,
       guestCount,
       budgetRange,
       items,
+      deliveryDistanceKm,
+      isReturningCustomer,
       notes,
       consentGiven
     } = req.body;
 
     const enquiryId = 'ENQ-' + Math.floor(100000 + Math.random() * 900000);
+    const effStartDate = startDate || eventDate;
+    const effEndDate = endDate || startDate || eventDate;
+
+    // Calculate official server-side pricing if rental items are present
+    let pricing = null;
+    let computedItems = Array.isArray(items) ? items : [];
+
+    if (computedItems.length > 0) {
+      pricing = calculateOrderPricing({
+        items: computedItems,
+        startDate: effStartDate,
+        endDate: effEndDate,
+        deliveryDistanceKm: deliveryDistanceKm || 3,
+        isReturningCustomer: isReturningCustomer || false
+      });
+      computedItems = pricing.lineItems;
+    }
 
     const enquiryData = {
       id: enquiryId,
@@ -78,13 +108,30 @@ const submitEnquiry = async (req, res) => {
       preferredContactMethod: req.body.preferredContactMethod || 'Phone',
       serviceRequired: serviceRequired || 'Tent-house equipment rentals',
       servicesList: Array.isArray(req.body.servicesList) ? req.body.servicesList : (serviceRequired ? [serviceRequired] : []),
-      eventDate,
+      eventDate: eventDate || effStartDate,
+      startDate: effStartDate,
+      endDate: effEndDate,
+      rentalDays: pricing ? pricing.rentalDays : 1,
       locality: locality || 'Kanpur Road, Lucknow',
       eventVenueAddress: eventVenueAddress || '',
       eventType: eventType || 'Wedding / Celebration',
       guestCount: parseInt(guestCount, 10) || 0,
       budgetRange: budgetRange || 'Flexible',
-      items: Array.isArray(items) ? items : [],
+      items: computedItems,
+      lineItems: computedItems,
+      subtotal: pricing ? pricing.subtotal : 0,
+      cartage: pricing ? pricing.cartage : 0,
+      labour: pricing ? pricing.labour : 0,
+      discount: 0,
+      discountReason: '',
+      manualAdjustment: 0,
+      adjustmentReason: '',
+      grandTotal: pricing ? pricing.grandTotal : 0,
+      advancePaid: 0,
+      balanceDue: pricing ? pricing.grandTotal : 0,
+      quotationNumber: '',
+      quotationDate: '',
+      quotationNotes: '',
       notes: notes || '',
       detailedRequirements: req.body.detailedRequirements || notes || '',
       consentGiven: consentGiven !== false,
@@ -388,11 +435,109 @@ const getEnquiryById = async (req, res) => {
   }
 };
 
+// PUT /api/enquiries/:id/quotation (Admin) - Update quotation line items, cartage, labour, discounts, advance, and status
+const updateEnquiryQuotation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      lineItems,
+      cartage,
+      labour,
+      discount,
+      discountReason,
+      manualAdjustment,
+      adjustmentReason,
+      advancePaid,
+      status,
+      quotationNotes
+    } = req.body;
+
+    let enquiry = null;
+    const isMongo = isMongoConnected();
+    if (isMongo) {
+      enquiry = await Enquiry.findOne({ $or: [{ id }, { _id: id }] });
+    } else {
+      const db = getLocalDb();
+      enquiry = (db.enquiries || []).find(e => e.id === id);
+    }
+
+    if (!enquiry) {
+      return res.status(404).json({ success: false, message: 'Enquiry / Order not found' });
+    }
+
+    const items = Array.isArray(lineItems) ? lineItems : (enquiry.lineItems || enquiry.items || []);
+    
+    // Compute line items totals
+    const calculatedItems = items.map(it => {
+      const qty = Math.max(1, parseInt(it.quantity || 1, 10));
+      let lineTotal = parseFloat(it.lineTotal || 0);
+      if (!lineTotal && it.unitRate) {
+        lineTotal = Math.round(qty * parseFloat(it.unitRate) * (it.effectiveDays || 1));
+      } else if (!lineTotal && it.ratePerSqFt && it.areaSqFt) {
+        lineTotal = Math.round(it.areaSqFt * parseFloat(it.ratePerSqFt) * (it.effectiveDays || 1) * qty);
+      }
+      return {
+        ...it,
+        quantity: qty,
+        lineTotal: Math.round(lineTotal)
+      };
+    });
+
+    const subtotal = calculatedItems.reduce((acc, it) => acc + (it.lineTotal || 0), 0);
+    const finalCartage = cartage !== undefined ? parseFloat(cartage) : (enquiry.cartage || 0);
+    const finalLabour = labour !== undefined ? parseFloat(labour) : (enquiry.labour || 0);
+    const finalDiscount = discount !== undefined ? Math.max(0, parseFloat(discount)) : (enquiry.discount || 0);
+    const finalAdjustment = manualAdjustment !== undefined ? parseFloat(manualAdjustment) : (enquiry.manualAdjustment || 0);
+    const grandTotal = Math.max(0, Math.round(subtotal + finalCartage + finalLabour - finalDiscount + finalAdjustment));
+    const finalAdvance = advancePaid !== undefined ? Math.max(0, parseFloat(advancePaid)) : (enquiry.advancePaid || 0);
+    const balanceDue = Math.max(0, grandTotal - finalAdvance);
+
+    const updateFields = {
+      items: calculatedItems,
+      lineItems: calculatedItems,
+      subtotal,
+      cartage: finalCartage,
+      labour: finalLabour,
+      discount: finalDiscount,
+      discountReason: discountReason !== undefined ? discountReason : (enquiry.discountReason || ''),
+      manualAdjustment: finalAdjustment,
+      adjustmentReason: adjustmentReason !== undefined ? adjustmentReason : (enquiry.adjustmentReason || ''),
+      grandTotal,
+      advancePaid: finalAdvance,
+      balanceDue,
+      status: status || enquiry.status || 'Quotation Prepared',
+      quotationNotes: quotationNotes !== undefined ? quotationNotes : (enquiry.quotationNotes || ''),
+      quotationNumber: enquiry.quotationNumber || `QTN-${Date.now().toString().slice(-6)}`,
+      quotationDate: enquiry.quotationDate || new Date().toISOString().split('T')[0]
+    };
+
+    if (isMongo) {
+      const updated = await Enquiry.findOneAndUpdate(
+        { $or: [{ id }, { _id: id }] },
+        updateFields,
+        { new: true }
+      );
+      return res.json({ success: true, data: updated, message: 'Quotation updated successfully' });
+    }
+
+    const db = getLocalDb();
+    const index = db.enquiries.findIndex(e => e.id === id);
+    db.enquiries[index] = { ...db.enquiries[index], ...updateFields };
+    saveLocalStore();
+
+    return res.json({ success: true, data: db.enquiries[index], message: 'Quotation updated successfully' });
+  } catch (error) {
+    console.error('Error updating quotation:', error);
+    return res.status(500).json({ success: false, message: 'Server error updating quotation' });
+  }
+};
+
 module.exports = {
   submitEnquiry,
   getEnquiries,
   getEnquiryById,
   updateEnquiryStatus,
+  updateEnquiryQuotation,
   exportEnquiriesCSV,
   deleteEnquiry
 };

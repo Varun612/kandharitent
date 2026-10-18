@@ -29,7 +29,12 @@ import {
   UtensilsCrossed,
   Flame,
   Tag,
-  Check
+  Check,
+  Printer,
+  FileText,
+  Receipt,
+  IndianRupee,
+  PlusCircle
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -116,9 +121,147 @@ const AdminDashboardPage = () => {
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Quotation & Order Billing state
+  const [selectedOrderForQuote, setSelectedOrderForQuote] = useState(null);
+  const [isQuoteEditModalOpen, setIsQuoteEditModalOpen] = useState(false);
+  const [isBillPrintModalOpen, setIsBillPrintModalOpen] = useState(false);
+  const [isGeneratingFoodImage, setIsGeneratingFoodImage] = useState(false);
+  const [quoteFormData, setQuoteFormData] = useState({
+    lineItems: [],
+    cartage: 500,
+    labour: 500,
+    discount: 0,
+    discountReason: '',
+    manualAdjustment: 0,
+    adjustmentReason: '',
+    advancePaid: 0,
+    status: 'Quotation Prepared',
+    quotationNotes: ''
+  });
+
   const showNotification = (msg, type = 'success') => {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 4000);
+  };
+
+  const handleOpenQuoteModal = (enq) => {
+    setSelectedOrderForQuote(enq);
+    const items = enq.lineItems || enq.items || [];
+    setQuoteFormData({
+      lineItems: items.map(it => ({
+        itemId: it.itemId || it.id || `custom-${Date.now()}`,
+        name: it.name || '',
+        quantity: Math.max(1, parseInt(it.quantity || 1, 10)),
+        unitRate: it.unitRate || 0,
+        ratePerSqFt: it.ratePerSqFt || 0,
+        billingUnit: it.billingUnit || '',
+        isAreaBased: !!it.isAreaBased,
+        dimensions: it.dimensions || '',
+        length: it.length || 0,
+        width: it.width || 0,
+        areaSqFt: it.areaSqFt || 0,
+        durationSensitive: !!it.durationSensitive,
+        rentalDays: enq.rentalDays || 1,
+        effectiveDays: it.durationSensitive ? (enq.rentalDays || 1) : 1,
+        lineTotal: it.lineTotal || (it.unitRate ? Math.round(it.unitRate * (it.quantity || 1)) : 0)
+      })),
+      cartage: enq.cartage !== undefined ? enq.cartage : 500,
+      labour: enq.labour !== undefined ? enq.labour : 500,
+      discount: enq.discount || 0,
+      discountReason: enq.discountReason || '',
+      manualAdjustment: enq.manualAdjustment || 0,
+      adjustmentReason: enq.adjustmentReason || '',
+      advancePaid: enq.advancePaid || 0,
+      status: enq.status || 'Quotation Prepared',
+      quotationNotes: enq.quotationNotes || ''
+    });
+    setIsQuoteEditModalOpen(true);
+  };
+
+  const handleOpenBillPrintModal = (enq) => {
+    setSelectedOrderForQuote(enq);
+    setIsBillPrintModalOpen(true);
+  };
+
+  const handleAddCustomQuoteLine = () => {
+    setQuoteFormData(prev => ({
+      ...prev,
+      lineItems: [
+        ...prev.lineItems,
+        {
+          itemId: `custom-${Date.now()}`,
+          name: 'Custom Service / Equipment',
+          quantity: 1,
+          unitRate: 500,
+          ratePerSqFt: 0,
+          billingUnit: 'per service',
+          isAreaBased: false,
+          dimensions: '',
+          length: 0,
+          width: 0,
+          areaSqFt: 0,
+          durationSensitive: false,
+          rentalDays: selectedOrderForQuote?.rentalDays || 1,
+          effectiveDays: 1,
+          lineTotal: 500
+        }
+      ]
+    }));
+  };
+
+  const handleRemoveQuoteLine = (idx) => {
+    setQuoteFormData(prev => ({
+      ...prev,
+      lineItems: prev.lineItems.filter((_, i) => i !== idx)
+    }));
+  };
+
+  const handleUpdateQuoteLine = (idx, field, value) => {
+    setQuoteFormData(prev => {
+      const updated = [...prev.lineItems];
+      updated[idx] = { ...updated[idx], [field]: value };
+      const it = updated[idx];
+      const q = Math.max(1, parseInt(it.quantity || 1, 10));
+      const days = it.durationSensitive ? (selectedOrderForQuote?.rentalDays || 1) : 1;
+      if (it.isAreaBased && it.areaSqFt && it.ratePerSqFt) {
+        it.lineTotal = Math.round(it.areaSqFt * it.ratePerSqFt * days * q);
+      } else if (it.unitRate !== undefined) {
+        it.lineTotal = Math.round(parseFloat(it.unitRate || 0) * days * q);
+      }
+      return { ...prev, lineItems: updated };
+    });
+  };
+
+  const handleSaveQuotation = async (e) => {
+    if (e) e.preventDefault();
+    if (!selectedOrderForQuote) return;
+    try {
+      const res = await api.updateEnquiryQuotation(selectedOrderForQuote.id, quoteFormData);
+      if (res.success) {
+        showNotification('Quotation and order billing updated successfully!');
+        setIsQuoteEditModalOpen(false);
+        const enqRes = await api.getEnquiries();
+        if (enqRes.success) setEnquiries(enqRes.data);
+      }
+    } catch (err) {
+      showNotification(err.message || 'Error updating quotation', 'error');
+    }
+  };
+
+  const handleGenerateFoodImage = async (dishId) => {
+    setIsGeneratingFoodImage(true);
+    try {
+      const res = await api.generateFoodImage(dishId);
+      if (res.success) {
+        showNotification('Dish photograph generated and updated!');
+        const catRes = await api.getCateringMenu({ activeOnly: 'false' });
+        if (catRes.success) setCateringDishes(catRes.data || []);
+      }
+    } catch (err) {
+      showNotification(err.message || 'Error generating image', 'error');
+    } finally {
+      setIsGeneratingFoodImage(false);
+    }
   };
 
   const loadDashboardData = async () => {
@@ -690,7 +833,7 @@ const AdminDashboardPage = () => {
               {/* Status and Locality Filter Chips */}
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-neutral-100">
                 <span className="text-[11px] font-bold text-neutral-500">Status:</span>
-                {['all', 'New', 'Contacted', 'In Discussion', 'Quoted', 'Converted', 'Confirmed', 'Closed'].map((st) => (
+                {['all', 'New', 'Under Review', 'Quotation Prepared', 'Confirmed', 'Advance Pending', 'Partially Paid', 'Fully Paid', 'Completed', 'Cancelled'].map((st) => (
                   <button
                     key={st}
                     onClick={() => setEnquiryStatusFilter(st)}
@@ -749,20 +892,28 @@ const AdminDashboardPage = () => {
                           onChange={(e) => handleUpdateEnquiry(enq.id, { status: e.target.value })}
                           className={`text-xs font-bold px-3 py-1.5 rounded-xl border outline-none cursor-pointer ${
                             enq.status === 'New' ? 'bg-rose-50 text-rose-700 border-rose-300' :
-                            enq.status === 'Contacted' ? 'bg-amber-50 text-amber-700 border-amber-300' :
-                            enq.status === 'In Discussion' ? 'bg-purple-50 text-purple-700 border-purple-300' :
-                            enq.status === 'Quoted' ? 'bg-indigo-50 text-indigo-700 border-indigo-300' :
-                            enq.status === 'Converted' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' :
+                            enq.status === 'Under Review' ? 'bg-amber-50 text-amber-700 border-amber-300' :
+                            enq.status === 'Quotation Prepared' ? 'bg-blue-50 text-blue-700 border-blue-300' :
                             enq.status === 'Confirmed' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' :
+                            enq.status === 'Advance Pending' ? 'bg-orange-50 text-orange-700 border-orange-300' :
+                            enq.status === 'Partially Paid' ? 'bg-purple-50 text-purple-700 border-purple-300' :
+                            enq.status === 'Fully Paid' ? 'bg-emerald-100 text-emerald-800 border-emerald-400' :
+                            enq.status === 'Completed' ? 'bg-teal-50 text-teal-700 border-teal-300' :
+                            enq.status === 'Cancelled' ? 'bg-neutral-100 text-neutral-500 border-neutral-300' :
                             'bg-neutral-100 text-neutral-600 border-neutral-300'
                           }`}
                         >
                           <option value="New">🔴 New</option>
-                          <option value="Contacted">🟡 Contacted</option>
-                          <option value="In Discussion">🟣 In Discussion</option>
-                          <option value="Quoted">🔵 Quoted</option>
-                          <option value="Converted">🟢 Converted</option>
+                          <option value="Under Review">🟡 Under Review</option>
+                          <option value="Quotation Prepared">🔵 Quotation Prepared</option>
                           <option value="Confirmed">🟢 Confirmed</option>
+                          <option value="Advance Pending">🟠 Advance Pending</option>
+                          <option value="Partially Paid">🟣 Partially Paid</option>
+                          <option value="Fully Paid">✅ Fully Paid</option>
+                          <option value="Completed">🎉 Completed</option>
+                          <option value="Cancelled">❌ Cancelled</option>
+                          <option value="Contacted">📞 Contacted</option>
+                          <option value="In Discussion">💬 In Discussion</option>
                           <option value="Closed">⚪ Closed</option>
                         </select>
                       </div>
@@ -828,21 +979,103 @@ const AdminDashboardPage = () => {
                     </div>
 
                     {/* Requested Equipment Items */}
-                    {enq.items && enq.items.length > 0 && (
+                    {((enq.lineItems && enq.lineItems.length > 0) || (enq.items && enq.items.length > 0)) && (
                       <div className="bg-purple-50/60 p-3.5 rounded-2xl border border-purple-100 text-xs">
-                        <strong className="text-brand-primary block mb-2 font-bold">
-                          Requested Rental Inventory ({enq.items.length} items):
+                        <strong className="text-brand-primary block mb-2 font-bold flex items-center justify-between">
+                          <span>Requested Rental Inventory ({(enq.lineItems || enq.items).length} items):</span>
+                          {enq.rentalDays && (
+                            <span className="text-[10px] bg-purple-200/80 text-brand-purple px-2 py-0.5 rounded-md font-bold">
+                              {enq.rentalDays} Day{enq.rentalDays > 1 ? 's' : ''} Duration
+                            </span>
+                          )}
                         </strong>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                          {enq.items.map((it, idx) => (
-                            <div key={idx} className="bg-white px-3 py-1.5 rounded-xl border border-neutral-200 flex justify-between items-center shadow-xs">
-                              <span className="font-semibold text-neutral-800 truncate pr-2">{it.name}</span>
-                              <span className="font-bold text-brand-purple shrink-0">Qty: {it.quantity}</span>
+                          {(enq.lineItems || enq.items).map((it, idx) => (
+                            <div key={idx} className="bg-white px-3 py-2 rounded-xl border border-neutral-200 flex flex-col justify-between shadow-xs">
+                              <div className="flex justify-between items-start gap-1">
+                                <span className="font-semibold text-neutral-800 text-xs">{it.name}</span>
+                                <span className="font-bold text-brand-purple shrink-0 text-xs">Qty: {it.quantity}</span>
+                              </div>
+                              <div className="flex items-center justify-between mt-1 text-[11px] text-neutral-500">
+                                <span>{it.dimensions ? <span className="text-amber-800 font-medium bg-amber-50 px-1 rounded">{it.dimensions}</span> : (it.billingUnit || 'per piece')}</span>
+                                <span className="font-bold text-neutral-900">
+                                  {it.lineTotal ? `₹${it.lineTotal.toLocaleString('en-IN')}` : (it.unitRate ? `₹${(it.unitRate * it.quantity).toLocaleString('en-IN')}` : '—')}
+                                </span>
+                              </div>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
+
+                    {/* Order Financial Breakdown & Quotation Engine Bar */}
+                    <div className="bg-amber-50/40 rounded-2xl border border-amber-200/80 p-4 text-xs space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/60 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Receipt className="w-4 h-4 text-brand-gold" />
+                          <span className="font-bold text-neutral-900 text-sm">
+                            Billing & Quotation Overview
+                          </span>
+                          {enq.quotationNumber && (
+                            <span className="bg-brand-primary/10 text-brand-primary font-mono text-[10px] font-bold px-2 py-0.5 rounded-md">
+                              {enq.quotationNumber}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenQuoteModal(enq)}
+                            className="px-3 py-1.5 rounded-xl bg-brand-primary text-white font-bold text-xs hover:bg-brand-primary/90 transition flex items-center gap-1.5 shadow-xs"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-brand-gold" />
+                            <span>Edit Quotation & Rates</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenBillPrintModal(enq)}
+                            className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-brand-primary font-bold text-xs transition flex items-center gap-1.5 shadow-xs"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                            <span>Print Letterhead Bill</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Pricing figures grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-1 text-center">
+                        <div className="bg-white/80 p-2 rounded-xl border border-amber-100">
+                          <span className="text-[10px] text-neutral-500 font-semibold block">Subtotal</span>
+                          <span className="font-bold text-neutral-900 text-sm">₹{(enq.subtotal || 0).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="bg-white/80 p-2 rounded-xl border border-amber-100">
+                          <span className="text-[10px] text-neutral-500 font-semibold block">Cartage (Round)</span>
+                          <span className="font-bold text-neutral-900 text-sm">₹{(enq.cartage !== undefined ? enq.cartage : 500).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="bg-white/80 p-2 rounded-xl border border-amber-100">
+                          <span className="text-[10px] text-neutral-500 font-semibold block">Labour & Setup</span>
+                          <span className="font-bold text-neutral-900 text-sm">₹{(enq.labour !== undefined ? enq.labour : 500).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="bg-white/80 p-2 rounded-xl border border-amber-100">
+                          <span className="text-[10px] text-neutral-500 font-semibold block">Discount</span>
+                          <span className="font-bold text-emerald-600 text-sm">{enq.discount > 0 ? `-₹${enq.discount.toLocaleString('en-IN')}` : '₹0'}</span>
+                        </div>
+                        <div className="bg-brand-primary/5 p-2 rounded-xl border border-brand-primary/20">
+                          <span className="text-[10px] text-brand-primary font-bold block uppercase tracking-wider">Grand Total</span>
+                          <span className="font-bold text-brand-primary text-sm">₹{(enq.grandTotal || 0).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="bg-emerald-50 p-2 rounded-xl border border-emerald-200">
+                          <span className="text-[10px] text-emerald-700 font-semibold block">Advance Paid</span>
+                          <span className="font-bold text-emerald-700 text-sm">₹{(enq.advancePaid || 0).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="bg-rose-50 p-2 rounded-xl border border-rose-200">
+                          <span className="text-[10px] text-rose-700 font-semibold block">Balance Due</span>
+                          <span className="font-bold text-rose-700 text-sm">₹{((enq.grandTotal || 0) - (enq.advancePaid || 0)).toLocaleString('en-IN')}</span>
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Custom Catering Menu Dishes */}
                     {enq.customMenu && enq.customMenu.length > 0 && (
@@ -1436,6 +1669,17 @@ const AdminDashboardPage = () => {
                     }`}
                   >
                     <div className="space-y-2">
+                      {dish.imageUrl && (
+                        <div className="w-full h-32 rounded-xl overflow-hidden bg-neutral-100 border border-neutral-100 mb-2">
+                          <img
+                            src={dish.imageUrl}
+                            alt={dish.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 inline-block mb-1">
@@ -1477,7 +1721,18 @@ const AdminDashboardPage = () => {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          disabled={isGeneratingFoodImage}
+                          onClick={() => handleGenerateFoodImage(dish.id)}
+                          className="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-300 transition flex items-center gap-1 disabled:opacity-50"
+                          title="Generate Dish Photography with Gemini AI"
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-600" />
+                          <span>{isGeneratingFoodImage ? 'Generating...' : 'AI Photo'}</span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleOpenEditCateringModal(dish)}
@@ -1890,6 +2145,553 @@ const AdminDashboardPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: QUOTATION & ORDER BILLING EDITOR
+         ======================================================== */}
+      {isQuoteEditModalOpen && selectedOrderForQuote && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-neutral-200 my-8 max-h-[92vh] flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-start border-b border-neutral-100 pb-4 shrink-0">
+              <div>
+                <span className="text-[10px] font-bold text-brand-purple bg-purple-50 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                  Order & Quotation Engine
+                </span>
+                <h3 className="text-xl font-bold font-serif text-brand-primary mt-1">
+                  Edit Quotation — {selectedOrderForQuote.customerName}
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Event Date: <strong>{selectedOrderForQuote.eventDate}</strong> • Duration: <strong>{selectedOrderForQuote.rentalDays || 1} Day(s)</strong> • Locality: <strong>{selectedOrderForQuote.locality || 'Kanpur Road'}</strong>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuoteEditModalOpen(false)}
+                className="p-2 text-neutral-400 hover:text-neutral-700 rounded-full hover:bg-neutral-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <form onSubmit={handleSaveQuotation} className="flex-1 overflow-y-auto py-4 space-y-6 pr-1">
+              
+              {/* Line Items Table */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Package className="w-4 h-4 text-brand-gold" />
+                    <span>Rental & Catering Line Items ({quoteFormData.lineItems.length})</span>
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={handleAddCustomQuoteLine}
+                    className="px-3 py-1 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-bold transition flex items-center gap-1"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5 text-brand-gold" />
+                    <span>Add Custom Line Item</span>
+                  </button>
+                </div>
+
+                <div className="border border-neutral-200 rounded-2xl overflow-hidden shadow-xs">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-neutral-50 text-neutral-600 font-bold border-b border-neutral-200">
+                        <tr>
+                          <th className="py-2.5 px-3">Item / Service Name</th>
+                          <th className="py-2.5 px-3">Specs / Dimensions</th>
+                          <th className="py-2.5 px-3 w-20">Rate (₹)</th>
+                          <th className="py-2.5 px-3 w-16">Qty</th>
+                          <th className="py-2.5 px-3 w-24">Total (₹)</th>
+                          <th className="py-2.5 px-2 text-center w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100">
+                        {quoteFormData.lineItems.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-neutral-50/60 transition">
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={item.name}
+                                onChange={(e) => handleUpdateQuoteLine(idx, 'name', e.target.value)}
+                                className="w-full p-1.5 border border-neutral-200 rounded-lg text-xs font-semibold text-neutral-800 focus:bg-white focus:ring-1 focus:ring-brand-accent outline-none"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                placeholder="e.g. 20x30 ft, VIP setup"
+                                value={item.dimensions || ''}
+                                onChange={(e) => handleUpdateQuoteLine(idx, 'dimensions', e.target.value)}
+                                className="w-full p-1.5 border border-neutral-200 rounded-lg text-xs text-neutral-600 focus:bg-white focus:ring-1 focus:ring-brand-accent outline-none"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="number"
+                                min="0"
+                                value={item.unitRate !== undefined ? item.unitRate : (item.ratePerSqFt || 0)}
+                                onChange={(e) => handleUpdateQuoteLine(idx, 'unitRate', parseFloat(e.target.value) || 0)}
+                                className="w-20 p-1.5 border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 text-right focus:bg-white focus:ring-1 focus:ring-brand-accent outline-none"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="number"
+                                min="1"
+                                value={item.quantity}
+                                onChange={(e) => handleUpdateQuoteLine(idx, 'quantity', parseInt(e.target.value, 10) || 1)}
+                                className="w-16 p-1.5 border border-neutral-200 rounded-lg text-xs font-bold text-brand-purple text-center focus:bg-white focus:ring-1 focus:ring-brand-accent outline-none"
+                              />
+                            </td>
+                            <td className="py-2 px-3 font-bold text-neutral-900 text-right">
+                              ₹{(item.lineTotal || 0).toLocaleString('en-IN')}
+                            </td>
+                            <td className="py-2 px-2 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveQuoteLine(idx)}
+                                className="p-1 rounded-md text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                                title="Remove line item"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Logistics, Adjustments & Payment Breakdown */}
+              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-200 space-y-4">
+                <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Receipt className="w-4 h-4 text-brand-gold" />
+                  <span>Logistics, Adjustments & Payment Status</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <label className="block font-bold text-neutral-700 mb-1">Cartage (Round Trip ₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={quoteFormData.cartage}
+                      onChange={(e) => setQuoteFormData({ ...quoteFormData, cartage: parseFloat(e.target.value) || 0 })}
+                      className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs font-bold outline-none focus:ring-2 focus:ring-brand-accent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-neutral-700 mb-1">Labour & Setup (₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={quoteFormData.labour}
+                      onChange={(e) => setQuoteFormData({ ...quoteFormData, labour: parseFloat(e.target.value) || 0 })}
+                      className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs font-bold outline-none focus:ring-2 focus:ring-brand-accent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-neutral-700 mb-1">Discount Amount (₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={quoteFormData.discount}
+                      onChange={(e) => setQuoteFormData({ ...quoteFormData, discount: parseFloat(e.target.value) || 0 })}
+                      className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs font-bold text-emerald-600 outline-none focus:ring-2 focus:ring-brand-accent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-neutral-700 mb-1">Advance Received (₹)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={quoteFormData.advancePaid}
+                      onChange={(e) => setQuoteFormData({ ...quoteFormData, advancePaid: parseFloat(e.target.value) || 0 })}
+                      className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-brand-accent"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="block font-bold text-neutral-700 mb-1">Discount Reason / Reference</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Returning client, Dwarka lawn full combo package"
+                      value={quoteFormData.discountReason}
+                      onChange={(e) => setQuoteFormData({ ...quoteFormData, discountReason: e.target.value })}
+                      className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs outline-none focus:ring-2 focus:ring-brand-accent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-neutral-700 mb-1">Order Status</label>
+                    <select
+                      value={quoteFormData.status}
+                      onChange={(e) => setQuoteFormData({ ...quoteFormData, status: e.target.value })}
+                      className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs font-bold outline-none focus:ring-2 focus:ring-brand-accent"
+                    >
+                      <option value="New">🔴 New</option>
+                      <option value="Under Review">🟡 Under Review</option>
+                      <option value="Quotation Prepared">🔵 Quotation Prepared</option>
+                      <option value="Confirmed">🟢 Confirmed</option>
+                      <option value="Advance Pending">🟠 Advance Pending</option>
+                      <option value="Partially Paid">🟣 Partially Paid</option>
+                      <option value="Fully Paid">✅ Fully Paid</option>
+                      <option value="Completed">🎉 Completed</option>
+                      <option value="Cancelled">❌ Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">Quotation Terms & Special Notes</label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. All Snacks served for 2 to 2.5 hours. Generator diesel provided by client."
+                    value={quoteFormData.quotationNotes}
+                    onChange={(e) => setQuoteFormData({ ...quoteFormData, quotationNotes: e.target.value })}
+                    className="w-full p-2 border border-neutral-300 rounded-xl bg-white text-xs outline-none focus:ring-2 focus:ring-brand-accent"
+                  />
+                </div>
+              </div>
+
+              {/* Realtime Financial Summary Footer Card */}
+              {(() => {
+                const sub = (quoteFormData.lineItems || []).reduce((acc, it) => acc + (parseFloat(it.lineTotal) || 0), 0);
+                const gTotal = Math.max(0, sub + (parseFloat(quoteFormData.cartage) || 0) + (parseFloat(quoteFormData.labour) || 0) - (parseFloat(quoteFormData.discount) || 0) + (parseFloat(quoteFormData.manualAdjustment) || 0));
+                const bal = Math.max(0, gTotal - (parseFloat(quoteFormData.advancePaid) || 0));
+                return (
+                  <div className="bg-brand-primary/5 p-4 rounded-2xl border border-brand-primary/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div>
+                      <span className="text-neutral-500 font-semibold block">Inventory Subtotal:</span>
+                      <span className="text-base font-bold text-neutral-900">₹{sub.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div>
+                      <span className="text-neutral-500 font-semibold block">Cartage + Labour:</span>
+                      <span className="text-base font-bold text-neutral-900">₹{((parseFloat(quoteFormData.cartage) || 0) + (parseFloat(quoteFormData.labour) || 0)).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div>
+                      <span className="text-neutral-500 font-semibold block">Grand Total:</span>
+                      <span className="text-lg font-black text-brand-primary font-serif">₹{gTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div>
+                      <span className="text-neutral-500 font-semibold block">Balance Payable:</span>
+                      <span className="text-lg font-black text-rose-700 font-serif">₹{bal.toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md hover:opacity-95 transition flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4 text-brand-gold" />
+                  <span>Save Quotation & Update Order</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsQuoteEditModalOpen(false)}
+                  className="w-full py-3 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-bold hover:bg-neutral-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: OFFICIAL PRINTABLE LETTERHEAD BILL & TAX INVOICE
+         ======================================================== */}
+      {isBillPrintModalOpen && selectedOrderForQuote && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-neutral-100 rounded-3xl max-w-4xl w-full p-4 sm:p-6 shadow-2xl my-6 max-h-[95vh] flex flex-col">
+            
+            {/* Top Toolbar (Hidden on Print) */}
+            <div className="no-print flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-neutral-200 mb-4 shadow-xs shrink-0">
+              <div className="flex items-center gap-2">
+                <Printer className="w-4 h-4 text-brand-gold" />
+                <span className="font-bold text-xs text-neutral-800">
+                  Official Letterhead Invoice / Quotation Preview
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 rounded-xl bg-brand-primary text-white font-bold text-xs shadow-sm hover:bg-brand-primary/90 transition flex items-center gap-1.5"
+                >
+                  <Printer className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Print Letterhead / Save PDF</span>
+                </button>
+
+                <a
+                  href={`https://wa.me/91${(selectedOrderForQuote.whatsappNumber || selectedOrderForQuote.phone || '').replace(/[^0-9]/g, '').slice(-10)}?text=${encodeURIComponent(
+                    `*KANDHARI TENT & CATERERS / DWARKA SHRI LAWN*\n` +
+                    `Kanpur Road, Opp. Pillar No. 37, Lucknow\n\n` +
+                    `*Official Quotation / Invoice #${selectedOrderForQuote.quotationNumber || ('KTC-' + selectedOrderForQuote.id.slice(-6).toUpperCase())}*\n` +
+                    `Customer: ${selectedOrderForQuote.customerName}\n` +
+                    `Event Date: ${selectedOrderForQuote.eventDate}\n` +
+                    `Rental Duration: ${selectedOrderForQuote.rentalDays || 1} day(s)\n\n` +
+                    `*Total Amount:* ₹${(selectedOrderForQuote.grandTotal || 0).toLocaleString('en-IN')}\n` +
+                    `*Advance Paid:* ₹${(selectedOrderForQuote.advancePaid || 0).toLocaleString('en-IN')}\n` +
+                    `*Balance Due:* ₹${((selectedOrderForQuote.grandTotal || 0) - (selectedOrderForQuote.advancePaid || 0)).toLocaleString('en-IN')}\n\n` +
+                    `UPI ID: 9305465848@upi (Varun Kandhari)\n` +
+                    `Phone: +91 9305465848\n\n` +
+                    `_Terms: All Snacks & Starters served for 2 to 2.5 hours only. Generator diesel provided by client._`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-sm hover:bg-emerald-700 transition flex items-center gap-1.5"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Share on WhatsApp</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => setIsBillPrintModalOpen(false)}
+                  className="p-2 text-neutral-400 hover:text-neutral-700 rounded-full hover:bg-neutral-100 transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Print Stylesheet */}
+            <style>{`
+              @media print {
+                body * {
+                  visibility: hidden !important;
+                }
+                #kandhari-letterhead-document, #kandhari-letterhead-document * {
+                  visibility: visible !important;
+                }
+                #kandhari-letterhead-document {
+                  position: absolute !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 100% !important;
+                  margin: 0 !important;
+                  padding: 24px !important;
+                  box-shadow: none !important;
+                  border: none !important;
+                  background: white !important;
+                  color: black !important;
+                }
+                .no-print {
+                  display: none !important;
+                }
+              }
+            `}</style>
+
+            {/* The Actual Printable Letterhead Document */}
+            <div className="flex-1 overflow-y-auto bg-neutral-200/50 p-2 sm:p-4 rounded-2xl flex justify-center">
+              <div
+                id="kandhari-letterhead-document"
+                className="bg-white max-w-3xl w-full p-8 sm:p-10 shadow-lg rounded-2xl border border-neutral-300 text-neutral-900 font-sans space-y-6"
+              >
+                
+                {/* Official Letterhead Header */}
+                <div className="border-b-2 border-brand-primary pb-5 text-center relative">
+                  <div className="flex justify-center mb-1.5">
+                    <span className="w-10 h-10 rounded-full bg-brand-primary text-brand-gold flex items-center justify-center font-serif font-black text-xl border-2 border-brand-gold shadow-xs">
+                      K
+                    </span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight text-brand-primary uppercase">
+                    Kandhari Tent & Caterers
+                  </h1>
+                  <p className="text-xs font-serif italic text-brand-gold font-bold tracking-wide">
+                    Dwarka Shri Lawn & Complete Wedding Infrastructure
+                  </p>
+                  <p className="text-[11px] text-neutral-600 mt-1.5 max-w-xl mx-auto leading-relaxed">
+                    Kanpur Road, Opp. Pillar No. 37, Daroga Kheda, Lucknow, Uttar Pradesh - 226008<br />
+                    Phone / WhatsApp: <strong>+91 9305465848</strong> | <strong>+91 9839012345</strong> • Email: <strong>kandharitenthouse@gmail.com</strong>
+                  </p>
+                  <div className="flex justify-center gap-4 text-[10px] text-neutral-500 font-semibold mt-1">
+                    <span>GSTIN: <strong>09AABCK1234F1Z5</strong></span>
+                    <span>•</span>
+                    <span>State: <strong>Uttar Pradesh (09)</strong></span>
+                  </div>
+                </div>
+
+                {/* Document Type & Metadata Banner */}
+                <div className="flex flex-wrap justify-between items-center bg-brand-cream/60 px-4 py-2.5 rounded-xl border border-brand-gold/40 text-xs">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Document Type</span>
+                    <strong className="text-brand-primary text-sm font-serif">
+                      OFFICIAL ESTIMATE & TAX INVOICE
+                    </strong>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Quotation / Invoice Ref</span>
+                    <strong className="font-mono text-xs text-neutral-900">
+                      {selectedOrderForQuote.quotationNumber || ('KTC-' + selectedOrderForQuote.id.slice(-6).toUpperCase())}
+                    </strong>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 block">Date of Issue</span>
+                    <strong className="text-xs text-neutral-900">
+                      {selectedOrderForQuote.quotationDate ? new Date(selectedOrderForQuote.quotationDate).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN')}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Client & Event Particulars */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border border-neutral-200 rounded-xl p-4 bg-neutral-50/50">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">Billed To / Client</span>
+                    <p className="text-sm font-bold text-neutral-900">{selectedOrderForQuote.customerName}</p>
+                    <p className="text-neutral-700">Phone: <strong>{selectedOrderForQuote.phone}</strong></p>
+                    {selectedOrderForQuote.email && <p className="text-neutral-500">{selectedOrderForQuote.email}</p>}
+                  </div>
+
+                  <div className="space-y-1 sm:text-right">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">Function & Rental Particulars</span>
+                    <p className="text-neutral-900">Event Date: <strong>{selectedOrderForQuote.eventDate}</strong></p>
+                    <p className="text-neutral-700">Duration: <strong>{selectedOrderForQuote.rentalDays || 1} Day(s)</strong></p>
+                    <p className="text-neutral-700">Venue: <strong>{selectedOrderForQuote.eventVenueAddress || selectedOrderForQuote.locality || 'Dwarka Shri Lawn, Kanpur Road'}</strong></p>
+                  </div>
+                </div>
+
+                {/* Line Items Table */}
+                <div className="border border-neutral-200 rounded-xl overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-brand-primary text-white font-bold text-[11px]">
+                      <tr>
+                        <th className="py-2 px-3 w-8 text-center">#</th>
+                        <th className="py-2 px-3">Item / Service Description</th>
+                        <th className="py-2 px-3">Specifications</th>
+                        <th className="py-2 px-3 text-right">Rate (₹)</th>
+                        <th className="py-2 px-3 text-center">Qty</th>
+                        <th className="py-2 px-3 text-right">Amount (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-200">
+                      {((selectedOrderForQuote.lineItems && selectedOrderForQuote.lineItems.length > 0) ? selectedOrderForQuote.lineItems : (selectedOrderForQuote.items || [])).map((it, idx) => (
+                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-neutral-50/50'}>
+                          <td className="py-2 px-3 text-center font-semibold text-neutral-500">{idx + 1}</td>
+                          <td className="py-2 px-3 font-bold text-neutral-900">{it.name}</td>
+                          <td className="py-2 px-3 text-neutral-600">{it.dimensions || it.billingUnit || 'Standard'}</td>
+                          <td className="py-2 px-3 text-right font-medium">₹{it.unitRate || it.ratePerSqFt || '—'}</td>
+                          <td className="py-2 px-3 text-center font-bold text-brand-purple">{it.quantity}</td>
+                          <td className="py-2 px-3 text-right font-bold text-neutral-900">
+                            ₹{(it.lineTotal ? it.lineTotal : (it.unitRate ? it.unitRate * it.quantity : 0)).toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Catering Menu Summary if present */}
+                {selectedOrderForQuote.customMenu && selectedOrderForQuote.customMenu.length > 0 && (
+                  <div className="border border-amber-200 bg-amber-50/50 p-3 rounded-xl text-xs">
+                    <span className="font-bold text-brand-primary block mb-1">
+                      Catering Menu Inclusion ({selectedOrderForQuote.customMenu.length} dishes):
+                    </span>
+                    <p className="text-neutral-700 text-[11px] leading-relaxed">
+                      {selectedOrderForQuote.customMenu.map(d => d.name).join(' • ')}
+                    </p>
+                  </div>
+                )}
+
+                {/* Financial Summary & Breakdown Table */}
+                <div className="flex justify-end">
+                  <div className="w-full sm:w-80 space-y-1.5 text-xs">
+                    <div className="flex justify-between py-1 border-b border-neutral-100">
+                      <span className="text-neutral-600">Subtotal:</span>
+                      <span className="font-bold">₹{(selectedOrderForQuote.subtotal || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-neutral-100">
+                      <span className="text-neutral-600">Cartage / Transport (Round Trip):</span>
+                      <span className="font-bold">₹{(selectedOrderForQuote.cartage !== undefined ? selectedOrderForQuote.cartage : 500).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-neutral-100">
+                      <span className="text-neutral-600">Labour, Setup & Loading:</span>
+                      <span className="font-bold">₹{(selectedOrderForQuote.labour !== undefined ? selectedOrderForQuote.labour : 500).toLocaleString('en-IN')}</span>
+                    </div>
+                    {selectedOrderForQuote.discount > 0 && (
+                      <div className="flex justify-between py-1 border-b border-neutral-100 text-emerald-700">
+                        <span>Special Discount:</span>
+                        <span className="font-bold">-₹{selectedOrderForQuote.discount.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between py-1.5 border-t-2 border-brand-primary text-sm font-bold text-brand-primary">
+                      <span>Total Invoice Amount:</span>
+                      <span className="text-base font-serif">₹{(selectedOrderForQuote.grandTotal || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between py-1 text-emerald-700 font-semibold">
+                      <span>Advance Received:</span>
+                      <span>₹{(selectedOrderForQuote.advancePaid || 0).toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 bg-rose-50 px-2 rounded-lg text-rose-800 font-bold border border-rose-200">
+                      <span>Balance Due:</span>
+                      <span className="text-sm">₹{((selectedOrderForQuote.grandTotal || 0) - (selectedOrderForQuote.advancePaid || 0)).toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank / UPI Payment Info & Official Terms */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
+                  <div className="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200 space-y-1">
+                    <strong className="text-brand-primary block text-[11px] uppercase tracking-wider">
+                      Bank & UPI Payment Details
+                    </strong>
+                    <p className="text-neutral-700">UPI ID: <strong className="font-mono text-brand-purple">9305465848@upi</strong></p>
+                    <p className="text-neutral-700">Google Pay / PhonePe: <strong>+91 9305465848</strong></p>
+                    <p className="text-[10px] text-neutral-500">Payee: Kandhari Tent & Caterers / Varun Kandhari</p>
+                  </div>
+
+                  <div className="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200 space-y-1 text-[10px] text-neutral-600">
+                    <strong className="text-brand-primary block text-[11px] uppercase tracking-wider">
+                      Standard Terms & Conditions
+                    </strong>
+                    <ol className="list-decimal pl-3 space-y-0.5">
+                      <li><strong>All Snacks & Starters served for 2 to 2.5 hours only.</strong></li>
+                      <li>Generator diesel to be provided or borne by client.</li>
+                      <li>50% advance payable on confirmation; balance on event day.</li>
+                      <li>Breakage or loss of equipment charged at replacement value.</li>
+                      <li>Subject to Lucknow jurisdiction.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                {/* Official Signatures */}
+                <div className="pt-8 grid grid-cols-2 text-center text-xs text-neutral-600">
+                  <div>
+                    <div className="border-t border-neutral-400 w-40 mx-auto mb-1"></div>
+                    <span>Customer Acceptance</span>
+                  </div>
+                  <div>
+                    <div className="border-t border-neutral-400 w-44 mx-auto mb-1"></div>
+                    <span className="font-bold text-neutral-900">For Kandhari Tent & Caterers</span>
+                    <span className="block text-[10px] text-neutral-500">(Authorized Signatory)</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
         </div>
       )}

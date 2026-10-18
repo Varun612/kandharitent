@@ -960,56 +960,76 @@ const CateringPage = () => {
                       <div
                         key={dish.id}
                         onClick={() => handleToggleDish(dish)}
-                        className={`group cursor-pointer rounded-2xl p-4 border transition-all duration-200 relative flex flex-col justify-between ${
+                        className={`group cursor-pointer rounded-2xl p-3 border transition-all duration-300 relative flex flex-col justify-between overflow-hidden ${
                           isSelected
-                            ? 'bg-amber-50/60 border-brand-gold shadow-md'
-                            : 'bg-white border-neutral-200/90 hover:border-neutral-300 hover:shadow-xs'
+                            ? 'bg-amber-50/70 border-brand-gold shadow-md ring-1 ring-brand-gold/40'
+                            : 'bg-white border-neutral-200/90 hover:border-neutral-300 hover:shadow-md'
                         }`}
                       >
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {/* Pure Veg Badge */}
-                              <span className="w-3.5 h-3.5 rounded-xs border border-emerald-600 flex items-center justify-center" title="100% Pure Vegetarian">
+                        <div>
+                          {/* Food Photograph */}
+                          <div className="relative aspect-16/9 w-full rounded-xl overflow-hidden bg-neutral-100 mb-3 border border-neutral-100">
+                            <img
+                              src={dish.imageUrl || '/media/food/vegetable.jpg'}
+                              alt={dish.name}
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = '/media/food/vegetable.jpg';
+                              }}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            {/* Pure Veg Badge Overlay */}
+                            <div className="absolute top-2 left-2">
+                              <span className="w-4 h-4 rounded-xs border border-emerald-600 bg-white/95 backdrop-blur-xs flex items-center justify-center shadow-xs" title="100% Pure Vegetarian">
                                 <span className="w-2 h-2 rounded-full bg-emerald-600" />
                               </span>
-                              <h4 className="text-sm font-bold text-neutral-800 group-hover:text-brand-purple transition leading-snug">
-                                {dish.name}
-                              </h4>
                             </div>
 
-                            {/* Selection Checkbox */}
-                            <button
-                              type="button"
-                              className={`w-6 h-6 rounded-lg flex items-center justify-center transition shrink-0 ${
-                                isSelected
-                                  ? 'bg-brand-primary text-white shadow-xs'
-                                  : 'border border-neutral-300 text-transparent group-hover:border-neutral-400'
-                              }`}
-                              aria-label={isSelected ? 'Deselect dish' : 'Select dish'}
-                            >
-                              <Check className="w-3.5 h-3.5 stroke-[3]" />
-                            </button>
+                            {/* Selection indicator pill */}
+                            <div className="absolute top-2 right-2">
+                              <button
+                                type="button"
+                                className={`w-6 h-6 rounded-lg flex items-center justify-center transition shadow-xs ${
+                                  isSelected
+                                    ? 'bg-brand-primary text-white'
+                                    : 'bg-white/90 text-transparent border border-neutral-300'
+                                }`}
+                                aria-label={isSelected ? 'Deselect dish' : 'Select dish'}
+                              >
+                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              </button>
+                            </div>
+
+                            {dish.isPopular && (
+                              <div className="absolute bottom-2 left-2">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-gold text-brand-dark uppercase tracking-wider shadow-sm">
+                                  <Sparkles className="w-3 h-3" />
+                                  <span>Banquet Special</span>
+                                </span>
+                              </div>
+                            )}
                           </div>
 
-                          <p className="text-xs text-neutral-500 leading-relaxed line-clamp-3">
-                            {dish.description}
-                          </p>
+                          <div className="space-y-1.5 px-1">
+                            <h4 className="text-sm font-serif font-bold text-neutral-900 group-hover:text-brand-purple transition leading-snug">
+                              {dish.name}
+                            </h4>
+
+                            <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2">
+                              {dish.description}
+                            </p>
+                          </div>
                         </div>
 
                         {/* Card Footer */}
-                        <div className="pt-3 mt-2 border-t border-neutral-100 flex items-center justify-between text-[11px]">
-                          {dish.isPopular ? (
-                            <span className="inline-flex items-center gap-1 font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
-                              <Sparkles className="w-3 h-3 text-brand-gold" />
-                              <span>Banquet Special</span>
-                            </span>
-                          ) : (
-                            <span className="text-neutral-400 font-medium">Standard Choice</span>
-                          )}
+                        <div className="pt-2.5 mt-2 border-t border-neutral-100 flex items-center justify-between text-[11px] px-1">
+                          <span className="text-neutral-400 font-medium">
+                            {dish.dietary || 'Pure Veg'}
+                          </span>
 
-                          <span className={`font-semibold ${isSelected ? 'text-brand-primary' : 'text-neutral-400'}`}>
-                            {isSelected ? 'Selected' : 'Tap to select'}
+                          <span className={`font-semibold ${isSelected ? 'text-brand-primary font-bold' : 'text-neutral-400'}`}>
+                            {isSelected ? '✓ Selected' : '+ Tap to select'}
                           </span>
                         </div>
                       </div>
