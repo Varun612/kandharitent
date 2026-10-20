@@ -74,6 +74,7 @@ const optionalAuth = (req, res, next) => {
 
 module.exports = {
   requireAdminAuth,
+  protectAdmin: requireAdminAuth,
   requireCustomerAuth,
   optionalAuth,
   JWT_SECRET

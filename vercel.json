@@ -101,7 +101,39 @@
       "destination": "/api"
     },
     {
-      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|health).*)",
+      "source": "/inventory/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/inventory",
+      "destination": "/api"
+    },
+    {
+      "source": "/staff/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/staff",
+      "destination": "/api"
+    },
+    {
+      "source": "/analytics/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/analytics",
+      "destination": "/api"
+    },
+    {
+      "source": "/agent/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/agent",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|inventory|staff|analytics|agent|health).*)",
       "destination": "/index.html"
     }
   ]

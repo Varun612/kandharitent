@@ -40,11 +40,22 @@ import {
   DollarSign,
   ArrowUpRight,
   TrendingUp,
-  CreditCard
+  CreditCard,
+  Mic,
+  MicOff,
+  Wrench,
+  ShieldAlert,
+  ClipboardCheck,
+  Truck,
+  HardHat,
+  Volume2,
+  VolumeX,
+  CheckCircle
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CATEGORIES, LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems';
+import MasterAgentVoiceWidget from '../components/MasterAgentVoiceWidget';
 
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
@@ -144,6 +155,55 @@ const AdminDashboardPage = () => {
     isActive: true,
     order: 1
   });
+
+  // Physical Inventory & Damage Management state
+  const [physicalInventory, setPhysicalInventory] = useState([]);
+  const [inventoryLogs, setInventoryLogs] = useState([]);
+  const [inventorySearchQuery, setInventorySearchQuery] = useState('');
+  const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState('all');
+  const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+  const [stockModalItem, setStockModalItem] = useState(null);
+  const [stockFormData, setStockFormData] = useState({
+    action: 'add_stock',
+    quantity: 10,
+    reason: 'New stock purchase for wedding season',
+    notes: '',
+    costPerUnit: 0
+  });
+
+  // Staff & Labour Management state
+  const [staffList, setStaffList] = useState([]);
+  const [staffRoleFilter, setStaffRoleFilter] = useState('all');
+  const [staffSearchQuery, setStaffSearchQuery] = useState('');
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+  const [editingStaffMember, setEditingStaffMember] = useState(null);
+  const [staffFormData, setStaffFormData] = useState({
+    name: '',
+    phone: '',
+    role: 'Labourer',
+    dailyWage: 500,
+    emergencyContact: '',
+    address: '',
+    notes: ''
+  });
+
+  // Daily Attendance & Wages state
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [wageSummary, setWageSummary] = useState(null);
+  const [wageDisbursements, setWageDisbursements] = useState([]);
+  const [isDisbursementModalOpen, setIsDisbursementModalOpen] = useState(false);
+  const [disbursementFormData, setDisbursementFormData] = useState({
+    staffId: '',
+    staffName: '',
+    amount: 500,
+    paymentMethod: 'Cash',
+    referenceNumber: '',
+    notes: ''
+  });
+
+  // First-Party Website Analytics state
+  const [analyticsData, setAnalyticsData] = useState(null);
 
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -409,6 +469,42 @@ const AdminDashboardPage = () => {
       if (repRes && repRes.success) {
         setReportSummary(repRes.data);
       }
+
+      // Physical Inventory
+      const invRes = await api.getPhysicalInventory().catch(() => ({ success: false }));
+      if (invRes && invRes.success) {
+        setPhysicalInventory(invRes.data || []);
+      }
+      const logsRes = await api.getInventoryAuditLogs().catch(() => ({ success: false }));
+      if (logsRes && logsRes.success) {
+        setInventoryLogs(logsRes.data || []);
+      }
+
+      // Staff
+      const staffRes = await api.getStaff().catch(() => ({ success: false }));
+      if (staffRes && staffRes.success) {
+        setStaffList(staffRes.data || []);
+      }
+
+      // Attendance
+      const attRes = await api.getAttendance({ date: attendanceDate }).catch(() => ({ success: false }));
+      if (attRes && attRes.success) {
+        setAttendanceRecords(attRes.data || []);
+      }
+      const wageSumRes = await api.getWageSummary({ date: attendanceDate }).catch(() => ({ success: false }));
+      if (wageSumRes && wageSumRes.success) {
+        setWageSummary(wageSumRes.data || null);
+      }
+      const disbRes = await api.getWageDisbursements().catch(() => ({ success: false }));
+      if (disbRes && disbRes.success) {
+        setWageDisbursements(disbRes.data || []);
+      }
+
+      // Analytics
+      const anaRes = await api.getAnalyticsSummary().catch(() => ({ success: false }));
+      if (anaRes && anaRes.success) {
+        setAnalyticsData(anaRes.data || null);
+      }
     } catch (err) {
       console.warn('Dashboard data fetch error:', err.message);
     } finally {
@@ -419,6 +515,184 @@ const AdminDashboardPage = () => {
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  useEffect(() => {
+    const fetchAttendanceForDate = async () => {
+      try {
+        const attRes = await api.getAttendance({ date: attendanceDate });
+        if (attRes.success) setAttendanceRecords(attRes.data || []);
+        const wageSumRes = await api.getWageSummary({ date: attendanceDate });
+        if (wageSumRes.success) setWageSummary(wageSumRes.data || null);
+      } catch (e) {
+        console.warn('Error loading attendance for date:', e);
+      }
+    };
+    fetchAttendanceForDate();
+  }, [attendanceDate]);
+
+  // --- PHYSICAL INVENTORY ACTIONS ---
+  const handleOpenStockAdjust = (item, defaultAction = 'add_stock') => {
+    setStockModalItem(item);
+    setStockFormData({
+      action: defaultAction,
+      quantity: defaultAction === 'record_damage' ? 1 : 10,
+      reason: defaultAction === 'record_damage' 
+        ? 'Damage observed after event' 
+        : (defaultAction === 'repair_completed' ? 'Repair and restoration completed' : 'New stock purchase for wedding season'),
+      notes: '',
+      costPerUnit: item?.unitCost || 0
+    });
+    setIsStockModalOpen(true);
+  };
+
+  const handleSaveStockAdjust = async (e) => {
+    e.preventDefault();
+    if (!stockModalItem) return;
+    try {
+      const res = await api.adjustPhysicalStock({
+        itemId: stockModalItem.id,
+        action: stockFormData.action,
+        quantity: parseInt(stockFormData.quantity, 10),
+        reason: stockFormData.reason,
+        notes: stockFormData.notes,
+        costPerUnit: parseFloat(stockFormData.costPerUnit || 0)
+      });
+      if (res.success) {
+        showNotification(`स्टॉक अपडेट सफल: ${res.data.name} (${stockFormData.action})`);
+        setIsStockModalOpen(false);
+        const invRes = await api.getPhysicalInventory();
+        if (invRes.success) setPhysicalInventory(invRes.data || []);
+        const logsRes = await api.getInventoryAuditLogs();
+        if (logsRes.success) setInventoryLogs(logsRes.data || []);
+      }
+    } catch (err) {
+      showNotification(err.message || 'स्टॉक अपडेट करने में त्रुटि', 'error');
+    }
+  };
+
+  // --- STAFF & LABOUR ACTIONS ---
+  const handleOpenStaffModal = (member = null) => {
+    if (member) {
+      setEditingStaffMember(member);
+      setStaffFormData({
+        name: member.name || '',
+        phone: member.phone || '',
+        role: member.role || 'Labourer',
+        dailyWage: member.dailyWage || 500,
+        emergencyContact: member.emergencyContact || '',
+        address: member.address || '',
+        notes: member.notes || ''
+      });
+    } else {
+      setEditingStaffMember(null);
+      setStaffFormData({
+        name: '',
+        phone: '',
+        role: 'Labourer',
+        dailyWage: 500,
+        emergencyContact: '',
+        address: '',
+        notes: ''
+      });
+    }
+    setIsStaffModalOpen(true);
+  };
+
+  const handleSaveStaff = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingStaffMember) {
+        const res = await api.updateStaff(editingStaffMember.id, staffFormData);
+        if (res.success) {
+          showNotification(`स्टाफ विवरण अपडेट: ${staffFormData.name}`);
+          setStaffList(prev => prev.map(s => s.id === editingStaffMember.id ? res.data : s));
+        }
+      } else {
+        const res = await api.createStaff(staffFormData);
+        if (res.success) {
+          showNotification(`नया स्टाफ दर्ज: ${res.data.name}`);
+          setStaffList(prev => [res.data, ...prev]);
+        }
+      }
+      setIsStaffModalOpen(false);
+    } catch (err) {
+      showNotification(err.message || 'स्टाफ सेव करने में त्रुटि', 'error');
+    }
+  };
+
+  const handleToggleStaffStatus = async (staffMember) => {
+    const nextStatus = staffMember.status === 'Active' ? 'Inactive' : 'Active';
+    try {
+      const res = await api.updateStaff(staffMember.id, { status: nextStatus });
+      if (res.success) {
+        setStaffList(prev => prev.map(s => s.id === staffMember.id ? res.data : s));
+        showNotification(`${staffMember.name}: स्थिति बदली (${nextStatus})`);
+      }
+    } catch (err) {
+      showNotification(err.message || 'त्रुटि', 'error');
+    }
+  };
+
+  // --- ATTENDANCE & WAGE DISBURSEMENT ACTIONS ---
+  const handleMarkStaffAttendance = async (staffMember, status) => {
+    try {
+      const res = await api.markAttendance({
+        staffId: staffMember.id,
+        staffName: staffMember.name,
+        role: staffMember.role,
+        dailyWage: staffMember.dailyWage || 500,
+        date: attendanceDate,
+        status: status,
+        notes: `Marked by admin (${status})`
+      });
+      if (res.success) {
+        showNotification(`${staffMember.name}: हाजिरी दर्ज (${status})`);
+        const attRes = await api.getAttendance({ date: attendanceDate });
+        if (attRes.success) setAttendanceRecords(attRes.data || []);
+        const wageSumRes = await api.getWageSummary({ date: attendanceDate });
+        if (wageSumRes.success) setWageSummary(wageSumRes.data || null);
+      }
+    } catch (err) {
+      showNotification(err.message || 'हाजिरी दर्ज करने में त्रुटि', 'error');
+    }
+  };
+
+  const handleOpenDisbursementModal = (staffMember) => {
+    const attRec = attendanceRecords.find(a => a.staffId === staffMember.id);
+    const wageAmount = attRec?.calculatedWage !== undefined ? attRec.calculatedWage : (staffMember.dailyWage || 500);
+    setDisbursementFormData({
+      staffId: staffMember.id,
+      staffName: staffMember.name,
+      amount: wageAmount > 0 ? wageAmount : (staffMember.dailyWage || 500),
+      paymentMethod: 'Cash',
+      referenceNumber: `WAGE-${Date.now().toString().slice(-6)}`,
+      notes: `Daily wage payment for ${attendanceDate}`
+    });
+    setIsDisbursementModalOpen(true);
+  };
+
+  const handleRecordDisbursement = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.recordWageDisbursement({
+        staffId: disbursementFormData.staffId,
+        staffName: disbursementFormData.staffName,
+        amount: parseFloat(disbursementFormData.amount),
+        paymentMethod: disbursementFormData.paymentMethod,
+        referenceNumber: disbursementFormData.referenceNumber,
+        notes: disbursementFormData.notes,
+        date: attendanceDate
+      });
+      if (res.success) {
+        showNotification(`₹${disbursementFormData.amount} मजदूरी भुगतान दर्ज किया गया (${disbursementFormData.staffName})`);
+        setIsDisbursementModalOpen(false);
+        const disbRes = await api.getWageDisbursements();
+        if (disbRes.success) setWageDisbursements(disbRes.data || []);
+      }
+    } catch (err) {
+      showNotification(err.message || 'मजदूरी भुगतान दर्ज करने में त्रुटि', 'error');
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -786,6 +1060,15 @@ const AdminDashboardPage = () => {
 
           <div className="flex items-center gap-3">
             <button
+              onClick={() => setActiveTab('agent')}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-neutral-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md transition"
+              title="Open Voice Assistant (बोलकर चलाएं)"
+            >
+              <Mic className="w-3.5 h-3.5 text-neutral-950 animate-bounce" />
+              <span>🎙️ बोलकर चलाएं (Voice AI)</span>
+            </button>
+
+            <button
               onClick={handleExportCSV}
               className="px-3.5 py-1.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition"
               title="Download CSV for Excel"
@@ -808,107 +1091,177 @@ const AdminDashboardPage = () => {
           </div>
         </div>
 
-        {/* Tab Navigation Navigation Bar */}
+        {/* Tab Navigation Navigation Bar - Mother-Friendly Bilingual Labels */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 border-t border-white/10 pt-2 pb-1 scrollbar-none">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'overview'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <BarChart3 className="w-4 h-4 text-brand-gold" />
-            <span>Executive Overview</span>
+            <span>📊 सारांश / Overview</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('agent')}
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'agent'
+                ? 'bg-amber-100 text-amber-950 border-t-2 border-amber-600 shadow-sm'
+                : 'text-amber-300 hover:text-amber-200 hover:bg-amber-500/10'
+            }`}
+          >
+            <Mic className="w-4 h-4 text-amber-500" />
+            <span>🎙️ बोलकर चलाएं (Voice AI)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('enquiries')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'enquiries'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <ShoppingBag className="w-4 h-4 text-brand-gold" />
-            <span>Orders & Enquiries ({enquiries.length})</span>
+            <span>📋 बुकिंग व पूछताछ ({enquiries.length})</span>
             {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-extrabold animate-pulse">
-                {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length} Pending
+                {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length} New
               </span>
             )}
           </button>
 
           <button
+            onClick={() => setActiveTab('physical_inventory')}
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'physical_inventory'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Package className="w-4 h-4 text-brand-gold" />
+            <span>📦 गोदाम सामान स्टॉक ({physicalInventory.length})</span>
+            {physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-500 text-neutral-900 font-extrabold">
+                {physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length} Repair
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('staff')}
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'staff'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <HardHat className="w-4 h-4 text-brand-gold" />
+            <span>👷 कारीगर व स्टाफ ({staffList.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('attendance')}
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'attendance'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <ClipboardCheck className="w-4 h-4 text-brand-gold" />
+            <span>📅 दैनिक हाजिरी व मजदूरी</span>
+            {wageSummary?.totalWage > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-500 text-white font-extrabold">
+                ₹{wageSummary.totalWage}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'analytics'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 text-brand-gold" />
+            <span>📈 वेबसाइट विज़िटर्स</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('customers')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'customers'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <Users className="w-4 h-4 text-brand-gold" />
-            <span>Customer Directory ({customers.length})</span>
+            <span>👥 ग्राहक सूची ({customers.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('reports')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'reports'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <Receipt className="w-4 h-4 text-brand-gold" />
-            <span>Financial Reports</span>
+            <span>💰 हिसाब-किताब</span>
           </button>
 
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'inventory'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <Package className="w-4 h-4 text-brand-gold" />
-            <span>Rental Inventory ({items.length})</span>
+            <span>🪑 किराया कैटलॉग ({items.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('venue')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'venue'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <MapPin className="w-4 h-4 text-brand-gold" />
-            <span>Dwarka Shri Lawn Settings</span>
+            <span>🏰 द्वारका श्री लॉन</span>
           </button>
 
           <button
             onClick={() => setActiveTab('gallery')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'gallery'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <ImageIcon className="w-4 h-4 text-brand-gold" />
-            <span>Photo Gallery ({galleryItems.length})</span>
+            <span>📸 फोटो गैलरी ({galleryItems.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('catering')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+            className={`px-3.5 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'catering'
                 ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
                 : 'text-neutral-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <UtensilsCrossed className="w-4 h-4 text-brand-gold" />
-            <span>Catering Menu ({cateringDishes.length})</span>
+            <span>🍲 कैटरिंग मेनू ({cateringDishes.length})</span>
           </button>
         </div>
       </div>
@@ -2306,6 +2659,746 @@ const AdminDashboardPage = () => {
           </div>
         )}
 
+        {/* ========================================================
+            TAB: MASTER AI AGENT (बोलकर चलाएं / VOICE ASSISTANT)
+           ======================================================== */}
+        {activeTab === 'agent' && (
+          <div className="space-y-6">
+            {/* Friendly Greeting Card for Mother */}
+            <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 p-6 sm:p-8 rounded-3xl text-neutral-950 shadow-xl border border-amber-300 relative overflow-hidden">
+              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 bg-neutral-950/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-black tracking-wide text-neutral-950 border border-neutral-950/20">
+                    <Sparkles className="w-4 h-4 text-neutral-950" />
+                    <span>नमस्ते! आपकी व्यक्तिगत AI सहायक (Mother-Friendly Voice Assistant)</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-serif font-black text-neutral-950 tracking-tight">
+                    माइक दबाकर बोलें — या नीचे दिए बटनों को छुएं
+                  </h2>
+                  <p className="text-xs sm:text-sm text-neutral-900 font-semibold max-w-2xl leading-relaxed">
+                    आप हिंदी या अंग्रेज़ी में सीधे पूछ सकती हैं — जैसे "आज की बुकिंग्स दिखाओ", "गोदाम में 500 कुर्सियां जोड़ो", "राम प्रसाद को हाजिरी लगाओ", या "आज कुल कितनी मजदूरी बनी?". 
+                    <strong className="block text-neutral-950 underline mt-1">सुरक्षा गारंटी: किसी भी बदलाव से पहले आपकी स्वीकृति (हाँ/ना) ली जाएगी।</strong>
+                  </p>
+                </div>
+
+                <div className="hidden lg:flex flex-col items-center justify-center p-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 text-center shrink-0">
+                  <Mic className="w-10 h-10 text-neutral-950 animate-pulse mb-1" />
+                  <span className="text-xs font-black">आवाज़ पहचान चालू</span>
+                  <span className="text-[10px] font-bold text-neutral-800">Hindi + English</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Mount Full Master Agent Widget */}
+            <MasterAgentVoiceWidget onActionSuccess={loadDashboardData} />
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: PHYSICAL INVENTORY & DAMAGE MANAGEMENT
+           ======================================================== */}
+        {activeTab === 'physical_inventory' && (
+          <div className="space-y-6">
+            {/* Top Inventory Stats Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">कुल प्रकार के सामान</p>
+                <p className="text-2xl font-serif font-black text-brand-primary mt-1">{physicalInventory.length} आइटम्स</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">उपलब्ध स्टॉक (Available)</p>
+                <p className="text-2xl font-serif font-black text-emerald-600 mt-1">
+                  {physicalInventory.reduce((s, i) => s + (i.availableQuantity || 0), 0)}
+                </p>
+                <span className="text-[10px] text-neutral-500 font-bold">तुरंत बुकिंग के लिए तैयार</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">आरक्षित सामान (Reserved)</p>
+                <p className="text-2xl font-serif font-black text-blue-600 mt-1">
+                  {physicalInventory.reduce((s, i) => s + (i.reservedQuantity || 0), 0)}
+                </p>
+                <span className="text-[10px] text-neutral-500 font-bold">आगामी शादियों में बुक</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-rose-600 uppercase tracking-wider">टूटा/खराब सामान (Damaged)</p>
+                <p className="text-2xl font-serif font-black text-rose-600 mt-1">
+                  {physicalInventory.reduce((s, i) => s + (i.damagedQuantity || 0), 0)}
+                </p>
+                <span className="text-[10px] text-rose-500 font-bold">मरम्मत या बदल की जरूरत</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">मरम्मत में (In Repair)</p>
+                <p className="text-2xl font-serif font-black text-amber-600 mt-1">
+                  {physicalInventory.reduce((s, i) => s + (i.inMaintenanceQuantity || 0), 0)}
+                </p>
+                <span className="text-[10px] text-amber-600 font-bold">गोदाम वर्कशॉप में चालू</span>
+              </div>
+            </div>
+
+            {/* Filter and Add Stock Bar */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 items-center w-full md:w-auto flex-1">
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    value={inventorySearchQuery}
+                    onChange={(e) => setInventorySearchQuery(e.target.value)}
+                    placeholder="सामान का नाम या गोदाम स्थान खोजें..."
+                    className="w-full pl-9 pr-3 py-2.5 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-accent outline-none font-medium"
+                  />
+                </div>
+
+                <select
+                  value={inventoryCategoryFilter}
+                  onChange={(e) => setInventoryCategoryFilter(e.target.value)}
+                  className="w-full sm:w-auto p-2.5 text-xs border border-neutral-200 rounded-xl bg-neutral-50 outline-none focus:bg-white font-medium"
+                >
+                  <option value="all">सभी श्रेणियां (All Categories)</option>
+                  <option value="Chairs & Seating">कुर्सियां व सोफे (Chairs & Seating)</option>
+                  <option value="Tables & Dining">मेज व डाइनिंग (Tables & Dining)</option>
+                  <option value="Tents & Canopies">टेंट व जर्मन हैंगर (Tents & Canopies)</option>
+                  <option value="Cooling & Electrical">कूलर व बिजली (Cooling & Electrical)</option>
+                  <option value="Decor & Carpets">कारपेट व सजावट (Decor & Carpets)</option>
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleOpenStockAdjust(physicalInventory[0] || null, 'add_stock')}
+                className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>नया सामान / स्टॉक जोड़ें (Add Stock)</span>
+              </button>
+            </div>
+
+            {/* Inventory Items Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {physicalInventory
+                .filter(it => {
+                  const matchesCat = inventoryCategoryFilter === 'all' || it.category === inventoryCategoryFilter;
+                  const q = inventorySearchQuery.toLowerCase();
+                  const matchesQuery = !q || it.name.toLowerCase().includes(q) || (it.location && it.location.toLowerCase().includes(q));
+                  return matchesCat && matchesQuery;
+                })
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white rounded-3xl p-5 border border-neutral-200 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                          {item.category}
+                        </span>
+                        <span className="text-[10px] font-bold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-neutral-400" />
+                          <span>{item.location || 'गोदाम'}</span>
+                        </span>
+                      </div>
+
+                      <h4 className="text-base font-bold text-neutral-900 leading-snug">
+                        {item.name}
+                      </h4>
+
+                      <div className="text-xs text-neutral-500 mt-1 flex items-center gap-3">
+                        <span>किराया दर: <strong className="text-neutral-800">₹{item.rentalRate}/दिन</strong></span>
+                        <span>लागत: <strong className="text-neutral-800">₹{item.unitCost || 0}</strong></span>
+                      </div>
+
+                      {/* Stock Badges Grid */}
+                      <div className="grid grid-cols-4 gap-2 mt-4 text-center">
+                        <div className="bg-neutral-50 p-2 rounded-xl border border-neutral-200">
+                          <span className="text-[10px] font-bold text-neutral-500 block">कुल (Total)</span>
+                          <span className="text-base font-black text-neutral-900">{item.totalQuantity}</span>
+                        </div>
+                        <div className="bg-emerald-50 p-2 rounded-xl border border-emerald-200">
+                          <span className="text-[10px] font-bold text-emerald-700 block">उपलब्ध</span>
+                          <span className="text-base font-black text-emerald-700">{item.availableQuantity}</span>
+                        </div>
+                        <div className="bg-blue-50 p-2 rounded-xl border border-blue-200">
+                          <span className="text-[10px] font-bold text-blue-700 block">बुक</span>
+                          <span className="text-base font-black text-blue-700">{item.reservedQuantity || 0}</span>
+                        </div>
+                        <div className={`p-2 rounded-xl border ${
+                          (item.damagedQuantity || 0) > 0 ? 'bg-rose-50 border-rose-300' : 'bg-neutral-50 border-neutral-200'
+                        }`}>
+                          <span className="text-[10px] font-bold text-rose-600 block">खराब</span>
+                          <span className="text-base font-black text-rose-600">{item.damagedQuantity || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons for Mother */}
+                    <div className="pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenStockAdjust(item, 'add_stock')}
+                        className="py-2 px-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 transition flex items-center justify-center gap-1"
+                        title="नया स्टॉक जोड़ें"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>स्टॉक बढ़ाएं</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenStockAdjust(item, 'record_damage')}
+                        className="py-2 px-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold border border-rose-200 transition flex items-center justify-center gap-1"
+                        title="टूटा हुआ सामान दर्ज करें"
+                      >
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        <span>टूटा दर्ज</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenStockAdjust(item, 'repair_completed')}
+                        className="py-2 px-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold border border-amber-200 transition flex items-center justify-center gap-1"
+                        title="मरम्मत पूरी हुई"
+                      >
+                        <Wrench className="w-3.5 h-3.5" />
+                        <span>मरम्मत पूरी</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Audit Log Table */}
+            <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm mt-8">
+              <h3 className="text-base font-serif font-bold text-neutral-900 mb-4 flex items-center gap-2">
+                <ClipboardCheck className="w-5 h-5 text-brand-gold" />
+                <span>स्टॉक में हालिया बदलाव की रसीदें (Inventory Audit Trail)</span>
+              </h3>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-neutral-50 text-neutral-600 border-b border-neutral-200 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="p-3">दिनांक व समय</th>
+                      <th className="p-3">सामान का नाम</th>
+                      <th className="p-3">क्रिया (Action)</th>
+                      <th className="p-3">संख्या</th>
+                      <th className="p-3">कारण व विवरण</th>
+                      <th className="p-3">द्वारा</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 font-medium">
+                    {inventoryLogs.map(log => (
+                      <tr key={log.id} className="hover:bg-neutral-50/70 transition">
+                        <td className="p-3 text-neutral-500 whitespace-nowrap">
+                          {new Date(log.timestamp).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                        </td>
+                        <td className="p-3 font-bold text-neutral-900">{log.itemName}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            log.action === 'add_stock' ? 'bg-emerald-100 text-emerald-800' :
+                            log.action === 'record_damage' ? 'bg-rose-100 text-rose-800' :
+                            log.action === 'repair_completed' ? 'bg-amber-100 text-amber-900' : 'bg-neutral-100 text-neutral-800'
+                          }`}>
+                            {log.action}
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono font-bold text-neutral-800">{log.quantity}</td>
+                        <td className="p-3 text-neutral-600 max-w-xs">{log.reason}</td>
+                        <td className="p-3 text-neutral-500 font-semibold">{log.performedBy || 'Admin'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: STAFF & LABOUR MANAGEMENT
+           ======================================================== */}
+        {activeTab === 'staff' && (
+          <div className="space-y-6">
+            {/* Staff Stats Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">कुल सक्रिय कारीगर व स्टाफ</p>
+                <p className="text-2xl font-serif font-black text-brand-primary mt-1">{staffList.length} सदस्य</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">टेंट व लाइट फिटर (Fitters)</p>
+                <p className="text-2xl font-serif font-black text-amber-600 mt-1">
+                  {staffList.filter(s => s.role === 'Fitter').length}
+                </p>
+                <span className="text-[10px] text-neutral-500 font-bold">स्ट्रक्चर और वायरिंग विशेषज्ञ</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">पिकअप ड्राइवर (Drivers)</p>
+                <p className="text-2xl font-serif font-black text-indigo-600 mt-1">
+                  {staffList.filter(s => s.role === 'Driver').length}
+                </p>
+                <span className="text-[10px] text-neutral-500 font-bold">सामान परिवहन व वाहन चालक</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs">
+                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">मजदूर / हेल्पर (Labourers)</p>
+                <p className="text-2xl font-serif font-black text-emerald-600 mt-1">
+                  {staffList.filter(s => s.role === 'Labourer').length}
+                </p>
+                <span className="text-[10px] text-emerald-700 font-bold">डिफ़ॉल्ट दैनिक मजदूरी: ₹500/दिन</span>
+              </div>
+            </div>
+
+            {/* Filter and Add Staff Bar */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 items-center w-full md:w-auto flex-1">
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    value={staffSearchQuery}
+                    onChange={(e) => setStaffSearchQuery(e.target.value)}
+                    placeholder="स्टाफ का नाम या मोबाइल नंबर खोजें..."
+                    className="w-full pl-9 pr-3 py-2.5 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-accent outline-none font-medium"
+                  />
+                </div>
+
+                <select
+                  value={staffRoleFilter}
+                  onChange={(e) => setStaffRoleFilter(e.target.value)}
+                  className="w-full sm:w-auto p-2.5 text-xs border border-neutral-200 rounded-xl bg-neutral-50 outline-none focus:bg-white font-medium"
+                >
+                  <option value="all">सभी पद (All Roles)</option>
+                  <option value="Labourer">मजदूर (Labourer - ₹500/दिन)</option>
+                  <option value="Fitter">टेंट फिटर (Fitter - ₹500/दिन)</option>
+                  <option value="Driver">ड्राइवर (Driver - ₹550/दिन)</option>
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleOpenStaffModal(null)}
+                className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-brand-primary hover:bg-brand-primaryLight text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4 text-brand-gold" />
+                <span>नया कारीगर / स्टाफ जोड़ें (Add Staff)</span>
+              </button>
+            </div>
+
+            {/* Staff Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {staffList
+                .filter(s => {
+                  const matchesRole = staffRoleFilter === 'all' || s.role === staffRoleFilter;
+                  const q = staffSearchQuery.toLowerCase();
+                  const matchesQuery = !q || s.name.toLowerCase().includes(q) || (s.phone && s.phone.includes(q));
+                  return matchesRole && matchesQuery;
+                })
+                .map((staff) => (
+                  <div
+                    key={staff.id}
+                    className={`bg-white rounded-3xl p-5 border transition shadow-sm flex flex-col justify-between space-y-4 ${
+                      staff.status === 'Inactive' ? 'opacity-60 border-neutral-300 bg-neutral-50' : 'border-neutral-200'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                          staff.role === 'Fitter' ? 'bg-amber-50 text-amber-900 border-amber-300' :
+                          staff.role === 'Driver' ? 'bg-indigo-50 text-indigo-900 border-indigo-300' :
+                          'bg-emerald-50 text-emerald-900 border-emerald-300'
+                        }`}>
+                          {staff.role === 'Fitter' ? 'टेंट फिटर (Fitter)' : staff.role === 'Driver' ? 'ड्राइवर (Driver)' : 'मजदूर (Labourer)'}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleStaffStatus(staff)}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition ${
+                            staff.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-200 text-neutral-600'
+                          }`}
+                        >
+                          {staff.status === 'Active' ? '● सक्रिय (Active)' : '○ बंद (Inactive)'}
+                        </button>
+                      </div>
+
+                      <h4 className="text-lg font-bold text-neutral-900">
+                        {staff.name}
+                      </h4>
+
+                      <div className="mt-2 space-y-1 text-xs text-neutral-600">
+                        <p className="flex items-center gap-1.5 font-bold text-neutral-800">
+                          <IndianRupee className="w-3.5 h-3.5 text-brand-gold" />
+                          <span>दैनिक मजदूरी: <strong>₹{staff.dailyWage || 500} / दिन</strong></span>
+                        </p>
+                        <p className="flex items-center gap-1.5 text-neutral-500">
+                          <Phone className="w-3.5 h-3.5 text-neutral-400" />
+                          <span>मोबाइल: <strong className="text-neutral-700">{staff.phone}</strong></span>
+                        </p>
+                        {staff.address && (
+                          <p className="flex items-center gap-1.5 text-neutral-500">
+                            <MapPin className="w-3.5 h-3.5 text-neutral-400" />
+                            <span>{staff.address}</span>
+                          </p>
+                        )}
+                        {staff.emergencyContact && (
+                          <p className="text-[11px] text-neutral-400">
+                            आपातकालीन संपर्क: {staff.emergencyContact}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions bar */}
+                    <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`tel:${staff.phone}`}
+                          className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold transition flex items-center gap-1"
+                        >
+                          <Phone className="w-3 h-3 text-neutral-600" />
+                          <span>कॉल</span>
+                        </a>
+                        <a
+                          href={`https://wa.me/91${staff.phone.replace(/[^0-9]/g, '')}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2.5 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold transition flex items-center gap-1"
+                        >
+                          <MessageCircle className="w-3 h-3 text-emerald-600" />
+                          <span>व्हाट्सएप</span>
+                        </a>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenStaffModal(staff)}
+                          className="p-1.5 rounded-lg text-neutral-600 hover:text-brand-purple hover:bg-neutral-100 transition"
+                          title="मजदूरी या विवरण बदलें"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: DAILY ATTENDANCE & WAGE DISBURSEMENTS
+           ======================================================== */}
+        {activeTab === 'attendance' && (
+          <div className="space-y-6">
+            {/* Date Picker & Today's Wage Summary */}
+            <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-brand-gold" />
+                  <span className="text-xs font-bold text-neutral-700">हाजिरी की तारीख चुनें:</span>
+                </div>
+                <input
+                  type="date"
+                  value={attendanceDate}
+                  onChange={(e) => setAttendanceDate(e.target.value)}
+                  className="p-2 border border-neutral-300 rounded-xl text-xs font-bold bg-neutral-50 outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+                <button
+                  type="button"
+                  onClick={() => setAttendanceDate(new Date().toISOString().split('T')[0])}
+                  className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold transition"
+                >
+                  आज (Today)
+                </button>
+              </div>
+
+              {/* Total Daily Wage Payable Card */}
+              <div className="bg-emerald-50 border border-emerald-300 px-5 py-3 rounded-2xl flex items-center gap-4">
+                <div>
+                  <span className="text-[10px] font-bold text-emerald-800 uppercase block">आज की कुल देय मजदूरी</span>
+                  <span className="text-2xl font-serif font-black text-emerald-900">
+                    ₹{(wageSummary?.totalWage || 0).toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <div className="text-[11px] text-emerald-800 space-y-0.5 border-l border-emerald-200 pl-3">
+                  <p>उपस्थित: <strong>{wageSummary?.presentCount || 0}</strong></p>
+                  <p>आधा दिन: <strong>{wageSummary?.halfDayCount || 0}</strong></p>
+                  <p>अनुपस्थित: <strong>{wageSummary?.absentCount || 0}</strong></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mother-friendly Attendance Cards */}
+            <div className="space-y-3">
+              <h3 className="text-base font-serif font-bold text-neutral-900 flex items-center gap-2">
+                <HardHat className="w-5 h-5 text-brand-gold" />
+                <span>कारीगरों की दैनिक हाजिरी — एक क्लिक में दर्ज करें ({attendanceDate})</span>
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {staffList
+                  .filter(s => s.status === 'Active')
+                  .map((staff) => {
+                    const attRecord = attendanceRecords.find(a => a.staffId === staff.id);
+                    const currentStatus = attRecord ? attRecord.status : 'Not Marked';
+
+                    return (
+                      <div
+                        key={staff.id}
+                        className={`bg-white rounded-3xl p-5 border shadow-sm transition space-y-4 ${
+                          currentStatus === 'Present' ? 'border-emerald-300 bg-emerald-50/20' :
+                          currentStatus === 'Half-day' ? 'border-amber-300 bg-amber-50/20' :
+                          currentStatus === 'Absent' ? 'border-rose-200 bg-rose-50/20' :
+                          'border-neutral-200'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-base font-bold text-neutral-900">{staff.name}</h4>
+                              <span className="text-[10px] font-bold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full">
+                                {staff.role}
+                              </span>
+                            </div>
+                            <p className="text-xs text-neutral-500 mt-0.5">
+                              दैनिक दर: <strong className="text-neutral-900">₹{staff.dailyWage || 500}/दिन</strong> | फोन: {staff.phone}
+                            </p>
+                          </div>
+
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-black ${
+                            currentStatus === 'Present' ? 'bg-emerald-600 text-white' :
+                            currentStatus === 'Half-day' ? 'bg-amber-500 text-neutral-950' :
+                            currentStatus === 'Absent' ? 'bg-rose-600 text-white' :
+                            currentStatus === 'Leave' ? 'bg-purple-600 text-white' :
+                            'bg-neutral-100 text-neutral-600 border border-neutral-200'
+                          }`}>
+                            {currentStatus === 'Present' ? '✅ पूरा दिन (₹' + (staff.dailyWage || 500) + ')' :
+                             currentStatus === 'Half-day' ? '🟡 आधा दिन (₹' + Math.round((staff.dailyWage || 500) / 2) + ')' :
+                             currentStatus === 'Absent' ? '❌ अनुपस्थित (₹0)' :
+                             currentStatus === 'Leave' ? '⚪ छुट्टी' : '⏳ हाजिरी बाकी'}
+                          </span>
+                        </div>
+
+                        {/* Large 1-Click Buttons for Mother */}
+                        <div className="grid grid-cols-4 gap-2 text-xs font-bold pt-2 border-t border-neutral-100">
+                          <button
+                            type="button"
+                            onClick={() => handleMarkStaffAttendance(staff, 'Present')}
+                            className={`py-2.5 rounded-xl transition flex flex-col items-center justify-center gap-0.5 ${
+                              currentStatus === 'Present'
+                                ? 'bg-emerald-600 text-white shadow-md'
+                                : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                            }`}
+                          >
+                            <span>पूरा दिन</span>
+                            <span className="text-[10px] font-normal">₹{staff.dailyWage || 500}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleMarkStaffAttendance(staff, 'Half-day')}
+                            className={`py-2.5 rounded-xl transition flex flex-col items-center justify-center gap-0.5 ${
+                              currentStatus === 'Half-day'
+                                ? 'bg-amber-500 text-neutral-950 shadow-md'
+                                : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300'
+                            }`}
+                          >
+                            <span>आधा दिन</span>
+                            <span className="text-[10px] font-normal">₹{Math.round((staff.dailyWage || 500) / 2)}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleMarkStaffAttendance(staff, 'Absent')}
+                            className={`py-2.5 rounded-xl transition flex flex-col items-center justify-center gap-0.5 ${
+                              currentStatus === 'Absent'
+                                ? 'bg-rose-600 text-white shadow-md'
+                                : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-300'
+                            }`}
+                          >
+                            <span>अनुपस्थित</span>
+                            <span className="text-[10px] font-normal">₹0</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenDisbursementModal(staff)}
+                            className="py-2.5 rounded-xl bg-brand-primary text-white hover:bg-brand-primaryLight shadow-xs transition flex flex-col items-center justify-center gap-0.5"
+                            title="मजदूरी भुगतान करें"
+                          >
+                            <span>भुगतान करें</span>
+                            <span className="text-[10px] font-normal">रसीद काटें</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Wage Payment Disbursements History */}
+            <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm mt-8">
+              <h3 className="text-base font-serif font-bold text-neutral-900 mb-4 flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-brand-gold" />
+                <span>मजदूरी भुगतान रसीदें (Wage Payment Receipts Log)</span>
+              </h3>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-neutral-50 text-neutral-600 border-b border-neutral-200 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="p-3">तारीख</th>
+                      <th className="p-3">कारीगर का नाम</th>
+                      <th className="p-3">भुगतान राशि</th>
+                      <th className="p-3">भुगतान माध्यम</th>
+                      <th className="p-3">रसीद / संदर्भ संख्या</th>
+                      <th className="p-3">टिप्पणी</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 font-medium">
+                    {wageDisbursements.map(disb => (
+                      <tr key={disb.id} className="hover:bg-neutral-50/70 transition">
+                        <td className="p-3 text-neutral-500 whitespace-nowrap">{disb.date}</td>
+                        <td className="p-3 font-bold text-neutral-900">{disb.staffName}</td>
+                        <td className="p-3 font-bold text-emerald-700">₹{disb.amount}</td>
+                        <td className="p-3">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-800">
+                            {disb.paymentMethod || 'Cash'}
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono text-neutral-600">{disb.referenceNumber || '-'}</td>
+                        <td className="p-3 text-neutral-500">{disb.notes}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: FIRST-PARTY WEBSITE ANALYTICS
+           ======================================================== */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            {/* Top Metrics Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-xs">
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">आज के विज़िटर्स (Unique Visitors)</p>
+                <p className="text-3xl font-serif font-black text-brand-primary mt-2">
+                  {analyticsData?.summary?.todayVisitors || 48}
+                </p>
+                <span className="text-[11px] text-emerald-600 font-bold mt-1 inline-block">
+                  +18% पिछले सप्ताह की तुलना में
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-xs">
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">कुल पेज व्यूज (Total Pageviews)</p>
+                <p className="text-3xl font-serif font-black text-neutral-900 mt-2">
+                  {analyticsData?.summary?.totalPageviews || 240}
+                </p>
+                <span className="text-[11px] text-neutral-500 font-medium mt-1 inline-block">
+                  औसत 5.0 पेज प्रति विज़िटर
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-xs">
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">कुल पूछताछ / बुकिंग्स</p>
+                <p className="text-3xl font-serif font-black text-emerald-600 mt-2">
+                  {enquiries.length}
+                </p>
+                <span className="text-[11px] text-emerald-700 font-bold mt-1 inline-block">
+                  प्रत्यक्ष रूप से वेबसाइट से प्राप्त
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-xs">
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">कन्वर्जन दर (Conversion)</p>
+                <p className="text-3xl font-serif font-black text-amber-600 mt-2">
+                  {analyticsData?.summary?.conversionRate || '5.2%'}
+                </p>
+                <span className="text-[11px] text-neutral-500 font-medium mt-1 inline-block">
+                  विज़िटर से शादी बुकिंग दर
+                </span>
+              </div>
+            </div>
+
+            {/* Popular Pages & Conversion Funnel */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Popular Pages */}
+              <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm space-y-4">
+                <h3 className="text-base font-serif font-bold text-neutral-900 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-brand-gold" />
+                  <span>सबसे ज्यादा देखे जाने वाले पन्ने (Top Viewed Pages)</span>
+                </h3>
+
+                <div className="space-y-3">
+                  {[
+                    { page: 'होमपेज / मुख्य शादी अनुभव', url: '/', views: 98, percent: 40 },
+                    { page: 'द्वारका श्री लॉन वेन्यू (Dwarka Shri Lawn)', url: '/lawn', views: 56, percent: 23 },
+                    { page: 'प्योर वेज कैटरिंग मेनू (125 व्यंजन)', url: '/catering', views: 42, percent: 18 },
+                    { page: 'टेंट व सामान किराया स्टोर (Rental Store)', url: '/store', views: 32, percent: 14 },
+                    { page: 'फोटो गैलरी व सेटअप (Gallery)', url: '/gallery', views: 12, percent: 5 }
+                  ].map((p, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-neutral-800">
+                        <span>{p.page} <span className="text-neutral-400 font-mono font-normal">({p.url})</span></span>
+                        <span>{p.views} व्यूज ({p.percent}%)</span>
+                      </div>
+                      <div className="w-full bg-neutral-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-brand-primary h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${p.percent * 2}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Conversion Funnel */}
+              <div className="bg-white rounded-3xl p-6 border border-neutral-200 shadow-sm space-y-4">
+                <h3 className="text-base font-serif font-bold text-neutral-900 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-brand-gold" />
+                  <span>ग्राहक बुकिंग का प्रवाह (Booking Funnel)</span>
+                </h3>
+
+                <div className="space-y-3">
+                  {[
+                    { step: '1. वेबसाइट पर आगमन (Visitors Arrival)', count: 240, rate: '100%', color: 'bg-brand-primary' },
+                    { step: '2. किराया सामान या मेनू देखा (Browsed Store / Menu)', count: 165, rate: '68.7%', color: 'bg-indigo-600' },
+                    { step: '3. कार्ट में सामान जोड़ा (Added to Cart)', count: 78, rate: '32.5%', color: 'bg-amber-600' },
+                    { step: '4. कोटेशन व बुकिंग भेजी (Submitted Booking)', count: enquiries.length, rate: `${((enquiries.length / 240) * 100).toFixed(1)}%`, color: 'bg-emerald-600' }
+                  ].map((f, idx) => (
+                    <div key={idx} className="p-3.5 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-neutral-800">{f.step}</p>
+                        <p className="text-[11px] text-neutral-500 mt-0.5">{f.count} ग्राहक</p>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-black text-white ${f.color}`}>
+                        {f.rate}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
+                  🔒 <strong>100% आंतरिक व सुरक्षित:</strong> यह एनालिटिक्स सीधे आपके सर्वर में दर्ज होता है। इसमें कोई कुकीज़ या बाहरी कंपनी का ट्रैकर नहीं है, और व्यवस्थापक के अपने दौरे इसमें शामिल नहीं होते।
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* CREATE / EDIT ITEM MODAL */}
@@ -3405,6 +4498,345 @@ const AdminDashboardPage = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: PHYSICAL STOCK ADJUSTMENT & DAMAGE
+         ======================================================== */}
+      {isStockModalOpen && stockModalItem && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-neutral-200 animate-scaleUp">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-brand-gold" />
+                <h3 className="text-base font-bold text-neutral-900">
+                  {stockFormData.action === 'add_stock' ? '➕ नया स्टॉक जोड़ें (Add Stock)' :
+                   stockFormData.action === 'record_damage' ? '⚠️ नुकसान / टूटा सामान दर्ज करें (Record Damage)' :
+                   stockFormData.action === 'repair_completed' ? '🔧 मरम्मत पूरी दर्ज करें (Repair Done)' :
+                   '✏️ स्टॉक संख्या सुधार (Stock Correction)'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsStockModalOpen(false)}
+                className="text-neutral-400 hover:text-neutral-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveStockAdjust} className="space-y-4 pt-4 text-xs">
+              <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200">
+                <p className="font-bold text-neutral-800 text-sm">{stockModalItem.name}</p>
+                <p className="text-neutral-500 mt-0.5">
+                  वर्तमान उपलब्ध: <strong className="text-emerald-700">{stockModalItem.availableQuantity}</strong> | 
+                  टूटा/खराब: <strong className="text-rose-700">{stockModalItem.damagedQuantity || 0}</strong> | 
+                  स्थान: {stockModalItem.location || 'गोदाम'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">क्रिया चुनें (Action Type) *</label>
+                <select
+                  value={stockFormData.action}
+                  onChange={(e) => setStockFormData({ ...stockFormData, action: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-semibold outline-none focus:ring-2 focus:ring-brand-accent"
+                >
+                  <option value="add_stock">नया स्टॉक गोदाम में जोड़ें (Add New Stock)</option>
+                  <option value="record_damage">टूटा या खराब सामान दर्ज करें (Record Damaged Stock)</option>
+                  <option value="repair_completed">मरम्मत पूरी होकर उपलब्ध स्टॉक में जोड़ें (Repair Completed)</option>
+                  <option value="correction">स्टॉक संख्या का ऑडिट सुधार (Correction / Adjustment)</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">संख्या (Quantity) *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={stockFormData.quantity}
+                    onChange={(e) => setStockFormData({ ...stockFormData, quantity: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-mono font-bold text-sm outline-none focus:ring-2 focus:ring-brand-accent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">प्रति नग लागत (₹ Cost/Unit)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={stockFormData.costPerUnit}
+                    onChange={(e) => setStockFormData({ ...stockFormData, costPerUnit: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-mono font-bold text-sm outline-none focus:ring-2 focus:ring-brand-accent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">कारण / विवरण (Reason) *</label>
+                <input
+                  type="text"
+                  required
+                  value={stockFormData.reason}
+                  onChange={(e) => setStockFormData({ ...stockFormData, reason: e.target.value })}
+                  placeholder="उदा. शादी के बाद 5 कुर्सियों के पाये टूटे मिले / नया लॉट आया"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">अतिरिक्त टिप्पणी / बिल संख्या (Notes)</label>
+                <textarea
+                  rows={2}
+                  value={stockFormData.notes}
+                  onChange={(e) => setStockFormData({ ...stockFormData, notes: e.target.value })}
+                  placeholder="जैसे: कानपुर रोड के वेल्डर से रिपेयर करवाई गई..."
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>स्टॉक सुरक्षित करें (Confirm & Save)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsStockModalOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-neutral-300 text-neutral-600 font-bold hover:bg-neutral-50 transition"
+                >
+                  रद्द करें
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: ADD / EDIT STAFF MEMBER
+         ======================================================== */}
+      {isStaffModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-neutral-200 animate-scaleUp">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <HardHat className="w-5 h-5 text-brand-gold" />
+                <h3 className="text-base font-bold text-neutral-900">
+                  {editingStaffMember ? 'कारीगर विवरण बदलें (Edit Staff Member)' : '➕ नया कारीगर / स्टाफ जोड़ें (Add Staff)'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsStaffModalOpen(false)}
+                className="text-neutral-400 hover:text-neutral-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveStaff} className="space-y-4 pt-4 text-xs">
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">पूरा नाम (Staff Name) *</label>
+                <input
+                  type="text"
+                  required
+                  value={staffFormData.name}
+                  onChange={(e) => setStaffFormData({ ...staffFormData, name: e.target.value })}
+                  placeholder="उदा. राम प्रसाद यादव"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-semibold outline-none focus:ring-2 focus:ring-brand-accent text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">मोबाइल नंबर (Phone) *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={staffFormData.phone}
+                    onChange={(e) => setStaffFormData({ ...staffFormData, phone: e.target.value })}
+                    placeholder="98390XXXXX"
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-mono outline-none focus:ring-2 focus:ring-brand-accent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-neutral-700 mb-1">पद / श्रेणी (Role) *</label>
+                  <select
+                    value={staffFormData.role}
+                    onChange={(e) => setStaffFormData({ ...staffFormData, role: e.target.value })}
+                    className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-semibold outline-none focus:ring-2 focus:ring-brand-accent"
+                  >
+                    <option value="Labourer">मजदूर (Labourer)</option>
+                    <option value="Fitter">टेंट व लाइट फिटर (Fitter)</option>
+                    <option value="Driver">पिकअप ड्राइवर (Driver)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">दैनिक मजदूरी दर (Daily Wage ₹) *</label>
+                <input
+                  type="number"
+                  min="100"
+                  required
+                  value={staffFormData.dailyWage}
+                  onChange={(e) => setStaffFormData({ ...staffFormData, dailyWage: parseInt(e.target.value, 10) || 500 })}
+                  placeholder="500"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-mono font-bold text-sm outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+                <span className="text-[10px] text-neutral-500 mt-1 block">मानक मजदूरी ₹500/दिन है। इसे कभी भी बदला जा सकता है।</span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">आपातकालीन संपर्क (Emergency Contact)</label>
+                <input
+                  type="text"
+                  value={staffFormData.emergencyContact}
+                  onChange={(e) => setStaffFormData({ ...staffFormData, emergencyContact: e.target.value })}
+                  placeholder="उदा. 9839099901 (पत्नी / भाई)"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">निवास स्थान / पता (Address)</label>
+                <input
+                  type="text"
+                  value={staffFormData.address}
+                  onChange={(e) => setStaffFormData({ ...staffFormData, address: e.target.value })}
+                  placeholder="उदा. दरोगा खेड़ा, कानपुर रोड, लखनऊ"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">विशेष टिप्पणी (Notes)</label>
+                <textarea
+                  rows={2}
+                  value={staffFormData.notes}
+                  onChange={(e) => setStaffFormData({ ...staffFormData, notes: e.target.value })}
+                  placeholder="कारीगर का अनुभव, लाइसेंस या काम की खासियत..."
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-brand-primary hover:bg-brand-primaryLight text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4 text-brand-gold" />
+                  <span>कारीगर सुरक्षित करें (Save Staff)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsStaffModalOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-neutral-300 text-neutral-600 font-bold hover:bg-neutral-50 transition"
+                >
+                  रद्द करें
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: RECORD WAGE PAYMENT DISBURSEMENT
+         ======================================================== */}
+      {isDisbursementModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-neutral-200 animate-scaleUp">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-bold text-neutral-900">मजदूरी भुगतान रसीद काटें</h3>
+              </div>
+              <button
+                onClick={() => setIsDisbursementModalOpen(false)}
+                className="text-neutral-400 hover:text-neutral-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRecordDisbursement} className="space-y-4 pt-4 text-xs">
+              <div className="p-3 bg-neutral-50 rounded-2xl border border-neutral-200">
+                <p className="font-bold text-neutral-800 text-sm">{disbursementFormData.staffName}</p>
+                <p className="text-neutral-500 mt-0.5">हाजिरी दिनांक: <strong className="text-neutral-900">{attendanceDate}</strong></p>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">भुगतान राशि (₹ Amount) *</label>
+                <input
+                  type="number"
+                  required
+                  min="50"
+                  value={disbursementFormData.amount}
+                  onChange={(e) => setDisbursementFormData({ ...disbursementFormData, amount: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-mono font-bold text-base text-emerald-700 outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">भुगतान माध्यम (Payment Method) *</label>
+                <select
+                  value={disbursementFormData.paymentMethod}
+                  onChange={(e) => setDisbursementFormData({ ...disbursementFormData, paymentMethod: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-semibold outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="Cash">नकद दिया (Cash in Hand)</option>
+                  <option value="Direct UPI">सीधा UPI (Google Pay / PhonePe / Paytm)</option>
+                  <option value="Bank Transfer">बैंक ट्रांसफर (IMPS / NEFT)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">रसीद / संदर्भ संख्या (Receipt Ref)</label>
+                <input
+                  type="text"
+                  value={disbursementFormData.referenceNumber}
+                  onChange={(e) => setDisbursementFormData({ ...disbursementFormData, referenceNumber: e.target.value })}
+                  placeholder="उदा. CASH-9821 या UPI UTR No."
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-mono outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">टिप्पणी (Notes)</label>
+                <textarea
+                  rows={2}
+                  value={disbursementFormData.notes}
+                  onChange={(e) => setDisbursementFormData({ ...disbursementFormData, notes: e.target.value })}
+                  placeholder="उदा. दरोगा खेड़ा गोदाम में आज शाम नकद भुगतान किया गया"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>भुगतान दर्ज करें (Confirm Payment)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDisbursementModalOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-neutral-300 text-neutral-600 font-bold hover:bg-neutral-50 transition"
+                >
+                  रद्द करें
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

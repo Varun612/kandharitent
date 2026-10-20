@@ -64,13 +64,19 @@ export const HERO_SETUPS = [
 const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
   const [activeSetupIndex, setActiveSetupIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isVideoMode, setIsVideoMode] = useState(false);
+  const [isVideoMode, setIsVideoMode] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(mediaQuery.matches);
-    const handler = (e) => setPrefersReducedMotion(e.matches);
+    if (mediaQuery.matches) {
+      setIsVideoMode(false);
+    }
+    const handler = (e) => {
+      setPrefersReducedMotion(e.matches);
+      if (e.matches) setIsVideoMode(false);
+    };
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
@@ -122,10 +128,9 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
           </div>
         ))}
 
-        {/* High-Contrast Luxury Vignette & Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/65 to-brand-dark/45" />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/90 via-brand-dark/50 to-transparent" />
-        <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/30 to-black/80" />
+        {/* Radiant, High-Visibility Overlays that preserve photography and video brilliance */}
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/85 via-transparent to-black/25 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/75 via-brand-dark/35 to-transparent pointer-events-none" />
       </div>
 
       {/* Top Brand Banner & Trust Badges */}
@@ -174,23 +179,23 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
       </div>
 
       {/* Main Editorial Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 w-full flex-1 flex flex-col justify-center">
-        <div className="max-w-3xl space-y-5 animate-fade-in">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 w-full flex-1 flex flex-col justify-center">
+        <div className="max-w-2xl lg:max-w-3xl space-y-4 sm:space-y-5 animate-fade-in bg-black/45 backdrop-blur-md p-6 sm:p-9 rounded-3xl border border-white/20 shadow-2xl">
           
           {/* Active Setup Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-brand-primary/80 border border-brand-gold/40 text-brand-goldLight text-xs font-bold uppercase tracking-widest shadow-md">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-brand-primary/90 border border-brand-gold/40 text-brand-goldLight text-xs font-bold uppercase tracking-widest shadow-md">
             <span>{currentSetup.tag}</span>
             <span className="text-brand-gold">&bull;</span>
             <span className="text-white/90 text-[11px] font-normal">{currentSetup.locality}</span>
           </div>
 
           {/* Majestic Heading */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tight text-white leading-[1.15] drop-shadow-2xl">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-white leading-[1.2] drop-shadow-xl">
             {currentSetup.title}
           </h1>
 
           {/* Subtitle / Description */}
-          <p className="text-sm sm:text-base lg:text-lg text-neutral-200/95 leading-relaxed max-w-2xl drop-shadow-md">
+          <p className="text-xs sm:text-sm lg:text-base text-neutral-100 leading-relaxed max-w-2xl font-medium drop-shadow-md">
             {currentSetup.subtitle}
           </p>
 

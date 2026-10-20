@@ -188,5 +188,101 @@ export const api = {
   submitChatEnquiry: (conversationId, details = {}) => request(`/chat/conversation/${conversationId}/submit`, {
     method: 'POST',
     body: JSON.stringify(details)
+  }),
+
+  // Physical Inventory Management
+  getInventory: () => request('/inventory'),
+  getPhysicalInventory: () => request('/inventory'),
+  adjustInventory: (payload) => request('/inventory/adjust', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  adjustPhysicalStock: (payload) => request('/inventory/adjust', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getInventoryLogs: () => request('/inventory/logs'),
+  getInventoryAuditLogs: () => request('/inventory/logs'),
+  updateInventoryItem: (id, payload) => request(`/inventory/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+
+  // Staff and Labour Management
+  getStaffList: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/staff${q ? `?${q}` : ''}`);
+  },
+  getStaff: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/staff${q ? `?${q}` : ''}`);
+  },
+  createStaffMember: (payload) => request('/staff', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  createStaff: (payload) => request('/staff', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  updateStaffMember: (id, payload) => request(`/staff/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+  updateStaff: (id, payload) => request(`/staff/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+  getAttendance: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/staff/attendance${q ? `?${q}` : ''}`);
+  },
+  recordAttendance: (payload) => request('/staff/attendance', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  markAttendance: (payload) => request('/staff/attendance', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  calculateWages: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/staff/wages${q ? `?${q}` : ''}`);
+  },
+  getWageSummary: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/staff/wage-summary${q ? `?${q}` : ''}`);
+  },
+  recordWagePayment: (payload) => request('/staff/payments', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  recordWageDisbursement: (payload) => request('/staff/payments', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getWageDisbursements: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/staff/payments${q ? `?${q}` : ''}`);
+  },
+
+  // Website Visitor Analytics
+  logAnalyticsEvent: (payload) => request('/analytics/event', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getAnalyticsSummary: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/analytics/summary${q ? `?${q}` : ''}`);
+  },
+
+  // Voice & Typed Master AI Agent
+  queryMasterAgent: (payload) => request('/agent/query', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  confirmMasterAgentAction: (payload) => request('/agent/confirm-action', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   })
 };

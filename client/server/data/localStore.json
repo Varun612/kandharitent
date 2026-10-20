@@ -181,7 +181,7 @@
       "name": "Halwai Kitchen Pandal",
       "category": "Tents & Canopies",
       "categoryId": "tents-canopies",
-      "description": "Enclosed fire-resistant kitchen & cooking pandal setup specifically for caterers and halwai teams.",
+      "description": "Heavy duty fire-retardant preparation canopy for halwai bhattis, exhaust ventilation, and food staging area. Custom quotation provided based on chef requirement.",
       "rentalPrice": 5,
       "ratePerSqFt": 5,
       "priceUnit": "per sq.ft per day",
@@ -209,7 +209,8 @@
       "availableQuantity": 8,
       "availabilityStatus": "Available",
       "imageUrl": "/media/tents/tent-2.jpg",
-      "featured": false
+      "featured": false,
+      "priceNote": "Request Quotation (Chef / Event Size Specific)"
     },
     {
       "id": "item-tent-waterproof",
@@ -328,6 +329,51 @@
       "availabilityStatus": "Available",
       "imageUrl": "/media/stage/stage-1.jpg",
       "featured": false
+    },
+    {
+      "id": "item-sofa-1seater",
+      "name": "Single VIP Velvet Sofa Chair",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Plush cushioned single-seater luxury sofa chair with golden borders, ideal for stage and front row VIP seating.",
+      "rentalPrice": 400,
+      "priceUnit": "per piece per day",
+      "billingUnit": "per piece per day",
+      "durationSensitive": true,
+      "availableQuantity": 40,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/seating/seating-1.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-sofa-4seater",
+      "name": "4-Seater Luxury Sofa Lounge Configuration",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Complete 4-seater VIP lounge cluster including two 2-seater Maharaja sofas and center table.",
+      "rentalPrice": 1600,
+      "priceUnit": "per set per day",
+      "billingUnit": "per set per day",
+      "durationSensitive": true,
+      "availableQuantity": 10,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/seating/seating-3.jpg",
+      "featured": true
+    },
+    {
+      "id": "item-sofa-6seater",
+      "name": "6-Seater Royal VIP Lounge Configuration",
+      "category": "Chairs & Seating",
+      "categoryId": "chairs-seating",
+      "description": "Grand royal seating enclosure with three 2-seater Maharaja sofas, coffee table, and floral side runners.",
+      "rentalPrice": 2400,
+      "priceUnit": "per set per day",
+      "billingUnit": "per set per day",
+      "durationSensitive": true,
+      "availableQuantity": 6,
+      "availabilityStatus": "Available",
+      "imageUrl": "/media/seating/seating-4.jpg",
+      "featured": true
     }
   ],
   "categories": [
@@ -6242,6 +6288,1659 @@
   ],
   "enquiries": [
     {
+      "id": "ENQ-779980",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "general",
+      "customerName": "Rohit Dhawan",
+      "phone": "7355059566",
+      "whatsappNumber": "7355059566",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [
+        "Tent-house equipment rentals"
+      ],
+      "eventDate": "2026-10-20",
+      "startDate": "2026-10-20",
+      "endDate": "2026-10-20",
+      "rentalDays": 1,
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventVenueAddress": "dwaraka shree lawn",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 200,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T03:29:56.822Z"
+    },
+    {
+      "id": "ENQ-318817",
+      "customerId": "cust-mvg2u5bp-gubdx",
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Vikramaditya Verma",
+      "phone": "9305465848",
+      "whatsappNumber": "9305465848",
+      "email": "vikram.verma@example.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-16",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "lineItems": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "subtotal": 8500,
+      "cartage": 500,
+      "labour": 500,
+      "discount": 500,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 9000,
+      "advancePaid": 4500,
+      "balanceDue": 4500,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "Special festive family discount applied.",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:41:27.707Z",
+      "quotationAcceptedAt": "2026-10-20T02:41:27.759Z",
+      "lastPaymentOrderId": "order_test_1792464087785_cbbump",
+      "paymentRecords": [
+        {
+          "paymentId": "pay_test_1792464087798",
+          "orderId": "order_test_1792464087785_cbbump",
+          "amount": 4500,
+          "currency": "INR",
+          "method": "Razorpay",
+          "isTestMode": true,
+          "status": "Captured",
+          "verifiedAt": "2026-10-20T02:41:27.808Z"
+        }
+      ],
+      "paymentStatus": "Partially Paid",
+      "confirmedAt": "2026-10-20T02:41:27.808Z"
+    },
+    {
+      "id": "ENQ-837093",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:41:27.686Z"
+    },
+    {
+      "id": "ENQ-637007",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:41:27.674Z"
+    },
+    {
+      "id": "ENQ-397912",
+      "customerId": "cust-mvg2u5bp-gubdx",
+      "conversationId": "conv-mvg2u5g9-vkh2a",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792464086978@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 8:11:27 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 8:11:27 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 8:11:27 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 8:11:27 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 8:11:27 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 8:11:27 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 8:11:27 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-22",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-944089",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:41:27.309Z"
+    },
+    {
+      "id": "ENQ-1792464086958",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-20T02:41:26.958Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
+      "id": "ENQ-821796",
+      "customerId": "cust-mvg2s022-lvh6o",
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Vikramaditya Verma",
+      "phone": "9305465848",
+      "whatsappNumber": "9305465848",
+      "email": "vikram.verma@example.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-16",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "lineItems": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "subtotal": 8500,
+      "cartage": 500,
+      "labour": 500,
+      "discount": 500,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 9000,
+      "advancePaid": 4500,
+      "balanceDue": 4500,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "Special festive family discount applied.",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:39:47.627Z",
+      "quotationAcceptedAt": "2026-10-20T02:39:47.682Z",
+      "lastPaymentOrderId": "order_test_1792463987704_8omunh",
+      "paymentRecords": [
+        {
+          "paymentId": "pay_test_1792463987717",
+          "orderId": "order_test_1792463987704_8omunh",
+          "amount": 4500,
+          "currency": "INR",
+          "method": "Razorpay",
+          "isTestMode": true,
+          "status": "Captured",
+          "verifiedAt": "2026-10-20T02:39:47.728Z"
+        }
+      ],
+      "paymentStatus": "Partially Paid",
+      "confirmedAt": "2026-10-20T02:39:47.728Z"
+    },
+    {
+      "id": "ENQ-582663",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:39:47.604Z"
+    },
+    {
+      "id": "ENQ-550688",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:39:47.590Z"
+    },
+    {
+      "id": "ENQ-966217",
+      "customerId": "cust-mvg2s022-lvh6o",
+      "conversationId": "conv-mvg2s087-jlu3k",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792463986856@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 8:09:47 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 8:09:47 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 8:09:47 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 8:09:47 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 8:09:47 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 8:09:47 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 8:09:47 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-22",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-123763",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:39:47.214Z"
+    },
+    {
+      "id": "ENQ-1792463986836",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-20T02:39:46.836Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
+      "id": "ENQ-979424",
+      "customerId": "cust-mvg22cl6-58bwm",
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Vikramaditya Verma",
+      "phone": "9305465848",
+      "whatsappNumber": "9305465848",
+      "email": "vikram.verma@example.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-16",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "lineItems": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "subtotal": 8500,
+      "cartage": 500,
+      "labour": 500,
+      "discount": 500,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 9000,
+      "advancePaid": 4500,
+      "balanceDue": 4500,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "Special festive family discount applied.",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:50.760Z",
+      "quotationAcceptedAt": "2026-10-20T02:19:50.837Z",
+      "lastPaymentOrderId": "order_test_1792462790889_uddcwi",
+      "paymentRecords": [
+        {
+          "paymentId": "pay_test_1792462791024",
+          "orderId": "order_test_1792462790889_uddcwi",
+          "amount": 4500,
+          "currency": "INR",
+          "method": "Razorpay",
+          "isTestMode": true,
+          "status": "Captured",
+          "verifiedAt": "2026-10-20T02:19:51.055Z"
+        }
+      ],
+      "paymentStatus": "Partially Paid",
+      "confirmedAt": "2026-10-20T02:19:51.055Z"
+    },
+    {
+      "id": "ENQ-448510",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:50.734Z"
+    },
+    {
+      "id": "ENQ-524625",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:50.722Z"
+    },
+    {
+      "id": "ENQ-481570",
+      "customerId": "cust-mvg22cl6-58bwm",
+      "conversationId": "conv-mvg22cq0-99ng4",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792462790005@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 7:49:50 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 7:49:50 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 7:49:50 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 7:49:50 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 7:49:50 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 7:49:50 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 7:49:50 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-22",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-525646",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:50.363Z"
+    },
+    {
+      "id": "ENQ-1792462789975",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-20T02:19:49.975Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
+      "id": "ENQ-558063",
+      "customerId": "cust-mvg21nl3-0rkcu",
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Vikramaditya Verma",
+      "phone": "9305465848",
+      "whatsappNumber": "9305465848",
+      "email": "vikram.verma@example.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-16",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "lineItems": [
+        {
+          "name": "Velvet Chair with Cover",
+          "quantity": 100,
+          "unitRate": 45,
+          "lineTotal": 4500
+        },
+        {
+          "name": "Round Table with Cover",
+          "quantity": 10,
+          "unitRate": 200,
+          "effectiveDays": 2,
+          "lineTotal": 4000
+        }
+      ],
+      "subtotal": 8500,
+      "cartage": 500,
+      "labour": 500,
+      "discount": 500,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 9000,
+      "advancePaid": 0,
+      "balanceDue": 9000,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "Special festive family discount applied.",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Approved — Awaiting Customer Acceptance",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:18.393Z"
+    },
+    {
+      "id": "ENQ-392662",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:18.366Z"
+    },
+    {
+      "id": "ENQ-340636",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:18.353Z"
+    },
+    {
+      "id": "ENQ-793198",
+      "customerId": "cust-mvg21nl3-0rkcu",
+      "conversationId": "conv-mvg21npr-qfapy",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792462757610@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 7:49:17 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 7:49:17 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 7:49:17 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 7:49:18 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 7:49:18 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 7:49:18 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 7:49:18 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-22",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-660774",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:19:17.957Z"
+    },
+    {
+      "id": "ENQ-1792462757581",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-20T02:19:17.581Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
+      "id": "ENQ-564765",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:18:34.770Z"
+    },
+    {
+      "id": "ENQ-840548",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:18:34.757Z"
+    },
+    {
+      "id": "ENQ-953059",
+      "customerId": "cust-mvg20q01-10kty",
+      "conversationId": "conv-mvg20q48-6noe0",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792462714099@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 7:48:34 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 7:48:34 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 7:48:34 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 7:48:34 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 7:48:34 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 7:48:34 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 7:48:34 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-22",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-524615",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:18:34.414Z"
+    },
+    {
+      "id": "ENQ-1792462714079",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-20T02:18:34.079Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
+      "id": "ENQ-142182",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543211",
+      "whatsappNumber": "9876543211",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:17:42.219Z"
+    },
+    {
+      "id": "ENQ-505478",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Rohit Verma",
+      "phone": "9876543210",
+      "whatsappNumber": "9876543210",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Wedding Tent & Catering",
+      "servicesList": [
+        "Wedding Tent & Catering"
+      ],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Alambagh, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 350,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:17:42.204Z"
+    },
+    {
+      "id": "ENQ-283232",
+      "customerId": "cust-mvg1zlc2-xme42",
+      "conversationId": "conv-mvg1zlhy-697ga",
+      "enquiryType": "chat",
+      "customerName": "Vikas Malhotra",
+      "phone": "9839123456",
+      "whatsappNumber": "9839123456",
+      "email": "client_1792462661377@test.com",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "German Hangar & Royal Stage Decor",
+      "servicesList": [
+        "Dwarka Shri Lawn Booking"
+      ],
+      "eventDate": "2026-11-20",
+      "locality": "Kanpur Road / Daroga Kheda",
+      "eventType": "Wedding",
+      "guestCount": 450,
+      "budgetRange": "Custom Quote on Request",
+      "detailedRequirements": "Requires luxury waterproof German hangar tent and floral mandap.",
+      "notes": "Customer Chat Interaction Transcript:\n[ASSISTANT - 7:47:41 AM]: Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.\n\n[USER - 7:47:41 AM]: Khaane ka menu bhejiye\n\n[ASSISTANT - 7:47:41 AM]: Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?\n\n[USER - 7:47:41 AM]: Aapke lawn ki photos hain?\n\n[ASSISTANT - 7:47:41 AM]: Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?\n\n[USER - 7:47:41 AM]: Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath\n\n[ASSISTANT - 7:47:41 AM]: Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.\n\nClient Notes: Requires luxury waterproof German hangar tent and floral mandap.",
+      "consentGiven": true,
+      "status": "Confirmed",
+      "referredTo": "",
+      "nextFollowUpDate": "2026-10-22",
+      "internalNotes": "Advance payment received. Booking locked for Dwarka Shri Lawn."
+    },
+    {
+      "id": "ENQ-758746",
+      "customerId": null,
+      "conversationId": null,
+      "enquiryType": "rental",
+      "customerName": "Guest User",
+      "phone": "9839999999",
+      "whatsappNumber": "9839999999",
+      "email": "",
+      "preferredContactMethod": "Phone",
+      "serviceRequired": "Tent-house equipment rentals",
+      "servicesList": [],
+      "eventDate": "2026-12-15",
+      "startDate": "2026-12-15",
+      "endDate": "2026-12-15",
+      "rentalDays": 1,
+      "locality": "Kanpur Road, Lucknow",
+      "eventVenueAddress": "",
+      "eventType": "Wedding / Celebration",
+      "guestCount": 0,
+      "budgetRange": "Flexible",
+      "items": [],
+      "lineItems": [],
+      "subtotal": 0,
+      "cartage": 0,
+      "labour": 0,
+      "discount": 0,
+      "discountReason": "",
+      "manualAdjustment": 0,
+      "adjustmentReason": "",
+      "grandTotal": 0,
+      "advancePaid": 0,
+      "balanceDue": 0,
+      "quotationNumber": "",
+      "quotationDate": "",
+      "quotationNotes": "",
+      "notes": "",
+      "detailedRequirements": "",
+      "consentGiven": true,
+      "status": "Pending Admin Approval",
+      "referredTo": "",
+      "nextFollowUpDate": "",
+      "internalNotes": "",
+      "createdAt": "2026-10-20T02:17:41.767Z"
+    },
+    {
+      "id": "ENQ-1792462661352",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "9305465848",
+      "phone": "9305465848",
+      "customerEmail": "",
+      "email": "",
+      "serviceType": "Catering & Banquet Service",
+      "serviceRequired": "Awadhi Royal Catering & Banquet Menu",
+      "selectedPackage": null,
+      "ratePerPerson": null,
+      "estimatedTotal": null,
+      "eventDate": "2026-11-28",
+      "guestCount": 300,
+      "locality": "Kanpur Road, Lucknow",
+      "specialInstructions": "",
+      "status": "New",
+      "source": "Catering Menu Builder",
+      "userId": null,
+      "customMenu": [
+        {
+          "name": "Kashmiri Kahwa",
+          "category": "Welcome Drinks & Starters"
+        },
+        {
+          "name": "Paneer Tikka Angara",
+          "category": "Barbecue & Tandoor Live Grill"
+        },
+        {
+          "name": "Shahi Paneer Awadhi Khas",
+          "category": "Paneer Specialities"
+        },
+        {
+          "name": "Dal Makhani Bukhara",
+          "category": "Dal Varieties"
+        },
+        {
+          "name": "Lucknowi Shahi Tukda with Rabdi",
+          "category": "Desserts & Traditional Sweets"
+        }
+      ],
+      "totalDishesSelected": 5,
+      "createdAt": "2026-10-20T02:17:41.352Z",
+      "notes": "Custom catering quotation requested for 300 guests with 5 selected dishes."
+    },
+    {
       "id": "ENQ-880386",
       "customerId": null,
       "conversationId": null,
@@ -7525,6 +9224,1494 @@
         }
       ],
       "lastActivityAt": "2026-10-18T22:05:47.320Z"
+    },
+    {
+      "id": "conv-mvg1zlhy-697ga",
+      "customerId": "cust-mvg1zlc2-xme42",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-283232",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvg1zlhy-3g8yq",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-20T02:17:41.782Z"
+        },
+        {
+          "id": "msg-mvg1zlij-4iyif",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-20T02:17:41.803Z"
+        },
+        {
+          "id": "msg-mvg1zlij-48xk6",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:17:41.803Z"
+        },
+        {
+          "id": "msg-mvg1zljt-kkrcq",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-20T02:17:41.850Z"
+        },
+        {
+          "id": "msg-mvg1zlju-ficgq",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:17:41.850Z"
+        },
+        {
+          "id": "msg-mvg1zlk7-zouq3",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-20T02:17:41.863Z"
+        },
+        {
+          "id": "msg-mvg1zlk7-d8bmm",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-20T02:17:41.863Z"
+        },
+        {
+          "id": "msg-mvg1zll3-wc7bn",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-283232**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-20T02:17:41.895Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-20T02:17:41.863Z"
+    },
+    {
+      "id": "conv-mvg20q48-6noe0",
+      "customerId": "cust-mvg20q01-10kty",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-953059",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvg20q48-2yn2q",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-20T02:18:34.424Z"
+        },
+        {
+          "id": "msg-mvg20q4s-3vtzt",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-20T02:18:34.444Z"
+        },
+        {
+          "id": "msg-mvg20q4s-hoinb",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:18:34.444Z"
+        },
+        {
+          "id": "msg-mvg20q5s-qsw2k",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-20T02:18:34.480Z"
+        },
+        {
+          "id": "msg-mvg20q5s-8r8t7",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:18:34.480Z"
+        },
+        {
+          "id": "msg-mvg20q67-g9dtn",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-20T02:18:34.495Z"
+        },
+        {
+          "id": "msg-mvg20q67-75i4w",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-20T02:18:34.495Z"
+        },
+        {
+          "id": "msg-mvg20q6v-h566h",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-953059**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-20T02:18:34.519Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-20T02:18:34.495Z"
+    },
+    {
+      "id": "conv-mvg21npr-qfapy",
+      "customerId": "cust-mvg21nl3-0rkcu",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-793198",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvg21npr-e11l3",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-20T02:19:17.967Z"
+        },
+        {
+          "id": "msg-mvg21nqb-s2pil",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-20T02:19:17.987Z"
+        },
+        {
+          "id": "msg-mvg21nqb-p2jpw",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:19:17.987Z"
+        },
+        {
+          "id": "msg-mvg21nrd-toe8u",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-20T02:19:18.025Z"
+        },
+        {
+          "id": "msg-mvg21nrd-41md5",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:19:18.025Z"
+        },
+        {
+          "id": "msg-mvg21nrs-4uwn9",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-20T02:19:18.040Z"
+        },
+        {
+          "id": "msg-mvg21nrs-37up6",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-20T02:19:18.040Z"
+        },
+        {
+          "id": "msg-mvg21nso-m3yj4",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-793198**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-20T02:19:18.072Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-20T02:19:18.040Z"
+    },
+    {
+      "id": "conv-mvg22cq0-99ng4",
+      "customerId": "cust-mvg22cl6-58bwm",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-481570",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvg22cq0-5pz6w",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-20T02:19:50.376Z"
+        },
+        {
+          "id": "msg-mvg22cqm-9wh1w",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-20T02:19:50.398Z"
+        },
+        {
+          "id": "msg-mvg22cqm-uz9wr",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:19:50.398Z"
+        },
+        {
+          "id": "msg-mvg22crk-8s9gt",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-20T02:19:50.432Z"
+        },
+        {
+          "id": "msg-mvg22crk-wxams",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:19:50.432Z"
+        },
+        {
+          "id": "msg-mvg22crx-za9c0",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-20T02:19:50.445Z"
+        },
+        {
+          "id": "msg-mvg22crx-9wejm",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-20T02:19:50.445Z"
+        },
+        {
+          "id": "msg-mvg22csn-1a532",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-481570**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-20T02:19:50.471Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-20T02:19:50.445Z"
+    },
+    {
+      "id": "conv-mvg2s087-jlu3k",
+      "customerId": "cust-mvg2s022-lvh6o",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-966217",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvg2s087-9w0py",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-20T02:39:47.239Z"
+        },
+        {
+          "id": "msg-mvg2s08s-0kkpm",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-20T02:39:47.260Z"
+        },
+        {
+          "id": "msg-mvg2s08s-8ll21",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:39:47.260Z"
+        },
+        {
+          "id": "msg-mvg2s09z-lj3vi",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-20T02:39:47.303Z"
+        },
+        {
+          "id": "msg-mvg2s09z-2wu46",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:39:47.303Z"
+        },
+        {
+          "id": "msg-mvg2s0af-ev8hc",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-20T02:39:47.319Z"
+        },
+        {
+          "id": "msg-mvg2s0af-y4x72",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-20T02:39:47.319Z"
+        },
+        {
+          "id": "msg-mvg2s0b3-1518e",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-966217**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-20T02:39:47.343Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-20T02:39:47.319Z"
+    },
+    {
+      "id": "conv-mvg2u5g9-vkh2a",
+      "customerId": "cust-mvg2u5bp-gubdx",
+      "status": "submitted",
+      "recognizedIntent": "general_planning",
+      "collectedState": {
+        "customerName": "",
+        "phone": "",
+        "whatsappNumber": "",
+        "preferredContactMethod": "Phone",
+        "eventType": "Wedding",
+        "eventDate": "20 November",
+        "locality": "Kanpur Road, Lucknow",
+        "guestCount": 400,
+        "selectedServices": [
+          "Dwarka Shri Lawn Booking"
+        ],
+        "budget": "",
+        "specialRequests": "",
+        "enquiryReference": "ENQ-397912",
+        "consentGiven": true
+      },
+      "messages": [
+        {
+          "id": "msg-mvg2u5g9-88byz",
+          "role": "assistant",
+          "content": "Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.",
+          "timestamp": "2026-10-20T02:41:27.321Z"
+        },
+        {
+          "id": "msg-mvg2u5gv-sh3nt",
+          "role": "user",
+          "content": "Khaane ka menu bhejiye",
+          "timestamp": "2026-10-20T02:41:27.343Z"
+        },
+        {
+          "id": "msg-mvg2u5gv-otsoq",
+          "role": "assistant",
+          "content": "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).\n\nHamare tiered catering rates:\n• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti\n• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti\n• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.\n• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.\n\nAap kis event date aur kitne guests ke liye menu plan kar rahe hain?",
+          "intent": "catering_menu",
+          "galleryCategory": "Catering",
+          "galleryImages": [
+            {
+              "id": "gal-cat-8",
+              "title": "Full Banquet Service & Service Staff Staging",
+              "category": "Catering and food counters",
+              "categorySlug": "catering-counters",
+              "eventType": "Catering",
+              "tags": [
+                "Catering Staff",
+                "Banquet Service",
+                "Hygienic Setup"
+              ],
+              "imageUrl": "/media/catering/catering-8.jpg",
+              "caption": "Uniformed catering stewards and live kitchen staging ensuring smooth, hygienic, continuous food replenishment.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-3",
+              "title": "Grand Varmala Ceremony Stage & Lawn",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Varmala",
+              "tags": [
+                "Varmala",
+                "Stage",
+                "Grand Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-3.jpg",
+              "caption": "Panoramic celebration setting prepared for royal varmala exchange with special effect lighting.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-4",
+              "title": "Royal Sangeet & Celebration Night",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Sangeet",
+              "tags": [
+                "Sangeet",
+                "Celebration",
+                "Dance Stage"
+              ],
+              "imageUrl": "/media/weddings/wedding-4.jpg",
+              "caption": "Energetic sangeet night arrangement with truss lighting, sound platforms, and VIP baithak.",
+              "featured": false,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:41:27.343Z"
+        },
+        {
+          "id": "msg-mvg2u5hu-fnvru",
+          "role": "user",
+          "content": "Aapke lawn ki photos hain?",
+          "timestamp": "2026-10-20T02:41:27.378Z"
+        },
+        {
+          "id": "msg-mvg2u5hu-ze052",
+          "role": "assistant",
+          "content": "Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **Dwarka Shri Lawn venue and grounds** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?",
+          "intent": "gallery_request",
+          "galleryCategory": "Dwarka Shri Lawn venue and grounds",
+          "galleryImages": [
+            {
+              "id": "gal-lawn-1",
+              "title": "Dwarka Shri Lawn Panoramic Grounds",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Dwarka Shri Lawn",
+                "Kanpur Road",
+                "Lawn Grounds",
+                "Capacity 1200+"
+              ],
+              "imageUrl": "/media/lawns/lawn-main.jpg",
+              "caption": "Expansive manicured lawn with paved perimeter walkways, high boundary privacy, and direct Kanpur Road access.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-2",
+              "title": "Illuminated Evening Lawn Pathway",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Pathway",
+                "Garden Lighting",
+                "Kanpur Road"
+              ],
+              "imageUrl": "/media/gate/gate-1.jpg",
+              "caption": "Grand illuminated entry gate opposite Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-lawn-3",
+              "title": "Lawn Banquet Perimeter Setup",
+              "category": "Dwarka Shri Lawn venue and grounds",
+              "categorySlug": "lawn-venue",
+              "eventType": "Venue",
+              "tags": [
+                "Perimeter",
+                "Outdoor Banquet",
+                "Lucknow Venue"
+              ],
+              "imageUrl": "/media/weddings/wedding-5.jpg",
+              "caption": "Spacious layout leaving ample lawn area for 800-1200 guests to mingle comfortably.",
+              "featured": false,
+              "active": true
+            },
+            {
+              "id": "gal-wed-1",
+              "title": "Grand Royal Wedding Night Setup",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Wedding",
+              "tags": [
+                "Wedding",
+                "Grand Setup",
+                "Night Reception",
+                "Dwarka Shri Lawn"
+              ],
+              "imageUrl": "/media/weddings/wedding-1.jpg",
+              "caption": "Full evening reception setup at Kanpur Road venue with illuminated aisles and central guest seating.",
+              "featured": true,
+              "active": true
+            },
+            {
+              "id": "gal-wed-2",
+              "title": "Starlight Lawn Reception Ambiance",
+              "category": "Actual wedding and reception setups",
+              "categorySlug": "wedding-receptions",
+              "eventType": "Reception",
+              "tags": [
+                "Reception",
+                "Lawn Lights",
+                "Outdoor Wedding"
+              ],
+              "imageUrl": "/media/weddings/wedding-2.jpg",
+              "caption": "Atmospheric open-air wedding dining under sparkling overhead fairy lights.",
+              "featured": true,
+              "active": true
+            }
+          ],
+          "timestamp": "2026-10-20T02:41:27.378Z"
+        },
+        {
+          "id": "msg-mvg2u5i8-c7k99",
+          "role": "user",
+          "content": "Mujhe 20 November ko Kanpur Road par shaadi karni hai 400 guests ke saath",
+          "timestamp": "2026-10-20T02:41:27.392Z"
+        },
+        {
+          "id": "msg-mvg2u5i8-47448",
+          "role": "assistant",
+          "content": "Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.",
+          "intent": "general_planning",
+          "galleryCategory": null,
+          "galleryImages": [],
+          "timestamp": "2026-10-20T02:41:27.392Z"
+        },
+        {
+          "id": "msg-mvg2u5jd-u5820",
+          "role": "assistant",
+          "content": "Congratulations! Your enquiry has been officially registered with Reference ID **ENQ-397912**. Our team will review your requirements and reach out to you directly on 9839123456. You can also connect immediately on WhatsApp with our management desk.",
+          "timestamp": "2026-10-20T02:41:27.433Z"
+        }
+      ],
+      "lastActivityAt": "2026-10-20T02:41:27.392Z"
     }
   ],
   "users": [
@@ -7581,6 +10768,114 @@
       "passwordHash": "$2a$10$f4njPF/mV4rdtlmw9Ifmh.FdpFvDuzBTuhSeWKIaOOdeXb8IDuxgu",
       "role": "customer",
       "createdAt": "2026-10-18T22:05:47.512Z"
+    },
+    {
+      "id": "cust-mvg1zlc2-xme42",
+      "name": "Vikas Malhotra",
+      "email": "client_1792462661377@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$hc3oi3lHXKVZg8/12OsisefisZdFdD2g7IvnpxXR9b7P7QP4kj48G",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:17:41.570Z"
+    },
+    {
+      "id": "cust-mvg1zlqw-tlgkm",
+      "name": "Another Customer",
+      "email": "intruder_1792462661919@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$QTL0KDHj.it6SBQFEzmxHuJ0u2XmfsS1W/79oZCNvYuBKaAlE/8zG",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:17:42.104Z"
+    },
+    {
+      "id": "cust-mvg20q01-10kty",
+      "name": "Vikas Malhotra",
+      "email": "client_1792462714099@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$wWzLI/si8px6JQ6WtrzdmeUWEI/Z/0aVbIIF6a7b5sU/00GxkWenm",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:18:34.273Z"
+    },
+    {
+      "id": "cust-mvg20qb9-xqkq9",
+      "name": "Another Customer",
+      "email": "intruder_1792462714536@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$ywwBwJf1D4X2mn5G3si9BuGGOb6wzy3X6NQIMTduCQiwl/8ItUWwO",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:18:34.677Z"
+    },
+    {
+      "id": "cust-mvg21nl3-0rkcu",
+      "name": "Vikas Malhotra",
+      "email": "client_1792462757610@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$q2bD6SAsHCABM260o6SPIeK9dlFy3AOxQIEzuCK.NfR2h4fYZ8mnS",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:19:17.799Z"
+    },
+    {
+      "id": "cust-mvg21nxb-4s6ye",
+      "name": "Another Customer",
+      "email": "intruder_1792462758091@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$5R1hX7XG7g1yFnbcNWBhPO7jUSt.B1nPZt78QAWZpVTcB77AhoYv6",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:19:18.239Z"
+    },
+    {
+      "id": "cust-mvg22cl6-58bwm",
+      "name": "Vikas Malhotra",
+      "email": "client_1792462790005@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$qbeBEpy7SeGY1GA8ObqPvecIgJa1RJl1j/IqTQK.G6ycQn.cGB05u",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:19:50.202Z"
+    },
+    {
+      "id": "cust-mvg22cxc-u00wu",
+      "name": "Another Customer",
+      "email": "intruder_1792462790485@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$fTqRA5okaA1qmazqSnAdA.lQ8fhPzpnXbs.kAQRD2A4NoccpDXdZu",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:19:50.640Z"
+    },
+    {
+      "id": "cust-mvg2s022-lvh6o",
+      "name": "Vikas Malhotra",
+      "email": "client_1792463986856@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$KRISSZ0ZfK9dhTe.Z5KAQ.EIgTL7CXZTAdBZ7necMldr7z7R9hxxK",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:39:47.018Z"
+    },
+    {
+      "id": "cust-mvg2s0fn-i42du",
+      "name": "Another Customer",
+      "email": "intruder_1792463987366@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$wd7xNBtHEAMnNGJEQu8DN.Qt9RCIn/9DS/OZdLBRZqNAivv9oStd.",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:39:47.507Z"
+    },
+    {
+      "id": "cust-mvg2u5bp-gubdx",
+      "name": "Vikas Malhotra",
+      "email": "client_1792464086978@test.com",
+      "phone": "9839123456",
+      "passwordHash": "$2a$10$xga9G35afh6UcPr.UPeoteS9EtW5bzK4cG1lPS1gYQq7zBKNXO7k.",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:41:27.157Z"
+    },
+    {
+      "id": "cust-mvg2u5nk-5zrnq",
+      "name": "Another Customer",
+      "email": "intruder_1792464087450@test.com",
+      "phone": "9839000000",
+      "passwordHash": "$2a$10$mTOAONa/kXjGlmrFtdO1yuVXJ0pTJQ6earadb.5AsVlYHhOyQFZaO",
+      "role": "customer",
+      "createdAt": "2026-10-20T02:41:27.584Z"
     }
   ],
   "adminUsers": [
@@ -9612,6 +12907,455 @@
         "80 LED par lights & ambient illumination with 18% GST invoice"
       ],
       "isActive": true
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-mvg2u5u1-qmiew",
+      "customerId": "cust-mvg2u5bp-gubdx",
+      "enquiryId": "ENQ-318817",
+      "title": "Payment Successful & Booking Confirmed! 🎉",
+      "message": "Your payment of ₹4,500 has been verified. Your booking for 2026-12-15 is officially Confirmed.",
+      "type": "payment_success",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:41:27.817Z"
+    },
+    {
+      "id": "notif-mvg2u5sp-w8043",
+      "customerId": "cust-mvg2u5bp-gubdx",
+      "enquiryId": "ENQ-318817",
+      "title": "Quotation Accepted! 💳",
+      "message": "You accepted the quotation for 2026-12-15. Online payment via Razorpay / UPI is now unlocked.",
+      "type": "info",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:41:27.769Z"
+    },
+    {
+      "id": "notif-mvg2u5ry-ptwv5",
+      "customerId": "cust-mvg2u5bp-gubdx",
+      "enquiryId": "ENQ-318817",
+      "title": "Revised Quotation Prepared 📋",
+      "message": "Your booking quotation for 2026-12-15 has been prepared with tailored items & rates (Total: ₹9,000). Please review and accept to unlock payment.",
+      "type": "quotation_revised",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:41:27.742Z"
+    },
+    {
+      "id": "notif-mvg2s0m0-oy7qz",
+      "customerId": "cust-mvg2s022-lvh6o",
+      "enquiryId": "ENQ-821796",
+      "title": "Payment Successful & Booking Confirmed! 🎉",
+      "message": "Your payment of ₹4,500 has been verified. Your booking for 2026-12-15 is officially Confirmed.",
+      "type": "payment_success",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:39:47.736Z"
+    },
+    {
+      "id": "notif-mvg2s0kp-n2mlh",
+      "customerId": "cust-mvg2s022-lvh6o",
+      "enquiryId": "ENQ-821796",
+      "title": "Quotation Accepted! 💳",
+      "message": "You accepted the quotation for 2026-12-15. Online payment via Razorpay / UPI is now unlocked.",
+      "type": "info",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:39:47.689Z"
+    },
+    {
+      "id": "notif-mvg2s0k6-sf6pb",
+      "customerId": "cust-mvg2s022-lvh6o",
+      "enquiryId": "ENQ-821796",
+      "title": "Revised Quotation Prepared 📋",
+      "message": "Your booking quotation for 2026-12-15 has been prepared with tailored items & rates (Total: ₹9,000). Please review and accept to unlock payment.",
+      "type": "quotation_revised",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:39:47.670Z"
+    },
+    {
+      "id": "notif-mvg22d9a-zsxyv",
+      "customerId": "cust-mvg22cl6-58bwm",
+      "enquiryId": "ENQ-979424",
+      "title": "Payment Successful & Booking Confirmed! 🎉",
+      "message": "Your payment of ₹4,500 has been verified. Your booking for 2026-12-15 is officially Confirmed.",
+      "type": "payment_success",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:19:51.070Z"
+    },
+    {
+      "id": "notif-mvg22d3c-u5ugv",
+      "customerId": "cust-mvg22cl6-58bwm",
+      "enquiryId": "ENQ-979424",
+      "title": "Quotation Accepted! 💳",
+      "message": "You accepted the quotation for 2026-12-15. Online payment via Razorpay / UPI is now unlocked.",
+      "type": "info",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:19:50.856Z"
+    },
+    {
+      "id": "notif-mvg22d27-gife9",
+      "customerId": "cust-mvg22cl6-58bwm",
+      "enquiryId": "ENQ-979424",
+      "title": "Revised Quotation Prepared 📋",
+      "message": "Your booking quotation for 2026-12-15 has been prepared with tailored items & rates (Total: ₹9,000). Please review and accept to unlock payment.",
+      "type": "quotation_revised",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:19:50.815Z"
+    },
+    {
+      "id": "notif-mvg21o3g-a4w7p",
+      "customerId": "cust-mvg21nl3-0rkcu",
+      "enquiryId": "ENQ-558063",
+      "title": "Revised Quotation Prepared 📋",
+      "message": "Your booking quotation for 2026-12-15 has been prepared with tailored items & rates (Total: ₹9,000). Please review and accept to unlock payment.",
+      "type": "quotation_revised",
+      "isRead": false,
+      "createdAt": "2026-10-20T02:19:18.460Z"
+    }
+  ],
+  "inventory": [
+    {
+      "id": "inv-chair-pvc-01",
+      "name": "Plastic PVC Chairs (Commercial White)",
+      "category": "Chairs & Seating",
+      "totalQuantity": 500,
+      "availableQuantity": 470,
+      "reservedQuantity": 20,
+      "damagedQuantity": 10,
+      "inMaintenanceQuantity": 0,
+      "location": "Kanpur Road Godown Bay A",
+      "status": "In Stock",
+      "unitCost": 450,
+      "rentalRate": 15,
+      "lastAudited": "2026-10-18"
+    },
+    {
+      "id": "inv-chair-velvet-02",
+      "name": "Velvet Banquet Chairs with Covers",
+      "category": "Chairs & Seating",
+      "totalQuantity": 250,
+      "availableQuantity": 235,
+      "reservedQuantity": 10,
+      "damagedQuantity": 5,
+      "inMaintenanceQuantity": 0,
+      "location": "Daroga Kheda Covered Yard",
+      "status": "In Stock",
+      "unitCost": 1200,
+      "rentalRate": 45,
+      "lastAudited": "2026-10-18"
+    },
+    {
+      "id": "inv-chair-highback-03",
+      "name": "High-Back Royal Chairs with Satin Covers",
+      "category": "Chairs & Seating",
+      "totalQuantity": 120,
+      "availableQuantity": 110,
+      "reservedQuantity": 8,
+      "damagedQuantity": 2,
+      "inMaintenanceQuantity": 0,
+      "location": "Daroga Kheda Covered Yard",
+      "status": "In Stock",
+      "unitCost": 2200,
+      "rentalRate": 75,
+      "lastAudited": "2026-10-19"
+    },
+    {
+      "id": "inv-table-rect-04",
+      "name": "Commercial Buffet Tables (2.5 × 5 ft)",
+      "category": "Tables & Dining",
+      "totalQuantity": 80,
+      "availableQuantity": 74,
+      "reservedQuantity": 4,
+      "damagedQuantity": 2,
+      "inMaintenanceQuantity": 0,
+      "location": "Kanpur Road Godown Bay B",
+      "status": "In Stock",
+      "unitCost": 1800,
+      "rentalRate": 75,
+      "lastAudited": "2026-10-18"
+    },
+    {
+      "id": "inv-table-round-05",
+      "name": "Round VIP Dining Tables with Frills",
+      "category": "Tables & Dining",
+      "totalQuantity": 30,
+      "availableQuantity": 28,
+      "reservedQuantity": 2,
+      "damagedQuantity": 0,
+      "inMaintenanceQuantity": 0,
+      "location": "Daroga Kheda Main Hall",
+      "status": "In Stock",
+      "unitCost": 3200,
+      "rentalRate": 200,
+      "lastAudited": "2026-10-19"
+    },
+    {
+      "id": "inv-sofa-maharaja-06",
+      "name": "Two-Seater Maharaja Sofas (Golden Carved)",
+      "category": "Chairs & Seating",
+      "totalQuantity": 14,
+      "availableQuantity": 12,
+      "reservedQuantity": 2,
+      "damagedQuantity": 0,
+      "inMaintenanceQuantity": 0,
+      "location": "VIP Stage Locker Bay",
+      "status": "In Stock",
+      "unitCost": 12000,
+      "rentalRate": 800,
+      "lastAudited": "2026-10-19"
+    },
+    {
+      "id": "inv-cooler-jumbo-07",
+      "name": "Commercial Jumbo Metal Desert Coolers",
+      "category": "Cooling & Electrical",
+      "totalQuantity": 16,
+      "availableQuantity": 13,
+      "reservedQuantity": 0,
+      "damagedQuantity": 2,
+      "inMaintenanceQuantity": 1,
+      "location": "Cooler Yard West",
+      "status": "Maintenance Required",
+      "unitCost": 9500,
+      "rentalRate": 1500,
+      "lastAudited": "2026-10-19"
+    },
+    {
+      "id": "inv-tent-hangar-08",
+      "name": "German Waterproof Hangar Aluminium Trusses & Fabric",
+      "category": "Tents & Canopies",
+      "totalQuantity": 12000,
+      "availableQuantity": 9500,
+      "reservedQuantity": 2500,
+      "damagedQuantity": 0,
+      "inMaintenanceQuantity": 0,
+      "location": "Truss Yard East",
+      "status": "In Stock",
+      "unitCost": 180,
+      "rentalRate": 30,
+      "lastAudited": "2026-10-17"
+    },
+    {
+      "id": "inv-carpet-red-09",
+      "name": "Red Velvet Walkway Carpet Rolls (sq ft)",
+      "category": "Decor & Carpets",
+      "totalQuantity": 8000,
+      "availableQuantity": 7200,
+      "reservedQuantity": 700,
+      "damagedQuantity": 100,
+      "inMaintenanceQuantity": 0,
+      "location": "Carpet Roll Stack",
+      "status": "In Stock",
+      "unitCost": 45,
+      "rentalRate": 3,
+      "lastAudited": "2026-10-18"
+    }
+  ],
+  "inventory_logs": [
+    {
+      "id": "log-01",
+      "itemId": "inv-chair-pvc-01",
+      "itemName": "Plastic PVC Chairs (Commercial White)",
+      "action": "record_damage",
+      "quantity": 10,
+      "previousQuantity": 0,
+      "newQuantity": 10,
+      "reason": "Leg cracked during heavy rain wedding packup",
+      "performedBy": "Admin (Mother)",
+      "timestamp": "2026-10-18T18:30:00.000Z"
+    },
+    {
+      "id": "log-02",
+      "itemId": "inv-cooler-jumbo-07",
+      "itemName": "Commercial Jumbo Metal Desert Coolers",
+      "action": "maintenance_sent",
+      "quantity": 1,
+      "reason": "Water pump winding inspection needed",
+      "performedBy": "Admin (Mother)",
+      "timestamp": "2026-10-19T11:15:00.000Z"
+    }
+  ],
+  "staff": [
+    {
+      "id": "staff-01",
+      "name": "Ram Prasad Yadav",
+      "phone": "9839012345",
+      "role": "Fitter",
+      "dailyWage": 500,
+      "status": "Active",
+      "joiningDate": "2024-03-01",
+      "emergencyContact": "9839099901 (Wife)",
+      "address": "Daroga Kheda, Kanpur Road, Lucknow",
+      "notes": "Senior tent rigger & bamboo framework master"
+    },
+    {
+      "id": "staff-02",
+      "name": "Manoj Kumar Verma",
+      "phone": "9839023456",
+      "role": "Driver",
+      "dailyWage": 550,
+      "status": "Active",
+      "joiningDate": "2024-05-15",
+      "emergencyContact": "9839099902 (Brother)",
+      "address": "Transport Nagar, Lucknow",
+      "notes": "Licensed commercial Bolero Pickup & Tata 407 driver"
+    },
+    {
+      "id": "staff-03",
+      "name": "Suresh Pal",
+      "phone": "9839034567",
+      "role": "Labourer",
+      "dailyWage": 500,
+      "status": "Active",
+      "joiningDate": "2024-06-10",
+      "emergencyContact": "9839099903 (Family)",
+      "address": "Alambagh, Lucknow",
+      "notes": "Experienced seating and table layout crew"
+    },
+    {
+      "id": "staff-04",
+      "name": "Dharmendra Singh",
+      "phone": "9839045678",
+      "role": "Labourer",
+      "dailyWage": 500,
+      "status": "Active",
+      "joiningDate": "2024-08-01",
+      "emergencyContact": "9839099904 (Brother)",
+      "address": "Sarojini Nagar, Lucknow",
+      "notes": "Heavy loading, unloading and carpet installer"
+    },
+    {
+      "id": "staff-05",
+      "name": "Santosh Rawat",
+      "phone": "9839056789",
+      "role": "Fitter",
+      "dailyWage": 500,
+      "status": "Active",
+      "joiningDate": "2024-09-12",
+      "emergencyContact": "9839099905 (Wife)",
+      "address": "Banthra, Kanpur Road, Lucknow",
+      "notes": "Lighting wiring, halwai kitchen burner connections"
+    }
+  ],
+  "attendance": [
+    {
+      "id": "att-staff-01-2026-10-20",
+      "staffId": "staff-01",
+      "staffName": "Ram Prasad Yadav",
+      "role": "Fitter",
+      "dailyWage": 500,
+      "date": "2026-10-20",
+      "status": "Present",
+      "calculatedWage": 500,
+      "overtimeHours": 0,
+      "markedAt": "2026-10-20T04:07:45.831Z"
+    },
+    {
+      "id": "att-staff-02-2026-10-20",
+      "staffId": "staff-02",
+      "staffName": "Manoj Kumar Verma",
+      "role": "Driver",
+      "dailyWage": 550,
+      "date": "2026-10-20",
+      "status": "Present",
+      "calculatedWage": 550,
+      "overtimeHours": 0,
+      "markedAt": "2026-10-20T04:07:45.831Z"
+    },
+    {
+      "id": "att-staff-03-2026-10-20",
+      "staffId": "staff-03",
+      "staffName": "Suresh Pal",
+      "role": "Labourer",
+      "dailyWage": 500,
+      "date": "2026-10-20",
+      "status": "Half-day",
+      "calculatedWage": 250,
+      "notes": "Left after lunch due to personal work",
+      "overtimeHours": 0,
+      "markedAt": "2026-10-20T04:07:45.831Z"
+    },
+    {
+      "id": "att-staff-04-2026-10-20",
+      "staffId": "staff-04",
+      "staffName": "Dharmendra Singh",
+      "role": "Labourer",
+      "dailyWage": 500,
+      "date": "2026-10-20",
+      "status": "Present",
+      "calculatedWage": 500,
+      "overtimeHours": 0,
+      "markedAt": "2026-10-20T04:07:45.831Z"
+    },
+    {
+      "id": "att-staff-05-2026-10-20",
+      "staffId": "staff-05",
+      "staffName": "Santosh Rawat",
+      "role": "Fitter",
+      "dailyWage": 500,
+      "date": "2026-10-20",
+      "status": "Present",
+      "calculatedWage": 500,
+      "overtimeHours": 0,
+      "markedAt": "2026-10-20T04:07:45.831Z"
+    }
+  ],
+  "wage_disbursements": [
+    {
+      "id": "wage-pay-01",
+      "staffId": "staff-03",
+      "staffName": "Suresh Pal",
+      "amount": 250,
+      "paymentMethod": "Cash",
+      "referenceNumber": "CASH-WAGE-9812",
+      "notes": "Paid half-day wage in person at godown",
+      "date": "2026-10-20",
+      "disbursedAt": "2026-10-20T04:07:45.831Z"
+    }
+  ],
+  "analytics_events": [
+    {
+      "id": "evt-01",
+      "type": "pageview",
+      "page": "/",
+      "path": "/",
+      "sessionId": "sess-visitor-101",
+      "isAdmin": false,
+      "timestamp": "2026-10-20T07:15:00.000Z"
+    },
+    {
+      "id": "evt-02",
+      "type": "pageview",
+      "page": "/store",
+      "path": "/store",
+      "sessionId": "sess-visitor-101",
+      "isAdmin": false,
+      "timestamp": "2026-10-20T07:16:30.000Z"
+    },
+    {
+      "id": "evt-03",
+      "type": "cart_add",
+      "page": "/store",
+      "path": "/store",
+      "itemId": "item-sofa-2seater",
+      "sessionId": "sess-visitor-101",
+      "isAdmin": false,
+      "timestamp": "2026-10-20T07:18:00.000Z"
+    },
+    {
+      "id": "evt-04",
+      "type": "pageview",
+      "page": "/lawn",
+      "path": "/lawn",
+      "sessionId": "sess-visitor-102",
+      "isAdmin": false,
+      "timestamp": "2026-10-20T08:00:00.000Z"
+    },
+    {
+      "id": "evt-05",
+      "type": "pageview",
+      "page": "/catering",
+      "path": "/catering",
+      "sessionId": "sess-visitor-103",
+      "isAdmin": false,
+      "timestamp": "2026-10-20T08:30:00.000Z"
     }
   ]
 }

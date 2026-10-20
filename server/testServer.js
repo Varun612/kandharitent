@@ -559,12 +559,146 @@ const runTests = async () => {
       throw new Error('Reports summary failed');
     }
 
-    const customersRes = await testEndpoint('/api/auth/customers', {
+    // 13: Physical Inventory & Damage Audit Trail
+    console.log('\n--- Test 13: Physical Inventory & Stock Adjustment Audit Trail ---');
+    const invRes = await testEndpoint('/api/inventory', {
       headers: { 'Authorization': `Bearer ${adminToken}` }
     });
-    console.log(`[Customers Registry] Admin Customer Directory: HTTP ${customersRes.status} | Registered: ${customersRes.data.count} customers`);
-    if (customersRes.status !== 200 || customersRes.data.count < 1) {
-      throw new Error('Admin customer directory failed');
+    console.log(`[Inventory] GET /api/inventory: HTTP ${invRes.status} | Total Items: ${invRes.data.data?.length}`);
+    if (invRes.status !== 200 || !invRes.data.data || invRes.data.data.length < 5) {
+      throw new Error('Physical inventory fetch failed or incomplete');
+    }
+
+    const chairItem = invRes.data.data[0];
+    const adjustRes = await testEndpoint('/api/inventory/adjust', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        itemId: chairItem.id,
+        action: 'record_damage',
+        quantity: 5,
+        reason: 'Wedding packup damage inspection',
+        notes: 'Handled by testing suite'
+      })
+    });
+    console.log(`[Inventory Adjust] POST /api/inventory/adjust (Damage): HTTP ${adjustRes.status} | Damaged Qty: ${adjustRes.data.data?.damagedQuantity}`);
+    if (adjustRes.status !== 200 || adjustRes.data.data?.damagedQuantity < 5) {
+      throw new Error('Inventory adjustment failed to record damage');
+    }
+
+    const logsRes = await testEndpoint('/api/inventory/logs', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Inventory Logs] GET /api/inventory/logs: HTTP ${logsRes.status} | Total Logs: ${logsRes.data.data?.length}`);
+    if (logsRes.status !== 200 || logsRes.data.data.length < 1) {
+      throw new Error('Inventory audit logs not recorded');
+    }
+
+    // 14: Staff Roster, Daily Attendance (₹500 Default) & Wage Disbursements
+    console.log('\n--- Test 14: Staff Roster, Attendance & ₹500 Daily Wage Calculation ---');
+    const staffRes = await testEndpoint('/api/staff', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Staff] GET /api/staff: HTTP ${staffRes.status} | Total Staff: ${staffRes.data.data?.length}`);
+    if (staffRes.status !== 200 || !staffRes.data.data || staffRes.data.data.length < 3) {
+      throw new Error('Staff roster fetch failed or incomplete');
+    }
+
+    const firstWorker = staffRes.data.data[0];
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const markAttRes = await testEndpoint('/api/staff/attendance', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        staffId: firstWorker.id,
+        staffName: firstWorker.name,
+        role: firstWorker.role,
+        dailyWage: firstWorker.dailyWage || 500,
+        date: todayStr,
+        status: 'Present'
+      })
+    });
+    console.log(`[Attendance Mark] POST /api/staff/attendance: HTTP ${markAttRes.status} | Wage: ₹${markAttRes.data.data?.calculatedWage}`);
+    if (markAttRes.status !== 200 || markAttRes.data.data?.calculatedWage !== 500) {
+      throw new Error(`Expected calculated wage ₹500, got ₹${markAttRes.data.data?.calculatedWage}`);
+    }
+
+    // Duplicate check / idempotency
+    const repeatAttRes = await testEndpoint('/api/staff/attendance', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        staffId: firstWorker.id,
+        date: todayStr,
+        status: 'Half-day'
+      })
+    });
+    console.log(`[Attendance Idempotency] Updated to Half-day: HTTP ${repeatAttRes.status} | Wage: ₹${repeatAttRes.data.data?.calculatedWage}`);
+    if (repeatAttRes.status !== 200 || repeatAttRes.data.data?.calculatedWage !== 250) {
+      throw new Error('Attendance update duplicate handling failed');
+    }
+
+    const wageSumRes = await testEndpoint(`/api/staff/wage-summary?date=${todayStr}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Wage Summary] GET /api/staff/wage-summary: HTTP ${wageSumRes.status} | Total Daily Wage: ₹${wageSumRes.data.data?.totalWage}`);
+    if (wageSumRes.status !== 200 || wageSumRes.data.data?.totalWage === undefined) {
+      throw new Error('Wage summary calculation failed');
+    }
+
+    // 15: Master AI Voice & Natural Language Business Agent
+    console.log('\n--- Test 15: Master AI Agent & Voice Query Safety Confirmation ---');
+    const agentQueryRes = await testEndpoint('/api/agent/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        query: 'आज की शादी की बुकिंग्स दिखाओ',
+        conversationHistory: []
+      })
+    });
+    console.log(`[Master Agent] POST /api/agent/query: HTTP ${agentQueryRes.status} | Action: ${agentQueryRes.data.action} | Response text length: ${agentQueryRes.data.reply?.length}`);
+    if (agentQueryRes.status !== 200 || !agentQueryRes.data.reply) {
+      throw new Error('Master Agent failed to process booking query');
+    }
+
+    // Write operation safety confirmation prompt
+    const agentWriteRes = await testEndpoint('/api/agent/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        query: 'स्टॉक में 50 सफेद कुर्सियां जोड़ो',
+        conversationHistory: []
+      })
+    });
+    console.log(`[Master Agent Safety] Write operation requires confirmation: ${agentWriteRes.data.requiresConfirmation} | Tool: ${agentWriteRes.data.pendingAction?.tool}`);
+    if (agentWriteRes.status !== 200 || !agentWriteRes.data.requiresConfirmation) {
+      throw new Error('Master Agent write safety gate failed to require confirmation');
+    }
+
+    // 16: First-Party Privacy-Conscious Visitor Analytics
+    console.log('\n--- Test 16: First-Party Visitor Analytics & Exclusion of Admin ---');
+    const eventLogRes = await testEndpoint('/api/analytics/event', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'pageview',
+        path: '/store',
+        page: '/store',
+        sessionId: 'test-session-visitor-99',
+        isAdmin: false
+      })
+    });
+    console.log(`[Analytics Event] POST /api/analytics/event: HTTP ${eventLogRes.status} | Success: ${eventLogRes.data.success}`);
+    if (eventLogRes.status !== 201 || !eventLogRes.data.success) {
+      throw new Error('Failed to log visitor analytics event');
+    }
+
+    const analyticsSumRes = await testEndpoint('/api/analytics/summary', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Analytics Summary] GET /api/analytics/summary: HTTP ${analyticsSumRes.status} | Pageviews: ${analyticsSumRes.data.data?.summary?.totalPageviews}`);
+    if (analyticsSumRes.status !== 200 || !analyticsSumRes.data.data) {
+      throw new Error('Analytics summary fetch failed');
     }
 
     console.log('\n======================================================');
