@@ -281,8 +281,69 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(payload)
   }),
-  confirmMasterAgentAction: (payload) => request('/agent/confirm-action', {
+  confirmMasterAgentAction: (payload) => request('/agent/confirm', {
     method: 'POST',
     body: JSON.stringify(payload)
+  }),
+
+  // Outside Payments (Dhobi, Suppliers, Logistics)
+  getOutsidePayments: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/payments/outside${q ? `?${q}` : ''}`);
+  },
+  recordOutsidePayment: (payload) => request('/payments/outside', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+
+  // Official Invoices & Commercial Bills
+  getInvoices: () => request('/invoices'),
+  getInvoiceById: (id) => request(`/invoices/${id}`),
+  generateInvoice: (payload) => request('/invoices/generate', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+
+  // AI Marketing Studio
+  searchMarketingMedia: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/marketing/media${q ? `?${q}` : ''}`);
+  },
+  getMarketingPortfolios: () => request('/marketing/portfolios'),
+  createMarketingPortfolio: (payload) => request('/marketing/portfolios', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  renderMarketingReel: (payload) => request('/marketing/reels/render', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getRenderedReels: () => request('/marketing/reels'),
+
+  // Master Agent 3-Layer Memory & Learned Workflows
+  getAgentConversations: () => request('/agent/conversations'),
+  getAgentMemories: () => request('/agent/memories'),
+  createAgentMemory: (payload) => request('/agent/memories', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  updateAgentMemory: (id, payload) => request(`/agent/memories/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+  deleteAgentMemory: (id) => request(`/agent/memories/${id}`, {
+    method: 'DELETE'
+  }),
+  getAgentWorkflows: () => request('/agent/workflows'),
+  createAgentWorkflow: (payload) => request('/agent/workflows', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  updateAgentWorkflow: (id, payload) => request(`/agent/workflows/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+  deleteAgentWorkflow: (id) => request(`/agent/workflows/${id}`, {
+    method: 'DELETE'
   })
 };

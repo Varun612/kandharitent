@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ShieldCheck, Lock, User, AlertCircle, ArrowLeft, KeyRound } from 'lucide-react';
+import { ShieldCheck, Lock, User, AlertCircle, ArrowLeft, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,12 +33,6 @@ const AdminLoginPage = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleFillDemo = () => {
-    setUsername('admin');
-    setPassword('admin@kandhari2026');
-    setError('');
   };
 
   return (
@@ -99,13 +94,22 @@ const AdminLoginPage = () => {
             <div className="relative">
               <Lock className="w-4 h-4 text-neutral-400 absolute left-3 top-3.5" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full pl-9 pr-3 py-2.5 text-sm border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                className="w-full pl-9 pr-10 py-2.5 text-sm border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none font-mono"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-700 transition"
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
@@ -124,17 +128,6 @@ const AdminLoginPage = () => {
             )}
           </button>
         </form>
-
-        {/* Helper Credentials Box */}
-        <div className="pt-4 border-t border-neutral-100 text-center">
-          <button
-            type="button"
-            onClick={handleFillDemo}
-            className="text-xs text-brand-purple hover:underline font-semibold"
-          >
-            Click to fill default credentials (admin / admin@kandhari2026)
-          </button>
-        </div>
 
       </div>
     </div>

@@ -366,10 +366,105 @@ const getPaymentHistory = async (req, res) => {
   }
 };
 
+
+/**
+ * 5. GET /api/payments/outside (Admin only)
+ * Retrieve payments made to outside suppliers, dhobi, logistics
+ */
+const getOutsidePayments = (req, res) => {
+  try {
+    const { category, startDate, endDate } = req.query;
+    const db = getLocalDb();
+    let payments = db.outsidePayments || [];
+
+    if (category && category !== 'all') {
+      payments = payments.filter(p => p.category === category);
+    }
+
+    if (startDate) {
+      payments = payments.filter(p => p.date >= startDate);
+    }
+    if (endDate) {
+      payments = payments.filter(p => p.date <= endDate);
+    }
+
+    const totalAmount = payments.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+
+    return res.json({
+      success: true,
+      count: payments.length,
+      totalAmount,
+      data: payments
+    });
+  } catch (error) {
+    console.error('getOutsidePayments error:', error);
+    return res.status(500).json({ success: false, message: 'Server error retrieving outside payments' });
+  }
+};
+
+/**
+ * 6. POST /api/payments/outside (Admin only)
+ * Record an outside payment (Dhobi, raw material suppliers, outside technicians)
+ */
+const recordOutsidePayment = (req, res) => {
+  try {
+    const { 
+      recipientName, 
+      category = 'other', 
+      amount, 
+      purpose, 
+      paymentMethod = 'Cash', 
+      referenceNumber = '', 
+      date, 
+      notes = '' 
+    } = req.body;
+
+    if (!recipientName || !amount || Number(amount) <= 0 || !purpose) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Recipient name, positive amount, and purpose are required.' 
+      });
+    }
+
+    const db = getLocalDb();
+    if (!db.outsidePayments) db.outsidePayments = [];
+
+    const id = 'out-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+
+    const record = {
+      id,
+      recipientName,
+      category, // 'dhobi', 'supplier', 'outside_worker', 'logistics', 'maintenance', 'other'
+      amount: parseFloat(amount),
+      purpose,
+      date: date || new Date().toISOString().split('T')[0],
+      paymentMethod,
+      referenceNumber: referenceNumber || ('REF-' + Date.now().toString(36).toUpperCase()),
+      status: 'Paid',
+      notes,
+      createdAt: new Date().toISOString()
+    };
+
+    db.outsidePayments.unshift(record);
+    saveLocalStore();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Outside payment recorded successfully',
+      data: record
+    });
+  } catch (error) {
+    console.error('recordOutsidePayment error:', error);
+    return res.status(500).json({ success: false, message: 'Server error recording outside payment' });
+  }
+};
+
 module.exports = {
   createPaymentOrder,
   verifyPayment,
   handleWebhook,
   recordOfflinePayment,
-  getPaymentHistory
+  getPaymentHistory,
+  getOutsidePayments,
+  recordOutsidePayment
 };

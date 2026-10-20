@@ -13,5 +13,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), paymentContro
 
 // Admin offline payment recording
 router.post('/record-offline', requireAdminAuth, paymentController.recordOfflinePayment);
+router.get('/outside', requireAdminAuth, paymentController.getOutsidePayments);
+router.post('/outside', requireAdminAuth, paymentController.recordOutsidePayment);
 
 module.exports = router;

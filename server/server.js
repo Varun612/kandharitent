@@ -18,6 +18,8 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const masterAgentRoutes = require('./routes/masterAgentRoutes');
+const marketingRoutes = require('./routes/marketingRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -105,6 +107,11 @@ mountDualRoute('/inventory', inventoryRoutes);
 mountDualRoute('/staff', staffRoutes);
 mountDualRoute('/analytics', analyticsRoutes);
 mountDualRoute('/agent', masterAgentRoutes);
+mountDualRoute('/marketing', marketingRoutes);
+mountDualRoute('/invoices', invoiceRoutes);
+
+// Static media serving for rendered reels
+app.use('/media/rendered_reels', express.static(path.join(__dirname, '../client/public/media/rendered_reels')));
 
 // Serve static client build and SPA routing if dist exists
 const fs = require('fs');
@@ -118,7 +125,7 @@ if (staticPath) {
   // SPA Fallback for client routes
   app.get('*', (req, res, next) => {
     const p = req.path || '';
-    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/health')) {
+    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/marketing') || p.startsWith('/invoices') || p.startsWith('/health')) {
       return next();
     }
     res.sendFile(path.join(staticPath, 'index.html'));

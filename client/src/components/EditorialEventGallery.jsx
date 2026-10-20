@@ -8,7 +8,9 @@ import {
   Layers, 
   Users, 
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Building,
+  Crown
 } from 'lucide-react';
 import GalleryViewer from './GalleryViewer';
 
@@ -163,58 +165,65 @@ const EditorialEventGallery = ({ onOpenEnquiryWithItem }) => {
   }));
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-10">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fadeIn">
       
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-brand-border/80 pb-6">
         <div className="max-w-2xl space-y-2">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-gold/30 uppercase tracking-widest">
-              Authentic Event Portfolios
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-gold/30 uppercase tracking-widest flex items-center gap-1.5">
+              <Crown className="w-3 h-3 text-brand-gold" />
+              <span>Authentic Wedding Portfolios</span>
             </span>
             <span className="text-xs font-semibold text-neutral-500">
-              Multi-Angle Real Work
+              Verified Lucknow Real Work
             </span>
           </div>
           
           <h2 className="text-3xl sm:text-4xl font-serif font-black text-brand-primary">
-            Editorial Event Showcase
+            The Royal Imperial Wedding Showcase
           </h2>
           
           <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-            Explore complete photographic stories of actual Lucknow weddings and banquets managed by Kandhari Tent &amp; Caterers at Dwarka Shri Lawn. Every photo depicts genuine decoration, real tents, and verified on-site setups.
+            Explore complete photographic stories of actual Lucknow weddings and banquets managed by Kandhari Tent &amp; Caterers at Dwarka Shri Lawn. Every photo depicts genuine on-site decor, real German hangars, and authentic catering setups.
           </p>
         </div>
 
-        {/* Event Selection Tabs */}
-        <div className="flex flex-wrap gap-2">
+        {/* Event Selection Tabs - Spacious, Non-Clipped Responsive Buttons */}
+        <div className="flex flex-wrap gap-2.5">
           {EDITORIAL_EVENTS.map((ev, idx) => (
             <button
               key={ev.id}
               onClick={() => setSelectedEventIndex(idx)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
                 idx === selectedEventIndex
-                  ? 'royal-gradient text-white shadow-md border border-brand-gold/40'
+                  ? 'royal-gradient text-white shadow-md border border-brand-gold/40 ring-2 ring-brand-gold/20'
                   : 'bg-white hover:bg-neutral-100 text-neutral-700 border border-neutral-200'
               }`}
             >
+              <Building className="w-3.5 h-3.5 text-brand-gold" />
               <span>{ev.title.split(' at ')[0].split(' on ')[0]}</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                idx === selectedEventIndex ? 'bg-black/30 text-brand-goldLight' : 'bg-neutral-100 text-neutral-500'
+              }`}>
+                {ev.pax.split(' ')[0]}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Active Event Banner & Details */}
+      {/* Active Event Case Study Card */}
       <div className="bg-brand-cream/60 rounded-3xl p-6 sm:p-8 border border-brand-border shadow-xs space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-4 border-b border-brand-border/60">
+          <div className="space-y-2">
             <span className="text-xs font-bold text-brand-gold uppercase tracking-wider block">
               Case Study &bull; {activeEvent.season}
             </span>
             <h3 className="text-xl sm:text-2xl font-serif font-bold text-brand-primary">
               {activeEvent.title}
             </h3>
-            <p className="text-xs text-neutral-600 flex flex-wrap items-center gap-3">
+            <div className="text-xs text-neutral-600 flex flex-wrap items-center gap-3">
               <span className="flex items-center gap-1 font-semibold text-neutral-800">
                 <MapPin className="w-3.5 h-3.5 text-brand-gold" />
                 <span>{activeEvent.locality}</span>
@@ -224,7 +233,7 @@ const EditorialEventGallery = ({ onOpenEnquiryWithItem }) => {
                 <Users className="w-3.5 h-3.5 text-brand-purple" />
                 <span>Capacity: {activeEvent.pax}</span>
               </span>
-            </p>
+            </div>
           </div>
 
           <p className="text-xs text-neutral-600 max-w-xl leading-relaxed lg:border-l lg:border-brand-border/80 lg:pl-6">
@@ -232,46 +241,53 @@ const EditorialEventGallery = ({ onOpenEnquiryWithItem }) => {
           </p>
         </div>
 
-        {/* Multi-Angle Photo Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Multi-Angle Photo Grid - Spacious Cards with Zero Text Overlap */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {activeEvent.photos.map((photo, pIdx) => (
             <div
               key={photo.id}
               onClick={() => setLightboxPhotoIndex(pIdx)}
-              className="group relative rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-200/80 shadow-xs cursor-pointer hover:shadow-luxury hover:-translate-y-1 transition-all duration-300 aspect-4/3 flex flex-col justify-end"
+              className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/90 shadow-xs hover:shadow-luxury hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
             >
-              <img
-                src={photo.imageUrl}
-                alt={photo.title}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              
-              {/* Subtle Gradient & Information Vignette */}
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/90 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
+              {/* Photo Area with Aspect Ratio & Badges */}
+              <div className="relative aspect-4/3 w-full overflow-hidden bg-neutral-900">
+                <img
+                  src={photo.imageUrl}
+                  alt={photo.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
 
-              {/* Tag Pill at Top Left */}
-              <div className="absolute top-3 left-3 z-10">
-                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-black/60 backdrop-blur-md text-brand-goldLight border border-brand-gold/30 uppercase tracking-wider">
-                  {photo.tag}
-                </span>
-              </div>
+                {/* Category Pill Tag at Top Left - Completely Disjoint from Title */}
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-neutral-950/80 backdrop-blur-md text-brand-gold border border-brand-gold/40 uppercase tracking-wider shadow-sm">
+                    {photo.tag}
+                  </span>
+                </div>
 
-              {/* Expand Icon at Top Right */}
-              <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-8 h-8 rounded-full bg-black/70 text-white flex items-center justify-center backdrop-blur-sm border border-white/20">
-                  <Maximize2 className="w-4 h-4 text-brand-gold" />
+                {/* Expand Icon Button at Top Right */}
+                <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-8 h-8 rounded-full bg-black/70 text-white flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-md">
+                    <Maximize2 className="w-4 h-4 text-brand-gold" />
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom Caption Overlay */}
-              <div className="relative z-10 p-4 text-white space-y-1">
-                <h4 className="text-sm font-serif font-bold text-white group-hover:text-brand-goldLight transition">
-                  {photo.title}
-                </h4>
-                <p className="text-[11px] text-neutral-300 line-clamp-2 leading-relaxed">
-                  {photo.caption}
-                </p>
+              {/* Lower Details Card - Generous Padding, No Text Collision */}
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-2 bg-white">
+                <div className="space-y-1.5">
+                  <h4 className="text-sm font-serif font-bold text-neutral-900 group-hover:text-brand-primary transition">
+                    {photo.title}
+                  </h4>
+                  <p className="text-xs text-neutral-500 leading-relaxed">
+                    {photo.caption}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-[11px] font-bold text-brand-purple">
+                  <span>View High-Res Photo</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
               </div>
             </div>
           ))}
@@ -279,7 +295,7 @@ const EditorialEventGallery = ({ onOpenEnquiryWithItem }) => {
 
       </div>
 
-      {/* Lightbox Modal */}
+      {/* Fullscreen Lightbox Modal */}
       {lightboxPhotoIndex !== null && (
         <GalleryViewer
           items={viewerItems}

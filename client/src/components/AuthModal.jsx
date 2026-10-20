@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { X, Lock, Mail, Phone, User, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
+import { X, Lock, Mail, Phone, User, CheckCircle, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const AuthModal = () => {
   const {
@@ -13,6 +13,7 @@ const AuthModal = () => {
   } = useAuth();
 
   const [mode, setMode] = useState(authModalMode || 'login'); // 'login' or 'register'
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -212,14 +213,23 @@ const AuthModal = () => {
               <div className="relative">
                 <Lock className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   required
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-neutral-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                  className="w-full pl-9 pr-10 py-2 text-sm border border-neutral-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all font-mono"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-neutral-700 transition"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 

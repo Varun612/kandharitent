@@ -701,6 +701,161 @@ const runTests = async () => {
       throw new Error('Analytics summary fetch failed');
     }
 
+    // 17: Outside Payments (Dhobi & suppliers recording & retrieval)
+    console.log('\n--- Test 17: Outside Payments (Dhobi & Supplier Accounting) ---');
+    const getOutsideRes = await testEndpoint('/api/payments/outside', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Outside Payments List] GET /api/payments/outside: HTTP ${getOutsideRes.status} | Count: ${getOutsideRes.data.count} | Total: ₹${getOutsideRes.data.totalAmount}`);
+    if (getOutsideRes.status !== 200 || !getOutsideRes.data.success) {
+      throw new Error('Failed to retrieve outside payments');
+    }
+
+    const postOutsideRes = await testEndpoint('/api/payments/outside', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        recipientName: 'Ramesh Laundry & Drycleaners',
+        category: 'dhobi',
+        amount: 2500,
+        purpose: 'Mandap velvet curtains & sofa covers dry cleaning',
+        paymentMethod: 'Cash',
+        notes: 'Pre-wedding batch dry cleaning'
+      })
+    });
+    console.log(`[Outside Payments Record] POST /api/payments/outside: HTTP ${postOutsideRes.status} | Recipient: ${postOutsideRes.data.data?.recipientName} | Amount: ₹${postOutsideRes.data.data?.amount}`);
+    if (postOutsideRes.status !== 201 || !postOutsideRes.data.success || postOutsideRes.data.data?.amount !== 2500) {
+      throw new Error('Failed to record outside payment');
+    }
+
+    // 18: Invoices & Commercial Bill Generation
+    console.log('\n--- Test 18: Invoices & Commercial Bill Generation (INV-YYYY-XXXX) ---');
+    const getInvoicesRes = await testEndpoint('/api/invoices', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Invoices List] GET /api/invoices: HTTP ${getInvoicesRes.status} | Total Invoices: ${getInvoicesRes.data.count}`);
+    if (getInvoicesRes.status !== 200 || !getInvoicesRes.data.success) {
+      throw new Error('Failed to list invoices');
+    }
+
+    const generateInvRes = await testEndpoint('/api/invoices/generate', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        customerName: 'Ananya Sharma',
+        phone: '9305465848',
+        billingAddress: 'Kanpur Road, Daroga Kheda, Lucknow',
+        eventDate: '2026-11-28',
+        eventVenue: 'Dwarka Shri Lawn, Kanpur Road, Lucknow',
+        serviceRequired: 'Wedding Reception + Royal Catering',
+        items: [
+          { name: 'Dwarka Shri Lawn Venue Booking (Full Grounds)', quantity: 1, unitPrice: 75000, total: 75000 },
+          { name: 'Royal Stage & Velvet Mandap Setup', quantity: 1, unitPrice: 45000, total: 45000 },
+          { name: 'Awadhi Shahi Buffet (300 Guests)', quantity: 300, unitPrice: 450, total: 135000 }
+        ],
+        cartage: 5000,
+        labour: 8000,
+        discount: 10000,
+        advancePaid: 50000,
+        notes: 'Official commercial bill generated for royal wedding event.'
+      })
+    });
+    console.log(`[Invoice Generate] POST /api/invoices/generate: HTTP ${generateInvRes.status} | Bill No: ${generateInvRes.data.data?.invoiceNumber} | Grand Total: ₹${generateInvRes.data.data?.grandTotal}`);
+    if (generateInvRes.status !== 201 || !generateInvRes.data.data?.invoiceNumber || !generateInvRes.data.data.invoiceNumber.startsWith('INV-')) {
+      throw new Error('Invoice generation failed or invoice number invalid');
+    }
+    const createdInvoiceId = generateInvRes.data.data.id;
+
+    const getSingleInvRes = await testEndpoint(`/api/invoices/${createdInvoiceId}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Invoice Details] GET /api/invoices/:id: HTTP ${getSingleInvRes.status} | Invoice: ${getSingleInvRes.data.data?.invoiceNumber}`);
+    if (getSingleInvRes.status !== 200 || getSingleInvRes.data.data?.id !== createdInvoiceId) {
+      throw new Error('Failed to fetch invoice details by ID');
+    }
+
+    // 19: Master Agent 3-Layer Memory & Workflow Management
+    console.log('\n--- Test 19: Master Agent 3-Layer Memory & Workflow Execution ---');
+    // Layer A
+    const getConvsRes = await testEndpoint('/api/agent/conversations', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Layer A: Conversations] GET /api/agent/conversations: HTTP ${getConvsRes.status} | Sessions count: ${getConvsRes.data.count}`);
+    if (getConvsRes.status !== 200) throw new Error('Layer A conversation retrieval failed');
+
+    // Layer B
+    const getMemRes = await testEndpoint('/api/agent/memories', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Layer B: Business Memory] GET /api/agent/memories: HTTP ${getMemRes.status} | Memories count: ${getMemRes.data.count}`);
+    if (getMemRes.status !== 200) throw new Error('Layer B memory retrieval failed');
+
+    const createMemRes = await testEndpoint('/api/agent/memories', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        category: 'pricing_rule',
+        content: 'For bookings over 500 guests at Dwarka Shri Lawn, offer complimentary VIP Welcome Lounge setup.',
+        confidence: 0.98,
+        tags: ['pricing', 'vip', 'lawn']
+      })
+    });
+    console.log(`[Layer B: Create Memory] POST /api/agent/memories: HTTP ${createMemRes.status} | Saved Category: ${createMemRes.data.data?.category}`);
+    if (createMemRes.status !== 201 || !createMemRes.data.data?.id) throw new Error('Layer B memory creation failed');
+
+    // Layer C
+    const getWfRes = await testEndpoint('/api/agent/workflows', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Layer C: Learned Workflows] GET /api/agent/workflows: HTTP ${getWfRes.status} | Workflows count: ${getWfRes.data.count}`);
+    if (getWfRes.status !== 200) throw new Error('Layer C workflow retrieval failed');
+
+    // 20: Marketing Studio Media Library, Portfolio Creation & Real FFmpeg Video Reel Engine
+    console.log('\n--- Test 20: Marketing Studio Media Library & Real FFmpeg Video Reel Engine ---');
+    const getMediaRes = await testEndpoint('/api/marketing/media?category=All');
+    console.log(`[Marketing Media] GET /api/marketing/media: HTTP ${getMediaRes.status} | Total Assets: ${getMediaRes.data.count}`);
+    if (getMediaRes.status !== 200 || !getMediaRes.data.count || getMediaRes.data.count < 10) {
+      throw new Error('Marketing media library indexing failed');
+    }
+
+    const createPortRes = await testEndpoint('/api/marketing/portfolios', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        title: 'Shahi Awadhi Vivah Collection',
+        subtitle: 'Dwarka Shri Lawn Grand Wedding Showcase',
+        category: 'Weddings',
+        mediaIds: getMediaRes.data.data.slice(0, 3).map(m => m.id),
+        description: 'Exclusive gallery of royal weddings and mandap decor at Kanpur Road, Lucknow.'
+      })
+    });
+    console.log(`[Marketing Portfolio] POST /api/marketing/portfolios: HTTP ${createPortRes.status} | Title: ${createPortRes.data.data?.title} | Shareable: ${createPortRes.data.data?.shareableUrl}`);
+    if (createPortRes.status !== 201 || !createPortRes.data.data?.shareableUrl) {
+      throw new Error('Marketing portfolio creation failed');
+    }
+
+    console.log('[Marketing Reel Engine] Testing real FFmpeg video generation (9:16 vertical MP4)...');
+    const renderReelRes = await testEndpoint('/api/marketing/reels/render', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        format: '9:16',
+        duration: 3,
+        title: 'Dwarka Shri Lawn Royal Vivah',
+        theme: 'Royal Luxury'
+      })
+    });
+    console.log(`[Marketing Reel Render] POST /api/marketing/reels/render: HTTP ${renderReelRes.status} | MP4: ${renderReelRes.data.data?.videoUrl} | Dimensions: ${renderReelRes.data.data?.dimensions}`);
+    if (renderReelRes.status !== 201 || !renderReelRes.data.data?.videoUrl || !renderReelRes.data.data.videoUrl.endsWith('.mp4')) {
+      throw new Error('Real FFmpeg reel rendering failed');
+    }
+
+    const getReelsRes = await testEndpoint('/api/marketing/reels');
+    console.log(`[Marketing Reels List] GET /api/marketing/reels: HTTP ${getReelsRes.status} | Rendered Reels Count: ${getReelsRes.data.count}`);
+    if (getReelsRes.status !== 200 || getReelsRes.data.count < 1) {
+      throw new Error('Rendered reels retrieval failed');
+    }
+
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');
