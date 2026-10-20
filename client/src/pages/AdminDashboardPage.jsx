@@ -34,7 +34,13 @@ import {
   FileText,
   Receipt,
   IndianRupee,
-  PlusCircle
+  PlusCircle,
+  BarChart3,
+  Users,
+  DollarSign,
+  ArrowUpRight,
+  TrendingUp,
+  CreditCard
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +50,7 @@ const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('enquiries'); // enquiries, inventory, venue, gallery
+  const [activeTab, setActiveTab] = useState('overview'); // overview, enquiries, customers, reports, inventory, venue, gallery, catering
   
   // Enquiries state
   const [enquiries, setEnquiries] = useState([]);
@@ -52,6 +58,27 @@ const AdminDashboardPage = () => {
   const [enquiryServiceFilter, setEnquiryServiceFilter] = useState('all');
   const [enquiryLocalityFilter, setEnquiryLocalityFilter] = useState('all');
   const [enquirySearchQuery, setEnquirySearchQuery] = useState('');
+
+  // Customers registry state
+  const [customers, setCustomers] = useState([]);
+  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+
+  // Financial Reports state
+  const [reportSummary, setReportSummary] = useState(null);
+  const [reportDateRange, setReportDateRange] = useState({ startDate: '', endDate: '' });
+
+  // Offline Payment Modal state
+  const [offlinePayModalOrder, setOfflinePayModalOrder] = useState(null);
+  const [offlinePayForm, setOfflinePayForm] = useState({
+    amount: 0,
+    paymentMethod: 'Cash',
+    referenceNumber: '',
+    notes: ''
+  });
+
+  // Rejection Modal state
+  const [rejectionModalOrder, setRejectionModalOrder] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   // Inventory state
   const [items, setItems] = useState([]);
@@ -248,6 +275,91 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleApproveWithQuotation = async () => {
+    if (!selectedOrderForQuote) return;
+    try {
+      const res = await api.reviewEnquiry(selectedOrderForQuote.id, {
+        action: 'approve',
+        quotationData: quoteFormData
+      });
+      if (res.success) {
+        showNotification('Quotation revised and sent to customer for review!');
+        setIsQuoteEditModalOpen(false);
+        loadDashboardData();
+      }
+    } catch (err) {
+      showNotification(err.message || 'Error updating and approving quotation', 'error');
+    }
+  };
+
+  const handleDirectApprove = async (orderId) => {
+    try {
+      const res = await api.reviewEnquiry(orderId, { action: 'approve' });
+      if (res.success) {
+        showNotification('Order directly approved! Advance deposit unlocked for client.');
+        loadDashboardData();
+      }
+    } catch (err) {
+      showNotification(err.message || 'Error approving order', 'error');
+    }
+  };
+
+  const handleOpenRejectionModal = (enq) => {
+    setRejectionModalOrder(enq);
+    setRejectionReason('Selected event date has overlapping bookings at Dwarka Shri Lawn.');
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectionModalOrder) return;
+    try {
+      const res = await api.reviewEnquiry(rejectionModalOrder.id, {
+        action: 'reject',
+        rejectionReason: rejectionReason || 'Unavailable on selected dates'
+      });
+      if (res.success) {
+        showNotification('Order declined and customer notification sent.');
+        setRejectionModalOrder(null);
+        setRejectionReason('');
+        loadDashboardData();
+      }
+    } catch (err) {
+      showNotification(err.message || 'Error rejecting order', 'error');
+    }
+  };
+
+  const handleOpenOfflinePayModal = (enq) => {
+    setOfflinePayModalOrder(enq);
+    const total = enq.grandTotal || enq.estimatedCost || 0;
+    const due = Math.max(0, total - (enq.advancePaid || 0));
+    setOfflinePayForm({
+      amount: due > 0 ? (enq.advancePaid > 0 ? due : Math.ceil(total * 0.5)) : total,
+      paymentMethod: 'Cash',
+      referenceNumber: `REC-${Date.now().toString().slice(-6)}`,
+      notes: 'Received in person at Lucknow branch'
+    });
+  };
+
+  const handleRecordOfflinePayment = async (e) => {
+    if (e) e.preventDefault();
+    if (!offlinePayModalOrder) return;
+    try {
+      const res = await api.recordOfflinePayment({
+        enquiryId: offlinePayModalOrder.id,
+        amount: parseFloat(offlinePayForm.amount),
+        paymentMethod: offlinePayForm.paymentMethod,
+        referenceNumber: offlinePayForm.referenceNumber,
+        notes: offlinePayForm.notes
+      });
+      if (res.success) {
+        showNotification(`Recorded offline payment of ₹${offlinePayForm.amount}! Order status is now ${res.data?.status || 'Confirmed'}.`);
+        setOfflinePayModalOrder(null);
+        loadDashboardData();
+      }
+    } catch (err) {
+      showNotification(err.message || 'Error recording offline payment', 'error');
+    }
+  };
+
   const handleGenerateFoodImage = async (dishId) => {
     setIsGeneratingFoodImage(true);
     try {
@@ -286,6 +398,16 @@ const AdminDashboardPage = () => {
       if (catRes.success) {
         setCateringDishes(catRes.data || []);
         setCateringCategories(catRes.categories || []);
+      }
+
+      const custRes = await api.getCustomers().catch(() => ({ customers: [] }));
+      if (custRes && custRes.success) {
+        setCustomers(custRes.customers || []);
+      }
+
+      const repRes = await api.getReportSummary().catch(() => ({ success: false }));
+      if (repRes && repRes.success) {
+        setReportSummary(repRes.data);
       }
     } catch (err) {
       console.warn('Dashboard data fetch error:', err.message);
@@ -689,6 +811,18 @@ const AdminDashboardPage = () => {
         {/* Tab Navigation Navigation Bar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 border-t border-white/10 pt-2 pb-1 scrollbar-none">
           <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'overview'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-brand-gold" />
+            <span>Executive Overview</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('enquiries')}
             className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
               activeTab === 'enquiries'
@@ -697,12 +831,36 @@ const AdminDashboardPage = () => {
             }`}
           >
             <ShoppingBag className="w-4 h-4 text-brand-gold" />
-            <span>Customer Enquiries ({enquiries.length})</span>
-            {enquiries.filter(e => e.status === 'New').length > 0 && (
+            <span>Orders & Enquiries ({enquiries.length})</span>
+            {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-extrabold animate-pulse">
-                {enquiries.filter(e => e.status === 'New').length} New
+                {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length} Pending
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'customers'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Users className="w-4 h-4 text-brand-gold" />
+            <span>Customer Directory ({customers.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition whitespace-nowrap ${
+              activeTab === 'reports'
+                ? 'bg-brand-cream/90 text-brand-primary border-t-2 border-brand-gold shadow-xs'
+                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Receipt className="w-4 h-4 text-brand-gold" />
+            <span>Financial Reports</span>
           </button>
 
           <button
@@ -799,6 +957,151 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* ========================================================
+            TAB 0: EXECUTIVE OVERVIEW & BUSINESS METRICS
+           ======================================================== */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Top Key Metrics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Gross Bookings Revenue</p>
+                  <p className="text-2xl font-serif font-black text-brand-primary mt-1">
+                    ₹{(reportSummary?.totalRevenue || 0).toLocaleString('en-IN')}
+                  </p>
+                  <span className="text-[11px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
+                    <TrendingUp className="w-3.5 h-3.5" /> Direct INR Settled
+                  </span>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
+                  <IndianRupee className="w-6 h-6 text-brand-gold" />
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-rose-600 uppercase tracking-wider">Pending Admin Approval</p>
+                  <p className="text-2xl font-serif font-black text-rose-600 mt-1">
+                    {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length}
+                  </p>
+                  <span className="text-[11px] text-neutral-500 font-medium mt-1 inline-block">
+                    Requires stock & date verification
+                  </span>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600">
+                  <Clock className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Confirmed Bookings</p>
+                  <p className="text-2xl font-serif font-black text-emerald-600 mt-1">
+                    {enquiries.filter(e => e.status === 'Confirmed').length}
+                  </p>
+                  <span className="text-[11px] text-emerald-700 font-medium mt-1 inline-block">
+                    Dates secured on event calendar
+                  </span>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Registered Clients</p>
+                  <p className="text-2xl font-serif font-black text-indigo-600 mt-1">
+                    {customers.length}
+                  </p>
+                  <span className="text-[11px] text-neutral-500 font-medium mt-1 inline-block">
+                    Verified customer directory
+                  </span>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                  <Users className="w-6 h-6" />
+                </div>
+              </div>
+            </div>
+
+            {/* Pending Approvals Section */}
+            <div className="bg-white rounded-3xl p-6 border border-neutral-200/80 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                  <h3 className="text-base font-bold text-neutral-900">
+                    Bookings Pending Admin Approval ({enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length})
+                  </h3>
+                </div>
+                <button
+                  onClick={() => { setActiveTab('enquiries'); setEnquiryStatusFilter('Pending Admin Approval'); }}
+                  className="text-xs font-bold text-brand-primary hover:underline flex items-center gap-1"
+                >
+                  <span>View All Orders</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length === 0 ? (
+                <div className="py-8 text-center text-neutral-400 text-xs">
+                  <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 mb-2" />
+                  <span>All customer booking requests have been reviewed and actioned!</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').slice(0, 5).map((enq) => (
+                    <div
+                      key={enq.id}
+                      className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-brand-primary bg-white px-2 py-0.5 rounded border border-neutral-200">
+                            {enq.id}
+                          </span>
+                          <span className="font-bold text-neutral-900 text-sm">
+                            {enq.customerName}
+                          </span>
+                          <span className="text-xs text-neutral-500">
+                            (+91 {enq.phone})
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-600 mt-1">
+                          Date: <strong>{enq.eventDate}</strong> &bull; Service: <strong>{enq.serviceRequired}</strong> &bull; Locality: <strong>{enq.locality || 'Lucknow'}</strong>
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleDirectApprove(enq.id)}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Direct Approve</span>
+                        </button>
+                        <button
+                          onClick={() => handleOpenQuoteModal(enq)}
+                          className="px-3 py-1.5 bg-brand-primary hover:bg-brand-primary/95 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-brand-gold" />
+                          <span>Revise & Approve</span>
+                        </button>
+                        <button
+                          onClick={() => handleOpenRejectionModal(enq)}
+                          className="px-3 py-1.5 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-bold transition"
+                        >
+                          <span>Reject</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
             TAB 1: CUSTOMER ENQUIRIES MANAGER
            ======================================================== */}
         {activeTab === 'enquiries' && (
@@ -833,7 +1136,7 @@ const AdminDashboardPage = () => {
               {/* Status and Locality Filter Chips */}
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-neutral-100">
                 <span className="text-[11px] font-bold text-neutral-500">Status:</span>
-                {['all', 'New', 'Under Review', 'Quotation Prepared', 'Confirmed', 'Advance Pending', 'Partially Paid', 'Fully Paid', 'Completed', 'Cancelled'].map((st) => (
+                {['all', 'Pending Admin Approval', 'Approved — Awaiting Customer Acceptance', 'Approved — Awaiting Payment', 'Confirmed', 'Rejected', 'Cancelled', 'New'].map((st) => (
                   <button
                     key={st}
                     onClick={() => setEnquiryStatusFilter(st)}
@@ -1024,7 +1327,41 @@ const AdminDashboardPage = () => {
                         </div>
 
                         {/* Action buttons */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {(enq.status === 'Pending Admin Approval' || enq.status === 'New') && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleDirectApprove(enq.id)}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs"
+                                title="Approve booking as-is without price revision"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Direct Approve</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenRejectionModal(enq)}
+                                className="px-3 py-1.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 font-bold text-xs transition"
+                              >
+                                <span>Reject</span>
+                              </button>
+                            </>
+                          )}
+
+                          {enq.status !== 'Confirmed' && enq.status !== 'Cancelled' && enq.status !== 'Rejected' && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenOfflinePayModal(enq)}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 font-bold text-xs transition flex items-center gap-1.5 shadow-xs"
+                              title="Log Cash, Cheque, or Bank Transfer deposit"
+                            >
+                              <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Record Offline Payment</span>
+                            </button>
+                          )}
+
                           <button
                             type="button"
                             onClick={() => handleOpenQuoteModal(enq)}
@@ -1153,6 +1490,217 @@ const AdminDashboardPage = () => {
               </div>
             )}
 
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: CUSTOMER DIRECTORY & REGISTRY
+           ======================================================== */}
+        {activeTab === 'customers' && (
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  value={customerSearchQuery}
+                  onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                  placeholder="Search customer name, mobile, email..."
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-accent outline-none"
+                />
+              </div>
+              <span className="text-xs text-neutral-500 font-semibold">
+                Total Registered Clients: <strong>{customers.length}</strong>
+              </span>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider">
+                      <th className="p-4">Customer Name</th>
+                      <th className="p-4">Mobile Number</th>
+                      <th className="p-4">Email Address</th>
+                      <th className="p-4">Registered On</th>
+                      <th className="p-4">Total Bookings</th>
+                      <th className="p-4">Total Paid (₹)</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100">
+                    {customers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-8 text-center text-neutral-400">
+                          No registered customer accounts found.
+                        </td>
+                      </tr>
+                    ) : (
+                      customers
+                        .filter(c => {
+                          const q = customerSearchQuery.toLowerCase();
+                          return !q || c.name.toLowerCase().includes(q) || c.phone.includes(q) || (c.email && c.email.toLowerCase().includes(q));
+                        })
+                        .map((cust) => (
+                          <tr key={cust.id} className="hover:bg-neutral-50/70 transition">
+                            <td className="p-4 font-bold text-neutral-900 flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-xs shrink-0">
+                                {cust.name?.charAt(0)?.toUpperCase() || 'C'}
+                              </div>
+                              <span>{cust.name}</span>
+                            </td>
+                            <td className="p-4 font-semibold text-neutral-700">
+                              <a href={`tel:${cust.phone}`} className="hover:text-brand-primary hover:underline">
+                                +91 {cust.phone}
+                              </a>
+                            </td>
+                            <td className="p-4 text-neutral-500">
+                              {cust.email || '—'}
+                            </td>
+                            <td className="p-4 text-neutral-500">
+                              {new Date(cust.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </td>
+                            <td className="p-4 font-bold text-neutral-800">
+                              {cust.totalOrders || 0}
+                            </td>
+                            <td className="p-4 font-bold text-emerald-700">
+                              ₹{(cust.totalPaid || 0).toLocaleString('en-IN')}
+                            </td>
+                            <td className="p-4 text-right">
+                              <button
+                                onClick={() => {
+                                  setEnquirySearchQuery(cust.phone);
+                                  setActiveTab('enquiries');
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-brand-primary/10 text-brand-primary font-bold text-xs hover:bg-brand-primary hover:text-white transition"
+                              >
+                                View Enquiries
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB: FINANCIAL REPORTS & ANALYTICS
+           ======================================================== */}
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            {/* Date Range Picker & Controls */}
+            <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-xs font-bold text-neutral-700 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-brand-gold" />
+                  <span>Date Range:</span>
+                </span>
+                <input
+                  type="date"
+                  value={reportDateRange.startDate}
+                  onChange={(e) => setReportDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                  className="px-3 py-1.5 text-xs bg-neutral-50 border border-neutral-200 rounded-xl outline-none"
+                />
+                <span className="text-xs text-neutral-400">to</span>
+                <input
+                  type="date"
+                  value={reportDateRange.endDate}
+                  onChange={(e) => setReportDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                  className="px-3 py-1.5 text-xs bg-neutral-50 border border-neutral-200 rounded-xl outline-none"
+                />
+                <button
+                  onClick={async () => {
+                    const res = await api.getReportSummary(reportDateRange);
+                    if (res.success) setReportSummary(res.data);
+                  }}
+                  className="px-4 py-1.5 rounded-xl bg-brand-primary text-white font-bold text-xs hover:bg-brand-primary/95 transition shadow-xs"
+                >
+                  Apply Filter
+                </button>
+                {(reportDateRange.startDate || reportDateRange.endDate) && (
+                  <button
+                    onClick={async () => {
+                      setReportDateRange({ startDate: '', endDate: '' });
+                      const res = await api.getReportSummary({});
+                      if (res.success) setReportSummary(res.data);
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-neutral-300 text-neutral-600 text-xs font-semibold hover:bg-neutral-50"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => api.exportReportCSV(reportDateRange)}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-emerald-700 transition"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download CSV</span>
+                </button>
+                <a
+                  href={api.getReportPrintableUrl(reportDateRange)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-brand-primary text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-brand-primary/95 transition"
+                >
+                  <Printer className="w-3.5 h-3.5 text-brand-gold" />
+                  <span>Print Formal Report (HTML/PDF)</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Financial Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs">
+                <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider block">Total Billed Revenue</span>
+                <span className="text-2xl font-serif font-black text-brand-primary mt-1 block">
+                  ₹{(reportSummary?.totalRevenue || 0).toLocaleString('en-IN')}
+                </span>
+                <span className="text-[10px] text-neutral-400 mt-1 block">From confirmed & active bookings</span>
+              </div>
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs">
+                <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">Total Advance Collected</span>
+                <span className="text-2xl font-serif font-black text-emerald-700 mt-1 block">
+                  ₹{(reportSummary?.totalAdvanceCollected || 0).toLocaleString('en-IN')}
+                </span>
+                <span className="text-[10px] text-emerald-600 mt-1 block">Online & offline recorded</span>
+              </div>
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs">
+                <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider block">Average Order Value (AOV)</span>
+                <span className="text-2xl font-serif font-black text-indigo-700 mt-1 block">
+                  ₹{(reportSummary?.averageOrderValue || 0).toLocaleString('en-IN')}
+                </span>
+                <span className="text-[10px] text-neutral-400 mt-1 block">Across {reportSummary?.totalOrders || 0} event bookings</span>
+              </div>
+              <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs">
+                <span className="text-[11px] font-bold text-rose-700 uppercase tracking-wider block">Pending Receivables</span>
+                <span className="text-2xl font-serif font-black text-rose-700 mt-1 block">
+                  ₹{Math.max(0, (reportSummary?.totalRevenue || 0) - (reportSummary?.totalAdvanceCollected || 0)).toLocaleString('en-IN')}
+                </span>
+                <span className="text-[10px] text-rose-600 mt-1 block">Due on event execution</span>
+              </div>
+            </div>
+
+            {/* Status Breakdown Table */}
+            <div className="bg-white rounded-3xl p-6 border border-neutral-200/80 shadow-xs space-y-3">
+              <h3 className="text-xs font-bold text-neutral-800 uppercase tracking-wider">
+                Bookings Status Distribution
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {Object.entries(reportSummary?.statusBreakdown || {}).map(([st, cnt]) => (
+                  <div key={st} className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/70 text-center">
+                    <span className="text-[10px] font-semibold text-neutral-500 block truncate">{st}</span>
+                    <span className="text-lg font-black text-brand-primary block mt-0.5">{cnt}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -1848,7 +2396,7 @@ const AdminDashboardPage = () => {
                   required
                   value={itemFormData.imageUrl}
                   onChange={(e) => setItemFormData({ ...itemFormData, imageUrl: e.target.value })}
-                  placeholder="/media/..."
+                  placeholder="e.g. /media/rich-decor/decor-1.jpg"
                   className="w-full p-2.5 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                 />
               </div>
@@ -2395,18 +2943,26 @@ const AdminDashboardPage = () => {
               })()}
 
               {/* Action Buttons */}
-              <div className="pt-2 flex gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md hover:opacity-95 transition flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md hover:opacity-95 transition flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4 text-brand-gold" />
-                  <span>Save Quotation & Update Order</span>
+                  <span>Save Quotation (Internal)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApproveWithQuotation}
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Approve & Send to Customer</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsQuoteEditModalOpen(false)}
-                  className="w-full py-3 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-bold hover:bg-neutral-50 transition"
+                  className="px-5 py-3 rounded-xl border border-neutral-300 text-neutral-700 text-xs font-bold hover:bg-neutral-50 transition"
                 >
                   Cancel
                 </button>
@@ -2692,6 +3248,163 @@ const AdminDashboardPage = () => {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: RECORD OFFLINE PAYMENT
+         ======================================================== */}
+      {offlinePayModalOrder && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-neutral-200 animate-scaleUp">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-bold text-neutral-900">Record Offline Payment</h3>
+              </div>
+              <button
+                onClick={() => setOfflinePayModalOrder(null)}
+                className="text-neutral-400 hover:text-neutral-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRecordOfflinePayment} className="space-y-4 pt-4 text-xs">
+              <div className="bg-neutral-50 p-3 rounded-xl border border-neutral-200">
+                <span className="text-neutral-500 block">Enquiry / Client:</span>
+                <strong className="text-neutral-900 block font-serif text-sm">
+                  {offlinePayModalOrder.id} — {offlinePayModalOrder.customerName}
+                </strong>
+                <span className="text-neutral-500 block mt-1">
+                  Grand Total: <strong>₹{(offlinePayModalOrder.grandTotal || offlinePayModalOrder.estimatedCost || 0).toLocaleString('en-IN')}</strong> &bull; Already Paid: <strong>₹{(offlinePayModalOrder.advancePaid || 0).toLocaleString('en-IN')}</strong>
+                </span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">Amount Received (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={offlinePayForm.amount}
+                  onChange={(e) => setOfflinePayForm({ ...offlinePayForm, amount: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white text-sm font-bold text-brand-primary outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">Payment Method *</label>
+                <select
+                  value={offlinePayForm.paymentMethod}
+                  onChange={(e) => setOfflinePayForm({ ...offlinePayForm, paymentMethod: e.target.value })}
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white font-semibold outline-none focus:ring-2 focus:ring-brand-accent"
+                >
+                  <option value="Cash">Cash (Received in Person)</option>
+                  <option value="Cheque">Bank Cheque</option>
+                  <option value="RTGS / NEFT">RTGS / NEFT Bank Transfer</option>
+                  <option value="Direct UPI">Direct UPI / QR Code Transfer</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">Receipt / Transaction Ref *</label>
+                <input
+                  type="text"
+                  required
+                  value={offlinePayForm.referenceNumber}
+                  onChange={(e) => setOfflinePayForm({ ...offlinePayForm, referenceNumber: e.target.value })}
+                  placeholder="e.g. CASH-78192 or UTR/Cheque No"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">Audit Notes / Comments</label>
+                <textarea
+                  rows={2}
+                  value={offlinePayForm.notes}
+                  onChange={(e) => setOfflinePayForm({ ...offlinePayForm, notes: e.target.value })}
+                  placeholder="e.g. Received 50% booking deposit at lawn office"
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-brand-accent"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Log Payment & Confirm</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOfflinePayModalOrder(null)}
+                  className="px-4 py-3 rounded-xl border border-neutral-300 text-neutral-600 font-bold hover:bg-neutral-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: REJECT ORDER WITH REASON
+         ======================================================== */}
+      {rejectionModalOrder && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-neutral-200 animate-scaleUp">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-100">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-600" />
+                <h3 className="text-base font-bold text-neutral-900">Decline Event Booking</h3>
+              </div>
+              <button
+                onClick={() => setRejectionModalOrder(null)}
+                className="text-neutral-400 hover:text-neutral-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 pt-4 text-xs">
+              <p className="text-neutral-600">
+                You are declining booking request <strong>{rejectionModalOrder.id}</strong> for <strong>{rejectionModalOrder.customerName}</strong> ({rejectionModalOrder.eventDate}).
+              </p>
+
+              <div>
+                <label className="block font-bold text-neutral-700 mb-1">Reason for Decline *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Explain why this booking cannot be accepted (e.g. Lawn fully booked, inventory reserved, out of radius)..."
+                  className="w-full p-2.5 border border-neutral-300 rounded-xl bg-white outline-none focus:ring-2 focus:ring-rose-400"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleConfirmReject}
+                  className="flex-1 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition"
+                >
+                  Confirm Decline & Notify Client
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRejectionModalOrder(null)}
+                  className="px-4 py-3 rounded-xl border border-neutral-300 text-neutral-600 font-bold hover:bg-neutral-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

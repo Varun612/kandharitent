@@ -357,12 +357,62 @@ const getDashboardStats = async (req, res) => {
         inDiscussionEnquiries: enquiries.filter(e => e.status === 'In Discussion').length,
         quotedEnquiries: enquiries.filter(e => e.status === 'Quoted').length,
         convertedEnquiries: enquiries.filter(e => e.status === 'Converted').length,
-        closedEnquiries: enquiries.filter(e => e.status === 'Closed').length
+        closedEnquiries: enquiries.filter(e => e.status === 'Closed').length,
+        // Workflow statuses
+        pendingApproval: enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length,
+        awaitingCustomerAcceptance: enquiries.filter(e => e.status === 'Approved — Awaiting Customer Acceptance').length,
+        awaitingPayment: enquiries.filter(e => e.status === 'Approved — Awaiting Payment').length,
+        paymentPending: enquiries.filter(e => e.status === 'Payment Pending').length,
+        rejected: enquiries.filter(e => e.status === 'Rejected').length,
+        totalCustomers: (db.users || []).length,
+        totalRevenue: enquiries.reduce((sum, e) => sum + (Number(e.advancePaid) || 0), 0),
+        totalOutstanding: enquiries.reduce((sum, e) => sum + (Number(e.balanceDue) || 0), 0)
       }
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
     return res.status(500).json({ success: false, message: 'Server error fetching statistics' });
+  }
+};
+
+// 8. GET /api/auth/customers (Admin) - List all registered customers with metrics
+const getAllCustomers = async (req, res) => {
+  try {
+    const db = getLocalDb();
+    const users = db.users || [];
+    const enquiries = db.enquiries || [];
+
+    const customerList = users.map(u => {
+      const userEnquiries = enquiries.filter(e => 
+        e.customerId === u.id || 
+        (e.email && e.email.toLowerCase() === u.email?.toLowerCase()) ||
+        (e.phone && e.phone === u.phone)
+      );
+
+      const confirmedOrders = userEnquiries.filter(e => e.status === 'Confirmed' || e.status === 'Paid');
+      const totalSpent = userEnquiries.reduce((sum, e) => sum + (Number(e.advancePaid) || 0), 0);
+
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role || 'customer',
+        createdAt: u.createdAt,
+        totalEnquiries: userEnquiries.length,
+        confirmedOrdersCount: confirmedOrders.length,
+        totalSpent
+      };
+    });
+
+    return res.json({
+      success: true,
+      count: customerList.length,
+      data: customerList
+    });
+  } catch (err) {
+    console.error('Error fetching customers:', err);
+    return res.status(500).json({ success: false, message: 'Server error loading customers' });
   }
 };
 
@@ -373,5 +423,7 @@ module.exports = {
   getCustomerConversations,
   adminLogin,
   verifyAuth,
-  getDashboardStats
+  getDashboardStats,
+  getAllCustomers
 };
+

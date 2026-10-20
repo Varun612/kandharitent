@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import EnquiryDrawer from './components/EnquiryDrawer';
 import AiChatAssistant from './components/AiChatAssistant';
 import ProtectedRoute from './components/ProtectedRoute';
+import AuthModal from './components/AuthModal';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -86,6 +87,7 @@ function App() {
             <Footer />
             <EnquiryDrawer />
             <AiChatAssistant />
+            <AuthModal />
           </div>
         </Router>
       </EnquiryProvider>

@@ -1,6 +1,7 @@
 const { isMongoConnected, getLocalDb, saveLocalStore } = require('../config/db');
 const Enquiry = require('../models/Enquiry');
 const { calculateOrderPricing } = require('../services/pricingEngine');
+const { createNotification } = require('./notificationController');
 
 const BUSINESS_WHATSAPP = process.env.WHATSAPP_PHONE || '919305465848';
 
@@ -135,7 +136,7 @@ const submitEnquiry = async (req, res) => {
       notes: notes || '',
       detailedRequirements: req.body.detailedRequirements || notes || '',
       consentGiven: consentGiven !== false,
-      status: 'New',
+      status: 'Pending Admin Approval',
       referredTo: '',
       nextFollowUpDate: '',
       internalNotes: '',
@@ -245,7 +246,25 @@ const updateEnquiryStatus = async (req, res) => {
     const { id } = req.params;
     const { status, internalNotes, nextFollowUpDate, referredTo } = req.body;
 
-    const allowedStatuses = ['New', 'Contacted', 'In Discussion', 'Quoted', 'Converted', 'Confirmed', 'Referred', 'Closed'];
+    const allowedStatuses = [
+      'Pending Admin Approval',
+      'Approved — Awaiting Customer Acceptance',
+      'Approved — Awaiting Payment',
+      'Payment Pending',
+      'Paid',
+      'Confirmed',
+      'Rejected',
+      'Cancelled',
+      'Refund Pending',
+      'Refunded',
+      'New',
+      'Contacted',
+      'In Discussion',
+      'Quoted',
+      'Converted',
+      'Referred',
+      'Closed'
+    ];
     if (status && !allowedStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid enquiry status' });
     }
@@ -532,6 +551,155 @@ const updateEnquiryQuotation = async (req, res) => {
   }
 };
 
+// PUT /api/enquiries/:id/review (Admin)
+// Approves (with or without revised quotation) or rejects enquiry
+const reviewEnquiry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { action, rejectionReason, internalNotes, quotationData } = req.body;
+
+    const db = getLocalDb();
+    const index = db.enquiries.findIndex(e => e.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, message: 'Enquiry / Order not found' });
+    }
+
+    const enquiry = db.enquiries[index];
+
+    if (action === 'reject') {
+      enquiry.status = 'Rejected';
+      enquiry.rejectionReason = rejectionReason || 'Dates or requested equipment unavailable.';
+      if (internalNotes) enquiry.internalNotes = internalNotes;
+      saveLocalStore();
+
+      await createNotification({
+        customerId: enquiry.customerId,
+        enquiryId: enquiry.id,
+        title: 'Booking Request Update',
+        message: `Your booking request for ${enquiry.eventDate} could not be confirmed. Reason: ${enquiry.rejectionReason}`,
+        type: 'status_update'
+      });
+
+      return res.json({ success: true, message: 'Enquiry rejected', data: enquiry });
+    }
+
+    if (action === 'approve') {
+      // If admin provided revised quotationData (e.g. edited line items or adjustments)
+      if (quotationData && (quotationData.lineItems || quotationData.manualAdjustment || quotationData.discount)) {
+        const items = Array.isArray(quotationData.lineItems) ? quotationData.lineItems : (enquiry.lineItems || enquiry.items || []);
+        const calculatedItems = items.map(it => {
+          const qty = Math.max(1, parseInt(it.quantity || 1, 10));
+          let lineTotal = parseFloat(it.lineTotal || 0);
+          if (!lineTotal && it.unitRate) {
+            lineTotal = Math.round(qty * parseFloat(it.unitRate) * (it.effectiveDays || 1));
+          } else if (!lineTotal && it.ratePerSqFt && it.areaSqFt) {
+            lineTotal = Math.round(it.areaSqFt * parseFloat(it.ratePerSqFt) * (it.effectiveDays || 1) * qty);
+          }
+          return { ...it, quantity: qty, lineTotal: Math.round(lineTotal) };
+        });
+
+        const subtotal = calculatedItems.reduce((acc, it) => acc + (it.lineTotal || 0), 0);
+        const cartage = quotationData.cartage !== undefined ? parseFloat(quotationData.cartage) : (enquiry.cartage || 0);
+        const labour = quotationData.labour !== undefined ? parseFloat(quotationData.labour) : (enquiry.labour || 0);
+        const discount = quotationData.discount !== undefined ? parseFloat(quotationData.discount) : (enquiry.discount || 0);
+        const adjustment = quotationData.manualAdjustment !== undefined ? parseFloat(quotationData.manualAdjustment) : (enquiry.manualAdjustment || 0);
+        const grandTotal = Math.max(0, Math.round(subtotal + cartage + labour - discount + adjustment));
+
+        enquiry.items = calculatedItems;
+        enquiry.lineItems = calculatedItems;
+        enquiry.subtotal = subtotal;
+        enquiry.cartage = cartage;
+        enquiry.labour = labour;
+        enquiry.discount = discount;
+        enquiry.manualAdjustment = adjustment;
+        enquiry.grandTotal = grandTotal;
+        enquiry.balanceDue = Math.max(0, grandTotal - (enquiry.advancePaid || 0));
+        enquiry.quotationNotes = quotationData.quotationNotes || enquiry.quotationNotes || '';
+        enquiry.status = 'Approved — Awaiting Customer Acceptance';
+
+        saveLocalStore();
+
+        await createNotification({
+          customerId: enquiry.customerId,
+          enquiryId: enquiry.id,
+          title: 'Revised Quotation Prepared 📋',
+          message: `Your booking quotation for ${enquiry.eventDate} has been prepared with tailored items & rates (Total: ₹${grandTotal.toLocaleString('en-IN')}). Please review and accept to unlock payment.`,
+          type: 'quotation_revised'
+        });
+
+        return res.json({ success: true, message: 'Quotation revised and approved. Awaiting customer acceptance.', data: enquiry });
+      }
+
+      // Approved as-is without revisions
+      enquiry.status = 'Approved — Awaiting Payment';
+      if (internalNotes) enquiry.internalNotes = internalNotes;
+      saveLocalStore();
+
+      await createNotification({
+        customerId: enquiry.customerId,
+        enquiryId: enquiry.id,
+        title: 'Booking Request Approved! ✨',
+        message: `Your booking request for ${enquiry.eventDate} is approved! You can now proceed to secure your date with online payment.`,
+        type: 'status_update'
+      });
+
+      return res.json({ success: true, message: 'Enquiry approved. Awaiting payment.', data: enquiry });
+    }
+
+    return res.status(400).json({ success: false, message: 'Invalid review action. Use "approve" or "reject".' });
+  } catch (err) {
+    console.error('Error reviewing enquiry:', err);
+    return res.status(500).json({ success: false, message: 'Server error reviewing enquiry' });
+  }
+};
+
+// PUT /api/enquiries/:id/accept-quotation (Customer)
+// Customer reviews and accepts revised quotation
+const acceptQuotation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = getLocalDb();
+    const enquiry = (db.enquiries || []).find(e => e.id === id);
+
+    if (!enquiry) {
+      return res.status(404).json({ success: false, message: 'Enquiry not found' });
+    }
+
+    // Ownership check
+    if (req.user && req.user.role === 'customer') {
+      const isOwner =
+        (enquiry.customerId && enquiry.customerId === req.user.id) ||
+        (enquiry.email && enquiry.email.toLowerCase() === req.user.email?.toLowerCase()) ||
+        (enquiry.phone && (enquiry.phone === req.user.phone || enquiry.whatsappNumber === req.user.phone));
+
+      if (!isOwner) {
+        return res.status(403).json({ success: false, message: 'Unauthorized access to this order.' });
+      }
+    }
+
+    enquiry.status = 'Approved — Awaiting Payment';
+    enquiry.quotationAcceptedAt = new Date().toISOString();
+    saveLocalStore();
+
+    await createNotification({
+      customerId: enquiry.customerId,
+      enquiryId: enquiry.id,
+      title: 'Quotation Accepted! 💳',
+      message: `You accepted the quotation for ${enquiry.eventDate}. Online payment via Razorpay / UPI is now unlocked.`,
+      type: 'info'
+    });
+
+    return res.json({
+      success: true,
+      message: 'Quotation accepted successfully. You can now make payment.',
+      data: enquiry
+    });
+  } catch (err) {
+    console.error('Error accepting quotation:', err);
+    return res.status(500).json({ success: false, message: 'Server error accepting quotation' });
+  }
+};
+
 module.exports = {
   submitEnquiry,
   getEnquiries,
@@ -539,5 +707,8 @@ module.exports = {
   updateEnquiryStatus,
   updateEnquiryQuotation,
   exportEnquiriesCSV,
-  deleteEnquiry
+  deleteEnquiry,
+  reviewEnquiry,
+  acceptQuotation
 };
+

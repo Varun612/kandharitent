@@ -19,7 +19,7 @@ import { useAuth } from '../context/AuthContext';
 
 const ItemDetailModal = ({ item, onClose }) => {
   const { addItem } = useEnquiry();
-  const { isCustomerAuthenticated } = useAuth();
+  const { isCustomerAuthenticated, openAuthModal } = useAuth();
   const navigate = useNavigate();
 
   const isArea = !!(item && (item.isAreaBased || item.ratePerSqFt || (item.category && item.category.includes('Tent')) || (item.category && item.category.includes('Carpet'))));
@@ -78,17 +78,12 @@ const ItemDetailModal = ({ item, onClose }) => {
     } : {};
 
     if (!isCustomerAuthenticated) {
-      sessionStorage.setItem('kandhari_pending_rental_item', JSON.stringify({
-        item,
-        quantity,
-        ...config
-      }));
-      onClose();
-      navigate('/login', {
-        state: {
-          from: { pathname: window.location.pathname },
-          action: 'add_to_cart',
-          itemName: item.name
+      openAuthModal({
+        mode: 'login',
+        reason: `Sign in or register to add "${item.name}" to your rental quotation.`,
+        onAuthenticated: () => {
+          addItem(item, quantity, config);
+          onClose();
         }
       });
       return;

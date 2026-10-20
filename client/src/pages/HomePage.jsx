@@ -30,14 +30,15 @@ import { useEnquiry } from '../context/EnquiryContext';
 import LawnEnquiryModal from '../components/LawnEnquiryModal';
 import ItemCard from '../components/ItemCard';
 import ItemDetailModal from '../components/ItemDetailModal';
-import WeddingScene from '../components/canvas/WeddingScene';
-import HotspotDetailModal from '../components/canvas/HotspotDetailModal';
+import HeroRealPhotography from '../components/HeroRealPhotography';
+import EditorialEventGallery from '../components/EditorialEventGallery';
+import TestimonialsSection from '../components/TestimonialsSection';
+import SEO from '../components/SEO';
 
 const HomePage = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
   const [isLawnModalOpen, setIsLawnModalOpen] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
-  const [selectedHotspot, setSelectedHotspot] = useState(null);
   const { openDrawer, addItem } = useEnquiry();
 
   // Video reel state
@@ -110,90 +111,23 @@ const HomePage = () => {
   return (
     <div className="space-y-24 pb-20">
       
-      {/* 1. CINEMATIC 3D TWILIGHT WEDDING HERO SECTION */}
-      <section className="relative w-full overflow-hidden bg-brand-twilight">
-        {/* Real Interactive 3D Canvas */}
-        <WeddingScene onOpenHotspotDetail={(spot) => setSelectedHotspot(spot)} />
+      <SEO
+        title="Wedding Tent Decoration, Luxury Catering & Dwarka Shri Lawn Lucknow"
+        description="Premium wedding tent decoration, waterproof German hangars, royal catering, and Dwarka Shri Lawn banquet booking in Lucknow. Decades of trusted service at Kanpur Road, Opp. Pillar No. 37."
+        canonical="/"
+      />
 
-        {/* Cinematic Editorial Overlay Card (Float Over Center Top) */}
-        <div className="absolute top-16 sm:top-20 inset-x-0 mx-auto max-w-4xl px-4 text-center pointer-events-none z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-dark/85 backdrop-blur-md border border-brand-gold/40 text-brand-goldLight text-xs sm:text-sm font-semibold tracking-wide shadow-luxury mb-4 animate-shimmer">
-            <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-            <span>Dwarka Shri Lawn • Managed by Kandhari Tent & Caterers</span>
-          </div>
+      {/* 1. CINEMATIC REAL-PHOTOGRAPHY HERO */}
+      <HeroRealPhotography
+        onOpenDrawer={openDrawer}
+        onScrollToCelebrations={scrollToCelebrations}
+      />
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif font-black tracking-tight text-white leading-tight drop-shadow-lg">
-            Every Celebration Deserves <br className="hidden sm:inline" />
-            <span className="text-gold-gradient">
-              A Grand Beginning.
-            </span>
-          </h1>
+      {/* 1.5. EDITORIAL EVENT GALLERY SHOWCASE */}
+      <EditorialEventGallery
+        onOpenEnquiryWithItem={(item) => addItem(item, 1)}
+      />
 
-          <p className="mt-3 text-xs sm:text-base text-neutral-200/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            Planning a wedding, reception, or milestone function in Lucknow? Explore our interactive 3D twilight showcase, tour <strong>Dwarka Shri Lawn</strong> on Kanpur Road, and experience our German hangars and royal mandap artistry.
-          </p>
-
-          {/* Interactive Hero CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-5 pointer-events-auto">
-            <button
-              onClick={openDrawer}
-              className="px-6 py-3.5 rounded-xl royal-gradient text-white font-bold text-xs sm:text-sm shadow-luxury hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center gap-2"
-            >
-              <Calendar className="w-4 h-4 text-brand-gold" />
-              <span>Plan Your Event</span>
-            </button>
-
-            <button
-              onClick={scrollToCelebrations}
-              className="px-6 py-3.5 rounded-xl bg-brand-cream hover:bg-brand-creamDark text-brand-primary font-bold text-xs sm:text-sm shadow-md transition transform hover:-translate-y-0.5 flex items-center gap-2"
-            >
-              <Eye className="w-4 h-4 text-brand-accent" />
-              <span>Explore Our Celebrations</span>
-            </button>
-
-            <a
-              href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20your%203D%20website%20and%20would%20like%20to%20discuss%20event%20rentals%20and%20lawn%20booking."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-3.5 rounded-xl bg-emerald-700/90 hover:bg-emerald-800 border border-emerald-500/40 text-white font-semibold text-xs sm:text-sm transition flex items-center gap-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Desk</span>
-            </a>
-
-            <a
-              href="tel:9305465848"
-              className="px-5 py-3.5 rounded-xl bg-black/50 hover:bg-black/70 backdrop-blur-md border border-brand-gold/40 text-brand-goldLight font-semibold text-xs sm:text-sm transition flex items-center gap-2"
-            >
-              <Phone className="w-4 h-4 text-brand-gold" />
-              <span>Call: 9305465848</span>
-            </a>
-          </div>
-
-          {/* Key Trust Signals */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-[11px] sm:text-xs text-neutral-300 drop-shadow-md">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold" />
-              <span>Kanpur Road Opp. Pillar No. 37</span>
-            </span>
-            <span className="hidden sm:inline text-neutral-500">•</span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-gold" />
-              <span>Approved Govt Contractors (DRDO Lucknow)</span>
-            </span>
-            <span className="hidden sm:inline text-neutral-500">•</span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold" />
-              <span>100% Real Lucknow Media</span>
-            </span>
-            <span className="hidden sm:inline text-neutral-500">•</span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold" />
-              <span>Direct Family Commitment</span>
-            </span>
-          </div>
-        </div>
-      </section>
 
       {/* 2. EDITORIAL BRAND STORY: THE HERITAGE OF KANDHARI TENT */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -877,6 +811,9 @@ const HomePage = () => {
         </section>
       )}
 
+      {/* 6.5. VERIFIED CLIENT TESTIMONIALS */}
+      <TestimonialsSection />
+
       {/* 7. 3-STEP CELEBRATION PLANNING JOURNEY */}
       <section className="bg-brand-dark text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -945,13 +882,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      {/* 3D Hotspot Detail Modal */}
-      <HotspotDetailModal
-        hotspot={selectedHotspot}
-        onClose={() => setSelectedHotspot(null)}
-        onOpenEnquiry={openDrawer}
-      />
 
       {/* Lawn Booking Modal */}
       <LawnEnquiryModal

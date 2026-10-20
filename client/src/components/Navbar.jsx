@@ -22,7 +22,7 @@ const Navbar = () => {
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const location = useLocation();
   const { totalItemsCount, openDrawer } = useEnquiry();
-  const { isCustomerAuthenticated, customerUser } = useAuth();
+  const { isCustomerAuthenticated, customerUser, unreadNotifsCount } = useAuth();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -90,13 +90,16 @@ const Navbar = () => {
             {/* Customer Account Portal Link */}
             <Link 
               to={isCustomerAuthenticated ? "/account" : "/account/login"}
-              className="text-neutral-300 hover:text-brand-gold ml-2 transition flex items-center gap-1"
+              className="text-neutral-300 hover:text-brand-gold ml-2 transition flex items-center gap-1.5 relative"
               title="Customer Account"
             >
               <User className="w-3.5 h-3.5 text-brand-gold" />
               <span className="hidden md:inline text-[11px]">
                 {isCustomerAuthenticated ? (customerUser?.name?.split(' ')[0] || 'My Account') : 'Client Login'}
               </span>
+              {isCustomerAuthenticated && unreadNotifsCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ring-2 ring-neutral-900" title={`${unreadNotifsCount} new updates`} />
+              )}
             </Link>
 
             {/* Admin Portal Link */}

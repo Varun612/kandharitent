@@ -7,6 +7,12 @@ const { validateEnquiryInput } = require('../middleware/validation');
 // Public route to submit an enquiry (optionalAuth links customer if logged in)
 router.post('/', optionalAuth, validateEnquiryInput, enquiryController.submitEnquiry);
 
+// Admin review (Approve or Reject with reason)
+router.put('/:id/review', requireAdminAuth, enquiryController.reviewEnquiry);
+
+// Customer accept revised quotation
+router.put('/:id/accept-quotation', optionalAuth, enquiryController.acceptQuotation);
+
 // Protected Admin routes
 router.get('/export/csv', requireAdminAuth, enquiryController.exportEnquiriesCSV);
 router.get('/', requireAdminAuth, enquiryController.getEnquiries);

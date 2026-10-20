@@ -13,6 +13,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { api } from '../services/api';
+import SEO from '../components/SEO';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -96,6 +97,11 @@ const ContactPage = () => {
 
   return (
     <div className="space-y-16 pb-20 animate-fadeIn">
+      <SEO
+        title="Contact Kandhari Tent & Caterers | Kanpur Road, Lucknow"
+        description="Contact Kandhari Tent & Caterers & Dwarka Shri Lawn: Opp. Pillar No. 37, Kanpur Road, Lucknow. Call 9305465848 or send booking enquiries online."
+        canonical="/contact"
+      />
       
       {/* Header */}
       <section className="royal-gradient text-white py-16">

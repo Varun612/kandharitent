@@ -28,6 +28,7 @@ import LawnEnquiryModal from '../components/LawnEnquiryModal';
 import { useEnquiry } from '../context/EnquiryContext';
 import LawnScrollCanvas from '../components/canvas/LawnScrollCanvas';
 import HotspotDetailModal from '../components/canvas/HotspotDetailModal';
+import SEO from '../components/SEO';
 
 const iconMap = {
   Trees: Trees,
@@ -132,6 +133,11 @@ const LawnPage = () => {
 
   return (
     <div className="space-y-24 pb-24 animate-fadeIn">
+      <SEO
+        title="Dwarka Shri Lawn Lucknow | Wedding Banquet & Event Venue Kanpur Road"
+        description="Book Dwarka Shri Lawn on Kanpur Road Opp. Pillar No. 37, Lucknow. 1,500 guest capacity, AC bridal suites, waterproof German hangars, and manicured grounds."
+        canonical="/lawn"
+      />
       
       {/* ============================================================ */}
       {/* SCENE ONE: THE GRAND CELEBRATION (CINEMATIC 3D VENUE HERO) */}

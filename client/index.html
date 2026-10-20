@@ -30,40 +30,93 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎪</text></svg>" />
 
-    <!-- Schema.org JSON-LD LocalBusiness Structured Data -->
+    <link rel="canonical" href="https://kandharitent.vercel.app/" />
+
+    <!-- Schema.org JSON-LD Multi-Entity Structured Data (@graph) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Kandhari Tent & Caterers",
-      "alternateName": "Dwarka Shri Lawn (Managed by Kandhari Tent & Caterers)",
-      "description": "Premium wedding tent rentals, event decorations, and lawn booking services on Kanpur Road in Lucknow, Uttar Pradesh.",
-      "telephone": ["+919305465848", "+919307908994", "+917355059566"],
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Opp. Pillar No. 37, Daroga Kheda, Kanpur Road",
-        "addressLocality": "Lucknow",
-        "addressRegion": "Uttar Pradesh",
-        "postalCode": "226023",
-        "addressCountry": "IN"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 26.7571,
-        "longitude": 80.8719
-      },
-      "url": "https://kandharitent.com",
-      "priceRange": "$$",
-      "openingHours": "Mo-Su 09:00-21:00",
-      "areaServed": [
-        "Lucknow",
-        "Kanpur Road",
-        "Alambagh",
-        "Gomti Nagar",
-        "Ashiyana",
-        "Transport Nagar",
-        "Telibagh",
-        "Indira Nagar"
+      "@graph": [
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://kandharitent.vercel.app/#business",
+          "name": "Kandhari Tent & Caterers",
+          "alternateName": ["Kandhari Tent House", "Kandhari Tent & Caterers Lucknow"],
+          "description": "Lucknow's premier wedding tent decorator, waterproof German hangar contractor, and luxury wedding event provider located on Kanpur Road.",
+          "url": "https://kandharitent.vercel.app",
+          "telephone": ["+919305465848", "+919307908994", "+917355059566"],
+          "priceRange": "₹₹",
+          "image": "https://kandharitent.vercel.app/media/rich-decor/decor-1.jpg",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Opp. Pillar No. 37, Daroga Kheda, Kanpur Road",
+            "addressLocality": "Lucknow",
+            "addressRegion": "Uttar Pradesh",
+            "postalCode": "226023",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 26.7571,
+            "longitude": 80.8719
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              "opens": "09:00",
+              "closes": "21:30"
+            }
+          ],
+          "areaServed": [
+            { "@type": "City", "name": "Lucknow" },
+            { "@type": "AdministrativeArea", "name": "Kanpur Road, Lucknow" },
+            { "@type": "AdministrativeArea", "name": "Alambagh" },
+            { "@type": "AdministrativeArea", "name": "Ashiyana" },
+            { "@type": "AdministrativeArea", "name": "Gomti Nagar" },
+            { "@type": "AdministrativeArea", "name": "Transport Nagar" },
+            { "@type": "AdministrativeArea", "name": "Telibagh" }
+          ]
+        },
+        {
+          "@type": "EventVenue",
+          "@id": "https://kandharitent.vercel.app/#venue",
+          "name": "Dwarka Shri Lawn",
+          "description": "Grand wedding banquet lawn managed exclusively by Kandhari Tent & Caterers, accommodating up to 1,500 guests with AC bridal suites and paved parking on Kanpur Road, Lucknow.",
+          "url": "https://kandharitent.vercel.app/lawn",
+          "telephone": "+919305465848",
+          "maximumAttendeeCapacity": 1500,
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Opp. Pillar No. 37, Daroga Kheda, Kanpur Road",
+            "addressLocality": "Lucknow",
+            "addressRegion": "Uttar Pradesh",
+            "postalCode": "226023",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 26.7571,
+            "longitude": 80.8719
+          },
+          "amenityFeature": [
+            { "@type": "LocationFeatureSpecification", "name": "1,500 Guest Lawn Capacity", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Air Conditioned Bridal Suites", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Waterproof German Hangar Banquet", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Valet & Dedicated Paved Parking", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Full Power Backup Generator", "value": true }
+          ]
+        },
+        {
+          "@type": "CateringService",
+          "@id": "https://kandharitent.vercel.app/#catering",
+          "name": "Kandhari Catering Services",
+          "description": "Authentic Awadhi, North Indian, Mughlai and Continental wedding catering in Lucknow. Pure vegetarian and non-vegetarian live counters, chaat street, and royal banquet setups.",
+          "url": "https://kandharitent.vercel.app/catering",
+          "telephone": "+919305465848",
+          "servesCuisine": ["Awadhi", "North Indian", "Mughlai", "Continental", "Chaat & Street Food"],
+          "priceRange": "₹250 - ₹850 per plate"
+        }
       ]
     }
     </script>

@@ -24,10 +24,12 @@ import {
   Award,
   Coffee,
   HeartHandshake,
-  ArrowRight
+  ArrowRight,
+  Eye
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 
 const CateringPage = () => {
   const { customerUser, isCustomerAuthenticated } = useAuth();
@@ -35,6 +37,7 @@ const CateringPage = () => {
   const [categories, setCategories] = useState([]);
   const [dishes, setDishes] = useState([]);
   const [selectedDishes, setSelectedDishes] = useState({}); // { [dishId]: dishObject }
+  const [selectedDishDetail, setSelectedDishDetail] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -271,6 +274,11 @@ const CateringPage = () => {
 
   return (
     <div className="min-h-screen bg-brand-cream/40 pb-24">
+      <SEO
+        title="Pure-Veg Awadhi Wedding Catering Services in Lucknow"
+        description="Authentic pure-vegetarian Awadhi wedding catering in Lucknow by Kandhari Tent & Caterers. Live chaat counters, tandoori starters, rich handi curries, and traditional desserts for weddings and milestone celebrations on Kanpur Road."
+        canonical="/catering"
+      />
       
       {/* Hero Header */}
       <section className="relative bg-brand-dark text-white pt-16 pb-20 overflow-hidden border-b border-brand-purple/40 print:hidden">
@@ -986,8 +994,21 @@ const CateringPage = () => {
                               </span>
                             </div>
 
-                            {/* Selection indicator pill */}
-                            <div className="absolute top-2 right-2">
+                            {/* Actions on Photo: Quick View & Select */}
+                            <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedDishDetail(dish);
+                                }}
+                                className="w-6 h-6 rounded-lg bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition shadow-xs backdrop-blur-xs"
+                                title="View Dish Photo & Details"
+                                aria-label="View dish photo and details"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-brand-goldLight" />
+                              </button>
+
                               <button
                                 type="button"
                                 className={`w-6 h-6 rounded-lg flex items-center justify-center transition shadow-xs ${
@@ -1455,6 +1476,71 @@ const CateringPage = () => {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Dish Detail & Photo Enlargement Modal */}
+      {selectedDishDetail && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-brand-gold/30">
+            <div className="relative aspect-16/9 bg-neutral-900">
+              <img
+                src={selectedDishDetail.imageUrl}
+                alt={selectedDishDetail.name}
+                className="w-full h-full object-cover"
+              />
+              <button
+                onClick={() => setSelectedDishDetail(null)}
+                className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/90 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="absolute bottom-3 left-3">
+                <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider shadow-sm">
+                  {selectedDishDetail.category}
+                </span>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-xl font-serif font-black text-brand-primary">
+                    {selectedDishDetail.name}
+                  </h3>
+                  <span className="w-4 h-4 rounded-xs border border-emerald-600 flex items-center justify-center shrink-0" title="100% Pure Vegetarian">
+                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
+                  {selectedDishDetail.description || 'Authentic traditional preparation served piping hot with premium garnishing, pure spices, and culinary excellence by Kandhari Tent & Caterers.'}
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between gap-3 border-t border-neutral-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleToggleDish(selectedDishDetail);
+                    setSelectedDishDetail(null);
+                  }}
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 ${
+                    selectedDishes[selectedDishDetail.id]
+                      ? 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                      : 'royal-gradient text-white shadow-md hover:opacity-95'
+                  }`}
+                >
+                  {selectedDishes[selectedDishDetail.id] ? (
+                    <span>Remove from Menu</span>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 text-brand-gold" />
+                      <span>Add to My Menu</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

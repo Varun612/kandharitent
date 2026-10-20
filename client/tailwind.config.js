@@ -36,6 +36,20 @@ export default {
         'gold-subtle': '0 0 20px rgba(197, 160, 89, 0.25)',
         'gold-glow': '0 0 35px rgba(223, 190, 124, 0.35)',
         'luxury': '0 15px 35px -5px rgba(26, 5, 18, 0.2), 0 0 0 1px rgba(197, 160, 89, 0.15)'
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' }
+        }
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-up': 'slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards'
       }
     },
   },

@@ -88,7 +88,7 @@ const EnquiryDrawer = () => {
     closeDrawer 
   } = useEnquiry();
 
-  const { customerUser } = useAuth();
+  const { customerUser, isCustomerAuthenticated, openAuthModal } = useAuth();
 
   const [formData, setFormData] = useState({
     customerName: customerUser?.name || '',
@@ -506,6 +506,30 @@ const EnquiryDrawer = () => {
                     <FileText className="w-4 h-4 text-brand-gold" />
                     <span>Customer & Delivery Details</span>
                   </h3>
+
+                  {!isCustomerAuthenticated ? (
+                    <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-3 flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2 text-amber-900">
+                        <User className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Sign in to track your booking approval status and pay online.</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openAuthModal({ reason: 'Sign in to link this quotation directly to your customer portal.' })}
+                        className="shrink-0 px-3 py-1 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold rounded-lg text-[11px] transition-colors"
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs text-emerald-800">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>Signed in as <strong>{customerUser?.name}</strong></span>
+                      </div>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Portal Active</span>
+                    </div>
+                  )}
 
                   {errorMessage && (
                     <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">

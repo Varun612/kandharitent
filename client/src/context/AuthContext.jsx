@@ -28,6 +28,57 @@ export const AuthProvider = ({ children }) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  // Modal Interceptor & Post-Auth Callback State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+  const [authModalReason, setAuthModalReason] = useState('');
+  const [postAuthCallback, setPostAuthCallback] = useState(null);
+
+  // Customer Notifications State
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
+
+  const openAuthModal = ({ mode = 'login', reason = '', onAuthenticated = null } = {}) => {
+    setAuthModalMode(mode);
+    setAuthModalReason(reason);
+    setPostAuthCallback(() => onAuthenticated);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+    setPostAuthCallback(null);
+    setAuthModalReason('');
+  };
+
+  const handlePostAuth = (userData) => {
+    if (postAuthCallback && typeof postAuthCallback === 'function') {
+      try {
+        postAuthCallback(userData);
+      } catch (e) {
+        console.error('Error running post-auth callback:', e);
+      }
+    }
+    closeAuthModal();
+  };
+
+  const refreshNotifications = async () => {
+    if (!customerToken) {
+      setNotifications([]);
+      setUnreadNotifsCount(0);
+      return;
+    }
+    try {
+      const res = await api.getMyNotifications();
+      if (res && res.success && Array.isArray(res.data)) {
+        setNotifications(res.data);
+        setUnreadNotifsCount(res.unreadCount ?? res.data.filter(n => !n.read).length);
+      }
+    } catch (err) {
+      console.warn('Could not refresh customer notifications:', err.message);
+    }
+  };
+
   // Admin Login
   const login = async (username, password) => {
     const res = await api.login({ username, password });
@@ -57,6 +108,7 @@ export const AuthProvider = ({ children }) => {
       setCustomerUser(res.user);
       localStorage.setItem('kandhari_customer_token', res.token);
       localStorage.setItem('kandhari_customer_user', JSON.stringify(res.user));
+      handlePostAuth(res.user);
       return res;
     }
     throw new Error(res.message || 'Registration failed');
@@ -70,6 +122,7 @@ export const AuthProvider = ({ children }) => {
       setCustomerUser(res.user);
       localStorage.setItem('kandhari_customer_token', res.token);
       localStorage.setItem('kandhari_customer_user', JSON.stringify(res.user));
+      handlePostAuth(res.user);
       return res;
     }
     throw new Error(res.message || 'Login failed');
@@ -79,13 +132,18 @@ export const AuthProvider = ({ children }) => {
   const customerLogout = () => {
     setCustomerToken(null);
     setCustomerUser(null);
+    setNotifications([]);
+    setUnreadNotifsCount(0);
     localStorage.removeItem('kandhari_customer_token');
     localStorage.removeItem('kandhari_customer_user');
   };
 
   useEffect(() => {
     setIsLoading(false);
-  }, []);
+    if (customerToken) {
+      refreshNotifications();
+    }
+  }, [customerToken]);
 
   return (
     <AuthContext.Provider value={{
@@ -103,6 +161,18 @@ export const AuthProvider = ({ children }) => {
       customerRegister,
       customerLogin,
       customerLogout,
+
+      // Modal Interceptor & Resumption
+      isAuthModalOpen,
+      authModalMode,
+      authModalReason,
+      openAuthModal,
+      closeAuthModal,
+
+      // Notifications
+      notifications,
+      unreadNotifsCount,
+      refreshNotifications,
 
       isLoading
     }}>

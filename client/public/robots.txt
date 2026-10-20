@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://kandharitent.com/sitemap.xml
+Sitemap: https://kandharitent.vercel.app/sitemap.xml

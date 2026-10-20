@@ -11,6 +11,9 @@ const galleryRoutes = require('./routes/galleryRoutes');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const cateringRoutes = require('./routes/cateringRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -91,6 +94,28 @@ mountDualRoute('/gallery', galleryRoutes);
 mountDualRoute('/auth', authRoutes);
 mountDualRoute('/chat', chatRoutes);
 mountDualRoute('/catering', cateringRoutes);
+mountDualRoute('/payments', paymentRoutes);
+mountDualRoute('/notifications', notificationRoutes);
+mountDualRoute('/reports', reportRoutes);
+
+// Serve static client build and SPA routing if dist exists
+const fs = require('fs');
+const distPath = path.join(__dirname, '../dist');
+const clientDistPath = path.join(__dirname, '../client/dist');
+const staticPath = fs.existsSync(distPath) ? distPath : (fs.existsSync(clientDistPath) ? clientDistPath : null);
+
+if (staticPath) {
+  app.use(express.static(staticPath));
+  
+  // SPA Fallback for client routes
+  app.get('*', (req, res, next) => {
+    const p = req.path || '';
+    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/health')) {
+      return next();
+    }
+    res.sendFile(path.join(staticPath, 'index.html'));
+  });
+}
 
 // Catch-all 404 handler for API routes (always return JSON, never HTML)
 app.use((req, res) => {

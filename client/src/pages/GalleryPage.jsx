@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Sparkles, Eye, Image as ImageIcon, Video, Search, X, MessageSquare, Film, Filter, ChevronDown } from 'lucide-react';
 import { api } from '../services/api';
 import GalleryViewer from '../components/GalleryViewer';
+import SEO from '../components/SEO';
 
 export const GALLERY_SECTIONS = [
   'All',
@@ -141,6 +142,11 @@ const GalleryPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fadeIn">
+      <SEO
+        title="Real Wedding & Event Gallery Lucknow | Kandhari Tent & Dwarka Shri Lawn"
+        description="Explore 220+ genuine wedding setup photos and videos: German hangars, royal mandaps, entrance arches, catering layouts, and Dwarka Shri Lawn in Lucknow."
+        canonical="/gallery"
+      />
       
       {/* Header */}
       <div className="text-center space-y-3">

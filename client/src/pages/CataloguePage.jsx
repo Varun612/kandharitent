@@ -16,6 +16,7 @@ import { useEnquiry } from '../context/EnquiryContext';
 import ItemCard from '../components/ItemCard';
 import ItemDetailModal from '../components/ItemDetailModal';
 import CategoryFilter from '../components/CategoryFilter';
+import SEO from '../components/SEO';
 
 const CataloguePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -70,6 +71,11 @@ const CataloguePage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-fadeIn">
+      <SEO
+        title="Event Equipment & Wedding Rental Catalogue Lucknow | Kandhari Tent"
+        description="Browse rental wedding tents, German hangars, Maharaja sofas, banquet chairs, sound, mist fans, and stage lighting inventory in Lucknow."
+        canonical="/catalogue"
+      />
       
       {/* Header Banner */}
       <div className="royal-gradient rounded-3xl p-8 sm:p-12 text-white shadow-royal relative overflow-hidden">

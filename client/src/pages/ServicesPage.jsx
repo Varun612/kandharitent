@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import LawnEnquiryModal from '../components/LawnEnquiryModal';
 import { useEnquiry } from '../context/EnquiryContext';
+import SEO from '../components/SEO';
 
 const ServicesPage = () => {
   const [isLawnModalOpen, setIsLawnModalOpen] = useState(false);
@@ -149,6 +150,11 @@ const ServicesPage = () => {
 
   return (
     <div className="space-y-20 pb-20 animate-fadeIn">
+      <SEO
+        title="Wedding Services, German Hangars & Mandap Decoration Lucknow"
+        description="Comprehensive wedding services in Lucknow: waterproof German hangars, floral mandaps, Maharaja seating, stage truss, DJ sound, and lawn management."
+        canonical="/services"
+      />
       
       {/* Header */}
       <section className="royal-gradient text-white py-16">

@@ -401,6 +401,172 @@ const runTests = async () => {
       throw new Error('Expected 404 JSON for non-existent route');
     }
 
+    // --- Test 12: Admin Approval Workflow, Razorpay Payment, Notifications & Reports ---
+    console.log('\n--- Test 12: Admin Approval Before Payment Workflow & Razorpay Integration ---');
+
+    // 12.1: Submit fresh rental booking request as customer
+    const orderPayload = {
+      customerName: 'Vikramaditya Verma',
+      phone: '9305465848',
+      email: 'vikram.verma@example.com',
+      eventDate: '2026-12-15',
+      startDate: '2026-12-15',
+      endDate: '2026-12-16',
+      locality: 'Kanpur Road, Lucknow',
+      items: [
+        { id: 'item-chair-velvet', name: 'Velvet Chair with Cover', quantity: 100, rentalPrice: 45 },
+        { id: 'item-table-round', name: 'Round Table with Cover', quantity: 10, rentalPrice: 200, durationSensitive: true }
+      ]
+    };
+
+    const submitOrderRes = await testEndpoint('/api/enquiries', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: JSON.stringify(orderPayload)
+    });
+
+    console.log(`[Workflow Step A] Customer submits booking request: HTTP ${submitOrderRes.status} | Status: ${submitOrderRes.data.data?.status}`);
+    if (submitOrderRes.data.data?.status !== 'Pending Admin Approval') {
+      throw new Error(`Expected status 'Pending Admin Approval', got '${submitOrderRes.data.data?.status}'`);
+    }
+    const orderId = submitOrderRes.data.data.id;
+
+    // 12.2: Attempt payment before approval (Must be rejected)
+    const prematurePayRes = await testEndpoint('/api/payments/create-order', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: JSON.stringify({ enquiryId: orderId })
+    });
+    console.log(`[Workflow Security] Premature payment attempt blocked: HTTP ${prematurePayRes.status} | Message: ${prematurePayRes.data.message}`);
+    if (prematurePayRes.status !== 400) {
+      throw new Error('Expected 400 Bad Request when attempting to pay for unapproved order');
+    }
+
+    // 12.3: Admin reviews and prepares revised quotation (Step C)
+    const reviewRes = await testEndpoint(`/api/enquiries/${orderId}/review`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        action: 'approve',
+        quotationData: {
+          lineItems: [
+            { name: 'Velvet Chair with Cover', quantity: 100, unitRate: 45, lineTotal: 4500 },
+            { name: 'Round Table with Cover', quantity: 10, unitRate: 200, effectiveDays: 2, lineTotal: 4000 }
+          ],
+          cartage: 500,
+          labour: 500,
+          discount: 500,
+          quotationNotes: 'Special festive family discount applied.'
+        }
+      })
+    });
+    console.log(`[Workflow Step C] Admin approves with revised quotation: HTTP ${reviewRes.status} | Status: ${reviewRes.data.data?.status} | Total: ₹${reviewRes.data.data?.grandTotal}`);
+    if (reviewRes.data.data?.status !== 'Approved — Awaiting Customer Acceptance') {
+      throw new Error(`Expected status 'Approved — Awaiting Customer Acceptance', got '${reviewRes.data.data?.status}'`);
+    }
+
+    // 12.4: Customer reviews and accepts revised quotation
+    const acceptRes = await testEndpoint(`/api/enquiries/${orderId}/accept-quotation`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${customerToken}` }
+    });
+    console.log(`[Workflow Step C.2] Customer accepts quotation: HTTP ${acceptRes.status} | Status: ${acceptRes.data.data?.status}`);
+    if (acceptRes.data.data?.status !== 'Approved — Awaiting Payment') {
+      throw new Error(`Expected status 'Approved — Awaiting Payment', got '${acceptRes.data.data?.status}'`);
+    }
+
+    // 12.5: Customer creates Razorpay payment order (Step D)
+    const createPaymentRes = await testEndpoint('/api/payments/create-order', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: JSON.stringify({ enquiryId: orderId, paymentType: 'advance' })
+    });
+    console.log(`[Workflow Step D] Razorpay order created: HTTP ${createPaymentRes.status} | Razorpay Order ID: ${createPaymentRes.data.data?.orderId} | Payable: ₹${createPaymentRes.data.data?.amountToPay}`);
+    if (createPaymentRes.status !== 200 || !createPaymentRes.data.data?.orderId) {
+      throw new Error('Failed to create Razorpay payment order');
+    }
+
+    const rzpOrderId = createPaymentRes.data.data.orderId;
+    const testPaymentId = `pay_test_${Date.now()}`;
+    const paymentService = require('./services/paymentService');
+    const validTestSignature = paymentService.generateTestSignature(rzpOrderId, testPaymentId);
+
+    // 12.6: Verify payment with invalid signature (Security check)
+    const invalidVerifyRes = await testEndpoint('/api/payments/verify', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: JSON.stringify({
+        enquiryId: orderId,
+        razorpay_order_id: rzpOrderId,
+        razorpay_payment_id: testPaymentId,
+        razorpay_signature: 'invalid_fraudulent_signature'
+      })
+    });
+    console.log(`[Workflow Security] Invalid payment signature blocked: HTTP ${invalidVerifyRes.status}`);
+    if (invalidVerifyRes.status !== 400) {
+      throw new Error('Expected 400 Bad Request on invalid payment signature');
+    }
+
+    // 12.7: Verify payment with valid signature (Step E & F)
+    const validVerifyRes = await testEndpoint('/api/payments/verify', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: JSON.stringify({
+        enquiryId: orderId,
+        razorpay_order_id: rzpOrderId,
+        razorpay_payment_id: testPaymentId,
+        razorpay_signature: validTestSignature,
+        amount: createPaymentRes.data.data.amountToPay
+      })
+    });
+    console.log(`[Workflow Step E & F] Payment verified & Booking Confirmed: HTTP ${validVerifyRes.status} | Status: ${validVerifyRes.data.data?.status} | Advance Paid: ₹${validVerifyRes.data.data?.advancePaid}`);
+    if (validVerifyRes.data.data?.status !== 'Confirmed') {
+      throw new Error(`Expected status 'Confirmed', got '${validVerifyRes.data.data?.status}'`);
+    }
+
+    // 12.8: Idempotency check: Re-verify same payment (Must not double credit)
+    const repeatVerifyRes = await testEndpoint('/api/payments/verify', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: JSON.stringify({
+        enquiryId: orderId,
+        razorpay_order_id: rzpOrderId,
+        razorpay_payment_id: testPaymentId,
+        razorpay_signature: validTestSignature,
+        amount: createPaymentRes.data.data.amountToPay
+      })
+    });
+    console.log(`[Workflow Idempotency] Duplicate payment verification handled cleanly: HTTP ${repeatVerifyRes.status}`);
+    if (repeatVerifyRes.status !== 200 || !repeatVerifyRes.data.verified) {
+      throw new Error('Idempotent payment re-verification failed');
+    }
+
+    // 12.9: Customer In-App Notification Center
+    const notifsRes = await testEndpoint('/api/notifications/my-notifications', {
+      headers: { 'Authorization': `Bearer ${customerToken}` }
+    });
+    console.log(`[Notifications] Customer Notifications loaded: HTTP ${notifsRes.status} | Count: ${notifsRes.data.count}`);
+    if (notifsRes.status !== 200 || notifsRes.data.count < 1) {
+      throw new Error('Expected at least 1 notification for customer');
+    }
+
+    // 12.10: Admin Reports Summary & Customer Registry
+    const reportsSummary = await testEndpoint('/api/reports/summary', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Reports] Admin Report Summary: HTTP ${reportsSummary.status} | Total Revenue: ₹${reportsSummary.data.data?.totalRevenue} | Bookings: ${reportsSummary.data.data?.totalOrders}`);
+    if (reportsSummary.status !== 200 || reportsSummary.data.data?.totalRevenue === undefined) {
+      throw new Error('Reports summary failed');
+    }
+
+    const customersRes = await testEndpoint('/api/auth/customers', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Customers Registry] Admin Customer Directory: HTTP ${customersRes.status} | Registered: ${customersRes.data.count} customers`);
+    if (customersRes.status !== 200 || customersRes.data.count < 1) {
+      throw new Error('Admin customer directory failed');
+    }
+
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');

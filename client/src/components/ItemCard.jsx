@@ -6,17 +6,16 @@ import { useAuth } from '../context/AuthContext';
 
 const ItemCard = ({ item, onSelectDetail }) => {
   const { addItem } = useEnquiry();
-  const { isCustomerAuthenticated } = useAuth();
+  const { isCustomerAuthenticated, openAuthModal } = useAuth();
   const navigate = useNavigate();
 
   const handleAddItem = () => {
     if (!isCustomerAuthenticated) {
-      sessionStorage.setItem('kandhari_pending_rental_item', JSON.stringify({ item, quantity: 1 }));
-      navigate('/login', {
-        state: {
-          from: { pathname: window.location.pathname },
-          action: 'add_to_cart',
-          itemName: item.name
+      openAuthModal({
+        mode: 'login',
+        reason: `Sign in or register to add "${item.name}" to your rental quotation.`,
+        onAuthenticated: () => {
+          addItem(item, 1);
         }
       });
       return;

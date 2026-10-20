@@ -11,10 +11,17 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
+import SEO from '../components/SEO';
+
 
 const AboutPage = () => {
   return (
     <div className="space-y-16 pb-20 animate-fadeIn">
+      <SEO
+        title="About Kandhari Tent & Caterers | Dwarka Shri Lawn Lucknow"
+        description="Learn about the heritage of Kandhari Tent & Caterers and Dwarka Shri Lawn on Kanpur Road, Lucknow. Family dedication, government contractor credentials, and quality equipment."
+        canonical="/about"
+      />
       
       {/* Header */}
       <section className="royal-gradient text-white py-16">

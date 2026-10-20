@@ -12,6 +12,7 @@ router.get('/my-conversations', requireCustomerAuth, authController.getCustomerC
 // Admin Auth
 router.post('/login', authController.adminLogin);
 router.get('/stats', requireAdminAuth, authController.getDashboardStats);
+router.get('/customers', requireAdminAuth, authController.getAllCustomers);
 
 // Verify Token (Customer or Admin)
 router.get('/verify', requireCustomerAuth, authController.verifyAuth);

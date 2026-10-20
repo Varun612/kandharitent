@@ -72,7 +72,7 @@ export const api = {
   updateItem: (id, updates) => request(`/items/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
   deleteItem: (id) => request(`/items/${id}`, { method: 'DELETE' }),
 
-  // Enquiries
+  // Enquiries & Workflow
   submitEnquiry: (enquiryData) => request('/enquiries', { method: 'POST', body: JSON.stringify(enquiryData) }),
   getEnquiries: (params = {}) => {
     const query = new URLSearchParams(params).toString();
@@ -81,6 +81,8 @@ export const api = {
   getEnquiryById: (id) => request(`/enquiries/${id}`),
   updateEnquiryStatus: (id, statusData) => request(`/enquiries/${id}/status`, { method: 'PUT', body: JSON.stringify(statusData) }),
   updateEnquiryQuotation: (id, quotationData) => request(`/enquiries/${id}/quotation`, { method: 'PUT', body: JSON.stringify(quotationData) }),
+  reviewEnquiry: (id, reviewData) => request(`/enquiries/${id}/review`, { method: 'PUT', body: JSON.stringify(reviewData) }),
+  acceptQuotation: (id) => request(`/enquiries/${id}/accept-quotation`, { method: 'PUT' }),
   deleteEnquiry: (id) => request(`/enquiries/${id}`, { method: 'DELETE' }),
   exportCSV: async () => {
     const res = await fetch(`${API_BASE}/enquiries/export/csv`, {
@@ -96,6 +98,17 @@ export const api = {
     a.click();
     a.remove();
   },
+
+  // Payments (Razorpay & Offline)
+  createPaymentOrder: (data) => request('/payments/create-order', { method: 'POST', body: JSON.stringify(data) }),
+  verifyPayment: (data) => request('/payments/verify', { method: 'POST', body: JSON.stringify(data) }),
+  recordOfflinePayment: (data) => request('/payments/record-offline', { method: 'POST', body: JSON.stringify(data) }),
+  getPaymentHistory: (enquiryId) => request(`/payments/history/${enquiryId}`),
+
+  // Notifications
+  getMyNotifications: () => request('/notifications/my-notifications'),
+  markNotificationRead: (id) => request(`/notifications/${id}/read`, { method: 'PUT' }),
+  markAllNotificationsRead: () => request('/notifications/mark-all-read', { method: 'PUT' }),
 
   // Venue & Lawn
   getVenue: () => request('/venue'),
@@ -134,10 +147,36 @@ export const api = {
   getMyEnquiries: () => request('/auth/my-enquiries'),
   getMyConversations: () => request('/auth/my-conversations'),
 
-  // Admin Auth & Dashboard Stats
+  // Admin Auth, Dashboard Stats, Customers Registry & Reports
   login: (credentials) => request('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
   verifyAuth: () => request('/auth/verify'),
   getStats: () => request('/auth/stats'),
+  getCustomers: () => request('/auth/customers'),
+  getReportSummary: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(`/reports/summary${query ? `?${query}` : ''}`);
+  },
+  getReportPrintableUrl: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const cleanBase = (API_BASE === '/api') ? '/api' : API_BASE;
+    return `${cleanBase}/reports/printable-html${query ? `?${query}` : ''}`;
+  },
+  exportReportCSV: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const cleanBase = (API_BASE === '/api') ? '/api' : API_BASE;
+    const res = await fetch(`${cleanBase}/reports/export-csv${query ? `?${query}` : ''}`, {
+      headers: { ...getAuthHeaders() }
+    });
+    if (!res.ok) throw new Error('Failed to export financial report CSV');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kandhari_financial_report_${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  },
 
   // Persistent AI Chat Assistant
   startChat: () => request('/chat/conversation/new', { method: 'POST' }),

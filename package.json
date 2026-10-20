@@ -17,9 +17,17 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.3.1"
+    "mongoose": "^8.3.1",
+    "razorpay": "^2.9.8"
   },
-  "keywords": ["tent-house", "event-rentals", "lawn-booking", "lucknow", "kandhari-tent", "dwarka-shri-lawn"],
+  "keywords": [
+    "tent-house",
+    "event-rentals",
+    "lawn-booking",
+    "lucknow",
+    "kandhari-tent",
+    "dwarka-shri-lawn"
+  ],
   "author": "Kandhari Tent & Caterers",
   "license": "ISC"
 }
