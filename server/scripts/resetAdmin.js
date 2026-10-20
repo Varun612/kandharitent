@@ -19,7 +19,15 @@ const getArg = (flag, def) => {
 
 const username = getArg('--username', 'admin');
 const email = getArg('--email', 'varunkandhari612@gmail.com');
-const password = getArg('--password', 'Kandhari@Admin2026');
+
+// Allow positional argument: node resetAdmin.js "MySecretPassword" or --password "MySecretPassword"
+let password = getArg('--password', null);
+if (!password && args.length > 0 && !args[0].startsWith('--')) {
+  password = args[0];
+}
+if (!password) {
+  password = process.env.ADMIN_NEW_PASSWORD || 'Kandhari@Admin2026';
+}
 
 if (password.length < 6) {
   console.error('❌ Error: Password must be at least 6 characters long.');
@@ -30,10 +38,12 @@ const updateDbFile = async (filePath) => {
   if (!fs.existsSync(filePath)) return;
   const db = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   if (!db.adminUsers) db.adminUsers = [];
+  if (!db.users) db.users = [];
 
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash(password, salt);
 
+  // 1. Update or create in db.adminUsers
   let admin = db.adminUsers.find(u => u.username.toLowerCase() === username.toLowerCase() || (u.email && u.email.toLowerCase() === email.toLowerCase()));
   if (admin) {
     admin.username = username;
@@ -53,6 +63,25 @@ const updateDbFile = async (filePath) => {
       updatedAt: new Date().toISOString()
     };
     db.adminUsers.push(admin);
+  }
+
+  // 2. Keep db.users synchronized for full consistency
+  let adminInUsers = db.users.find(u => u.role === 'admin' || (u.email && u.email.toLowerCase() === email.toLowerCase()) || (u.username && u.username.toLowerCase() === username.toLowerCase()));
+  if (adminInUsers) {
+    adminInUsers.username = username;
+    adminInUsers.email = email;
+    adminInUsers.passwordHash = passwordHash;
+    adminInUsers.role = 'admin';
+  } else {
+    db.users.push({
+      id: 'usr-admin-kandhari',
+      username,
+      email,
+      name: 'Kandhari Admin',
+      role: 'admin',
+      passwordHash,
+      createdAt: new Date().toISOString()
+    });
   }
 
   fs.writeFileSync(filePath, JSON.stringify(db, null, 2), 'utf8');

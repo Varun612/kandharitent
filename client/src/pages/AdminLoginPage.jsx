@@ -72,7 +72,7 @@ const AdminLoginPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-neutral-700 mb-1">
-              Admin Username
+              Admin Username or Email <span className="font-normal text-neutral-500">(यूजरनेम या ईमेल)</span>
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-neutral-400 absolute left-3 top-3.5" />
@@ -81,7 +81,7 @@ const AdminLoginPage = () => {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter admin username"
+                placeholder="e.g. admin or varunkandhari612@gmail.com"
                 className="w-full pl-9 pr-3 py-2.5 text-sm border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
               />
             </div>
@@ -89,7 +89,7 @@ const AdminLoginPage = () => {
 
           <div>
             <label className="block text-xs font-semibold text-neutral-700 mb-1">
-              Secret Password
+              Password <span className="font-normal text-neutral-500">(पासवर्ड)</span>
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-neutral-400 absolute left-3 top-3.5" />
@@ -98,7 +98,7 @@ const AdminLoginPage = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
+                placeholder="Enter admin password"
                 className="w-full pl-9 pr-10 py-2.5 text-sm border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none font-mono"
               />
               <button
@@ -123,11 +123,21 @@ const AdminLoginPage = () => {
             ) : (
               <>
                 <KeyRound className="w-4 h-4 text-brand-gold" />
-                <span>Sign In to Dashboard</span>
+                <span>Sign In to Dashboard (लॉग इन करें)</span>
               </>
             )}
           </button>
         </form>
+
+        {/* Secure CLI Recovery Notice */}
+        <div className="pt-4 border-t border-neutral-100 text-center space-y-1.5">
+          <p className="text-[11px] text-neutral-500">
+            Need to set or change your secret password? Run the secure CLI command in your project terminal:
+          </p>
+          <code className="inline-block px-2.5 py-1 bg-neutral-100 text-neutral-800 rounded-md text-[11px] font-mono select-all">
+            node server/scripts/resetAdmin.js "YourNewPassword"
+          </code>
+        </div>
 
       </div>
     </div>

@@ -250,8 +250,12 @@ const adminLogin = async (req, res) => {
     }
 
     if (!userValid) {
-      const localUser = (getLocalDb().adminUsers || []).find(u => 
-        u.username.toLowerCase() === cleanUsername || 
+      const allAdmins = [
+        ...(getLocalDb().adminUsers || []),
+        ...(getLocalDb().users || []).filter(u => u.role === 'admin')
+      ];
+      const localUser = allAdmins.find(u => 
+        (u.username && u.username.toLowerCase() === cleanUsername) || 
         (u.email && u.email.toLowerCase() === cleanUsername)
       );
       if (localUser) {

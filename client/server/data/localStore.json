@@ -11346,17 +11346,17 @@
       "email": "varunkandhari612@gmail.com",
       "name": "Kandhari Admin",
       "role": "admin",
-      "passwordHash": ".8rD6Yx/8q3u4d.SeX2d6e4Y7m1w0k4j3h2g1f0e9d8c7b6a"
+      "passwordHash": "$2a$10$49szhHKXPGYrG/zpkghjtuK7WSqtB8QO2jUeLeYy.RwZBTLdBnhtu"
     }
   ],
   "adminUsers": [
     {
       "id": "admin-1",
       "username": "admin",
-      "passwordHash": "$2a$10$XUPW7opwMSNtqA3OGF8UvOGyWbKuH2DMB2IegRfvOmeQ78LPf6ZSe",
+      "passwordHash": "$2a$10$49szhHKXPGYrG/zpkghjtuK7WSqtB8QO2jUeLeYy.RwZBTLdBnhtu",
       "role": "admin",
       "email": "varunkandhari612@gmail.com",
-      "updatedAt": "2026-10-20T08:29:38.678Z"
+      "updatedAt": "2026-10-20T10:12:58.324Z"
     }
   ],
   "cateringCategories": [
