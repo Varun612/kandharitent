@@ -111,9 +111,62 @@ const deleteAmenity = async (req, res) => {
   }
 };
 
+// GET /api/venue/reels - Public endpoint to retrieve all 7 lawn reels
+const getLawnReels = (req, res) => {
+  try {
+    const db = getLocalDb();
+    const reels = (db.lawnReels || []).filter(r => r.isPublished !== false);
+    return res.json({ success: true, count: reels.length, data: reels });
+  } catch (error) {
+    console.error('getLawnReels error:', error);
+    return res.status(500).json({ success: false, message: 'Server error retrieving lawn reels' });
+  }
+};
+
+// PUT /api/venue/reels/:id - Admin endpoint to update reel title, description, or published status
+const updateLawnReel = (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const db = getLocalDb();
+    if (!db.lawnReels) db.lawnReels = [];
+
+    const reel = db.lawnReels.find(r => r.id === id || r.filename === id);
+    if (!reel) {
+      return res.status(404).json({ success: false, message: 'Reel not found' });
+    }
+
+    if (updates.title !== undefined) reel.title = updates.title;
+    if (updates.description !== undefined) reel.description = updates.description;
+    if (updates.category !== undefined) reel.category = updates.category;
+    if (updates.isPublished !== undefined) reel.isPublished = updates.isPublished;
+    if (updates.order !== undefined) reel.order = updates.order;
+
+    saveLocalStore();
+    return res.json({ success: true, data: reel, message: 'Reel updated successfully' });
+  } catch (error) {
+    console.error('updateLawnReel error:', error);
+    return res.status(500).json({ success: false, message: 'Server error updating reel' });
+  }
+};
+
+// GET /api/venue/video - Public endpoint to retrieve raw venue source video info
+const getVenueVideo = (req, res) => {
+  try {
+    const db = getLocalDb();
+    return res.json({ success: true, data: db.venueVideo || null });
+  } catch (error) {
+    console.error('getVenueVideo error:', error);
+    return res.status(500).json({ success: false, message: 'Server error retrieving venue video' });
+  }
+};
+
 module.exports = {
   getVenueDetails,
   updateVenueDetails,
   addAmenity,
-  deleteAmenity
+  deleteAmenity,
+  getLawnReels,
+  updateLawnReel,
+  getVenueVideo
 };

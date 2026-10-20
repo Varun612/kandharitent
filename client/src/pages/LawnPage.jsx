@@ -1,467 +1,580 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { 
-  Sparkles, 
+  Play, 
+  Pause, 
+  Volume2, 
+  VolumeX, 
+  Download, 
+  Share2, 
+  Check, 
+  CheckCircle2, 
   MapPin, 
-  Calendar, 
   Users, 
   Phone, 
-  CheckCircle2, 
-  Trees, 
+  Calendar, 
+  Sparkles, 
   Home, 
-  Zap, 
-  Car, 
+  Trees, 
   Utensils, 
-  Check, 
-  MessageCircle, 
+  Maximize2, 
+  X, 
+  ChevronRight, 
   ArrowRight,
-  ShieldCheck,
-  ChevronRight,
+  MessageCircle,
   Eye,
   Award,
-  Move3d,
-  Layers
+  ShieldCheck,
+  Building,
+  Bed,
+  Layers,
+  Flame,
+  Info
 } from 'lucide-react';
 import { api } from '../services/api';
 import { FALLBACK_VENUE } from '../data/seedItems';
-import LawnEnquiryModal from '../components/LawnEnquiryModal';
 import { useEnquiry } from '../context/EnquiryContext';
-import LawnScrollCanvas from '../components/canvas/LawnScrollCanvas';
-import HotspotDetailModal from '../components/canvas/HotspotDetailModal';
 import SEO from '../components/SEO';
-
-const iconMap = {
-  Trees: Trees,
-  Home: Home,
-  Zap: Zap,
-  Car: Car,
-  Sparkles: Sparkles,
-  Utensils: Utensils,
-  CheckCircle: CheckCircle2
-};
 
 const LawnPage = () => {
   const [venue, setVenue] = useState(FALLBACK_VENUE);
-  const [isLawnModalOpen, setIsLawnModalOpen] = useState(false);
-  const [selectedHotspot, setSelectedHotspot] = useState(null);
-  const [scrollProgress, setScrollProgress] = useState(0.05);
-  const [activeScene, setActiveScene] = useState(0);
+  const [reels, setReels] = useState([]);
+  const [venueVideo, setVenueVideo] = useState(null);
+  const [activeReelModal, setActiveReelModal] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeAreaTab, setActiveAreaTab] = useState('entrance');
+  
+  // Hero Video Player State
+  const [isPlayingHero, setIsPlayingHero] = useState(false);
+  const [isMutedHero, setIsMutedHero] = useState(true);
+  const heroVideoRef = useRef(null);
+
+  // Modal Video Player State
+  const [isModalMuted, setIsModalMuted] = useState(false);
+  const modalVideoRef = useRef(null);
+
   const { openDrawer } = useEnquiry();
 
-  const heroScrollContainerRef = useRef(null);
-
   useEffect(() => {
-    const fetchVenue = async () => {
+    const loadVenueData = async () => {
       try {
-        const res = await api.getVenue();
-        if (res.success && res.data) {
-          setVenue(res.data);
+        const [venueRes, reelsRes, videoRes] = await Promise.all([
+          api.getVenue(),
+          api.getLawnReels ? api.getLawnReels() : Promise.resolve({ success: false }),
+          api.getVenueVideo ? api.getVenueVideo() : Promise.resolve({ success: false })
+        ]);
+
+        if (venueRes.success && venueRes.data) {
+          setVenue(venueRes.data);
+        }
+
+        if (reelsRes.success && reelsRes.data && reelsRes.data.length > 0) {
+          setReels(reelsRes.data);
+        } else {
+          // Robust fallback with the 7 verified pre-cut reels
+          setReels([
+            {
+              id: 'reel-entrance',
+              filename: '01_Grand_Entrance.mp4',
+              title: 'A Grand Welcome at Dwarka Shri Lawn',
+              category: 'Grand Entrance',
+              areaTag: 'Entry Gate & Approach',
+              duration: 12,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/01_Grand_Entrance.mp4',
+              coverUrl: '/media/lawn/reels/01_Grand_Entrance_cover.jpg',
+              description: 'The royal entrance pathway, decorated welcome arches, and grand arrival experience on Kanpur Road, Lucknow.',
+              hashtags: ['#DwarkaShriLawn', '#LucknowWedding', '#GrandEntrance', '#KandhariTent']
+            },
+            {
+              id: 'reel-vip-lawn',
+              filename: '02_Lawn_and_Gallery.mp4',
+              title: 'An Exclusive VIP Experience',
+              category: 'VIP Setting',
+              areaTag: 'VIP Seating & Carpeted Grounds',
+              duration: 13,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/02_Lawn_and_Gallery.mp4',
+              coverUrl: '/media/lawn/reels/02_Lawn_and_Gallery_cover.jpg',
+              description: 'Spacious open green grounds with high-density red carpet walkway, VIP sofa lounges, and grand gallery perspective.',
+              hashtags: ['#DwarkaShriLawn', '#VIPLounge', '#LucknowEvents', '#WeddingDecor']
+            },
+            {
+              id: 'reel-setup-area',
+              filename: '03_Lawn_Setup_Area.mp4',
+              title: 'Spacious Lawn & Canopy Grounds',
+              category: 'Lawn Setup Area',
+              areaTag: 'Open Ground & Pandal Area',
+              duration: 14,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/03_Lawn_Setup_Area.mp4',
+              coverUrl: '/media/lawn/reels/03_Lawn_Setup_Area_cover.jpg',
+              description: 'Expansive 25,000+ sq.ft open ground capable of hosting 1,000+ guests with German waterproof pandal arrangements.',
+              hashtags: ['#DwarkaShriLawn', '#LawnSetup', '#WeddingVenueLucknow', '#TentHouse']
+            },
+            {
+              id: 'reel-indoor-hall',
+              filename: '04_Indoor_Hall.mp4',
+              title: 'Celebrate in Style — The Hall',
+              category: 'Hall Experience',
+              areaTag: 'Covered Air-Cooled Hall',
+              duration: 15,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/04_Indoor_Hall.mp4',
+              coverUrl: '/media/lawn/reels/04_Indoor_Hall_cover.jpg',
+              description: 'Large covered indoor hall for ring ceremonies, sangeet performances, and inclement weather protection.',
+              hashtags: ['#DwarkaShriLawn', '#BanquetHall', '#LucknowBanquet', '#IndoorCelebration']
+            },
+            {
+              id: 'reel-room-tour',
+              filename: '05_Room_Tour.mp4',
+              title: 'Comfortable Guest Rooms',
+              category: 'Guest Rooms',
+              areaTag: 'Deluxe AC Rooms & Suites',
+              duration: 18,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/05_Room_Tour.mp4',
+              coverUrl: '/media/lawn/reels/05_Room_Tour_cover.jpg',
+              description: 'Private air-conditioned bridal and family suites with attached modern bathrooms for wedding parties and overnight stay.',
+              hashtags: ['#DwarkaShriLawn', '#GuestRooms', '#BridalSuite', '#WeddingStay']
+            },
+            {
+              id: 'reel-corridor',
+              filename: '06_Rooms_and_Corridor.mp4',
+              title: 'Private Accommodation & Corridors',
+              category: 'Guest Facilities',
+              areaTag: '7+ Rooms & Private Wing',
+              duration: 16,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/06_Rooms_and_Corridor.mp4',
+              coverUrl: '/media/lawn/reels/06_Rooms_and_Corridor_cover.jpg',
+              description: 'Wide secure corridors, family preparation spaces, and 7+ furnished rooms (2 rooms included in standard package).',
+              hashtags: ['#DwarkaShriLawn', '#RoomsTour', '#Accommodation', '#LucknowVenue']
+            },
+            {
+              id: 'reel-teaser',
+              filename: '07_Venue_Teaser.mp4',
+              title: 'Discover Dwarka Shri Lawn Highlights',
+              category: 'Venue Highlights',
+              areaTag: 'Complete Venue Overview',
+              duration: 12,
+              aspectRatio: '9:16',
+              videoUrl: '/media/lawn/reels/07_Venue_Teaser.mp4',
+              coverUrl: '/media/lawn/reels/07_Venue_Teaser_cover.jpg',
+              description: 'Complete cinematic aerial and ground walkthrough of Dwarka Shri Lawn, Opp. Pillar No. 37, Kanpur Road, Lucknow.',
+              hashtags: ['#DwarkaShriLawn', '#LucknowWeddings', '#RoyalVivah', '#KandhariTent']
+            }
+          ]);
+        }
+
+        if (videoRes.success && videoRes.data) {
+          setVenueVideo(videoRes.data);
+        } else {
+          setVenueVideo({
+            url: '/media/lawn/DwarakaShreevideo.mp4',
+            coverUrl: '/media/lawn/raw_video_cover.jpg',
+            title: 'Dwarka Shri Lawn — Full Cinematic Venue Tour',
+            location: 'Kanpur Road, Opp. Pillar No. 37, Daroga Kheda, Lucknow'
+          });
         }
       } catch (err) {
-        console.warn('Error loading venue info from server, using local fallback', err);
-      }
-    };
-    fetchVenue();
-  }, []);
-
-  // Coordinated scroll tracking for the 3D cinematic journey
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!heroScrollContainerRef.current) return;
-      const rect = heroScrollContainerRef.current.getBoundingClientRect();
-      const containerHeight = heroScrollContainerRef.current.offsetHeight;
-      const windowHeight = window.innerHeight;
-      
-      const scrollableDist = containerHeight - windowHeight;
-      if (scrollableDist > 0) {
-        const progress = Math.max(0, Math.min(1, -rect.top / scrollableDist));
-        setScrollProgress(progress);
-
-        if (progress < 0.28) setActiveScene(0);
-        else if (progress < 0.58) setActiveScene(1);
-        else if (progress < 0.85) setActiveScene(2);
-        else setActiveScene(3);
+        console.warn('Error loading lawn venue info:', err);
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    loadVenueData();
   }, []);
 
-  const handleSelectScene = (sceneIndex, targetProgress) => {
-    setActiveScene(sceneIndex);
-    if (targetProgress !== undefined) {
-      setScrollProgress(targetProgress);
+  const toggleHeroPlay = () => {
+    if (!heroVideoRef.current) return;
+    if (isPlayingHero) {
+      heroVideoRef.current.pause();
+      setIsPlayingHero(false);
+    } else {
+      heroVideoRef.current.play();
+      setIsPlayingHero(true);
     }
   };
 
-  const scrollToOverview = () => {
-    const el = document.getElementById('venue-overview');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const toggleHeroMute = () => {
+    if (!heroVideoRef.current) return;
+    heroVideoRef.current.muted = !isMutedHero;
+    setIsMutedHero(!isMutedHero);
   };
 
-  const eventSetups = [
+  const handleShareReel = (reel) => {
+    const shareText = `नमस्ते! द्वारका श्री लॉन (कानपुर रोड, लखनऊ) का यह वीडियो रील देखें: ${window.location.origin}/lawn#${reel.id} — ${reel.title}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    window.open(url, '_blank');
+  };
+
+  const filteredReels = activeFilter === 'all' 
+    ? reels 
+    : reels.filter(r => r.category.toLowerCase().includes(activeFilter.toLowerCase()) || r.areaTag?.toLowerCase().includes(activeFilter.toLowerCase()));
+
+  // Visual areas data
+  const venueAreas = [
     {
-      title: 'Weddings & Grand Receptions',
-      subtitle: 'Up to 1,000+ Guests',
-      description: 'Lush open-air manicured grounds configured with high-ceiling German hangars, royal floral mandaps, and tiered banquet seating.',
-      image: '/media/rich-decor/decor-1.jpg',
-      badge: 'Main Lawn Showcase'
+      id: 'entrance',
+      title: 'Grand Entrance & Approach',
+      hindiTitle: 'शाही मुख्य द्वार व आगमन',
+      tag: 'Grand Arrival',
+      image: '/media/lawn/reels/01_Grand_Entrance_cover.jpg',
+      reelId: 'reel-entrance',
+      description: 'A 40-foot illuminated royal entrance archway directly off Kanpur Road Highway, welcoming barat processions, VIP convoys, and decorated bridal carriages without traffic congestion.',
+      highlights: ['Wide 40-foot Highway Entrance', 'Separate Barat Assembly Lane', 'Decorated Floral Welcome Arch', 'Valet & Guarded Parking Area']
     },
     {
-      title: 'Sangeet & Haldi Celebrations',
-      subtitle: 'Vibrant Daytime & Evening Festivities',
-      description: 'Bright marigold canopies, bridal photobooth swings, and high-impact truss illumination with acoustic sound layout.',
-      image: '/media/haldi-mehendi/haldi-1.jpg',
-      badge: 'Festive Styling'
+      id: 'vip-lawn',
+      title: 'VIP Seating & Carpeted Grounds',
+      hindiTitle: 'वीआईपी लाउंज व मुख्य लॉन',
+      tag: '25,000+ sq.ft Lawn',
+      image: '/media/lawn/reels/02_Lawn_and_Gallery_cover.jpg',
+      reelId: 'reel-vip-lawn',
+      description: 'Lush, manicured green open lawn fitted with royal red carpet pathways, plush double-seater sofas, tiered VIP family enclosures, and mood ambient fairy lighting.',
+      highlights: ['1,000+ Guest Capacity', 'High-density Red Carpet Walkways', 'Luxury Velvet Sofa Enclosures', 'High-mast LED Night Floodlights']
     },
     {
-      title: 'Engagements & Ring Ceremonies',
-      subtitle: 'Sophisticated Intimate Elegance',
-      description: 'Custom pastel flower backdrops, VIP Maharaja seating lounges, and refined ambient fairy light ceilings.',
+      id: 'dining',
+      title: 'Main Course & Live Halwai Counter',
+      hindiTitle: 'खान-पान व डाइनिंग एरिया',
+      tag: 'Pure Veg Awadhi Feast',
+      image: '/media/catering/counter-1.jpg',
+      reelId: 'reel-setup-area',
+      description: 'A dedicated, clean dining quadrangle with stainless-steel and brass chafing counters, tandoor stations, live chaat stalls, and covered seating so dining remains seamless.',
+      highlights: ['100% Pure Vegetarian Awadhi Menu', '125 Authentic Wedding Recipes', 'Separate Water & Waste Lines', 'Covered Dining Canopy Options']
+    },
+    {
+      id: 'hall',
+      title: 'Covered Air-Cooled Banquet Hall',
+      hindiTitle: 'कवर्ड इनडोर हॉल',
+      tag: 'Weatherproof Hall',
+      image: '/media/lawn/reels/04_Indoor_Hall_cover.jpg',
+      reelId: 'reel-indoor-hall',
+      description: 'Spacious covered hall for ring ceremonies, sangeet performances, elderly guest dining, or complete weather protection during unexpected Lucknow rains.',
+      highlights: ['High-ceiling Covered Structure', 'Air-cooled Ventilation System', 'Polished Flooring & Stage Area', 'Attached Modern Restrooms']
+    },
+    {
+      id: 'stage',
+      title: 'Grand Wedding Stage & Mandap Area',
+      hindiTitle: 'जयमाला स्टेज व फेरे मंडप',
+      tag: 'Royal Stage',
       image: '/media/stage/stage-1.jpg',
-      badge: 'Stage Architecture'
+      reelId: 'reel-teaser',
+      description: 'Centrally positioned elevated platform with heavy floral backdrops, crystal chandeliers, Maharaja chairs for the couple, and traditional sacred fire havan kund.',
+      highlights: ['Elevated 32x20 ft Stage Footprint', 'Bespoke Fresh & Silk Floral Styling', 'Surround Acoustic Sound Integration', 'Sacred Wedding Mandap Quadrangle']
     },
     {
-      title: 'Birthday & Anniversary Banquets',
-      subtitle: 'Personalized Family Celebrations',
-      description: 'Round banquet dining layouts with brass buffet counters, ambient garden lanterns, and dedicated family dining zones.',
-      image: '/media/seating/seating-1.jpg',
-      badge: 'Dining & Hospitality'
+      id: 'rooms',
+      title: 'Guest Rooms & Bridal Dressing Suites',
+      hindiTitle: 'गेस्ट रूम्स व दुल्हन सुइट',
+      tag: '7+ Deluxe Rooms',
+      image: '/media/lawn/reels/05_Room_Tour_cover.jpg',
+      reelId: 'reel-room-tour',
+      description: 'Seven private air-conditioned suites with double beds, full-length dressing mirrors, attached clean tiled bathrooms, and secure storage for family jewelry and outfits.',
+      highlights: ['2 AC Rooms Included in Wedding Package', '5 Additional Rooms Available at ₹1,500/day', 'Private Dressing & Makeup Mirrors', 'Attached Hygienic Bathrooms']
     }
   ];
 
+  const currentArea = venueAreas.find(a => a.id === activeAreaTab) || venueAreas[0];
+
   return (
-    <div className="space-y-24 pb-24 animate-fadeIn">
+    <div className="min-h-screen bg-brand-cream text-neutral-800 pb-24">
       <SEO
         title="Dwarka Shri Lawn Lucknow | Wedding Banquet & Event Venue Kanpur Road"
-        description="Book Dwarka Shri Lawn on Kanpur Road Opp. Pillar No. 37, Lucknow. 1,500 guest capacity, AC bridal suites, waterproof German hangars, and manicured grounds."
+        description="Dwarka Shri Lawn on Kanpur Road Opp. Pillar No. 37, Daroga Kheda, Lucknow. 25,000+ sq.ft lawn, 1,000+ capacity, 7+ AC rooms, covered hall, pure veg catering by Kandhari Tent."
         canonical="/lawn"
       />
-      
-      {/* ============================================================ */}
-      {/* SCENE ONE: THE GRAND CELEBRATION (CINEMATIC 3D VENUE HERO) */}
-      {/* ============================================================ */}
-      <section 
-        ref={heroScrollContainerRef} 
-        className="relative w-full bg-brand-twilight overflow-hidden"
-      >
-        {/* Real 3D Twilight Venue Canvas */}
-        <LawnScrollCanvas
-          scrollProgress={scrollProgress}
-          activeScene={activeScene}
-          onSelectScene={handleSelectScene}
-          onOpenHotspotDetail={(spot) => setSelectedHotspot(spot)}
-        />
 
-        {/* Hero Editorial Presentation (Positioned over the scene) */}
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 sm:-mt-20 pb-16 text-center z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-dark/90 backdrop-blur-md border border-brand-gold/40 text-brand-goldLight text-xs sm:text-sm font-semibold tracking-wide shadow-luxury animate-shimmer">
-            <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-            <span>Dwarka Shri Lawn • Managed by Kandhari Tent & Caterers</span>
-          </div>
+      {/* ========================================================================= */}
+      {/* 1. CINEMATIC VIDEO HERO SECTION */}
+      {/* ========================================================================= */}
+      <section className="relative bg-brand-dark text-white overflow-hidden pt-12 pb-20 border-b border-brand-gold/30">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-maroon/50 via-brand-dark to-black pointer-events-none" />
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif font-black tracking-tight text-white leading-tight drop-shadow-lg max-w-4xl mx-auto">
-            An Elegant Celebration Venue on <br className="hidden sm:inline" />
-            <span className="text-gold-gradient">
-              Kanpur Road, Lucknow
-            </span>
-          </h1>
-
-          <p className="text-sm sm:text-base md:text-lg text-neutral-200/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            Discover <strong>Dwarka Shri Lawn</strong> for weddings, family celebrations, and memorable gatherings. Expansive open-air elegance managed directly by Kandhari Tent & Caterers.
-          </p>
-
-          {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
-            <button
-              onClick={() => setIsLawnModalOpen(true)}
-              className="px-7 py-3.5 rounded-xl royal-gradient text-white font-bold text-xs sm:text-sm shadow-luxury hover:opacity-95 transition transform hover:-translate-y-0.5 flex items-center gap-2"
-            >
-              <Calendar className="w-4 h-4 text-brand-gold" />
-              <span>Check Date Availability</span>
-            </button>
-
-            <button
-              onClick={openDrawer}
-              className="px-7 py-3.5 rounded-xl bg-brand-cream hover:bg-brand-creamDark text-brand-primary font-bold text-xs sm:text-sm shadow-md transition transform hover:-translate-y-0.5 flex items-center gap-2"
-            >
-              <Layers className="w-4 h-4 text-brand-gold" />
-              <span>Plan Your Event</span>
-            </button>
-
-            <button
-              onClick={scrollToOverview}
-              className="px-6 py-3.5 rounded-xl bg-black/50 hover:bg-black/70 backdrop-blur-md border border-brand-gold/40 text-brand-goldLight font-semibold text-xs sm:text-sm transition flex items-center gap-2"
-            >
-              <Eye className="w-4 h-4 text-brand-gold" />
-              <span>Explore the Venue</span>
-            </button>
-          </div>
-
-          {/* Verified Address & Highway Marker */}
-          <div className="pt-4 flex items-center justify-center gap-2 text-xs text-brand-goldLight drop-shadow-sm">
-            <MapPin className="w-4 h-4 text-brand-gold shrink-0" />
-            <span>Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, Uttar Pradesh</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* SCENE TWO: ENTER THE VENUE (OVERVIEW & TENT SYNERGY)       */}
-      {/* ============================================================ */}
-      <section id="venue-overview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          <div className="lg:col-span-7 space-y-6">
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-brand-gold uppercase tracking-widest">
-                Venue Overview & Synergy
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-primary leading-tight">
-                Open-Air Grandeur Paired with Professional Tent Engineering
-              </h2>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          {/* Header Title & Location */}
+          <div className="text-center space-y-4 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-maroon/70 border border-brand-gold/40 text-brand-goldLight text-xs sm:text-sm font-semibold tracking-wide">
+              <Sparkles className="w-4 h-4 text-brand-gold" />
+              <span>द्वारका श्री लॉन • वास्तविक वीडियो टूर</span>
             </div>
+
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-white tracking-tight leading-tight">
+              Dwarka Shri Lawn
+            </h1>
             
-            <p className="text-sm text-neutral-700 leading-relaxed">
-              {venue.description || 'Nestled conveniently on Kanpur Road opposite Pillar No. 37 in Daroga Kheda, Dwarka Shri Lawn offers an expansive, beautifully landscaped open-air venue ideal for weddings, grand receptions, Sangeet & Mehendi festivities, ring ceremonies, and milestone celebrations.'}
+            <p className="text-brand-goldLight font-serif text-lg sm:text-xl">
+              The Grand Royal Wedding Grounds of Kanpur Road, Lucknow
             </p>
 
-            <div className="p-5 bg-brand-cream rounded-2xl border border-brand-border space-y-3 shadow-xs">
-              <h4 className="font-bold text-brand-primary text-sm flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-brand-gold" />
-                <span>The Direct Advantage: Venue + Tent Synergy</span>
-              </h4>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                Because <strong>Dwarka Shri Lawn</strong> is operated and managed directly by <strong>Kandhari Tent & Caterers</strong>, our hosts enjoy perfectly synchronized lighting, tailor-fit German hangars, plush carpeted stages, and uninterrupted power backup without external vendor coordination delays.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-              <div className="p-4 rounded-xl bg-white border border-brand-border shadow-xs">
-                <p className="text-xs text-neutral-500 font-medium">Guest Capacity</p>
-                <p className="text-xl font-serif font-bold text-brand-primary mt-0.5">Up to 1,000+</p>
-              </div>
-              <div className="p-4 rounded-xl bg-white border border-brand-border shadow-xs">
-                <p className="text-xs text-neutral-500 font-medium">Power Distribution</p>
-                <p className="text-xl font-serif font-bold text-brand-primary mt-0.5">100% Generator</p>
-              </div>
-              <div className="p-4 rounded-xl bg-white border border-brand-border shadow-xs col-span-2 sm:col-span-1">
-                <p className="text-xs text-neutral-500 font-medium">Dressing Suites</p>
-                <p className="text-xl font-serif font-bold text-brand-primary mt-0.5">AC Private Rooms</p>
-              </div>
-            </div>
-
-            <div className="pt-2 flex flex-wrap gap-3">
-              <button
-                onClick={() => setIsLawnModalOpen(true)}
-                className="px-6 py-3 rounded-xl royal-gradient text-white text-xs sm:text-sm font-bold shadow-luxury hover:opacity-95 transition flex items-center gap-2"
-              >
-                <span>Request Date Availability</span>
-                <ChevronRight className="w-4 h-4 text-brand-gold" />
-              </button>
-              
-              <a
-                href="https://wa.me/919305465848?text=Namaste!%20I%20am%20inquiring%20about%20booking%20Dwarka%20Shri%20Lawn%20on%20Kanpur%20Road,%20Lucknow."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Chat on WhatsApp</span>
-              </a>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm text-neutral-300 pt-1">
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-brand-gold" />
+                Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow
+              </span>
+              <span className="hidden sm:inline text-neutral-500">•</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-brand-gold" />
+                Capacity: 1,000+ Guests
+              </span>
+              <span className="hidden sm:inline text-neutral-500">•</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Bed className="w-4 h-4 text-brand-gold" />
+                7+ AC Guest Rooms Available
+              </span>
             </div>
           </div>
 
-          {/* Right: Venue Images Grid with Authentic Photography */}
-          <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-            <div className="col-span-2 rounded-2xl overflow-hidden shadow-luxury group relative aspect-16/9 border border-brand-border">
-              <img
-                src="/media/lawns/lawn-main.jpg"
-                alt="Dwarka Shri Lawn setup in Lucknow"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          {/* Large Cinematic Video Player Showcase */}
+          <div className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden border-2 border-brand-gold/40 shadow-2xl bg-black">
+            <div className="relative aspect-[16/9] sm:aspect-[16/9] md:aspect-[16/9] w-full bg-black flex items-center justify-center">
+              <video
+                ref={heroVideoRef}
+                src={venueVideo?.url || '/media/lawn/DwarakaShreevideo.mp4'}
+                poster={venueVideo?.coverUrl || '/media/lawn/raw_video_cover.jpg'}
+                playsInline
+                loop
+                muted={isMutedHero}
+                onPlay={() => setIsPlayingHero(true)}
+                onPause={() => setIsPlayingHero(false)}
+                className="w-full h-full object-contain"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                <p className="text-xs text-white font-semibold flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-brand-gold" />
-                  <span>Main Landscaped Lawn Ground — Kanpur Road</span>
-                </p>
-              </div>
-            </div>
 
-            <div className="rounded-2xl overflow-hidden shadow-sm group relative aspect-square border border-brand-border">
-              <img
-                src="/media/rich-decor/decor-1.jpg"
-                alt="German Hangar on Lawn"
-                onError={(e) => { e.currentTarget.src = '/media/rich-decor/decor-2.jpg'; }}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
-                <p className="text-[11px] text-white font-medium">All-Weather Tenting</p>
-              </div>
-            </div>
+              {/* Big Play Overlay (when paused) */}
+              {!isPlayingHero && (
+                <div 
+                  onClick={toggleHeroPlay}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer group transition"
+                >
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full royal-gradient text-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                    <Play className="w-10 h-10 sm:w-12 sm:h-12 ml-1 text-white fill-current" />
+                  </div>
+                  <p className="mt-4 text-sm sm:text-base font-serif text-white font-medium drop-shadow-md">
+                    द्वारका श्री लॉन का वास्तविक वीडियो देखें (Click to Play)
+                  </p>
+                </div>
+              )}
 
-            <div className="rounded-2xl overflow-hidden shadow-sm group relative aspect-square border border-brand-border">
-              <img
-                src="/media/gate/gate-1.jpg"
-                alt="Illuminated Grand Gateway"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
-                <p className="text-[11px] text-white font-medium">Welcome Gateway</p>
-              </div>
-            </div>
-          </div>
+              {/* Video Bottom Floating Controls */}
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-auto bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 text-white text-xs">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={toggleHeroPlay}
+                    className="p-1.5 hover:text-brand-gold transition"
+                    title={isPlayingHero ? 'Pause' : 'Play'}
+                  >
+                    {isPlayingHero ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  </button>
 
-        </div>
-      </section>
+                  <button 
+                    onClick={toggleHeroMute}
+                    className="p-1.5 hover:text-brand-gold transition flex items-center gap-1.5"
+                    title={isMutedHero ? 'Unmute' : 'Mute'}
+                  >
+                    {isMutedHero ? <VolumeX className="w-5 h-5 text-neutral-400" /> : <Volume2 className="w-5 h-5 text-brand-gold" />}
+                    <span className="hidden sm:inline text-[11px] text-neutral-300">
+                      {isMutedHero ? 'Unmute Sound' : 'Sound On'}
+                    </span>
+                  </button>
 
-      {/* ============================================================ */}
-      {/* SCENE THREE: THE WEDDING STAGE & MANDAP FOCUS                */}
-      {/* ============================================================ */}
-      <section className="bg-brand-dark text-white py-20 border-y border-brand-gold/25 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          <div className="lg:col-span-6 space-y-6">
-            <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-brand-gold text-brand-dark uppercase tracking-widest inline-block">
-              Focal Point of Celebration
-            </span>
-
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white leading-tight">
-              The Royal Mandap & Ceremonial Stage Artistry
-            </h2>
-
-            <p className="text-sm text-neutral-300 leading-relaxed">
-              Every sacred vow deserves a dignified setting. At Dwarka Shri Lawn, our in-house craftsmanship delivers bespoke 4-pillar and circular mandaps decorated with fresh marigold (*saffron*) and jasmine garlands, auspicious kalash motifs, sacred havan altars, and royal velvet bajots.
-            </p>
-
-            <ul className="space-y-3 text-xs text-neutral-300">
-              <li className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-brand-gold shrink-0" />
-                <span>Custom floral canopies (fresh exotic flowers or traditional marigolds)</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-brand-gold shrink-0" />
-                <span>Heavy-duty stage leveling with clean carpeted risers</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-brand-gold shrink-0" />
-                <span>Overhead crystal chandeliers and focused warm spotlighting</span>
-              </li>
-            </ul>
-
-            <div className="pt-2 flex flex-wrap gap-4">
-              <Link
-                to="/gallery"
-                className="px-6 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-luxury hover:opacity-95 transition flex items-center gap-2"
-              >
-                <span>Browse Mandap & Stage Gallery</span>
-                <ArrowRight className="w-4 h-4 text-brand-gold" />
-              </Link>
-
-              <button
-                onClick={() => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  setActiveScene(2);
-                  setScrollProgress(0.70);
-                }}
-                className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-brand-gold/40 text-brand-goldLight text-xs font-semibold transition flex items-center gap-2"
-              >
-                <Move3d className="w-4 h-4 text-brand-gold" />
-                <span>Inspect in 3D Scene</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="lg:col-span-6 relative">
-            <div className="aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border-2 border-brand-gold/40 group">
-              <img
-                src="/media/mandap/mandap-1.jpg"
-                alt="Royal Floral Mandap at Dwarka Shri Lawn Lucknow"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/90 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6 text-white space-y-1">
-                <p className="text-xs text-brand-gold font-semibold uppercase tracking-wider">
-                  Real Lucknow Mandap Setup
-                </p>
-                <h3 className="text-xl font-serif font-bold">
-                  Bespoke Handcrafted Wedding Mandaps
-                </h3>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ============================================================ */}
-      {/* SCENE FOUR: AUTHENTIC EVENT SETUPS (REAL PHOTOGRAPHY)        */}
-      {/* ============================================================ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="text-center space-y-3">
-          <span className="text-xs font-bold text-brand-gold uppercase tracking-widest">
-            Versatile Celebration Formats
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-primary">
-            Curated Event Setups at Dwarka Shri Lawn
-          </h2>
-          <p className="text-sm text-neutral-600 max-w-2xl mx-auto">
-            Explore authentic photographs of how our lawn is transformed for different milestone celebrations.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {eventSetups.map((setup, idx) => (
-            <div
-              key={idx}
-              className="group bg-brand-card rounded-3xl overflow-hidden border border-brand-border shadow-luxury hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between"
-            >
-              <div className="relative aspect-16/10 overflow-hidden bg-brand-dark">
-                <img
-                  src={setup.image}
-                  alt={setup.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/85 via-black/20 to-transparent flex items-end p-5">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-brand-gold text-brand-dark">
-                    {setup.badge}
+                  <span className="text-neutral-400 text-[11px] hidden md:inline">
+                    Dwarka Shri Lawn • Kanpur Road, Lucknow
                   </span>
                 </div>
-              </div>
 
-              <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-serif font-bold text-brand-primary group-hover:text-brand-plum transition">
-                    {setup.title}
-                  </h3>
-                  <p className="text-xs font-medium text-brand-gold mt-0.5">
-                    {setup.subtitle}
-                  </p>
-                  <p className="text-xs text-neutral-600 leading-relaxed mt-2">
-                    {setup.description}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="#lawn-reels"
+                    className="px-3 py-1.5 rounded-lg bg-brand-gold/20 border border-brand-gold/40 text-brand-goldLight text-[11px] font-semibold hover:bg-brand-gold/30 transition flex items-center gap-1"
+                  >
+                    <span>7 वीडियो रील्स</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </a>
+
+                  <a 
+                    href="/media/lawn/DwarakaShreevideo.mp4" 
+                    download="Dwarka_Shri_Lawn_Video.mp4"
+                    className="p-1.5 hover:text-brand-gold transition text-neutral-300"
+                    title="Download Source Video"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Statistics Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-4">
+            <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center space-y-1">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-brand-gold">25,000+</span>
+              <p className="text-[11px] text-neutral-400">वर्ग फुट खुला लॉन</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center space-y-1">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-brand-gold">1,000+</span>
+              <p className="text-[11px] text-neutral-400">मेहमानों की क्षमता</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center space-y-1">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-brand-gold">7+ AC</span>
+              <p className="text-[11px] text-neutral-400">डीलक्स गेस्ट रूम्स</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center space-y-1">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-brand-gold">₹1.10L</span>
+              <p className="text-[11px] text-neutral-400">वेन्यू पैकेज (2 रूम शामिल)</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center space-y-1">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-brand-gold">100%</span>
+              <p className="text-[11px] text-neutral-400">शुद्ध शाकाहारी केटरिंग</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 text-center space-y-1">
+              <span className="text-xl sm:text-2xl font-serif font-bold text-brand-gold">पिलर 37</span>
+              <p className="text-[11px] text-neutral-400">कानपुर रोड, दरोगा खेड़ा</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 2. PROMOTIONAL REELS GALLERY (6-7 FINISHED MP4 VIDEOS) */}
+      {/* ========================================================================= */}
+      <section id="lawn-reels" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 space-y-10">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-maroon/10 border border-brand-maroon/20 text-brand-maroon text-xs font-semibold">
+            <Flame className="w-3.5 h-3.5 text-brand-maroon" />
+            <span>इंस्टाग्राम व व्हाट्सएप रील्स</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-maroon">
+            7 Cinematic Promotional Reels
+          </h2>
+
+          <p className="text-sm text-neutral-600">
+            वास्तविक वीडियो फुटेज से तैयार की गई 9:16 वर्टिकल रील्स। आप इन्हें यहीं प्ले कर सकते हैं या सीधे डाउनलोड व शेयर कर सकते हैं।
+          </p>
+        </div>
+
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {[
+            { id: 'all', label: 'सभी रील्स (All 7 Reels)' },
+            { id: 'Entrance', label: 'मुख्य द्वार (Entrance)' },
+            { id: 'VIP', label: 'वीआईपी लाउंज (VIP Setting)' },
+            { id: 'Setup', label: 'लॉन ग्राउंड्स (Lawn Setup)' },
+            { id: 'Hall', label: 'इनडोर हॉल (Indoor Hall)' },
+            { id: 'Room', label: 'गेस्ट रूम्स (Guest Rooms)' },
+            { id: 'Highlights', label: 'वेन्यू हाइलाइट्स (Highlights)' }
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition ${
+                activeFilter === f.id
+                  ? 'bg-brand-maroon text-white shadow-md'
+                  : 'bg-white text-neutral-600 hover:text-brand-maroon border border-neutral-200'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 7 Reels Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredReels.map((reel, idx) => (
+            <div 
+              key={reel.id}
+              className="bg-white rounded-3xl overflow-hidden border border-brand-cream-border shadow-luxury hover:shadow-xl transition-all duration-300 flex flex-col group"
+            >
+              {/* Vertical 9:16 Thumbnail Container with Hover Glow */}
+              <div 
+                onClick={() => setActiveReelModal(reel)}
+                className="relative aspect-[9/16] w-full bg-neutral-900 cursor-pointer overflow-hidden"
+              >
+                <img 
+                  src={reel.coverUrl} 
+                  alt={reel.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.currentTarget.src = '/media/lawn/raw_video_cover.jpg';
+                  }}
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 group-hover:via-black/10 transition" />
+
+                {/* Top Badges */}
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-xs text-white">
+                  <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-brand-goldLight">
+                    {reel.category}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[11px] font-mono">
+                    {reel.duration}s • 9:16
+                  </span>
                 </div>
 
-                <div className="pt-4 border-t border-brand-border/60 flex items-center justify-between">
+                {/* Center Play Icon Button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full royal-gradient text-white flex items-center justify-center shadow-2xl group-hover:scale-125 transition-transform">
+                    <Play className="w-7 h-7 ml-0.5 text-white fill-current" />
+                  </div>
+                </div>
+
+                {/* Bottom Overlay Title in Video Frame */}
+                <div className="absolute bottom-3 left-3 right-3 text-white space-y-1">
+                  <p className="text-[11px] text-brand-gold uppercase tracking-wider font-semibold">
+                    {reel.areaTag}
+                  </p>
+                  <h3 className="text-sm font-serif font-bold text-white line-clamp-2 drop-shadow">
+                    {reel.title}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Card Meta Content */}
+              <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <p className="text-xs text-neutral-600 line-clamp-2 leading-relaxed">
+                  {reel.description}
+                </p>
+
+                {/* Hashtags */}
+                {reel.hashtags && reel.hashtags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 text-[10px] text-neutral-400">
+                    {reel.hashtags.slice(0, 3).map((h, hIdx) => (
+                      <span key={hIdx}>{h}</span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
                   <button
-                    onClick={() => setIsLawnModalOpen(true)}
-                    className="text-xs font-bold text-brand-primary hover:text-brand-accent transition flex items-center gap-1"
+                    onClick={() => setActiveReelModal(reel)}
+                    className="flex-1 py-2 px-3 rounded-xl bg-brand-maroon/10 hover:bg-brand-maroon text-brand-maroon hover:text-white text-xs font-semibold transition flex items-center justify-center gap-1.5"
                   >
-                    <span>Check Availability</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>देखें (Play)</span>
                   </button>
 
                   <a
-                    href={`https://wa.me/919305465848?text=Namaste!%20I%20am%20interested%20in%20hosting%20a%20${encodeURIComponent(setup.title)}%20at%20Dwarka%20Shri%20Lawn.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] text-emerald-700 font-semibold hover:underline flex items-center gap-1"
+                    href={reel.videoUrl}
+                    download={reel.filename}
+                    className="p-2 rounded-xl border border-neutral-200 text-neutral-600 hover:text-brand-maroon hover:border-brand-maroon transition"
+                    title="Download MP4 Reel"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp Inquiry</span>
+                    <Download className="w-4 h-4" />
                   </a>
+
+                  <button
+                    onClick={() => handleShareReel(reel)}
+                    className="p-2 rounded-xl border border-neutral-200 text-neutral-600 hover:text-green-600 hover:border-green-600 transition"
+                    title="Share via WhatsApp"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -469,141 +582,298 @@ const LawnPage = () => {
         </div>
       </section>
 
-      {/* ============================================================ */}
-      {/* SCENE FIVE: FACILITIES & AMENITIES                           */}
-      {/* ============================================================ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div className="text-center space-y-3">
-          <span className="text-xs font-bold text-brand-gold uppercase tracking-widest">
-            Comfort & Convenience
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-primary">
-            Venue Facilities & Infrastructure
+      {/* ========================================================================= */}
+      {/* 3. DEDICATED VISUAL SECTIONS (ENTRY, VIP, DINING, HALL, STAGE, ROOMS) */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 space-y-12">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-gold/20 text-brand-maroon text-xs font-semibold">
+            <Building className="w-3.5 h-3.5 text-brand-gold" />
+            <span>लॉन के मुख्य क्षेत्र (Venue Areas)</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-maroon">
+            Explore Every Corner of the Venue
           </h2>
-          <p className="text-sm text-neutral-600 max-w-xl mx-auto">
-            Thoughtfully planned infrastructure to ensure a dignified, comfortable experience for hosts and guests alike.
+          
+          <p className="text-sm text-neutral-600">
+            विवाह, सगाई, संगीत व रिसेप्शन के लिए द्वारका श्री लॉन की संपूर्ण सुविधाएं
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(venue.amenities || []).map((amenity) => {
-            const IconComponent = iconMap[amenity.icon] || CheckCircle2;
-            return (
-              <div
-                key={amenity.id}
-                className="bg-brand-card p-6 rounded-2xl border border-brand-border shadow-sm hover:shadow-luxury transition space-y-3"
-              >
-                <div className="w-12 h-12 rounded-xl royal-gradient text-brand-gold flex items-center justify-center shadow-xs">
-                  <IconComponent className="w-6 h-6" />
+        {/* Tabs for Areas */}
+        <div className="flex flex-wrap items-center justify-center gap-2 border-b border-neutral-200 pb-4">
+          {venueAreas.map(area => (
+            <button
+              key={area.id}
+              onClick={() => setActiveAreaTab(area.id)}
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-serif font-semibold transition flex items-center gap-2 ${
+                activeAreaTab === area.id
+                  ? 'bg-brand-maroon text-white shadow-md'
+                  : 'bg-white text-neutral-600 hover:text-brand-maroon border border-neutral-200'
+              }`}
+            >
+              <span>{area.title}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Active Area Showcase Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-brand-cream-border shadow-luxury grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <span className="px-3 py-1 rounded-full bg-brand-gold/15 text-brand-maroon text-xs font-bold uppercase tracking-wider">
+                {currentArea.tag}
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-900">
+                {currentArea.title}
+              </h3>
+              <p className="text-sm font-serif text-brand-gold font-medium">
+                {currentArea.hindiTitle}
+              </p>
+            </div>
+
+            <p className="text-neutral-700 text-sm sm:text-base leading-relaxed">
+              {currentArea.description}
+            </p>
+
+            {/* Bullet Highlights */}
+            <div className="space-y-2.5 pt-2">
+              {currentArea.highlights.map((h, i) => (
+                <div key={i} className="flex items-center gap-2.5 text-xs sm:text-sm text-neutral-700">
+                  <div className="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5" />
+                  </div>
+                  <span>{h}</span>
                 </div>
-                <h3 className="text-base font-serif font-bold text-brand-primary">
-                  {amenity.title}
-                </h3>
-                <p className="text-xs text-neutral-600 leading-relaxed">
-                  {amenity.description}
-                </p>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+
+            {/* Action CTAs */}
+            <div className="pt-4 flex flex-wrap gap-3">
+              <button
+                onClick={() => {
+                  const targetReel = reels.find(r => r.id === currentArea.reelId);
+                  if (targetReel) setActiveReelModal(targetReel);
+                }}
+                className="px-5 py-3 rounded-xl bg-brand-maroon hover:bg-brand-maroonLight text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-2"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                <span>इस क्षेत्र का वीडियो देखें</span>
+              </button>
+
+              <button
+                onClick={() => openDrawer({ defaultService: 'Dwarka Shri Lawn' })}
+                className="px-5 py-3 rounded-xl border border-brand-gold text-brand-maroon hover:bg-brand-gold/10 text-xs sm:text-sm font-bold transition flex items-center gap-2"
+              >
+                <Calendar className="w-4 h-4 text-brand-gold" />
+                <span>तारीख बुक करें (Enquire)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Area Visual Showcase Container */}
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-900 border border-neutral-200 shadow-md">
+            <img 
+              src={currentArea.image} 
+              alt={currentArea.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/media/lawn/raw_video_cover.jpg';
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
+              <p className="text-white text-xs sm:text-sm font-serif font-medium drop-shadow">
+                Dwarka Shri Lawn • {currentArea.title}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ============================================================ */}
-      {/* SCENE SIX: LOCATION, DIRECTIONS & FINAL INQUIRY CTA         */}
-      {/* ============================================================ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-brand-card rounded-3xl p-8 sm:p-12 border border-brand-border shadow-luxury grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          
-          <div className="space-y-6">
-            <span className="text-xs font-bold text-brand-gold uppercase tracking-widest">
-              Convenient Kanpur Road Highway Access
+      {/* ========================================================================= */}
+      {/* 4. VERIFIED LAWN PHOTO GALLERY */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <span className="text-xs uppercase tracking-wider text-brand-gold font-bold">
+              गैलरी व वास्तविक सजावट
             </span>
-            <h2 className="text-3xl font-serif font-bold text-brand-primary">
-              Location & Visiting Directions
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-brand-maroon">
+              Verified Grounds & Setup Gallery
             </h2>
-            
-            <p className="text-sm text-neutral-700 leading-relaxed">
-              Dwarka Shri Lawn is prominently situated on Kanpur Road in Daroga Kheda, Lucknow, directly opposite Metro/Highway <strong>Pillar No. 37</strong>. Its prime arterial position makes it easily reachable for guests arriving from Alambagh, Transport Nagar, Amausi Airport, or surrounding districts.
+            <p className="text-sm text-neutral-600">
+              द्वारका श्री लॉन में आयोजित हुए शाही विवाह और स्वागत समारोहों की वास्तविक तस्वीरें
+            </p>
+          </div>
+
+          <button
+            onClick={() => openDrawer({ defaultService: 'Dwarka Shri Lawn' })}
+            className="px-5 py-2.5 rounded-xl royal-gradient text-white text-xs sm:text-sm font-bold shadow-md hover:opacity-95 transition self-start md:self-auto"
+          >
+            वेन्यू कोटेशन प्राप्त करें
+          </button>
+        </div>
+
+        {/* Curated Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { img: '/media/lawn/reels/01_Grand_Entrance_cover.jpg', title: 'Main Grand Entrance' },
+            { img: '/media/lawn/reels/02_Lawn_and_Gallery_cover.jpg', title: 'Red Carpet Open Lawn' },
+            { img: '/media/lawn/reels/04_Indoor_Hall_cover.jpg', title: 'Covered Banquet Hall' },
+            { img: '/media/lawn/reels/05_Room_Tour_cover.jpg', title: 'AC Bridal & Family Rooms' },
+            { img: '/media/stage/stage-1.jpg', title: 'Royal Stage & Mandap' },
+            { img: '/media/rich-decor/decor-1.jpg', title: 'Night Mood Illumination' },
+            { img: '/media/catering/counter-1.jpg', title: 'Awadhi Catering Setup' },
+            { img: '/media/seating/seating-1.jpg', title: 'VIP Sofa Lounge Setup' }
+          ].map((item, idx) => (
+            <div key={idx} className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-900 group border border-neutral-200">
+              <img 
+                src={item.img} 
+                alt={item.title} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                onError={(e) => { e.currentTarget.src = '/media/lawn/raw_video_cover.jpg'; }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                <span className="text-white text-xs font-serif font-bold">{item.title}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 5. IN-HOUSE ADVANTAGE: KANDHARI TENT & CATERERS */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+        <div className="rounded-3xl royal-gradient p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
+          <div className="relative z-10 max-w-3xl space-y-6">
+            <span className="px-3 py-1 rounded-full bg-white/20 text-brand-goldLight text-xs font-bold uppercase tracking-wider">
+              पूर्ण इन-हाउस सुविधा • Zero Middlemen
+            </span>
+
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white leading-tight">
+              Kandhari Tent & Caterers In-House Production
+            </h2>
+
+            <p className="text-sm sm:text-base text-neutral-200 leading-relaxed">
+              द्वारका श्री लॉन में आयोजन का सबसे बड़ा लाभ यह है कि यहाँ टेंट, शामियाना, स्टेज, लाइटिंग, फर्नीचर और 100% शुद्ध शाकाहारी अवधी खान-पान सीधे <strong>कंधारी टेंट एंड कैटरर्स</strong> द्वारा स्वयं किया जाता है। किसी बाहरी बिचौलिए या कमीशन का झंझट नहीं।
             </p>
 
-            <div className="space-y-3 text-xs text-neutral-700">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
-                <span className="font-semibold text-neutral-900">
-                  Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, Uttar Pradesh.
-                </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 space-y-1">
+                <h4 className="font-serif font-bold text-brand-goldLight text-sm">125 शुद्ध शाकाहारी व्यंजन</h4>
+                <p className="text-xs text-neutral-300">लखनऊ के प्रसिद्ध शाही पनीर, दाल मखनी, व इमरती-रबड़ी</p>
               </div>
 
-              <div className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
-                <span>
-                  Booking Desk Direct Lines: <strong>9305465848</strong> / 9307908994 / 7355059566
-                </span>
+              <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 space-y-1">
+                <h4 className="font-serif font-bold text-brand-goldLight text-sm">जर्मन वाटरप्रूफ हैंगर</h4>
+                <p className="text-xs text-neutral-300">बारिश व आंधी से पूर्ण सुरक्षा की गारंटी</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 space-y-1">
+                <h4 className="font-serif font-bold text-brand-goldLight text-sm">पारदर्शी स्थानीय दरें</h4>
+                <p className="text-xs text-neutral-300">सीधा मालिक से सौदा, कोई छिपा हुआ शुल्क नहीं</p>
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <div className="pt-4 flex flex-wrap gap-4 items-center">
               <button
-                onClick={() => setIsLawnModalOpen(true)}
-                className="px-6 py-3.5 rounded-xl royal-gradient text-white text-xs sm:text-sm font-bold shadow-luxury hover:opacity-95 transition text-center flex items-center justify-center gap-2"
+                onClick={() => openDrawer({ defaultService: 'Dwarka Shri Lawn' })}
+                className="px-6 py-3.5 rounded-xl bg-white text-brand-maroon hover:bg-brand-cream text-xs sm:text-sm font-bold shadow-lg transition"
               >
-                <Calendar className="w-4 h-4 text-brand-gold" />
-                <span>Enquire Lawn Availability</span>
+                तारीख उपलब्धता व कोटेशन पूछें
               </button>
 
-              <a
-                href="https://maps.google.com/?q=Daroga+Kheda+Kanpur+Road+Lucknow"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3.5 rounded-xl border border-brand-border text-brand-primary hover:bg-brand-cream text-xs sm:text-sm font-semibold transition text-center flex items-center justify-center gap-1.5"
+              <a 
+                href="tel:+919305465848"
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl border border-white/30 text-white hover:bg-white/10 text-xs sm:text-sm font-bold transition"
               >
-                <MapPin className="w-4 h-4 text-brand-gold" />
-                <span>Open in Google Maps</span>
+                <Phone className="w-4 h-4 text-brand-gold" />
+                <span>+91 93054 65848 पर कॉल करें</span>
               </a>
             </div>
           </div>
-
-          {/* Map Guide Card */}
-          <div className="bg-brand-cream/80 rounded-2xl p-6 border border-brand-border text-center space-y-4 shadow-xs">
-            <div className="aspect-4/3 rounded-xl overflow-hidden shadow-inner relative bg-amber-50/50 flex flex-col items-center justify-center p-6 text-neutral-700 border border-brand-gold/30">
-              <div className="w-14 h-14 rounded-2xl royal-gradient text-brand-gold flex items-center justify-center mb-3 shadow-md">
-                <MapPin className="w-7 h-7" />
-              </div>
-              <h4 className="text-lg font-serif font-bold text-brand-primary">
-                Dwarka Shri Lawn
-              </h4>
-              <p className="text-xs text-neutral-600 mt-1 font-medium">
-                Opposite Pillar No. 37, Daroga Kheda
-              </p>
-              <p className="text-[11px] text-neutral-500 mt-0.5">
-                Kanpur Road, Lucknow, Uttar Pradesh
-              </p>
-
-              <div className="mt-4 px-3 py-1.5 rounded-full bg-white text-[11px] font-semibold text-brand-primary border border-brand-gold/40 shadow-xs">
-                Key Landmark: Pillar No. 37 (Kanpur Highway)
-              </div>
-            </div>
-
-            <p className="text-[11px] text-neutral-500">
-              On-site inspections welcomed daily between 9:00 AM – 9:00 PM. Call ahead at <strong>9305465848</strong> to schedule with our venue manager.
-            </p>
-          </div>
-
         </div>
       </section>
 
-      {/* 3D Hotspot Detail Modal */}
-      <HotspotDetailModal
-        hotspot={selectedHotspot}
-        onClose={() => setSelectedHotspot(null)}
-        onOpenEnquiry={openDrawer}
-      />
+      {/* ========================================================================= */}
+      {/* 6. MODAL VIDEO PLAYER (FOR 9:16 REELS) */}
+      {/* ========================================================================= */}
+      {activeReelModal && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="relative max-w-sm w-full bg-neutral-900 rounded-3xl overflow-hidden border border-brand-gold/40 shadow-2xl flex flex-col">
+            {/* Top Close Button & Title */}
+            <div className="p-4 bg-neutral-950/80 backdrop-blur-md flex items-center justify-between text-white border-b border-neutral-800">
+              <div className="truncate pr-2">
+                <span className="text-[10px] text-brand-gold uppercase tracking-wider font-semibold block">
+                  {activeReelModal.category}
+                </span>
+                <h4 className="text-sm font-serif font-bold truncate">
+                  {activeReelModal.title}
+                </h4>
+              </div>
 
-      {/* Lawn Booking Enquiry Modal */}
-      <LawnEnquiryModal
-        isOpen={isLawnModalOpen}
-        onClose={() => setIsLawnModalOpen(false)}
-      />
+              <button
+                onClick={() => setActiveReelModal(null)}
+                className="p-1.5 rounded-full hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 9:16 Video Player Container */}
+            <div className="relative aspect-[9/16] w-full bg-black flex items-center justify-center">
+              <video
+                ref={modalVideoRef}
+                src={activeReelModal.videoUrl}
+                poster={activeReelModal.coverUrl}
+                autoPlay
+                playsInline
+                loop
+                muted={isModalMuted}
+                className="w-full h-full object-contain"
+              />
+
+              {/* Sound Toggle Overlay */}
+              <button
+                onClick={() => setIsModalMuted(!isModalMuted)}
+                className="absolute top-3 right-3 p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white hover:text-brand-gold transition"
+                title={isModalMuted ? 'Unmute' : 'Mute'}
+              >
+                {isModalMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-brand-gold" />}
+              </button>
+            </div>
+
+            {/* Modal Bottom Actions */}
+            <div className="p-4 bg-neutral-950 border-t border-neutral-800 space-y-3">
+              <p className="text-xs text-neutral-300 line-clamp-2">
+                {activeReelModal.description}
+              </p>
+
+              <div className="flex gap-2">
+                <a
+                  href={activeReelModal.videoUrl}
+                  download={activeReelModal.filename}
+                  className="flex-1 py-2.5 rounded-xl bg-brand-gold text-brand-dark text-xs font-bold transition hover:opacity-95 flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>डाउनलोड MP4</span>
+                </a>
+
+                <button
+                  onClick={() => handleShareReel(activeReelModal)}
+                  className="px-4 py-2.5 rounded-xl border border-neutral-700 text-neutral-300 hover:text-green-500 hover:border-green-500 text-xs font-bold transition flex items-center gap-1.5"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>शेयर</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -112,6 +112,9 @@ export const api = {
 
   // Venue & Lawn
   getVenue: () => request('/venue'),
+  getLawnReels: () => request('/venue/reels'),
+  getVenueVideo: () => request('/venue/video'),
+  updateLawnReel: (id, data) => request(`/venue/reels/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   updateVenue: (venueData) => request('/venue', { method: 'PUT', body: JSON.stringify(venueData) }),
   addAmenity: (amenityData) => request('/venue/amenities', { method: 'POST', body: JSON.stringify(amenityData) }),
   deleteAmenity: (id) => request(`/venue/amenities/${id}`, { method: 'DELETE' }),

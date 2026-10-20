@@ -11,6 +11,7 @@ router.get('/my-conversations', requireCustomerAuth, authController.getCustomerC
 
 // Admin Auth
 router.post('/login', authController.adminLogin);
+router.post('/reset-admin-password', authController.resetAdminPassword);
 router.get('/stats', requireAdminAuth, authController.getDashboardStats);
 router.get('/customers', requireAdminAuth, authController.getAllCustomers);
 

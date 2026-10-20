@@ -20,17 +20,18 @@ process.env.NODE_ENV = 'test';
 const app = require('./server');
 const http = require('http');
 
-const PORT = 5001; // Isolated test port
+const PORT = process.env.TEST_PORT || 0; // Isolated dynamic test port
 
 const runTests = async () => {
   const server = http.createServer(app);
 
   await new Promise((resolve) => server.listen(PORT, resolve));
-  console.log(`[Test Suite] Test server listening on http://localhost:${PORT}`);
+  const assignedPort = server.address().port;
+  console.log(`[Test Suite] Test server listening on http://localhost:${assignedPort}`);
 
   const testEndpoint = async (url, options = {}) => {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-    const res = await fetch(`http://localhost:${PORT}${url}`, {
+    const res = await fetch(`http://localhost:${assignedPort}${url}`, {
       ...options,
       headers
     });
@@ -333,7 +334,7 @@ const runTests = async () => {
     }
 
     // Verify CSV Export
-    const csvRes = await fetch(`http://localhost:${PORT}/api/enquiries/export/csv`, {
+    const csvRes = await fetch(`http://localhost:${assignedPort}/api/enquiries/export/csv`, {
       headers: { 'Authorization': `Bearer ${adminToken}` }
     });
     const csvText = await csvRes.text();
@@ -854,6 +855,129 @@ const runTests = async () => {
     console.log(`[Marketing Reels List] GET /api/marketing/reels: HTTP ${getReelsRes.status} | Rendered Reels Count: ${getReelsRes.data.count}`);
     if (getReelsRes.status !== 200 || getReelsRes.data.count < 1) {
       throw new Error('Rendered reels retrieval failed');
+    }
+
+    // 21: Secure Admin Recovery & Dual-Identifier Authentication
+    console.log('\n--- Test 21: Secure Admin Recovery & Dual-Identifier Authentication ---');
+    const emailLoginRes = await testEndpoint('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: 'varunkandhari612@gmail.com', // Log in via verified email
+        password: 'Kandhari@Admin2026'
+      })
+    });
+    console.log(`[Admin Email Login] POST /api/auth/login (by email): HTTP ${emailLoginRes.status} | Success: ${emailLoginRes.data.success} | Role: ${emailLoginRes.data.user?.role}`);
+    if (emailLoginRes.status !== 200 || emailLoginRes.data.user?.role !== 'admin') {
+      throw new Error('Admin login via verified email failed');
+    }
+
+    const usernameLoginRes = await testEndpoint('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: 'admin', // Log in via username
+        password: 'Kandhari@Admin2026'
+      })
+    });
+    console.log(`[Admin Username Login] POST /api/auth/login (by username): HTTP ${usernameLoginRes.status} | Success: ${usernameLoginRes.data.success}`);
+    if (usernameLoginRes.status !== 200 || !usernameLoginRes.data.token) {
+      throw new Error('Admin login via username failed');
+    }
+
+    // Unauthorized reset attempt without recovery key
+    const badResetRes = await testEndpoint('/api/auth/reset-admin-password', {
+      method: 'POST',
+      body: JSON.stringify({
+        recoveryKey: 'wrong-key',
+        newPassword: 'newpassword123'
+      })
+    });
+    console.log(`[Admin Security] Unauthorized password reset blocked: HTTP ${badResetRes.status}`);
+    if (badResetRes.status !== 403) {
+      throw new Error('Expected 403 Forbidden on unauthorized password reset');
+    }
+
+    // 22: Dedicated Dwarka Shri Lawn Reels & Raw Source Video Showcase
+    console.log('\n--- Test 22: Dedicated Dwarka Shri Lawn Reels & Video Tour ---');
+    const getVenueVideoRes = await testEndpoint('/api/venue/video');
+    console.log(`[Venue Video] GET /api/venue/video: HTTP ${getVenueVideoRes.status} | Video: ${getVenueVideoRes.data.data?.url}`);
+    if (getVenueVideoRes.status !== 200 || !getVenueVideoRes.data.data?.url) {
+      throw new Error('Failed to retrieve raw venue source video info');
+    }
+
+    const getLawnReelsRes = await testEndpoint('/api/venue/reels');
+    console.log(`[Lawn Reels List] GET /api/venue/reels: HTTP ${getLawnReelsRes.status} | Total Reels: ${getLawnReelsRes.data.count}`);
+    if (getLawnReelsRes.status !== 200 || getLawnReelsRes.data.count < 7) {
+      throw new Error(`Expected at least 7 lawn reels, received ${getLawnReelsRes.data.count}`);
+    }
+
+    // Verify all 7 reels have valid 9:16 vertical video & cover URLs
+    getLawnReelsRes.data.data.forEach((r, idx) => {
+      if (!r.videoUrl || !r.coverUrl || r.aspectRatio !== '9:16') {
+        throw new Error(`Reel ${idx + 1} (${r.title}) missing required videoUrl or aspectRatio`);
+      }
+    });
+    console.log('• All 7 Dwarka Shri Lawn reels verified with 9:16 vertical format and cover thumbnails.');
+
+    // Admin updates a reel's description
+    const updateReelRes = await testEndpoint('/api/venue/reels/reel-entrance', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        title: 'A Grand Royal Welcome at Dwarka Shri Lawn'
+      })
+    });
+    console.log(`[Reel Update] PUT /api/venue/reels/:id: HTTP ${updateReelRes.status} | Updated Title: ${updateReelRes.data.data?.title}`);
+    if (updateReelRes.status !== 200 || updateReelRes.data.data?.title !== 'A Grand Royal Welcome at Dwarka Shri Lawn') {
+      throw new Error('Failed to update reel metadata');
+    }
+
+    // 23: Standardized Rental Catalogue, Area Pricing & Distance Band Cartage
+    console.log('\n--- Test 23: Area Pricing & Distance Band Cartage/Labour Rules ---');
+    const { calculateOrderPricing } = require('./services/pricingEngine');
+
+    // Test area calculation: 20x30 ft tent (600 sq ft) at ₹5/sq ft for 2 days = ₹6,000 subtotal
+    const pricingArea = calculateOrderPricing({
+      items: [
+        { id: 'item-tent-normal', name: 'Normal Tent / Pandal', length: 20, width: 30, quantity: 1, isAreaBased: true, ratePerSqFt: 5, durationSensitive: true }
+      ],
+      startDate: '2026-12-10',
+      endDate: '2026-12-11', // 2 calendar days
+      deliveryDistanceKm: 2.5
+    });
+    console.log(`[Area Pricing] 20x30 ft tent (600 sq.ft) for 2 days: Subtotal ₹${pricingArea.subtotal} | Expected ₹6000`);
+    if (pricingArea.subtotal !== 6000) {
+      throw new Error(`Area pricing calculation mismatch: expected 6000, got ${pricingArea.subtotal}`);
+    }
+
+    // Test distance bands:
+    // Band 1: 2.5 km -> Cartage: ₹500, Labour: ₹500 + tent rigging ₹500 = ₹1,000 labour
+    console.log(`[Distance Band 0-3km] Cartage: ₹${pricingArea.cartage} | Labour: ₹${pricingArea.labour}`);
+    if (pricingArea.cartage !== 500) {
+      throw new Error(`Expected cartage ₹500 for <= 3km, got ${pricingArea.cartage}`);
+    }
+
+    // Band 2: 5.5 km -> Cartage: ₹1,000, Labour: ₹1,000
+    const pricingBand2 = calculateOrderPricing({
+      items: [{ id: 'item-chair-pvc', quantity: 50, rentalPrice: 15 }],
+      startDate: '2026-12-10',
+      endDate: '2026-12-10',
+      deliveryDistanceKm: 5.5
+    });
+    console.log(`[Distance Band 3-7km] Cartage: ₹${pricingBand2.cartage} | Labour: ₹${pricingBand2.labour}`);
+    if (pricingBand2.cartage !== 1000 || pricingBand2.labour !== 1000) {
+      throw new Error(`Expected cartage ₹1000 and labour ₹1000 for 5.5km, got cartage=${pricingBand2.cartage}, labour=${pricingBand2.labour}`);
+    }
+
+    // Band 3: 12 km -> Provisional charges
+    const pricingBand3 = calculateOrderPricing({
+      items: [{ id: 'item-chair-pvc', quantity: 50, rentalPrice: 15 }],
+      startDate: '2026-12-10',
+      endDate: '2026-12-10',
+      deliveryDistanceKm: 12
+    });
+    console.log(`[Distance Band >7km] Cartage: ₹${pricingBand3.cartage} | Labour: ₹${pricingBand3.labour}`);
+    if (pricingBand3.cartage < 1500) {
+      throw new Error(`Expected provisional cartage >= ₹1500 for > 7km, got ${pricingBand3.cartage}`);
     }
 
     console.log('\n======================================================');

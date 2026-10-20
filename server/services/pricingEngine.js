@@ -109,15 +109,17 @@ const CATALOGUE_RULES = {
  */
 function calculateRentalDays(startDate, endDate) {
   if (!startDate) return 1;
-  if (!endDate || startDate === endDate) return 1;
+  if (!endDate) return 1;
 
   try {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const diffTime = end.getTime() - start.getTime();
-    if (diffTime <= 0) return 1;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(1, diffDays);
+    const startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+    const endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+    const diffTime = endUtc - startUtc;
+    if (diffTime < 0) return 1;
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(1, diffDays + 1); // Inclusive calendar day count (e.g. 10th to 11th = 2 days)
   } catch {
     return 1;
   }
@@ -191,16 +193,27 @@ function calculateLineItem(item, rentalDays) {
 function estimateCartageAndLabour({ items = [], distanceKm = 3, isReturningCustomer = false }) {
   const km = Math.max(1, parseFloat(distanceKm || 3));
 
-  // Cartage calculation
+  // Verified distance bands from Kanpur Road, Opp. Pillar 37, Daroga Kheda:
+  // Around 2–3 km: ₹500 cartage and ₹500 labour.
+  // Beyond roughly 5–7 km: ₹1,000 cartage and ₹1,000 labour.
+  // Longer distances (> 7km): provisional starting at ₹1,500 with admin review.
   let baseCartage = 500;
-  if (km <= 2 && isReturningCustomer) {
-    baseCartage = 400; // ~2km returning customer discount rule
-  } else if (km > 3) {
-    baseCartage = 500 + Math.round((km - 3) * 50); // Additional ₹50/km beyond 3km
+  let baseLabour = 500;
+  let isProvisional = false;
+
+  if (km <= 3) {
+    baseCartage = (km <= 2 && isReturningCustomer) ? 450 : 500;
+    baseLabour = 500;
+  } else if (km <= 7) {
+    baseCartage = 1000;
+    baseLabour = 1000;
+  } else {
+    baseCartage = 1500 + Math.round((km - 7) * 75);
+    baseLabour = 1500 + Math.round((km - 7) * 50);
+    isProvisional = true;
   }
 
-  // Labour calculation based on workload/weight
-  let baseLabour = 500;
+  // Workload and weight adjustments for large event rentals
   let totalHeavyItems = 0;
   let totalChairs = 0;
   let hasTent = false;
@@ -217,7 +230,7 @@ function estimateCartageAndLabour({ items = [], distanceKm = 3, isReturningCusto
   });
 
   if (hasTent) {
-    baseLabour += 500; // Tent rigging requires 2+ helpers
+    baseLabour += 500; // Heavy tent/pandal erection & rigging
   }
   if (totalChairs > 100) {
     baseLabour += 400;
@@ -229,8 +242,11 @@ function estimateCartageAndLabour({ items = [], distanceKm = 3, isReturningCusto
   }
 
   return {
-    estimatedCartage: Math.min(3000, baseCartage),
-    estimatedLabour: Math.min(5000, baseLabour)
+    estimatedCartage: Math.min(5000, baseCartage),
+    estimatedLabour: Math.min(8000, baseLabour),
+    isProvisional,
+    distanceKm: km,
+    distanceBand: km <= 3 ? '0-3 km (Local Daroga Kheda / Transport Nagar)' : km <= 7 ? '3-7 km (Alambagh / Sarojini Nagar / Airport)' : '7+ km (Extended Lucknow — Subject to Admin Confirmation)'
   };
 }
 

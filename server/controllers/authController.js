@@ -229,7 +229,7 @@ const adminLogin = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Username and password are required' });
     }
 
-    const cleanUsername = username.trim().toLowerCase();
+    const cleanUsername = (req.body.identifier || req.body.username || req.body.email || '').trim().toLowerCase();
     const envUser = (process.env.ADMIN_USERNAME || 'admin').toLowerCase();
     const envPass = process.env.ADMIN_PASSWORD || 'admin@kandhari2026';
 
@@ -237,7 +237,12 @@ const adminLogin = async (req, res) => {
     let userId = 'admin-1';
 
     if (isMongoConnected()) {
-      const user = await AdminUser.findOne({ username: cleanUsername });
+      const user = await AdminUser.findOne({ 
+        $or: [
+          { username: cleanUsername },
+          { email: cleanUsername }
+        ]
+      });
       if (user) {
         userValid = await user.comparePassword(password);
         userId = user.id || user._id;
@@ -245,7 +250,10 @@ const adminLogin = async (req, res) => {
     }
 
     if (!userValid) {
-      const localUser = getLocalDb().adminUsers.find(u => u.username.toLowerCase() === cleanUsername);
+      const localUser = (getLocalDb().adminUsers || []).find(u => 
+        u.username.toLowerCase() === cleanUsername || 
+        (u.email && u.email.toLowerCase() === cleanUsername)
+      );
       if (localUser) {
         const matchesLocal = await bcrypt.compare(password, localUser.passwordHash);
         if (matchesLocal) {
@@ -281,6 +289,57 @@ const adminLogin = async (req, res) => {
   } catch (error) {
     console.error('Error during admin login:', error);
     return res.status(500).json({ success: false, message: 'Server error during login' });
+  }
+};
+
+// 6. POST /api/auth/reset-admin-password
+const resetAdminPassword = async (req, res) => {
+  try {
+    const { recoveryKey, username, email, newPassword } = req.body;
+    const expectedKey = process.env.ADMIN_RECOVERY_KEY || 'kandhari-admin-recovery-2026';
+
+    if (!recoveryKey || recoveryKey !== expectedKey) {
+      return res.status(403).json({ success: false, message: 'Invalid or missing recovery key authorization.' });
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters long.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+    const db = getLocalDb();
+    if (!db.adminUsers) db.adminUsers = [];
+
+    const targetUser = username || 'admin';
+    const targetEmail = email || 'varunkandhari612@gmail.com';
+
+    let admin = db.adminUsers.find(u => 
+      u.username.toLowerCase() === targetUser.toLowerCase() || 
+      (u.email && u.email.toLowerCase() === targetEmail.toLowerCase())
+    );
+
+    if (admin) {
+      admin.passwordHash = passwordHash;
+      admin.updatedAt = new Date().toISOString();
+    } else {
+      admin = {
+        id: 'admin-1',
+        username: targetUser,
+        email: targetEmail,
+        name: 'Varun Kandhari',
+        passwordHash,
+        role: 'admin',
+        createdAt: new Date().toISOString()
+      };
+      db.adminUsers.push(admin);
+    }
+
+    saveLocalStore();
+    return res.json({ success: true, message: 'Admin password reset successfully. You may now log in.' });
+  } catch (error) {
+    console.error('resetAdminPassword error:', error);
+    return res.status(500).json({ success: false, message: 'Server error resetting admin password.' });
   }
 };
 
@@ -426,6 +485,7 @@ module.exports = {
   getCustomerEnquiries,
   getCustomerConversations,
   adminLogin,
+  resetAdminPassword,
   verifyAuth,
   getDashboardStats,
   getAllCustomers

@@ -214,6 +214,7 @@ const AdminDashboardPage = () => {
   const [mediaCategoryFilter, setMediaCategoryFilter] = useState('all');
   const [portfolios, setPortfolios] = useState([]);
   const [renderedReels, setRenderedReels] = useState([]);
+  const [lawnReels, setLawnReels] = useState([]);
   const [isRenderingReel, setIsRenderingReel] = useState(false);
   const [reelFormData, setReelFormData] = useState({
     title: 'Royal Wedding Setup at Dwarka Shri Lawn',
@@ -270,6 +271,7 @@ const AdminDashboardPage = () => {
         mediaRes,
         portRes,
         reelsRes,
+        lawnReelsRes,
         memRes,
         wfRes,
         anaRes,
@@ -289,6 +291,7 @@ const AdminDashboardPage = () => {
         api.searchMarketingMedia().catch(() => ({ data: [] })),
         api.getMarketingPortfolios().catch(() => ({ data: [] })),
         api.getRenderedReels().catch(() => ({ data: [] })),
+        api.getLawnReels().catch(() => ({ data: [] })), // 7 Lawn Reels
         api.getAgentMemories().catch(() => ({ data: [] })),
         api.getAgentWorkflows().catch(() => ({ data: [] })),
         api.getAnalyticsSummary().catch(() => ({ data: null })),
@@ -309,6 +312,7 @@ const AdminDashboardPage = () => {
       setMarketingMedia(mediaRes.data || []);
       setPortfolios(portRes.data || []);
       setRenderedReels(reelsRes.data || []);
+      setLawnReels(lawnReelsRes.data || []);
       setAgentMemories(memRes.data || []);
       setAgentWorkflows(wfRes.data || []);
       setAnalyticsSummary(anaRes.data || anaRes.summary || null);
@@ -1545,6 +1549,14 @@ const AdminDashboardPage = () => {
                 </div>
                 <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex">
                   <button
+                    onClick={() => setMarketingSubtab('lawn_reels')}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+                      marketingSubtab === 'lawn_reels' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    🌿 द्वारका श्री लॉन रील्स ({lawnReels.length})
+                  </button>
+                  <button
                     onClick={() => setMarketingSubtab('reels')}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
                       marketingSubtab === 'reels' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
@@ -1570,6 +1582,85 @@ const AdminDashboardPage = () => {
                   </button>
                 </div>
               </div>
+
+              
+              {/* Subtab 0: Dwarka Shri Lawn Verified 7 Reels */}
+              {marketingSubtab === 'lawn_reels' && (
+                <div className="space-y-6">
+                  <div className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Film className="w-5 h-5 text-amber-400" />
+                        <h3 className="font-serif font-bold text-base text-white">द्वारका श्री लॉन — 7 प्रमाणित वीडियो रील्स (9:16)</h3>
+                      </div>
+                      <p className="text-xs text-neutral-400 mt-1">
+                        वास्तविक वीडियो फुटेज से तैयार की गई 9:16 वर्टिकल रील्स। इन्हें वेबसाइट पर प्रदर्शित किया गया है।
+                      </p>
+                    </div>
+                    <a
+                      href="/media/lawn/DwarakaShreevideo.mp4"
+                      download="Dwarka_Shri_Lawn_Master.mp4"
+                      className="px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-brand-gold hover:text-white text-xs font-bold transition flex items-center gap-2 self-start sm:self-auto"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>मास्टर सोर्स वीडियो (19.3 MB)</span>
+                    </a>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {lawnReels.map((reel) => (
+                      <div key={reel.id} className="bg-neutral-950 rounded-3xl overflow-hidden border border-neutral-800 flex flex-col justify-between group">
+                        <div className="relative aspect-[9/16] max-h-80 w-full bg-neutral-900 overflow-hidden flex items-center justify-center">
+                          <img src={reel.coverUrl} alt={reel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+                          <button
+                            onClick={() => setActivePreviewVideo({ ...reel, format: '9:16' })}
+                            className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-black/70 backdrop-blur-xs text-white flex items-center justify-center border border-white/30 hover:scale-110 transition shadow-xl"
+                          >
+                            <Play className="w-6 h-6 text-brand-gold fill-brand-gold ml-1" />
+                          </button>
+                          <div className="absolute top-3 left-3 right-3 flex justify-between items-center text-xs">
+                            <span className="px-2 py-0.5 rounded-full bg-black/70 text-[10px] font-bold text-brand-gold">
+                              {reel.category}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full bg-black/70 text-[10px] font-mono text-neutral-300">
+                              {reel.duration}s
+                            </span>
+                          </div>
+                          <div className="absolute bottom-3 left-3 right-3 text-white">
+                            <p className="text-[10px] text-brand-gold font-bold uppercase">{reel.areaTag}</p>
+                            <h4 className="text-xs font-serif font-bold line-clamp-1">{reel.title}</h4>
+                          </div>
+                        </div>
+
+                        <div className="p-4 space-y-3">
+                          <p className="text-[11px] text-neutral-400 line-clamp-2">{reel.description}</p>
+                          <div className="pt-2 border-t border-neutral-800 flex items-center justify-between gap-2 text-xs">
+                            <button
+                              onClick={() => {
+                                const shareText = `द्वारका श्री लॉन (कानपुर रोड, लखनऊ) की वीडियो रील: ${window.location.origin}/lawn#${reel.id} — ${reel.title}`;
+                                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+                              }}
+                              className="flex-1 py-1.5 px-2 rounded-lg bg-green-600/20 hover:bg-green-600/30 text-green-400 font-bold text-[11px] flex items-center justify-center gap-1"
+                            >
+                              <Share2 className="w-3.5 h-3.5" />
+                              <span>व्हाट्सएप</span>
+                            </button>
+                            <a
+                              href={reel.videoUrl}
+                              download={reel.filename}
+                              className="p-2 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-300 hover:text-white"
+                              title="Download MP4"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Subtab 1: Reel Creator & Rendered Reels */}
               {marketingSubtab === 'reels' && (
