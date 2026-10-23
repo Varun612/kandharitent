@@ -28,11 +28,19 @@ import CustomerPortalPage from './pages/CustomerPortalPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
-// Scroll to top automatically on route changes
+// Scroll to top automatically on route changes & record customer journey metadata
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
+    try {
+      const journey = JSON.parse(localStorage.getItem('kandhari_client_journey') || '{"pages":[],"clicks":[]}');
+      if (!journey.pages.includes(pathname)) {
+        journey.pages.push(pathname);
+        if (journey.pages.length > 15) journey.pages.shift();
+        localStorage.setItem('kandhari_client_journey', JSON.stringify(journey));
+      }
+    } catch (e) {}
   }, [pathname]);
   return null;
 };

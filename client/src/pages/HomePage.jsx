@@ -123,6 +123,53 @@ const HomePage = () => {
         onScrollToCelebrations={scrollToCelebrations}
       />
 
+      {/* Dynamic Live Lucknow Activity & Veronica AI Receptionist Ticker */}
+      <div className="bg-gradient-to-r from-neutral-900 via-purple-950 to-neutral-900 text-white py-3 border-y border-amber-500/30 overflow-hidden shadow-lg relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+          {/* Live Activity Stream */}
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <span className="flex h-2.5 w-2.5 relative shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span className="font-bold text-amber-300 uppercase tracking-wider text-[11px] shrink-0">
+              Live Lucknow Bookings:
+            </span>
+            <div className="flex items-center gap-6 text-neutral-300 text-xs overflow-x-auto no-scrollbar whitespace-nowrap">
+              <span>📍 Kanpur Road: <strong>300 PVC Chairs</strong> confirmed for Nov Wedding</span>
+              <span>•</span>
+              <span>📍 Gomti Nagar: <strong>Haldi & Mehendi Yellow Setup</strong> reserved</span>
+              <span>•</span>
+              <span>📍 Alambagh: <strong>Waterproof German Hangar</strong> booked for Reception</span>
+              <span>•</span>
+              <span>📍 Daroga Kheda: <strong>Dwarka Shri Lawn</strong> visit scheduled</span>
+            </div>
+          </div>
+
+          {/* Veronica Telephony Trigger */}
+          <div className="flex items-center gap-3 shrink-0">
+            <a
+              href="tel:18008903456"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 hover:bg-amber-400/30 transition text-xs font-bold"
+            >
+              <Phone className="w-3.5 h-3.5 text-amber-300 animate-bounce" />
+              <span>Veronica AI Receptionist: 1800-890-3456</span>
+            </a>
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('open-ai-chat', {
+                  detail: { initialMessage: 'Namaste Veronica, I want to explore wedding packages and check lawn availability.' }
+                }));
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7c3aed] text-white hover:bg-[#6d28d9] transition text-xs font-bold shadow-xs"
+            >
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              <span>Chat with AI</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* 1.5. EDITORIAL EVENT GALLERY SHOWCASE */}
       <EditorialEventGallery
         onOpenEnquiryWithItem={(item) => addItem(item, 1)}
@@ -799,7 +846,7 @@ const HomePage = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {featuredItems.map((item) => (
               <ItemCard
                 key={item.id}

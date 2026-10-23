@@ -133,7 +133,55 @@
       "destination": "/api"
     },
     {
-      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|inventory|staff|analytics|agent|health).*)",
+      "source": "/agents/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/agents",
+      "destination": "/api"
+    },
+    {
+      "source": "/receptionist/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/receptionist",
+      "destination": "/api"
+    },
+    {
+      "source": "/invoices/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/invoices",
+      "destination": "/api"
+    },
+    {
+      "source": "/marketing/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/marketing",
+      "destination": "/api"
+    },
+    {
+      "source": "/settings/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/settings",
+      "destination": "/api"
+    },
+    {
+      "source": "/coupons/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/coupons",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|inventory|staff|analytics|agent|agents|receptionist|invoices|marketing|settings|coupons|health).*)",
       "destination": "/index.html"
     }
   ]

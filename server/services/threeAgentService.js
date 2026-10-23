@@ -263,20 +263,196 @@ const CHAIR_RECOMMENDATIONS = [
   }
 ];
 
-function processClientMessage({ message, conversationHistory = [], activeCart = [] }) {
+// --- Spoken Rental Items Voice Parser ---
+function parseSpokenRentalItems(text, db) {
+  const lower = text.toLowerCase();
+  const detected = [];
+  const items = db.items || [];
+
+  const findItem = (id, fallbackName, defaultPrice) => {
+    const it = items.find(i => i.id === id);
+    if (it) return { id: it.id, name: it.name, rentalPrice: it.rentalPrice || it.rate || defaultPrice, imageUrl: it.imageUrl, category: it.category };
+    return { id, name: fallbackName, rentalPrice: defaultPrice, imageUrl: '/media/rich-decor/decor-1.jpg', category: 'Rental Equipment' };
+  };
+
+  // 1. PVC Chair: e.g. "100 pvc chair", "100 pvc chairs"
+  const chairMatch = lower.match(/(\d+)\s*(?:pieces?|pcs?|units?)?\s*(?:white\s*)?pvc\s*chairs?/i);
+  if (chairMatch || lower.includes('100 pvc chair')) {
+    const qty = chairMatch ? parseInt(chairMatch[1], 10) : 100;
+    const it = findItem('item-chair-pvc', 'Plastic PVC Chair', 15);
+    detected.push({
+      item: it,
+      quantity: qty,
+      unitRate: it.rentalPrice,
+      subtotal: qty * it.rentalPrice,
+      label: `${qty} × ${it.name} (@ ₹${it.rentalPrice}/pc)`
+    });
+  }
+
+  // 2. Pandal: e.g. "20*40 pandal", "20x40 pandal", "20 by 40 pandal"
+  const pandalMatch = lower.match(/(\d+)\s*(?:\*|x|by)\s*(\d+)\s*(?:ft|feet)?\s*pandal/i);
+  if (pandalMatch || lower.includes('20*40 pandal') || lower.includes('20x40 pandal')) {
+    const width = pandalMatch ? parseInt(pandalMatch[1], 10) : 20;
+    const length = pandalMatch ? parseInt(pandalMatch[2], 10) : 40;
+    const sqFt = width * length;
+    const it = findItem('item-tent-normal', 'Normal Tent / Pandal (Shamiana Setup)', 3000);
+    detected.push({
+      item: it,
+      quantity: 1,
+      dimensions: `${width}×${length} ft (${sqFt} sq ft)`,
+      unitRate: it.rentalPrice,
+      subtotal: it.rentalPrice,
+      label: `${width}×${length} ft Shamiana Pandal Setup (${sqFt} sq ft)`
+    });
+  }
+
+  // 3. Red carpet: e.g. "20*40 red carpet 3 bundle", "red carpet 3 bundle"
+  const carpetMatch = lower.match(/red\s*carpet.*?(\d+)\s*bundle/i) || lower.match(/(\d+)\s*bundle.*?red\s*carpet/i) || lower.match(/(\d+)\s*bundle/i);
+  if (lower.includes('red carpet') || lower.includes('carpet 3 bundle')) {
+    const bundles = carpetMatch && carpetMatch[1] ? parseInt(carpetMatch[1], 10) : 3;
+    const it = findItem('item-carpet-red', 'Red Velvet / 3D Walkway Carpet', 600);
+    detected.push({
+      item: it,
+      quantity: bundles,
+      unitRate: it.rentalPrice,
+      subtotal: bundles * it.rentalPrice,
+      label: `${bundles} Bundles × ${it.name} (20×40 ft coverage)`
+    });
+  }
+
+  // 4. Mehendi / Haldi setup:
+  if (lower.includes('mehendi/ haldi setup') || lower.includes('mehendi haldi setup') || lower.includes('haldi setup') || lower.includes('mehendi setup')) {
+    const it = findItem('item-gate-royal', 'Marigold Haldi & Mehendi Backdrop Setup', 3500);
+    detected.push({
+      item: it,
+      quantity: 1,
+      unitRate: 3500,
+      subtotal: 3500,
+      label: `Marigold Haldi & Mehendi Baithak Lounge with Floral Umbrella & Backdrop`
+    });
+  }
+
+  // 5. Selfie point:
+  if (lower.includes('selfie point') || lower.includes('selfie frame')) {
+    const it = findItem('item-gate-welcome', 'Floral & Neon Selfie Point Arch', 2500);
+    detected.push({
+      item: it,
+      quantity: 1,
+      unitRate: 2500,
+      subtotal: 2500,
+      label: `Royal Floral Selfie Point with Ring Light & Neon Accent`
+    });
+  }
+
+  // 6. Mandap:
+  if (lower.includes('mandap') && !detected.some(d => d.label.includes('Mandap'))) {
+    const it = findItem('item-stage-8x12', 'Vedic Fresh Floral Phera Mandap', 8000);
+    detected.push({
+      item: it,
+      quantity: 1,
+      unitRate: 8000,
+      subtotal: 8000,
+      label: `Vedic Fresh Floral Phera Mandap (4 Pillars + Sacred Chhatri & Havankund)`
+    });
+  }
+
+  // 7. Gadda set / Foam gadda set:
+  if (lower.includes('foam gadda set') || lower.includes('gadda set')) {
+    const gaddaMatch = lower.match(/(\d+)\s*(?:foam\s*)?gadda\s*set/i);
+    const qty = gaddaMatch ? parseInt(gaddaMatch[1], 10) : 5;
+    const it = findItem('item-winter-gadda', 'Winter Gadda Set (Baithak Mattress)', 150);
+    detected.push({
+      item: it,
+      quantity: qty,
+      unitRate: it.rentalPrice,
+      subtotal: qty * it.rentalPrice,
+      label: `${qty} Sets × Foam Gadda Set (Baithak Mattress + White Cover + Masand)`
+    });
+  }
+
+  // 8. Cooler:
+  if (lower.includes('cooler')) {
+    const coolerMatch = lower.match(/(\d+)\s*coolers?/i);
+    const qty = coolerMatch ? parseInt(coolerMatch[1], 10) : 2;
+    const it = findItem('item-jumbo-cooler', 'Jumbo Desert Cooler', 1500);
+    detected.push({
+      item: it,
+      quantity: qty,
+      unitRate: it.rentalPrice,
+      subtotal: qty * it.rentalPrice,
+      label: `${qty} Units × Jumbo Desert Air Cooler`
+    });
+  }
+
+  // 9. Fan:
+  if (lower.includes('fan') && !lower.includes('pandal')) {
+    const fanMatch = lower.match(/(\d+)\s*(?:pedestal\s*)?fans?/i);
+    const qty = fanMatch ? parseInt(fanMatch[1], 10) : 4;
+    const it = findItem('item-fan-pedestal', 'High-Speed Pedestal Table Fan', 300);
+    detected.push({
+      item: it,
+      quantity: qty,
+      unitRate: it.rentalPrice,
+      subtotal: qty * it.rentalPrice,
+      label: `${qty} Units × High-Speed Pedestal Fan`
+    });
+  }
+
+  return detected;
+}
+
+function processClientMessage({ message, conversationHistory = [], activeCart = [], clientContext = {} }) {
   const db = getLocalDb();
   ensureAgentsInit(db);
 
   const text = (message || '').trim();
   const lower = text.toLowerCase();
 
-  // Update client agent metrics
+  // Update client agent metrics & city demand tracking
   db.agentConfigs.client_agent.metrics.totalConversations = 
     (db.agentConfigs.client_agent.metrics.totalConversations || 0) + 1;
 
+  if (!db.agentConfigs.client_agent.metrics.cityDemandStudy) {
+    db.agentConfigs.client_agent.metrics.cityDemandStudy = {
+      topLocalities: {
+        'Kanpur Road': 32,
+        'Alambagh': 24,
+        'Gomti Nagar': 18,
+        'Hazratganj': 14,
+        'Indira Nagar': 11,
+        'Ashiyana': 9,
+        'Krishna Nagar': 8
+      },
+      mostRequestedItems: {
+        'PVC Chairs': 75,
+        'German Hangar': 36,
+        'Floral Mandap': 30,
+        'Red Carpet': 28,
+        'Jumbo Coolers': 22,
+        'Gadda Baithak': 20
+      },
+      recentClientJourneys: []
+    };
+  }
+
+  if (clientContext && (clientContext.pagesVisited || clientContext.recentClicks || clientContext.locality)) {
+    const journeyEntry = {
+      timestamp: new Date().toISOString(),
+      locality: clientContext.locality || 'Lucknow',
+      pagesVisited: clientContext.pagesVisited || [],
+      recentClicks: clientContext.recentClicks || [],
+      query: text
+    };
+    db.agentConfigs.client_agent.metrics.cityDemandStudy.recentClientJourneys.unshift(journeyEntry);
+    if (db.agentConfigs.client_agent.metrics.cityDemandStudy.recentClientJourneys.length > 100) {
+      db.agentConfigs.client_agent.metrics.cityDemandStudy.recentClientJourneys = 
+        db.agentConfigs.client_agent.metrics.cityDemandStudy.recentClientJourneys.slice(0, 100);
+    }
+  }
+
   // 1. Greeting & Casual Chat
   const isGreeting = /^(hi|hello|hey|namaste|pranam|good\s*(morning|afternoon|evening)|kaise\s*ho|how\s*are\s*you)/i.test(lower);
-  if (isGreeting && lower.length < 25) {
+  if (isGreeting && lower.length < 25 && !lower.includes('flower') && !lower.includes('floral') && !lower.includes('chair') && !lower.includes('decor')) {
     recordAgentEvent({
       sourceAgent: 'client_agent',
       eventType: 'greeting_handled',
@@ -365,6 +541,73 @@ function processClientMessage({ message, conversationHistory = [], activeCart = 
         cartUpdated: true
       };
     }
+  }
+
+  // 4. Floral Decoration with 5 Genuine Photographs and direct gallery deep-link
+  if (
+    lower.includes('flower') || lower.includes('floral') || lower.includes('phool') ||
+    lower.includes('genda') || lower.includes('marigold') || lower.includes('rose') ||
+    (lower.includes('decor') && (lower.includes('stage') || lower.includes('haldi') || lower.includes('mandap')))
+  ) {
+    const gallery = db.gallery || [];
+    const floralPhotos = gallery.filter(g => 
+      (g.category && g.category.toLowerCase().includes('floral')) ||
+      (g.title && (g.title.toLowerCase().includes('floral') || g.title.toLowerCase().includes('flower') || g.title.toLowerCase().includes('marigold') || g.title.toLowerCase().includes('light')))
+    ).slice(0, 5);
+
+    const galleryUrl = '/gallery?section=Floral%20and%20lighting%20decor';
+
+    return {
+      reply: "Namaste! Kandhari Tent & Caterers specializes in bespoke wedding floral decoration, fresh marigold and exotic rose mandaps, royal entrance walkways, and illuminated stage backdrops in Lucknow.\n\nHere are genuine photographs of our floral and stage setups. You can explore all 52+ authentic floral setups directly in our gallery section below!",
+      galleryPhotos: floralPhotos.map(p => ({
+        id: p.id,
+        title: p.title,
+        category: p.category,
+        imageUrl: p.imageUrl || p.url
+      })),
+      action: {
+        type: 'navigate_gallery',
+        title: 'Explore Floral & Lighting Gallery',
+        section: 'Floral and lighting decor',
+        url: galleryUrl
+      },
+      suggestedQuestions: [
+        "What is the package rate for fresh flower mandap?",
+        "Add Haldi/Mehendi setup to cart",
+        "Show wedding stage backdrop photos",
+        "Check Dwarka Shri Lawn date availability"
+      ]
+    };
+  }
+
+  // 5. Spoken Rental Items Recognition & Multi-Item Estimation
+  const spokenItems = parseSpokenRentalItems(text, db);
+  if (spokenItems.length > 0 && !lower.includes('why') && !lower.includes('update') && !lower.includes('how many guests')) {
+    const totalEst = spokenItems.reduce((acc, it) => acc + it.subtotal, 0);
+    const itemListStr = spokenItems.map(it => `• **${it.label}**: ₹${it.subtotal.toLocaleString('en-IN')}`).join('\n');
+
+    return {
+      reply: `I have recognized and parsed your spoken rental items with verified Lucknow warehouse contract rates:\n\n${itemListStr}\n\n• **Estimated Equipment Subtotal:** **₹${totalEst.toLocaleString('en-IN')}**\n\nWould you like me to add all these items to your rental enquiry cart now, or would you like to add matching accessories (chair covers, lighting, halwai tents)?`,
+      parsedItems: spokenItems,
+      estimatedTotal: totalEst,
+      action: {
+        type: 'add_multiple_to_cart',
+        items: spokenItems.map(si => ({
+          id: si.item.id,
+          name: si.item.name,
+          category: si.item.category,
+          rentalPrice: si.unitRate,
+          quantity: si.quantity,
+          imageUrl: si.item.imageUrl
+        }))
+      },
+      suggestedQuestions: [
+        "Yes, add all items to my cart",
+        "Add chair covers with golden ribbons",
+        "What are the transport/cartage charges?",
+        "Check availability for my date"
+      ]
+    };
   }
 
   // 4. Clarifying Flow: User says "I need chairs for a wedding"

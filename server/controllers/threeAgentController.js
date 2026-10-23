@@ -12,7 +12,7 @@ const { getLocalDb } = require('../config/db');
 
 const handleClientChat = (req, res) => {
   try {
-    const { message, conversationHistory = [], activeCart = [] } = req.body || {};
+    const { message, conversationHistory = [], activeCart = [], clientContext = {} } = req.body || {};
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ success: false, message: 'message string is required' });
     }
@@ -20,7 +20,8 @@ const handleClientChat = (req, res) => {
     const result = threeAgentService.processClientMessage({
       message,
       conversationHistory,
-      activeCart
+      activeCart,
+      clientContext
     });
 
     return res.json({

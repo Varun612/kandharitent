@@ -56,7 +56,7 @@ const ItemCard = ({ item, onSelectDetail }) => {
     : (item.billingUnit || 'per piece');
 
   return (
-    <div className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm hover:shadow-royal transition-all duration-300 flex flex-col justify-between">
+    <div className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm hover:shadow-royal transition-all duration-300 flex flex-col justify-between h-full">
       {/* Image & Badges */}
       <div className="relative aspect-4/3 overflow-hidden bg-neutral-100">
         <img
@@ -77,24 +77,23 @@ const ItemCard = ({ item, onSelectDetail }) => {
           </span>
         </div>
 
-        {/* Availability Badge */}
-        <div className="absolute top-3 right-3">
+        {/* Top-Right Badges: Availability + Handpicked & Popular */}
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5 z-10">
           {getStatusBadge(item.availabilityStatus)}
-        </div>
-
-        {item.featured && (
-          <div className="absolute bottom-3 left-3">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-gold text-brand-dark uppercase tracking-wider shadow-sm">
-              <Sparkles className="w-3 h-3" />
-              <span>Popular Choice</span>
+          <div className="flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-xs tracking-wider">
+              <span>🔥 Popular</span>
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#7c3aed] text-white shadow-xs tracking-wider">
+              <span>✨ Handpicked</span>
             </span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-        <div>
+        <div className="space-y-2">
           <h3 
             onClick={() => onSelectDetail(item)}
             className="text-base font-serif font-bold text-neutral-900 group-hover:text-brand-purple transition cursor-pointer line-clamp-1"
@@ -103,9 +102,15 @@ const ItemCard = ({ item, onSelectDetail }) => {
             {item.name}
           </h3>
 
-          <p className="mt-1.5 text-xs text-neutral-500 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-neutral-500 line-clamp-2 leading-relaxed">
             {item.description}
           </p>
+
+          {/* Social proof badge */}
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-amber-900 bg-amber-50/90 border border-amber-200/70 px-2.5 py-1 rounded-lg mt-1">
+            <Eye className="w-3.5 h-3.5 text-amber-600 animate-pulse shrink-0" />
+            <span><strong>3 more people</strong> viewed today in Lucknow</span>
+          </div>
         </div>
 
         {/* Pricing Notice & Actions */}

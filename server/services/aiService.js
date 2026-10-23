@@ -285,6 +285,23 @@ const generateConversationalResponse = ({ userText, intentInfo, collectedState, 
     }
   }
 
+  // Case 1.5: Floral & Stage Decor Enquiry
+  if (intent === 'floral_decoration' || lower.includes('flower') || lower.includes('floral') || lower.includes('phool')) {
+    const gallerySectionUrl = '/gallery?section=Floral%20and%20lighting%20decor';
+    if (isHindi) {
+      return `Namaste! Kandhari Tent & Caterers Dwarka Shri Lawn aur poore Lucknow me grand floral decoration provide karta hai (Fresh Rose & Marigold Mandap, Entry Gate Arch, Haldi Jhula/Baithak aur Luxury Stage Backdrop).
+
+Niche hamare recent floral aur lighting setups ki 5 genuine photos attached hain. Aap hamari **[Floral & Lighting Gallery](${gallerySectionUrl})** par click karke sabhi 50+ designs explore kar sakte hain!
+
+Aap kis event date ya celebration ke liye floral theme dekh rahe hain?`;
+    }
+    return `Namaste! Kandhari Tent & Caterers specializes in bespoke floral decor across Lucknow venues and at Dwarka Shri Lawn (Fresh Blossom Vedic Mandaps, Fragrant Marigold Haldi & Mehendi setups, Majestic Reception Stage Backdrops, and Illuminated Entrance Arches).
+
+Here are 5 genuine photographs of our floral and lighting setups below. You can also explore our complete collection of 50+ authentic photos directly in our **[Floral & Lighting Gallery](${gallerySectionUrl})**!
+
+What event date or celebration type are you planning for?`;
+  }
+
   // Case 2: Catering Menu & Pricing
   if (intent === 'catering_menu') {
     if (isHindi) {
@@ -509,6 +526,19 @@ const processChatMessage = async ({
       for (const b of broader) {
         if (!matches.some(m => m.id === b.id)) {
           matches.push(b);
+        }
+      }
+    }
+
+    // Prioritize floral gallery assets for floral/decor inquiries
+    if (matches.length < 5 && (targetCat.toLowerCase().includes('floral') || targetCat.toLowerCase().includes('flower'))) {
+      const florals = availableGallery.filter(item => 
+        (item.category && item.category.toLowerCase().includes('floral')) ||
+        (item.title && (item.title.toLowerCase().includes('floral') || item.title.toLowerCase().includes('flower') || item.title.toLowerCase().includes('marigold') || item.title.toLowerCase().includes('light')))
+      );
+      for (const f of florals) {
+        if (!matches.some(m => m.id === f.id)) {
+          matches.push(f);
         }
       }
     }

@@ -21,7 +21,7 @@ const ITEMS_PER_PAGE = 24;
 
 const GalleryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialCat = searchParams.get('category') || 'All';
+  const initialCat = searchParams.get('section') || searchParams.get('category') || 'All';
   const initialMedia = searchParams.get('mediaType') || 'All';
 
   const [galleryItems, setGalleryItems] = useState([]);
@@ -33,13 +33,24 @@ const GalleryPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sync category state with URL parameter if present
+  // Sync category state with URL parameter if present & auto-scroll to gallery grid
   useEffect(() => {
-    const catParam = searchParams.get('category');
+    const catParam = searchParams.get('section') || searchParams.get('category');
     if (catParam) {
-      setSelectedCategory(catParam);
+      const matched = categories.find(c => c.toLowerCase() === catParam.toLowerCase() || 
+        (catParam.toLowerCase().includes('floral') && c.toLowerCase().includes('floral'))
+      ) || catParam;
+      setSelectedCategory(matched);
+
+      // Smooth scroll to gallery grid when coming via deep-link
+      setTimeout(() => {
+        const gridEl = document.getElementById('gallery-grid');
+        if (gridEl) {
+          gridEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 250);
     }
-  }, [searchParams]);
+  }, [searchParams, categories]);
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -66,9 +77,13 @@ const GalleryPage = () => {
     setVisibleCount(ITEMS_PER_PAGE);
     if (cat === 'All') {
       searchParams.delete('category');
+      searchParams.delete('section');
       setSearchParams(searchParams);
     } else {
-      setSearchParams({ ...Object.fromEntries(searchParams.entries()), category: cat });
+      const nextParams = Object.fromEntries(searchParams.entries());
+      delete nextParams.section;
+      nextParams.category = cat;
+      setSearchParams(nextParams);
     }
   };
 
@@ -80,11 +95,22 @@ const GalleryPage = () => {
   // Filter items in memory for instant feedback and rich multi-criteria matching
   const filteredItems = useMemo(() => {
     return galleryItems.filter((item) => {
-      // Category filter
+      // Category / Section filter
       if (selectedCategory !== 'All') {
+        const selLow = selectedCategory.toLowerCase().trim();
+        const itemCat = (item.category || '').toLowerCase();
+        const itemSlug = (item.categorySlug || '').toLowerCase();
+        
         const matchCat =
-          (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase()) ||
-          (item.categorySlug && item.categorySlug.toLowerCase() === selectedCategory.toLowerCase());
+          itemCat === selLow ||
+          itemSlug === selLow ||
+          (selLow.includes('floral') && itemCat.includes('floral')) ||
+          (selLow.includes('wedding') && itemCat.includes('wedding')) ||
+          (selLow.includes('lawn') && itemCat.includes('lawn')) ||
+          (selLow.includes('mandap') && itemCat.includes('mandap')) ||
+          (selLow.includes('tent') && itemCat.includes('tent')) ||
+          (selLow.includes('seating') && itemCat.includes('seating')) ||
+          (selLow.includes('catering') && itemCat.includes('catering'));
         if (!matchCat) return false;
       }
 
@@ -324,7 +350,7 @@ const GalleryPage = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div id="gallery-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 scroll-mt-24">
             {visibleItems.map((item, index) => {
               const isVideoItem = item.mediaType === 'video' || (item.videoUrl && item.videoUrl.length > 0);
 

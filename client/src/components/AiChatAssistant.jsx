@@ -7,7 +7,8 @@ import {
   MessageSquare, X, Send, Sparkles, RefreshCw, 
   CheckCircle, ArrowRight, Image as ImageIcon, MapPin, 
   Calendar, Phone, ExternalLink, ChevronDown, Minimize2, Maximize2,
-  Lock, Mail, User, ShieldCheck, Edit3, AlertCircle, ShoppingBag, Plus
+  Lock, Mail, User, ShieldCheck, Edit3, AlertCircle, ShoppingBag, Plus,
+  Mic, MicOff
 } from 'lucide-react';
 
 // Extract phone and details from text
@@ -186,21 +187,82 @@ const AiChatAssistant = () => {
     return () => window.removeEventListener('open-ai-chat', handleOpenChat);
   }, []);
 
-  // Initialize chat session
+  // Voice Dictation (Web Speech API)
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const toggleListening = () => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice input is not supported in this browser. Please type your query directly.");
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'hi-IN';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const spoken = event.results[0][0].transcript;
+        if (spoken) {
+          setInputText(spoken);
+          setTimeout(() => {
+            handleSend(spoken);
+          }, 350);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Speech recognition notice:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (e) {
+      console.warn('Could not start speech recognition:', e);
+      setIsListening(false);
+    }
+  };
+
+  // Initialize chat session with auto-recovery
   const initChat = async () => {
     try {
       const savedConvId = localStorage.getItem('kandhari_active_conv_id');
       if (savedConvId) {
-        const res = await api.getChat(savedConvId);
-        if (res && res.success && res.conversation) {
-          setConversation(res.conversation);
-          if (res.conversation.messages && res.conversation.messages.length > 0) {
-            setMessages(res.conversation.messages);
+        try {
+          const res = await api.getChat(savedConvId);
+          if (res && res.success && res.conversation) {
+            setConversation(res.conversation);
+            if (res.conversation.messages && res.conversation.messages.length > 0) {
+              setMessages(res.conversation.messages);
+            }
+            if (res.conversation.collectedState?.enquiryReference) {
+              setSubmittedRef(res.conversation.collectedState.enquiryReference);
+            }
+            return;
           }
-          if (res.conversation.collectedState?.enquiryReference) {
-            setSubmittedRef(res.conversation.collectedState.enquiryReference);
-          }
-          return;
+        } catch (innerErr) {
+          console.warn('Saved conversation expired or invalid, initializing fresh session:', innerErr);
+          localStorage.removeItem('kandhari_active_conv_id');
         }
       }
       startNewChat();
@@ -294,18 +356,34 @@ const AiChatAssistant = () => {
 
     // 1. Primary: Three-Agent Client Agent Architecture
     try {
+      let journeyMeta = { pages: [], clicks: [] };
+      try {
+        journeyMeta = JSON.parse(localStorage.getItem('kandhari_client_journey') || '{"pages":[],"clicks":[]}');
+      } catch (e) {}
+
       const agentRes = await api.agents.clientChat({
         message: text,
         conversationHistory: messages,
-        activeCart: enquiryList || []
+        activeCart: enquiryList || [],
+        clientContext: {
+          pagesVisited: journeyMeta.pages || [],
+          recentClicks: journeyMeta.clicks || [],
+          locality: conversation?.collectedState?.locality || 'Lucknow',
+          activeCartCount: (enquiryList || []).length
+        }
       });
 
       if (agentRes && agentRes.success && agentRes.data) {
         const agentData = agentRes.data;
 
-        // Proactive Cart Addition Execution
+        // Proactive Single Item Cart Addition Execution
         if (agentData.action && agentData.action.type === 'add_to_cart' && agentData.action.item && addItem) {
           addItem(agentData.action.item, agentData.action.quantity || 1);
+        }
+
+        // Proactive Multiple Spoken Items Cart Addition Execution
+        if (agentData.action && agentData.action.type === 'add_multiple_to_cart' && agentData.action.items && addItem) {
+          agentData.action.items.forEach(it => addItem(it, it.quantity || 1));
         }
 
         const assistantMsg = {
@@ -314,6 +392,7 @@ const AiChatAssistant = () => {
           content: agentData.reply,
           suggestedQuestions: agentData.suggestedQuestions,
           recommendedItems: agentData.recommendedItems,
+          galleryPhotos: agentData.galleryPhotos,
           action: agentData.action,
           timestamp: new Date()
         };
@@ -682,34 +761,74 @@ const AiChatAssistant = () => {
                       <p className="whitespace-pre-line">{msg.content}</p>
 
                       {/* Display 5 Gallery Photographs if present */}
-                      {msg.galleryImages && msg.galleryImages.length > 0 && (
+                      {((msg.galleryImages && msg.galleryImages.length > 0) || (msg.galleryPhotos && msg.galleryPhotos.length > 0)) && (
                         <div className="mt-3 pt-3 border-t border-neutral-100 space-y-2">
-                          <p className="font-bold text-[11px] text-brand-purple flex items-center gap-1.5">
+                          <p className="font-bold text-[11px] text-[#7c3aed] flex items-center gap-1.5">
                             <ImageIcon className="w-3.5 h-3.5" />
-                            <span>Published Setups ({msg.galleryImages.length} Photographs):</span>
+                            <span>Authentic Setups ({((msg.galleryImages || msg.galleryPhotos) || []).length} Photographs):</span>
                           </p>
-                          <div className="grid grid-cols-1 gap-2.5 max-h-60 overflow-y-auto pr-1">
-                            {msg.galleryImages.map((img, i) => (
-                              <div key={img.id || i} className="group relative rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50 shadow-sm">
+                          <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
+                            {(msg.galleryImages || msg.galleryPhotos || []).map((img, i) => (
+                              <div key={img.id || i} className="group relative rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50 shadow-xs">
                                 <img
-                                  src={img.imageUrl}
+                                  src={img.imageUrl || img.url}
                                   alt={img.title}
-                                  className="w-full h-32 object-cover transition-transform group-hover:scale-105"
+                                  className="w-full h-24 object-cover transition-transform group-hover:scale-105"
                                   loading="lazy"
                                 />
-                                <div className="p-2 bg-white">
-                                  <p className="font-bold text-neutral-800 text-[11px] truncate">{img.title}</p>
-                                  <p className="text-[10px] text-neutral-500 truncate">{img.caption}</p>
+                                <div className="p-1.5 bg-white">
+                                  <p className="font-bold text-neutral-800 text-[10px] truncate">{img.title}</p>
                                   <button
                                     onClick={() => handleSend(`Mujhe "${img.title}" jaisa setup pasand hai. Iski availability aur details batayein.`)}
-                                    className="mt-1.5 w-full py-1 text-[10px] font-bold bg-brand-purple/10 text-brand-purple hover:bg-brand-purple hover:text-white rounded-lg transition-colors flex items-center justify-center gap-1"
+                                    className="mt-1 w-full py-0.5 text-[9px] font-bold bg-purple-50 text-brand-purple hover:bg-brand-purple hover:text-white rounded transition-colors flex items-center justify-center gap-1"
                                   >
-                                    <Sparkles className="w-3 h-3" />
-                                    <span>Enquire About This Style</span>
+                                    <Sparkles className="w-2.5 h-2.5" />
+                                    <span>Enquire Style</span>
                                   </button>
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Display Direct Gallery Section Deep-Link Navigation */}
+                      {msg.action && msg.action.type === 'navigate_gallery' && (
+                        <div className="mt-3">
+                          <button
+                            onClick={() => {
+                              setIsOpen(false);
+                              navigate(msg.action.url || '/gallery?section=Floral%20and%20lighting%20decor');
+                            }}
+                            className="w-full py-2.5 px-3 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 text-amber-300" />
+                            <span>{msg.action.title || 'Explore Floral & Lighting Gallery Section'}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Display Add Multiple Spoken Items to Cart Action */}
+                      {msg.action && msg.action.type === 'add_multiple_to_cart' && (
+                        <div className="mt-3 p-3 rounded-xl bg-purple-50 border border-brand-purple/30 space-y-2">
+                          <div className="flex items-center justify-between text-xs font-bold text-brand-purple">
+                            <div className="flex items-center gap-1.5">
+                              <ShoppingBag className="w-4 h-4 text-brand-purple" />
+                              <span>Recognized Spoken Items ({msg.action.items?.length || 0} Items)</span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                if (msg.action.items && addItem) {
+                                  msg.action.items.forEach(it => addItem(it, it.quantity || 1));
+                                  setIsDrawerOpen(true);
+                                }
+                              }}
+                              className="px-2.5 py-1 bg-[#7c3aed] text-white text-[10px] rounded-lg font-bold hover:bg-[#6d28d9] transition flex items-center gap-1 shadow-xs"
+                            >
+                              <span>Add All to Cart</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </button>
                           </div>
                         </div>
                       )}
@@ -907,6 +1026,23 @@ const AiChatAssistant = () => {
                 ))}
               </div>
 
+              {/* Voice recognition status banner */}
+              {isListening && (
+                <div className="px-3 py-1.5 bg-rose-50 border-t border-rose-200 text-rose-700 text-[11px] font-semibold flex items-center justify-between animate-pulse">
+                  <div className="flex items-center gap-1.5">
+                    <Mic className="w-3.5 h-3.5 text-rose-600 animate-spin" />
+                    <span>Listening... speak items like "100 pvc chair", "20*40 pandal", "mandap"</span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={toggleListening}
+                    className="text-[10px] text-rose-800 underline font-bold"
+                  >
+                    Stop
+                  </button>
+                </div>
+              )}
+
               {/* Input Bar */}
               <form
                 onSubmit={(e) => {
@@ -920,10 +1056,25 @@ const AiChatAssistant = () => {
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Type your event query (English ya हिन्दी)..."
+                  placeholder="Type or click mic to speak items (English ya हिन्दी)..."
                   disabled={loading}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
                 />
+
+                {/* Voice Activation (Mic) Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`p-2.5 rounded-xl transition-all ${
+                    isListening 
+                      ? 'bg-rose-500 text-white animate-pulse shadow-md ring-2 ring-rose-400' 
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-brand-purple'
+                  }`}
+                  title={isListening ? "Listening... click to stop" : "Voice input (Speak in Hindi or English)"}
+                >
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </button>
+
                 <button
                   type="submit"
                   disabled={!inputText.trim() || loading}
