@@ -27,6 +27,7 @@ import CustomerAuthPage from './pages/CustomerAuthPage';
 import CustomerPortalPage from './pages/CustomerPortalPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import OrderTrackingPage from './pages/OrderTrackingPage';
 
 // Scroll to top automatically on route changes & record customer journey metadata
 const ScrollToTop = () => {
@@ -66,6 +67,8 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/track" element={<OrderTrackingPage />} />
+                <Route path="/track/:orderId" element={<OrderTrackingPage />} />
                 
                 {/* Customer Account & Portal Routes */}
                 <Route path="/account/login" element={<CustomerAuthPage />} />

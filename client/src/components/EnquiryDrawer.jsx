@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   X, 
   Trash2, 
@@ -20,12 +21,14 @@ import {
   Truck,
   Wrench,
   Clock,
-  Ruler
+  Ruler,
+  Navigation
 } from 'lucide-react';
 import { useEnquiry } from '../context/EnquiryContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems';
+import IndividualTicketModal from './IndividualTicketModal';
 
 const calculateRentalDays = (start, end) => {
   if (!start) return 1;
@@ -89,6 +92,7 @@ const EnquiryDrawer = () => {
   } = useEnquiry();
 
   const { customerUser, isCustomerAuthenticated, openAuthModal } = useAuth();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     customerName: customerUser?.name || '',
@@ -98,6 +102,7 @@ const EnquiryDrawer = () => {
     serviceRequired: 'Tent-house equipment rentals',
     locality: 'Kanpur Road / Daroga Kheda',
     eventVenueAddress: '',
+    landmark: '',
     guestCount: 200,
     budgetRange: 'Flexible',
     deliveryDistanceKm: 3,
@@ -126,6 +131,7 @@ const EnquiryDrawer = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -156,7 +162,9 @@ const EnquiryDrawer = () => {
   const subtotal = enquiryList.reduce((sum, it) => sum + getLineItemTotal(it, rentalDays), 0);
   const { cartage, labour } = estimateLogistics(enquiryList, formData.deliveryDistanceKm, formData.isReturningCustomer);
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const grandTotal = Math.max(0, subtotal - discountAmount + (enquiryList.length > 0 ? (cartage + labour) : 0));
+  const taxableBase = Math.max(0, subtotal - discountAmount + (enquiryList.length > 0 ? (cartage + labour) : 0));
+  const gst = enquiryList.length > 0 ? Math.round(taxableBase * 0.18) : 0;
+  const grandTotal = taxableBase + gst;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -213,8 +221,14 @@ const EnquiryDrawer = () => {
         isReturningCustomer: formData.isReturningCustomer,
         locality: formData.locality,
         eventVenueAddress: formData.eventVenueAddress.trim(),
+        landmark: (formData.landmark || '').trim(),
         guestCount: parseInt(formData.guestCount, 10) || 0,
         budgetRange: formData.budgetRange,
+        subtotal,
+        cartage,
+        labour,
+        gst,
+        grandTotal,
         items: enquiryList.map(it => ({
           itemId: it.id,
           name: it.name,
@@ -236,10 +250,14 @@ const EnquiryDrawer = () => {
       const res = await api.submitEnquiry(payload);
 
       if (res.success) {
+        try {
+          localStorage.setItem('last_kandhari_enquiry_id', res.referenceId);
+        } catch (e) {}
         setSubmissionSuccess({
           referenceId: res.referenceId,
           whatsappLink: res.whatsappLink,
-          message: res.message
+          message: res.message,
+          data: res.data
         });
         clearList();
       } else {
@@ -289,46 +307,73 @@ const EnquiryDrawer = () => {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
             {submissionSuccess ? (
-              <div className="text-center py-8 space-y-5 animate-fadeIn">
+              <div className="text-center py-8 space-y-4 animate-fadeIn">
                 <div className="w-16 h-16 bg-amber-50 border border-brand-gold/30 rounded-full flex items-center justify-center mx-auto text-brand-gold shadow-sm">
                   <CheckCircle className="w-9 h-9 text-brand-primary" />
                 </div>
                 
                 <h3 className="text-xl font-serif font-bold text-brand-primary">
-                  Inquiry Received Successfully
+                  Order & Enquiry Submitted!
                 </h3>
+
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-[#7c3aed] font-mono text-xs font-bold rounded-full border border-purple-200">
+                  <span>Ref ID:</span>
+                  <span>{submissionSuccess.referenceId}</span>
+                </div>
 
                 <div className="p-4 bg-brand-cream/70 border border-brand-border rounded-2xl max-w-sm mx-auto shadow-xs text-left space-y-2">
                   <p className="text-xs text-neutral-700 leading-relaxed">
-                    Thank you for contacting <strong>Kandhari Tent & Caterers</strong>! Your inquiry has been received successfully. Our team will review your requirements and get in touch with you shortly.
+                    Thank you for contacting <strong>Kandhari Tent House</strong>! Your rental request is received and sent for <strong>Admin Review & Approval</strong>.
                   </p>
                   <p className="text-[11px] text-neutral-500 border-t border-brand-border/60 pt-2">
-                    📍 Event coordination desk on Kanpur Road (Opp. Pillar No. 37), Lucknow.
+                    📍 Operations Hub: Kanpur Road (Opp. Pillar No. 37), Lucknow.
                   </p>
                 </div>
 
+                {/* Primary Zomato Tracking Flow CTA */}
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const refId = submissionSuccess.referenceId;
+                      resetDrawer();
+                      navigate(`/track/${encodeURIComponent(refId)}`);
+                    }}
+                    className="w-full py-3.5 px-4 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+                  >
+                    <Truck className="w-4 h-4 text-amber-300" />
+                    <span>🚚 Track Order Live (Zomato Flow)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsTicketModalOpen(true)}
+                    className="w-full py-2.5 px-4 rounded-xl border border-[#7c3aed] text-[#7c3aed] hover:bg-purple-50 font-bold text-xs transition flex items-center justify-center gap-1.5"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>🎫 View 1-Click Official Ticket</span>
+                  </button>
+                </div>
+
                 {submissionSuccess.whatsappLink && (
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <a
                       href={submissionSuccess.whatsappLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-md transition flex items-center justify-center gap-2"
+                      className="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs transition flex items-center justify-center gap-2"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      <span>Open WhatsApp with Inquiry Summary</span>
+                      <span>Send Summary to Official Desk on WhatsApp</span>
                     </a>
-                    <p className="text-[11px] text-neutral-500 mt-2">
-                      Opens WhatsApp to send your prefilled details directly to our desk (Official Desk)
-                    </p>
                   </div>
                 )}
 
                 <button
                   onClick={resetDrawer}
-                  className="mt-3 px-6 py-2.5 rounded-xl border border-brand-border text-brand-primary hover:bg-brand-cream text-xs font-semibold transition"
+                  className="mt-2 px-6 py-2 rounded-xl border border-neutral-300 text-neutral-600 hover:bg-neutral-100 text-xs font-semibold transition"
                 >
-                  Continue Exploring
+                  Continue Browsing Catalogue
                 </button>
               </div>
             ) : (
@@ -571,9 +616,14 @@ const EnquiryDrawer = () => {
                       </label>
                     </div>
 
+                    <div className="flex justify-between items-center text-neutral-700">
+                      <span>GST (18% Goods & Services Tax):</span>
+                      <span className="font-semibold">₹{gst.toLocaleString('en-IN')}</span>
+                    </div>
+
                     <div className="pt-2 border-t border-neutral-200 flex justify-between items-baseline text-sm font-serif font-bold text-brand-primary">
-                      <span>Total Estimated Quotation:</span>
-                      <span className="text-base text-brand-primary">₹{grandTotal.toLocaleString('en-IN')}</span>
+                      <span>Total Estimated Bill:</span>
+                      <span className="text-base text-[#7c3aed]">₹{grandTotal.toLocaleString('en-IN')}</span>
                     </div>
                     <p className="text-[10px] text-neutral-400 italic">
                       * Official quotation with confirmed cartage & crew count will be issued after venue verification.
@@ -729,6 +779,24 @@ const EnquiryDrawer = () => {
                     </div>
                   </div>
 
+                  {/* Landmark & Navigation Notes */}
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Landmark & Navigation Notes (for Delivery Partner)
+                    </label>
+                    <div className="relative">
+                      <MapPin className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
+                      <input
+                        type="text"
+                        name="landmark"
+                        value={formData.landmark}
+                        onChange={handleChange}
+                        placeholder="e.g. Near Sahara Ganj Mall / Opp. Metro Pillar No. 37"
+                        className="w-full pl-9 pr-3 py-2 text-xs border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
+                      />
+                    </div>
+                  </div>
+
                   {/* Expected Guests & Budget Range */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -822,7 +890,7 @@ const EnquiryDrawer = () => {
                       className="w-full py-2.5 px-4 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold text-xs flex items-center justify-center gap-2 transition"
                     >
                       <Phone className="w-3.5 h-3.5 text-brand-gold" />
-                      <span>Toll-Free Booking Desk: 1800-XXX-XXXX</span>
+                      <span>Toll-Free Booking Desk: 1800-890-3456</span>
                     </a>
                   </div>
                 </form>
@@ -832,6 +900,17 @@ const EnquiryDrawer = () => {
           </div>
         </div>
       </div>
+
+      {/* 1-Click Individual Ticket Modal */}
+      <IndividualTicketModal
+        isOpen={isTicketModalOpen}
+        onClose={() => setIsTicketModalOpen(false)}
+        ticketId={submissionSuccess?.referenceId}
+        onTrackOrder={(id) => {
+          resetDrawer();
+          navigate(`/track/${encodeURIComponent(id)}`);
+        }}
+      />
     </div>
   );
 };

@@ -24,6 +24,7 @@ const invoiceRoutes = require('./routes/invoiceRoutes');
 const receptionistRoutes = require('./routes/receptionistRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const couponRoutes = require('./routes/couponRoutes');
+const deliveryPartnerRoutes = require('./routes/deliveryPartnerRoutes');
 const { authLimiter, enquiryLimiter, chatLimiter, receptionistLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -124,6 +125,7 @@ mountDualRoute('/invoices', invoiceRoutes);
 mountDualRoute('/receptionist', receptionistRoutes);
 mountDualRoute('/settings', settingsRoutes);
 mountDualRoute('/coupons', couponRoutes);
+mountDualRoute('/delivery-partners', deliveryPartnerRoutes);
 
 // Static media serving for lawn videos, reels, and rendered assets
 app.use('/media', express.static(path.join(__dirname, '../client/public/media')));
@@ -141,7 +143,7 @@ if (staticPath) {
   // SPA Fallback for client routes
   app.get('*', (req, res, next) => {
     const p = req.path || '';
-    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/marketing') || p.startsWith('/invoices') || p.startsWith('/receptionist') || p.startsWith('/settings') || p.startsWith('/coupons') || p.startsWith('/health')) {
+    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/agents') || p.startsWith('/marketing') || p.startsWith('/invoices') || p.startsWith('/receptionist') || p.startsWith('/settings') || p.startsWith('/coupons') || p.startsWith('/delivery-partners') || p.startsWith('/health')) {
       return next();
     }
     res.sendFile(path.join(staticPath, 'index.html'));

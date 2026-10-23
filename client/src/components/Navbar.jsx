@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   User,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Truck
 } from 'lucide-react';
 import { useEnquiry } from '../context/EnquiryContext';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Rental Catalogue', path: '/catalogue' },
+    { name: 'Track Order', path: '/track' },
     { name: 'Dwarka Shri Lawn', path: '/lawn', highlight: true },
     { name: 'Catering Menu', path: '/catering', highlight: true },
     { name: 'Services', path: '/services' },
@@ -69,6 +71,14 @@ const Navbar = () => {
             >
               <Phone className="w-3.5 h-3.5 text-brand-gold" />
               <span>Toll-Free Helpline: 1800-890-3456</span>
+            </Link>
+            <span className="hidden sm:inline text-neutral-500">|</span>
+            <Link
+              to="/track"
+              className="inline-flex items-center gap-1 text-amber-300 hover:text-white font-medium transition cursor-pointer"
+            >
+              <Truck className="w-3.5 h-3.5 text-amber-400" />
+              <span>Track Order</span>
             </Link>
             <span className="hidden sm:inline text-neutral-500">|</span>
             <button

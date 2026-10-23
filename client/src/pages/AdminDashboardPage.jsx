@@ -77,6 +77,7 @@ import { CATEGORIES, LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems
 import MasterAgentVoiceWidget from '../components/MasterAgentVoiceWidget';
 import AdminAgentCopilot from '../components/AdminAgentCopilot';
 import MasterAgentWorkspace from '../components/MasterAgentWorkspace';
+import IndividualTicketModal from '../components/IndividualTicketModal';
 
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
@@ -291,6 +292,27 @@ const AdminDashboardPage = () => {
   const [viewingTranscriptCall, setViewingTranscriptCall] = useState(null);
   const [receptionistActiveSubTab, setReceptionistActiveSubTab] = useState('calls');
 
+  // 10. Delivery Fleet & Logistics (Zomato-like workflow)
+  const [deliveryPartners, setDeliveryPartners] = useState([]);
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
+  const [isAddPartnerModalOpen, setIsAddPartnerModalOpen] = useState(false);
+  const [newPartnerForm, setNewPartnerForm] = useState({
+    name: '',
+    phone: '',
+    vehicleType: 'Tata Ace Gold / Utility Truck',
+    vehicleNumber: '',
+    maxLoadCapacity: '1.0 Tonne',
+    baseHub: 'Kanpur Road Depot (Opp. Pillar 37)',
+    status: 'Available'
+  });
+  const [assignPartnerModalOrder, setAssignPartnerModalOrder] = useState(null);
+  const [selectedPartnerIdForAssign, setSelectedPartnerIdForAssign] = useState('');
+  const [estimatedDeliveryTimeInput, setEstimatedDeliveryTimeInput] = useState('');
+
+  // 1-Click Individual Ticket Modal State
+  const [selectedTicketForModal, setSelectedTicketForModal] = useState(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+
   // Show Toast Notification
   const showToast = (msg, type = 'success') => {
     setNotification({ msg, type });
@@ -324,7 +346,8 @@ const AdminDashboardPage = () => {
         recAptsRes,
         recTcksRes,
         recCbksRes,
-        settingsRes
+        settingsRes,
+        deliveryRes
       ] = await Promise.all([
         api.getEnquiries().catch(() => ({ data: [] })),
         api.getCustomers().catch(() => ({ data: [] })),
@@ -349,10 +372,12 @@ const AdminDashboardPage = () => {
         api.getReceptionistAppointments().catch(() => ({ data: [] })),
         api.getReceptionistTickets().catch(() => ({ data: [] })),
         api.getReceptionistCallbacks().catch(() => ({ data: [] })),
-        api.getSettings().catch(() => ({ data: null }))
+        api.getSettings().catch(() => ({ data: null })),
+        api.getDeliveryPartners().catch(() => ({ data: [] }))
       ]);
 
       setEnquiries(enqRes.data || []);
+      setDeliveryPartners(deliveryRes?.data || []);
       setCustomers(custRes.data || []);
       setRentalItems(itemsRes.data || []);
       setPhysicalInventory(physRes.data || []);
@@ -542,11 +567,109 @@ const AdminDashboardPage = () => {
   // Quick Action Handlers
   const handleApproveQuotation = async (orderId) => {
     try {
-      await api.updateEnquiryStatus(orderId, { status: 'Approved — Awaiting Payment' });
-      showToast('Booking approved! Advance payment unlocked for customer.');
+      await api.reviewEnquiry(orderId, { action: 'approve' });
+      showToast('Booking approved! Customer alerted with Zomato acceptance status.');
       loadAllData();
     } catch (e) {
-      showToast(e.message || 'Failed to approve', 'error');
+      try {
+        await api.updateEnquiryStatus(orderId, { status: 'Approved — Awaiting Payment' });
+        showToast('Booking approved! Advance payment unlocked for customer.');
+        loadAllData();
+      } catch (err2) {
+        showToast(e.message || 'Failed to approve', 'error');
+      }
+    }
+  };
+
+  const handleRejectQuotation = async (orderId) => {
+    const reason = window.prompt('Please enter the reason for rejecting this rental request:');
+    if (!reason || !reason.trim()) return;
+    try {
+      await api.reviewEnquiry(orderId, { action: 'reject', rejectionReason: reason.trim() });
+      showToast('Rental request rejected. Customer notified.');
+      loadAllData();
+    } catch (e) {
+      showToast(e.message || 'Failed to reject request', 'error');
+    }
+  };
+
+  const handleCreatePartner = async (e) => {
+    e.preventDefault();
+    if (!newPartnerForm.name.trim() || !newPartnerForm.phone.trim() || !newPartnerForm.vehicleNumber.trim()) {
+      showToast('Driver name, phone, and vehicle registration are required.', 'error');
+      return;
+    }
+    try {
+      const res = await api.createDeliveryPartner(newPartnerForm);
+      if (res.success) {
+        showToast(res.message || 'Delivery partner added to fleet!');
+        setIsAddPartnerModalOpen(false);
+        setNewPartnerForm({
+          name: '',
+          phone: '',
+          vehicleType: 'Tata Ace Gold / Utility Truck',
+          vehicleNumber: '',
+          maxLoadCapacity: '1.0 Tonne',
+          baseHub: 'Kanpur Road Depot (Opp. Pillar 37)',
+          status: 'Available'
+        });
+        loadAllData();
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to create partner', 'error');
+    }
+  };
+
+  const handleDeletePartner = async (partnerId) => {
+    if (!window.confirm('Are you sure you want to remove this delivery driver from the fleet?')) return;
+    try {
+      const res = await api.deleteDeliveryPartner(partnerId);
+      if (res.success) {
+        showToast('Delivery partner removed from fleet.');
+        loadAllData();
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to remove partner', 'error');
+    }
+  };
+
+  const handleAssignPartnerSubmit = async (e) => {
+    e.preventDefault();
+    if (!assignPartnerModalOrder || !selectedPartnerIdForAssign) {
+      showToast('Please select a driver from the fleet', 'error');
+      return;
+    }
+    try {
+      const res = await api.assignDeliveryPartner({
+        enquiryId: assignPartnerModalOrder.id,
+        partnerId: selectedPartnerIdForAssign,
+        estimatedDeliveryTime: estimatedDeliveryTimeInput || 'Punctual morning setup on event date'
+      });
+      if (res.success) {
+        showToast(res.message || 'Delivery partner assigned successfully!');
+        setAssignPartnerModalOrder(null);
+        setSelectedPartnerIdForAssign('');
+        setEstimatedDeliveryTimeInput('');
+        loadAllData();
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to assign partner', 'error');
+    }
+  };
+
+  const handleUpdateDeliveryDispatch = async (enquiryId, status, note = '') => {
+    try {
+      const res = await api.updateOrderDeliveryStatus({
+        enquiryId,
+        status,
+        note
+      });
+      if (res.success) {
+        showToast(`Delivery status updated to: ${status}`);
+        loadAllData();
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to update delivery status', 'error');
     }
   };
 
@@ -701,6 +824,7 @@ const AdminDashboardPage = () => {
     { id: 'payments', label: 'Wages & Expenses', icon: IndianRupee },
     { id: 'customers', label: 'Customers & CRM', icon: MessageCircle, badge: customers.length },
     { id: 'bookings', label: 'Quotes & Inquiries', icon: ShoppingBag, badge: enquiries.length },
+    { id: 'delivery', label: 'Delivery Fleet & Logistics', icon: Truck, badge: deliveryPartners.length ? `${deliveryPartners.length} Fleet` : null },
     { id: 'inventory', label: 'Rental Inventory', icon: Package, badge: physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length ? 'Repair' : null },
     { id: 'analytics', label: 'Visitor Analytics', icon: BarChart3 },
     { id: 'admin_copilot', label: 'Admin Agent Copilot', icon: Bot, highlight: true },
@@ -1640,15 +1764,90 @@ const AdminDashboardPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {/* 1-Click Individual Ticket */}
+                      <button
+                        onClick={() => {
+                          setSelectedTicketForModal(enq);
+                          setIsTicketModalOpen(true);
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
+                        title="One-click individual ticket view"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-purple-400" />
+                        <span>View Ticket (1-Click)</span>
+                      </button>
+
                       {enq.status === 'Pending Admin Approval' && (
+                        <>
+                          <button
+                            onClick={() => handleApproveQuotation(enq.id)}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
+                          >
+                            <Check className="w-4 h-4" />
+                            <span>Approve Order (Zomato Accept)</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleRejectQuotation(enq.id)}
+                            className="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
+                          >
+                            <X className="w-3.5 h-3.5 text-rose-400" />
+                            <span>Reject Order</span>
+                          </button>
+                        </>
+                      )}
+
+                      {/* Delivery Partner Assignment */}
+                      {enq.status !== 'Rejected' && !enq.deliveryPartner && (
                         <button
-                          onClick={() => handleApproveQuotation(enq.id)}
-                          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
+                          onClick={() => {
+                            setAssignPartnerModalOrder(enq);
+                            setSelectedPartnerIdForAssign(deliveryPartners[0]?.id || '');
+                            setEstimatedDeliveryTimeInput('Punctual morning setup on ' + (enq.eventDate || 'event day'));
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
                         >
-                          <Check className="w-4 h-4" />
-                          <span>Direct Approve (Unlock Advance)</span>
+                          <Truck className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Assign Delivery Partner</span>
                         </button>
                       )}
+
+                      {/* Active Delivery Partner Badge & Dispatch Controls */}
+                      {enq.deliveryPartner && (
+                        <div className="flex flex-wrap items-center gap-2 bg-purple-950/40 p-2 rounded-xl border border-purple-800/40 text-xs">
+                          <span className="text-purple-300 font-semibold flex items-center gap-1">
+                            <Truck className="w-3.5 h-3.5 text-amber-300" />
+                            Driver: <strong>{enq.deliveryPartner.name}</strong> ({enq.deliveryPartner.vehicleNumber})
+                          </span>
+                          {enq.deliveryStatus !== 'Out for Delivery / En Route' && enq.deliveryStatus !== 'Delivered & Installed' && (
+                            <button
+                              onClick={() => handleUpdateDeliveryDispatch(enq.id, 'Out for Delivery / En Route', 'Vehicle dispatched from Kanpur Road Depot')}
+                              className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] transition"
+                            >
+                              Out for Delivery
+                            </button>
+                          )}
+                          {enq.deliveryStatus !== 'Delivered & Installed' && (
+                            <button
+                              onClick={() => handleUpdateDeliveryDispatch(enq.id, 'Delivered & Installed', 'Setup verified at venue')}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] transition"
+                            >
+                              Delivered & Installed
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      <a
+                        href={`/track/${enq.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                        title="Open customer live tracking screen"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-[#7c3aed]" />
+                        <span>Live Tracker</span>
+                      </a>
 
                       <button
                         onClick={() => {
@@ -1709,6 +1908,235 @@ const AdminDashboardPage = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================
+              SECTION: DELIVERY FLEET & LOGISTICS (Zomato-Like Tracking)
+             ======================================================== */}
+          {activeTab === 'delivery' && (
+            <div className="space-y-6 animate-fadeIn">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
+                <div>
+                  <h2 className="text-2xl font-serif font-bold text-white flex items-center gap-2">
+                    <Truck className="w-6 h-6 text-[#7c3aed]" />
+                    <span>Delivery Fleet & Logistics Management</span>
+                  </h2>
+                  <p className="text-xs text-neutral-400">
+                    Manage transportation vehicles, delivery drivers, real-time dispatch status, and assign delivery partners to customer orders.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsAddPartnerModalOpen(true)}
+                    className="px-4 py-2.5 rounded-2xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Register Delivery Partner</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Fleet Overview KPIs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
+                  <span className="text-xs text-neutral-400">Total Fleet Vehicles</span>
+                  <p className="text-2xl font-serif font-bold text-white">{deliveryPartners.length}</p>
+                  <span className="text-[10px] text-purple-400">Tata Ace, Bolero Maxi, Canter</span>
+                </div>
+
+                <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
+                  <span className="text-xs text-neutral-400">Available for Dispatch</span>
+                  <p className="text-2xl font-serif font-bold text-emerald-400">
+                    {deliveryPartners.filter(p => (p.status || '').toLowerCase() === 'available').length}
+                  </p>
+                  <span className="text-[10px] text-emerald-400">Ready at base hubs</span>
+                </div>
+
+                <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
+                  <span className="text-xs text-neutral-400">Vehicles on Active Trips</span>
+                  <p className="text-2xl font-serif font-bold text-indigo-400">
+                    {deliveryPartners.filter(p => (p.status || '').toLowerCase() === 'on trip').length}
+                  </p>
+                  <span className="text-[10px] text-indigo-400">En route to event venues</span>
+                </div>
+
+                <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
+                  <span className="text-xs text-neutral-400">Central Hub Depot</span>
+                  <p className="text-base font-bold text-amber-300">Kanpur Road Hub</p>
+                  <span className="text-[10px] text-neutral-400">Opp. Metro Pillar No. 37, Lucknow</span>
+                </div>
+              </div>
+
+              {/* Fleet Drivers Roster Table */}
+              <div className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif font-bold text-lg text-white">Registered Fleet Partners</h3>
+                  <span className="text-xs text-neutral-400">{deliveryPartners.length} registered drivers</span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-neutral-900 text-neutral-400 uppercase text-[11px] border-b border-neutral-800">
+                      <tr>
+                        <th className="py-3 px-4">Driver Name</th>
+                        <th className="py-3 px-4">Contact Phone</th>
+                        <th className="py-3 px-4">Vehicle Model</th>
+                        <th className="py-3 px-4">Registration No.</th>
+                        <th className="py-3 px-4">Capacity & Hub</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-800">
+                      {deliveryPartners.map((partner) => (
+                        <tr key={partner.id} className="hover:bg-neutral-900/50">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-purple-900/60 text-purple-300 font-bold flex items-center justify-center text-xs border border-purple-700/50">
+                                {partner.name?.charAt(0) || 'D'}
+                              </div>
+                              <div>
+                                <p className="font-bold text-white">{partner.name}</p>
+                                <span className="text-[10px] text-amber-400 font-semibold">★ {partner.rating || '4.9'}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <a href={`tel:${partner.phone?.replace(/\s+/g, '')}`} className="text-[#7c3aed] font-semibold hover:underline">
+                              {partner.phone}
+                            </a>
+                          </td>
+                          <td className="py-3 px-4 text-neutral-200 font-medium">
+                            {partner.vehicleType}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="font-mono text-xs bg-neutral-900 text-amber-300 px-2 py-0.5 rounded border border-neutral-800">
+                              {partner.vehicleNumber}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-neutral-400">
+                            <p>{partner.maxLoadCapacity}</p>
+                            <p className="text-[10px] text-neutral-500">{partner.baseHub}</p>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              partner.status === 'On Trip' 
+                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                : partner.status === 'Available'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-neutral-800 text-neutral-400'
+                            }`}>
+                              {partner.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              onClick={() => handleDeletePartner(partner.id)}
+                              className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-950/30 transition"
+                              title="Delete partner"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Active Delivery Dispatches Board */}
+              <div className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-serif font-bold text-lg text-white">Active Order Deliveries (Zomato-Like Workflow)</h3>
+                    <p className="text-xs text-neutral-400">Live order dispatches, driver navigation links, and setup status</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {enquiries.filter(e => e.status !== 'Rejected' && e.status !== 'New').map((enq) => (
+                    <div key={enq.id} className="p-4 rounded-2xl border border-neutral-800 bg-neutral-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-[#7c3aed]">{enq.id}</span>
+                          <span className="text-white font-bold">{enq.customerName}</span>
+                          <span className="text-neutral-400">({enq.phone})</span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-800 text-neutral-300">
+                            {enq.status}
+                          </span>
+                        </div>
+                        <p className="text-neutral-400">
+                          📍 Venue: <strong className="text-neutral-200">{enq.eventVenueAddress || enq.locality || 'Kanpur Road, Lucknow'}</strong> &bull; Event: <strong className="text-white">{enq.eventDate}</strong>
+                        </p>
+                        {enq.deliveryPartner && (
+                          <p className="text-purple-300 font-semibold flex items-center gap-1.5 pt-0.5">
+                            <Truck className="w-3.5 h-3.5 text-amber-300" />
+                            Assigned to: {enq.deliveryPartner.name} ({enq.deliveryPartner.vehicleType} - {enq.deliveryPartner.vehicleNumber})
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => {
+                            setSelectedTicketForModal(enq);
+                            setIsTicketModalOpen(true);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 font-semibold transition flex items-center gap-1"
+                        >
+                          <FileText className="w-3 h-3 text-purple-400" />
+                          <span>Ticket</span>
+                        </button>
+
+                        <a
+                          href={`/track/${enq.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 font-semibold transition flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3 h-3 text-[#7c3aed]" />
+                          <span>Track</span>
+                        </a>
+
+                        {!enq.deliveryPartner ? (
+                          <button
+                            onClick={() => {
+                              setAssignPartnerModalOrder(enq);
+                              setSelectedPartnerIdForAssign(deliveryPartners[0]?.id || '');
+                              setEstimatedDeliveryTimeInput('Punctual morning setup on ' + (enq.eventDate || 'event day'));
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold transition flex items-center gap-1"
+                          >
+                            <Truck className="w-3 h-3" />
+                            <span>Assign Partner</span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            {enq.deliveryStatus !== 'Out for Delivery / En Route' && enq.deliveryStatus !== 'Delivered & Installed' && (
+                              <button
+                                onClick={() => handleUpdateDeliveryDispatch(enq.id, 'Out for Delivery / En Route', 'Dispatched from depot')}
+                                className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition text-[11px]"
+                              >
+                                Dispatch
+                              </button>
+                            )}
+                            {enq.deliveryStatus !== 'Delivered & Installed' && (
+                              <button
+                                onClick={() => handleUpdateDeliveryDispatch(enq.id, 'Delivered & Installed', 'Setup verified at venue')}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition text-[11px]"
+                              >
+                                Complete Setup
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -3265,6 +3693,208 @@ const AdminDashboardPage = () => {
           </div>
         </div>
       )}
+
+      {/* ========================================================
+          MODAL: REGISTER NEW DELIVERY FLEET PARTNER
+         ======================================================== */}
+      {isAddPartnerModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl text-xs space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-[#7c3aed]" />
+                <h3 className="font-serif font-bold text-base text-white">Register Delivery Fleet Driver</h3>
+              </div>
+              <button onClick={() => setIsAddPartnerModalOpen(false)} className="text-neutral-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreatePartner} className="space-y-3 pt-1">
+              <div>
+                <label className="block text-neutral-300 mb-1 font-semibold">Driver Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ramesh Yadav"
+                  value={newPartnerForm.name}
+                  onChange={(e) => setNewPartnerForm({ ...newPartnerForm, name: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none focus:border-[#7c3aed]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 mb-1 font-semibold">Contact Mobile Number *</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="e.g. +91 98390 11223"
+                  value={newPartnerForm.phone}
+                  onChange={(e) => setNewPartnerForm({ ...newPartnerForm, phone: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none focus:border-[#7c3aed]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-neutral-300 mb-1 font-semibold">Vehicle Type *</label>
+                  <select
+                    value={newPartnerForm.vehicleType}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, vehicleType: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none"
+                  >
+                    <option value="Tata Ace Gold / Utility Truck">Tata Ace Gold (750 Kg)</option>
+                    <option value="Mahindra Bolero Maxi Truck">Mahindra Bolero Maxi (1.5 Tonne)</option>
+                    <option value="14ft Eicher Heavy Canter">14ft Eicher Canter (4.0 Tonne)</option>
+                    <option value="Piaggio Ape Auto Pickup">Piaggio Ape Auto Pickup</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-neutral-300 mb-1 font-semibold">Plate Number *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="UP 32 BK 4821"
+                    value={newPartnerForm.vehicleNumber}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, vehicleNumber: e.target.value.toUpperCase() })}
+                    className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 font-mono text-amber-300 uppercase outline-none focus:border-[#7c3aed]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-neutral-300 mb-1 font-semibold">Load Capacity</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1.5 Tonnes"
+                    value={newPartnerForm.maxLoadCapacity}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, maxLoadCapacity: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-neutral-200 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-neutral-300 mb-1 font-semibold">Base Hub</label>
+                  <input
+                    type="text"
+                    placeholder="Kanpur Road Depot"
+                    value={newPartnerForm.baseHub}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, baseHub: e.target.value })}
+                    className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-neutral-200 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold transition shadow-sm"
+                >
+                  Save Partner to Fleet
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddPartnerModalOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: ASSIGN DELIVERY PARTNER TO ORDER
+         ======================================================== */}
+      {assignPartnerModalOrder && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl text-xs space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-amber-300" />
+                <h3 className="font-serif font-bold text-base text-white">Assign Delivery Partner (Zomato Flow)</h3>
+              </div>
+              <button onClick={() => setAssignPartnerModalOrder(null)} className="text-neutral-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-neutral-900 rounded-xl border border-neutral-800 space-y-1">
+              <p className="font-bold text-white">Order #{assignPartnerModalOrder.id}</p>
+              <p className="text-neutral-300">Customer: <strong>{assignPartnerModalOrder.customerName}</strong> ({assignPartnerModalOrder.phone})</p>
+              <p className="text-neutral-400">Venue: {assignPartnerModalOrder.eventVenueAddress || assignPartnerModalOrder.locality || 'Kanpur Road, Lucknow'}</p>
+              <p className="text-neutral-400">Event Date: {assignPartnerModalOrder.eventDate}</p>
+            </div>
+
+            <form onSubmit={handleAssignPartnerSubmit} className="space-y-3">
+              <div>
+                <label className="block text-neutral-300 mb-1 font-semibold">Select Fleet Driver & Truck *</label>
+                <select
+                  required
+                  value={selectedPartnerIdForAssign}
+                  onChange={(e) => setSelectedPartnerIdForAssign(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none focus:border-[#7c3aed]"
+                >
+                  <option value="">-- Choose available driver --</option>
+                  {deliveryPartners.map((partner) => (
+                    <option key={partner.id} value={partner.id}>
+                      {partner.name} &bull; {partner.vehicleType} ({partner.vehicleNumber}) [{partner.status}]
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 mb-1 font-semibold">Estimated Delivery / Setup Schedule</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Morning 7:30 AM before ceremony"
+                  value={estimatedDeliveryTimeInput}
+                  onChange={(e) => setEstimatedDeliveryTimeInput(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none"
+                />
+              </div>
+
+              <div className="p-3 bg-purple-950/40 rounded-xl border border-purple-800/40 text-[11px] text-purple-200">
+                🔔 Assigning will update customer status to <strong>"Delivery Partner Assigned"</strong> and show driver contact details on the live tracker screen.
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold transition shadow-sm"
+                >
+                  Confirm & Dispatch Assignment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAssignPartnerModalOrder(null)}
+                  className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: 1-CLICK INDIVIDUAL TICKET MODAL
+         ======================================================== */}
+      <IndividualTicketModal
+        isOpen={isTicketModalOpen}
+        onClose={() => setIsTicketModalOpen(false)}
+        ticket={selectedTicketForModal}
+        onTrackOrder={(id) => {
+          setIsTicketModalOpen(false);
+          window.open(`/track/${encodeURIComponent(id)}`, '_blank');
+        }}
+      />
 
     </div>
   );

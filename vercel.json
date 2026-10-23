@@ -181,7 +181,15 @@
       "destination": "/api"
     },
     {
-      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|inventory|staff|analytics|agent|agents|receptionist|invoices|marketing|settings|coupons|health).*)",
+      "source": "/delivery-partners/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/delivery-partners",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|inventory|staff|analytics|agent|agents|receptionist|invoices|marketing|settings|coupons|delivery-partners|health).*)",
       "destination": "/index.html"
     }
   ]

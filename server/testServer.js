@@ -1494,6 +1494,167 @@ const runTests = async () => {
     }
     console.log('• Verified clean rollback to v1.0 with immutable audit entry.');
 
+    // --- Test 39: Live Viewing Analytics & Dynamic Item View Tracking ---
+    console.log('\n--- Test 39: Live Viewing Analytics & Dynamic Item View Tracking ---');
+    const viewPostRes = await testEndpoint('/api/analytics/item-view', {
+      method: 'POST',
+      body: {
+        itemId: 'itm-deluxe-banquet-chair',
+        viewerLocation: 'Gurgaon, Haryana'
+      }
+    });
+    console.log(`[Analytics Item View] POST /api/analytics/item-view: HTTP ${viewPostRes.status} | Item: ${viewPostRes.data.itemId} | Live Views: ${viewPostRes.data.liveViews}`);
+    if (viewPostRes.status !== 200 || !viewPostRes.data.success || !viewPostRes.data.liveViews) {
+      throw new Error('Failed to record live item view event from Gurgaon');
+    }
+
+    const liveViewsRes = await testEndpoint('/api/analytics/live-views');
+    console.log(`[Analytics Live Views] GET /api/analytics/live-views: HTTP ${liveViewsRes.status} | Total Recorded Items: ${Object.keys(liveViewsRes.data.views || {}).length}`);
+    if (liveViewsRes.status !== 200 || !liveViewsRes.data.success) {
+      throw new Error('Failed to retrieve live views map');
+    }
+    console.log('• Verified dynamic live viewing broadcast from Gurgaon to Lucknow customers.');
+
+    // --- Test 40: Delivery Fleet CRUD, Zomato Order Approval, Driver Assignment & Live Public Tracking ---
+    console.log('\n--- Test 40: Delivery Fleet CRUD, Zomato Order Approval, Driver Assignment & Live Tracking ---');
+
+    // 40.1: Retrieve Seeded Delivery Fleet
+    const fleetRes = await testEndpoint('/api/delivery-partners');
+    console.log(`[Fleet List] GET /api/delivery-partners: HTTP ${fleetRes.status} | Total Drivers: ${fleetRes.data.count}`);
+    if (fleetRes.status !== 200 || fleetRes.data.count < 3) {
+      throw new Error('Delivery fleet seed missing or incomplete');
+    }
+
+    // 40.2: Register a new delivery partner
+    const createPartnerRes = await testEndpoint('/api/delivery-partners', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        name: 'Virendra Singh',
+        phone: '+91 98390 44556',
+        vehicleType: 'Tata Ace Gold / Chhota Hathi',
+        vehicleNumber: 'UP 32 ZZ 9900',
+        maxLoadCapacity: '800 Kg',
+        baseHub: 'Kanpur Road Depot (Opp. Pillar 37)',
+        status: 'Available'
+      }
+    });
+    console.log(`[Register Partner] POST /api/delivery-partners: HTTP ${createPartnerRes.status} | ID: ${createPartnerRes.data.data?.id}`);
+    if (createPartnerRes.status !== 201 || !createPartnerRes.data.data?.id) {
+      throw new Error('Failed to register delivery partner');
+    }
+    const createdPartnerId = createPartnerRes.data.data.id;
+
+    // 40.3: Customer submits fresh order with venue address & landmark
+    const zomatoOrderPayload = {
+      enquiryType: 'rental',
+      customerName: 'Kunal Srivastava',
+      phone: '9876543210',
+      serviceRequired: 'Tent-house equipment rentals',
+      eventDate: '2026-11-20',
+      locality: 'Kanpur Road / Daroga Kheda',
+      eventVenueAddress: 'Dwarka Shri Lawn, Opp. Pillar 37',
+      landmark: 'Near Transport Nagar Crossing',
+      items: [
+        { itemId: 'itm-deluxe-banquet-chair', name: 'Deluxe Banquet Chair', quantity: 100, unitRate: 45 }
+      ],
+      consentGiven: true
+    };
+    const orderSubmitRes = await testEndpoint('/api/enquiries', {
+      method: 'POST',
+      body: zomatoOrderPayload
+    });
+    console.log(`[Customer Order] POST /api/enquiries: HTTP ${orderSubmitRes.status} | Ref: ${orderSubmitRes.data.referenceId}`);
+    if (orderSubmitRes.status !== 201 || !orderSubmitRes.data.referenceId) {
+      throw new Error('Failed to create customer rental order');
+    }
+    const testOrderId = orderSubmitRes.data.referenceId;
+
+    // 40.4: Admin Review: Approve order (Zomato flow: "Your rental order has been accepted")
+    const approveOrderRes = await testEndpoint(`/api/enquiries/${testOrderId}/review`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { action: 'approve' }
+    });
+    console.log(`[Admin Approve] PUT /api/enquiries/${testOrderId}/review: HTTP ${approveOrderRes.status} | Status: ${approveOrderRes.data.data?.status}`);
+    if (approveOrderRes.status !== 200 || !approveOrderRes.data.data?.status.includes('Approved')) {
+      throw new Error('Admin approval failed');
+    }
+
+    // 40.5: Assign Delivery Partner
+    const assignRes = await testEndpoint('/api/delivery-partners/assign', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: testOrderId,
+        partnerId: createdPartnerId,
+        estimatedDeliveryTime: 'Punctual morning setup 8:00 AM'
+      }
+    });
+    console.log(`[Assign Partner] POST /api/delivery-partners/assign: HTTP ${assignRes.status} | Partner: ${assignRes.data.data?.deliveryPartner?.name}`);
+    if (assignRes.status !== 200 || assignRes.data.data?.deliveryPartner?.id !== createdPartnerId) {
+      throw new Error('Failed to assign delivery partner to order');
+    }
+
+    // 40.6: Update Dispatch Status to 'Out for Delivery / En Route'
+    const updateDispatchRes = await testEndpoint('/api/delivery-partners/update-status', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: testOrderId,
+        status: 'Out for Delivery / En Route',
+        note: 'Driver has departed Kanpur Road Hub with loaded truck'
+      }
+    });
+    console.log(`[Dispatch Status] POST /api/delivery-partners/update-status: HTTP ${updateDispatchRes.status} | Status: ${updateDispatchRes.data.data?.deliveryStatus}`);
+    if (updateDispatchRes.status !== 200 || updateDispatchRes.data.data?.deliveryStatus !== 'Out for Delivery / En Route') {
+      throw new Error('Failed to update dispatch status');
+    }
+
+    // 40.7: Verify Public Live Tracking Endpoint (Zomato Flow)
+    const trackingRes = await testEndpoint(`/api/delivery-partners/track/${testOrderId}`);
+    console.log(`[Live Track] GET /api/delivery-partners/track/${testOrderId}: HTTP ${trackingRes.status}`);
+    const trackingData = trackingRes.data.data;
+    if (
+      trackingRes.status !== 200 || 
+      !trackingData ||
+      trackingData.id !== testOrderId ||
+      trackingData.deliveryStatus !== 'Out for Delivery / En Route' ||
+      !trackingData.deliveryPartner ||
+      !trackingData.eventVenueAddress ||
+      trackingData.subtotal === undefined ||
+      trackingData.cartage === undefined ||
+      trackingData.labour === undefined ||
+      trackingData.gst === undefined
+    ) {
+      throw new Error('Public tracking endpoint failed to return complete order and itemized bill details');
+    }
+    console.log(`• Live Tracking Verified: Subtotal: ₹${trackingData.subtotal} | Cartage: ₹${trackingData.cartage} | Labour: ₹${trackingData.labour} | GST 18%: ₹${trackingData.gst} | Total: ₹${trackingData.grandTotal}`);
+    console.log(`• Driver: ${trackingData.deliveryPartner.name} (${trackingData.deliveryPartner.vehicleNumber}) | Venue: ${trackingData.eventVenueAddress}`);
+
+    // 40.8: Complete Delivery & Installation
+    const completeDeliveryRes = await testEndpoint('/api/delivery-partners/update-status', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: testOrderId,
+        status: 'Delivered & Installed',
+        note: 'All 100 banquet chairs installed and inspected on-site'
+      }
+    });
+    console.log(`[Complete Delivery] Delivery status: ${completeDeliveryRes.data.data?.deliveryStatus}`);
+
+    // 40.9: Clean up test partner
+    const deletePartnerRes = await testEndpoint(`/api/delivery-partners/${createdPartnerId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Delete Partner] DELETE /api/delivery-partners/${createdPartnerId}: HTTP ${deletePartnerRes.status}`);
+    if (deletePartnerRes.status !== 200) {
+      throw new Error('Failed to delete temporary test delivery partner');
+    }
+    console.log('• Verified full Delivery Fleet lifecycle, Zomato order approval, driver dispatch and live customer tracking.');
+
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');

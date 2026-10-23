@@ -402,6 +402,40 @@ export const api = {
     body: JSON.stringify(payload)
   }),
 
+  // Live Item Viewing Analytics
+  recordItemView: (itemId, location = 'Gurgaon') => request('/analytics/item-view', {
+    method: 'POST',
+    body: JSON.stringify({ itemId, location })
+  }),
+  getLiveViews: () => request('/analytics/live-views'),
+
+  // Delivery Fleet & Partner Operations (Zomato-like Order Tracking)
+  getDeliveryPartners: (status) => request(status ? `/delivery-partners?status=${status}` : '/delivery-partners'),
+  createDeliveryPartner: (payload) => request('/delivery-partners', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  updateDeliveryPartner: (id, payload) => request(`/delivery-partners/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+  deleteDeliveryPartner: (id) => request(`/delivery-partners/${id}`, {
+    method: 'DELETE'
+  }),
+  assignDeliveryPartner: (payload) => request('/delivery-partners/assign', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  updateOrderDeliveryStatus: (payload) => request('/delivery-partners/update-status', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  trackOrder: (orderId) => request(`/delivery-partners/track/${encodeURIComponent(orderId)}`),
+  reviewEnquiry: (id, payload) => request(`/enquiries/${id}/review`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  }),
+
   // Three-Agent AI System Architecture
   agents: {
     // 1. Client Agent

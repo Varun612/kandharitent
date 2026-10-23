@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import RazorpayCheckoutModal from '../components/RazorpayCheckoutModal';
+import IndividualTicketModal from '../components/IndividualTicketModal';
 import { 
   User, Mail, Phone, Calendar, Clock, FileText, 
   MessageSquare, ChevronRight, LogOut, RefreshCw, 
   CheckCircle, AlertCircle, Sparkles, MapPin, Package,
   CreditCard, Bell, Check, ArrowRight, ShieldCheck,
-  Printer, Info, DollarSign, XCircle, AlertTriangle
+  Printer, Info, DollarSign, XCircle, AlertTriangle, Truck
 } from 'lucide-react';
 
 const CustomerPortalPage = ({ onOpenChatWithId }) => {
@@ -33,6 +35,11 @@ const CustomerPortalPage = ({ onOpenChatWithId }) => {
   const [reviewQuotationEnquiry, setReviewQuotationEnquiry] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionSuccessMsg, setActionSuccessMsg] = useState('');
+
+  // 1-Click Ticket & Live Tracker Modal State
+  const navigate = useNavigate();
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -416,6 +423,29 @@ const CustomerPortalPage = ({ onOpenChatWithId }) => {
                             </button>
                           )}
 
+                          {/* 1-Click Ticket Inspection */}
+                          <button
+                            onClick={() => {
+                              setSelectedTicket(enq);
+                              setIsTicketModalOpen(true);
+                            }}
+                            className="px-3.5 py-2 bg-purple-50 text-[#7c3aed] hover:bg-purple-100 rounded-xl font-bold text-xs border border-purple-200 transition-colors flex items-center gap-1.5"
+                            title="Open official 1-click ticket"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>View Ticket (1-Click)</span>
+                          </button>
+
+                          {/* Live Delivery Tracker (Zomato Flow) */}
+                          <button
+                            onClick={() => navigate(`/track/${encodeURIComponent(enq.id)}`)}
+                            className="px-3.5 py-2 bg-[#7c3aed] text-white hover:bg-[#6d28d9] rounded-xl font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5"
+                            title="Open live Zomato-style tracking"
+                          >
+                            <Truck className="w-3.5 h-3.5 text-amber-300" />
+                            <span>Track Delivery Live</span>
+                          </button>
+
                           {hasRevisedQuotation && (
                             <button
                               onClick={() => setReviewQuotationEnquiry(enq)}
@@ -427,12 +457,12 @@ const CustomerPortalPage = ({ onOpenChatWithId }) => {
                           )}
 
                           <a
-                            href={`https://wa.me/??text=${encodeURIComponent(`Namaste Kandhari Tent & Caterers! Checking on my booking ${enq.id} for ${enq.eventDate}.`)}`}
+                            href={`https://wa.me/?text=${encodeURIComponent(`Namaste Kandhari Tent & Caterers! Checking on my booking ${enq.id} for ${enq.eventDate}. Toll-Free Desk: 1800-890-3456.`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-semibold transition-colors flex items-center gap-1"
                           >
-                            <span>WhatsApp Desk</span>
+                            <span>Official Desk</span>
                             <ChevronRight className="w-3 h-3" />
                           </a>
                         </div>
@@ -760,6 +790,14 @@ const CustomerPortalPage = ({ onOpenChatWithId }) => {
           }}
         />
       )}
+
+      {/* 1-Click Individual Ticket Modal */}
+      <IndividualTicketModal
+        isOpen={isTicketModalOpen}
+        onClose={() => setIsTicketModalOpen(false)}
+        ticket={selectedTicket}
+        onTrackOrder={(id) => navigate(`/track/${encodeURIComponent(id)}`)}
+      />
 
     </div>
   );
