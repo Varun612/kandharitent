@@ -338,7 +338,7 @@ const submitEnquiryFromChat = async (req, res) => {
     const refNumber = `ENQ-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const customerName = (req.body.customerName && req.body.customerName.trim()) || (req.user && req.user.name) || state.customerName || 'Customer via Chat';
-    const phone = (req.body.phone && req.body.phone.trim()) || (req.user && req.user.phone) || state.phone || '9305465848';
+    const phone = (req.body.phone && req.body.phone.trim()) || (req.user && req.user.phone) || state.phone || '18008903456';
     const whatsappNumber = (req.body.whatsappNumber && req.body.whatsappNumber.trim()) || req.body.phone || state.whatsappNumber || (req.user && req.user.phone) || phone;
     const email = (req.body.email && req.body.email.trim()) || (req.user && req.user.email) || '';
     const eventType = (req.body.eventType && req.body.eventType.trim()) || state.eventType || 'Celebration';
@@ -423,7 +423,7 @@ const submitEnquiryFromChat = async (req, res) => {
       `Guests: ${newEnquiry.guestCount || 'TBD'}\n` +
       `Services: ${newEnquiry.serviceRequired}`
     );
-    const whatsappUrl = `https://wa.me/919305465848?text=${waText}`;
+    const whatsappUrl = `https://wa.me/9118008903456?text=${waText}`;
 
     res.status(201).json({
       success: true,

@@ -391,7 +391,7 @@ const callGeminiModel = async ({ messages = [], userText, intentInfo, collectedS
     const ai = new GoogleGenAI({ apiKey });
     const systemInstruction = `
 You are the official, friendly, warm, and professional AI Event Advisor for Kandhari Tent & Caterers and its associated venue Dwarka Shri Lawn, located at Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, Uttar Pradesh.
-Contact numbers: 9305465848, 9307908994, 7355059566.
+Contact numbers: 18008903456, 9307908994, 7355059566.
 Tagline: "Making Your Celebrations Memorable".
 
 OFFICIAL VERIFIED RATES & PACKAGES (QUOTE CONFIDENTLY WHEN ASKED):

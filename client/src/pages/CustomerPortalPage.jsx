@@ -427,7 +427,7 @@ const CustomerPortalPage = ({ onOpenChatWithId }) => {
                           )}
 
                           <a
-                            href={`https://wa.me/919305465848?text=${encodeURIComponent(`Namaste Kandhari Tent & Caterers! Checking on my booking ${enq.id} for ${enq.eventDate}.`)}`}
+                            href={`https://wa.me/??text=${encodeURIComponent(`Namaste Kandhari Tent & Caterers! Checking on my booking ${enq.id} for ${enq.eventDate}.`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-semibold transition-colors flex items-center gap-1"

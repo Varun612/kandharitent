@@ -77,18 +77,6 @@ const ItemDetailModal = ({ item, onClose }) => {
       width: effectiveWidth
     } : {};
 
-    if (!isCustomerAuthenticated) {
-      openAuthModal({
-        mode: 'login',
-        reason: `Sign in or register to add "${item.name}" to your rental quotation.`,
-        onAuthenticated: () => {
-          addItem(item, quantity, config);
-          onClose();
-        }
-      });
-      return;
-    }
-
     addItem(item, quantity, config);
     onClose();
   };
@@ -378,28 +366,19 @@ const ItemDetailModal = ({ item, onClose }) => {
               type="button"
               onClick={handleAdd}
               disabled={item.availabilityStatus === 'Out of Stock'}
-              className="w-full py-3 px-4 rounded-xl royal-gradient hover:opacity-95 text-white font-semibold text-sm shadow-royal flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className="w-full py-3 px-4 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold text-sm shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50"
             >
-              {!isCustomerAuthenticated ? (
-                <>
-                  <Lock className="w-4 h-4 text-brand-gold" />
-                  <span>Sign In & Book {quantity} Item{quantity > 1 ? 's' : ''}</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-4 h-4 text-brand-gold" />
-                  <span>Add {quantity} to Rental List</span>
-                </>
-              )}
+              <ShoppingBag className="w-4 h-4 text-white" />
+              <span>Add {quantity} to Rental Cart (₹{lineItemTotal.toLocaleString('en-IN')})</span>
             </button>
 
             <div className="text-center">
               <a
-                href="tel:9305465848"
+                href="/contact"
                 className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-brand-purple transition"
               >
                 <Phone className="w-3.5 h-3.5 text-brand-gold" />
-                <span>Call Booking Desk: +91 9305465848</span>
+                <span>Toll-Free Booking Desk: 1800-890-3456</span>
               </a>
             </div>
           </div>

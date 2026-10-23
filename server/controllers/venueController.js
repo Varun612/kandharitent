@@ -1,6 +1,16 @@
 const { isMongoConnected, getLocalDb, saveLocalStore } = require('../config/db');
 const Venue = require('../models/Venue');
 
+const sanitizePublicVenue = (venue) => {
+  if (!venue) return venue;
+  const clone = typeof venue.toObject === 'function' ? venue.toObject() : { ...venue };
+  const tollFree = process.env.BUSINESS_TOLL_FREE_NUMBER || '';
+  clone.primaryPhone = tollFree || 'Pending Provisioning';
+  clone.whatsappPhone = process.env.PUBLIC_WHATSAPP_PHONE || '';
+  clone.phoneNumbers = tollFree ? [tollFree] : [];
+  return clone;
+};
+
 // GET /api/venue - Public endpoint to retrieve venue & lawn details
 const getVenueDetails = async (req, res) => {
   try {
@@ -10,11 +20,11 @@ const getVenueDetails = async (req, res) => {
         const db = getLocalDb();
         venue = await Venue.create(db.venue);
       }
-      return res.json({ success: true, data: venue });
+      return res.json({ success: true, data: sanitizePublicVenue(venue) });
     }
 
     const db = getLocalDb();
-    return res.json({ success: true, data: db.venue });
+    return res.json({ success: true, data: sanitizePublicVenue(db.venue) });
   } catch (error) {
     console.error('Error fetching venue details:', error);
     return res.status(500).json({ success: false, message: 'Server error retrieving venue details' });

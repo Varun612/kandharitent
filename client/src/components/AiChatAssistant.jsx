@@ -41,7 +41,7 @@ const getClientAiResponse = (text) => {
 
   if (info.phone) {
     return {
-      text: `Shukriya! We have recorded your contact number: **${info.phone}**.\n\nOur event management team from Kandhari Tent & Caterers / Dwarka Shri Lawn will contact you shortly to understand your requirements and prepare a tailored estimate.\n\nYou can also click below to chat directly with the owner on WhatsApp or call **9305465848**.`,
+      text: `Shukriya! We have recorded your contact number: **${info.phone}**.\n\nOur event management team from Kandhari Tent & Caterers / Dwarka Shri Lawn will contact you shortly to understand your requirements and prepare a tailored estimate.\n\nYou can also click below to chat directly with our event desk on WhatsApp or call our toll-free helpline **1800-890-3456**.`,
       detectedPhone: info.phone
     };
   }
@@ -564,18 +564,18 @@ const AiChatAssistant = () => {
 
             <div className="flex items-center gap-1 text-neutral-300">
               <a
-                href="tel:9305465848"
+                href="/contact"
                 className="p-1.5 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-amber-300"
-                title="Direct Call to Owner (9305465848)"
+                title="Toll-Free Helpline (1800-890-3456)"
               >
                 <Phone className="w-4 h-4" />
               </a>
               <a
-                href="https://wa.me/919305465848?text=Namaste!%20I%20am%20chatting%20on%20your%20website%20and%20need%20assistance%20for%20my%20event."
+                href="https://wa.me/??text=Namaste!%20I%20am%20chatting%20on%20your%20website%20and%20need%20assistance%20for%20my%20event."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-emerald-400"
-                title="Direct WhatsApp (9305465848)"
+                title="Official WhatsApp Support"
               >
                 <MessageSquare className="w-4 h-4" />
               </a>

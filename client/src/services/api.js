@@ -60,11 +60,22 @@ const request = async (endpoint, options = {}) => {
   }
 };
 
+const toQueryString = (params = {}) => {
+  if (typeof params === 'string') return params ? (params.startsWith('?') ? params : `?${params}`) : '';
+  const clean = {};
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null && v !== '' && v !== 'undefined' && v !== 'null') {
+      clean[k] = v;
+    }
+  }
+  const qs = new URLSearchParams(clean).toString();
+  return qs ? `?${qs}` : '';
+};
+
 export const api = {
   // Rental Items
   getItems: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return request(`/items${query ? `?${query}` : ''}`);
+    return request(`/items${toQueryString(params)}`);
   },
   getCategories: () => request('/items/categories'),
   getItemById: (id) => request(`/items/${id}`),
@@ -75,8 +86,7 @@ export const api = {
   // Enquiries & Workflow
   submitEnquiry: (enquiryData) => request('/enquiries', { method: 'POST', body: JSON.stringify(enquiryData) }),
   getEnquiries: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return request(`/enquiries${query ? `?${query}` : ''}`);
+    return request(`/enquiries${toQueryString(params)}`);
   },
   getEnquiryById: (id) => request(`/enquiries/${id}`),
   updateEnquiryStatus: (id, statusData) => request(`/enquiries/${id}/status`, { method: 'PUT', body: JSON.stringify(statusData) }),
@@ -133,8 +143,7 @@ export const api = {
 
   // Catering Menu & Custom Enquiries
   getCateringMenu: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return request(`/catering/menu${query ? `?${query}` : ''}`);
+    return request(`/catering/menu${toQueryString(params)}`);
   },
   getCateringCategories: () => request('/catering/categories'),
   getCateringPackages: () => request('/catering/packages'),
@@ -156,18 +165,15 @@ export const api = {
   getStats: () => request('/auth/stats'),
   getCustomers: () => request('/auth/customers'),
   getReportSummary: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return request(`/reports/summary${query ? `?${query}` : ''}`);
+    return request(`/reports/summary${toQueryString(params)}`);
   },
   getReportPrintableUrl: (params = {}) => {
-    const query = new URLSearchParams(params).toString();
     const cleanBase = (API_BASE === '/api') ? '/api' : API_BASE;
-    return `${cleanBase}/reports/printable-html${query ? `?${query}` : ''}`;
+    return `${cleanBase}/reports/printable-html${toQueryString(params)}`;
   },
   exportReportCSV: async (params = {}) => {
-    const query = new URLSearchParams(params).toString();
     const cleanBase = (API_BASE === '/api') ? '/api' : API_BASE;
-    const res = await fetch(`${cleanBase}/reports/export-csv${query ? `?${query}` : ''}`, {
+    const res = await fetch(`${cleanBase}/reports/export-csv${toQueryString(params)}`, {
       headers: { ...getAuthHeaders() }
     });
     if (!res.ok) throw new Error('Failed to export financial report CSV');
@@ -212,14 +218,8 @@ export const api = {
   }),
 
   // Staff and Labour Management
-  getStaffList: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/staff${q ? `?${q}` : ''}`);
-  },
-  getStaff: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/staff${q ? `?${q}` : ''}`);
-  },
+  getStaffList: (params = {}) => request(`/staff${toQueryString(params)}`),
+  getStaff: (params = {}) => request(`/staff${toQueryString(params)}`),
   createStaffMember: (payload) => request('/staff', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -236,10 +236,8 @@ export const api = {
     method: 'PUT',
     body: JSON.stringify(payload)
   }),
-  getAttendance: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/staff/attendance${q ? `?${q}` : ''}`);
-  },
+  getAttendance: (params = {}) => request(`/staff/attendance${toQueryString(params)}`),
+  getAttendanceGrid: (params = {}) => request(`/staff/attendance-grid${toQueryString(params)}`),
   recordAttendance: (payload) => request('/staff/attendance', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -248,14 +246,12 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(payload)
   }),
-  calculateWages: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/staff/wages${q ? `?${q}` : ''}`);
-  },
-  getWageSummary: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/staff/wage-summary${q ? `?${q}` : ''}`);
-  },
+  recordBulkAttendance: (payload) => request('/staff/attendance/bulk', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  calculateWages: (params = {}) => request(`/staff/wages${toQueryString(params)}`),
+  getWageSummary: (params = {}) => request(`/staff/wage-summary${toQueryString(params)}`),
   recordWagePayment: (payload) => request('/staff/payments', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -264,20 +260,64 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(payload)
   }),
-  getWageDisbursements: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/staff/payments${q ? `?${q}` : ''}`);
+  getWageDisbursements: (params = {}) => request(`/staff/payments${toQueryString(params)}`),
+
+  // Employee Advances Management
+  getAdvances: (params = {}) => request(`/staff/advances${toQueryString(params)}`),
+  recordAdvance: (payload) => request('/staff/advances', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  deleteAdvance: (id) => request(`/staff/advances/${id}`, {
+    method: 'DELETE'
+  }),
+
+  // Payroll Settlement Engine
+  getPayroll: (params = {}) => request(`/staff/payroll${toQueryString(params)}`),
+  finalizePayroll: (payload) => request('/staff/payroll/finalize', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  updatePayrollStatus: (id, status) => request(`/staff/payroll/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status })
+  }),
+  exportPayrollCSV: async (params = {}) => {
+    const cleanBase = (API_BASE === '/api') ? '/api' : API_BASE;
+    const res = await fetch(`${cleanBase}/staff/payroll/export-csv${toQueryString(params)}`, {
+      headers: { ...getAuthHeaders() }
+    });
+    if (!res.ok) throw new Error('Failed to export payroll CSV');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kandhari_payroll_${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   },
+
+  // Coupons & Promotions
+  getCoupons: () => request('/coupons'),
+  createCoupon: (payload) => request('/coupons', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  validateCoupon: (code, subtotal) => request('/coupons/validate', {
+    method: 'POST',
+    body: JSON.stringify({ code, subtotal })
+  }),
+  deleteCoupon: (id) => request(`/coupons/${id}`, {
+    method: 'DELETE'
+  }),
 
   // Website Visitor Analytics
   logAnalyticsEvent: (payload) => request('/analytics/event', {
     method: 'POST',
     body: JSON.stringify(payload)
   }),
-  getAnalyticsSummary: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/analytics/summary${q ? `?${q}` : ''}`);
-  },
+  getAnalyticsSummary: (params = {}) => request(`/analytics/summary${toQueryString(params)}`),
 
   // Voice & Typed Master AI Agent
   queryMasterAgent: (payload) => request('/agent/query', {
@@ -290,10 +330,7 @@ export const api = {
   }),
 
   // Outside Payments (Dhobi, Suppliers, Logistics)
-  getOutsidePayments: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/payments/outside${q ? `?${q}` : ''}`);
-  },
+  getOutsidePayments: (params = {}) => request(`/payments/outside${toQueryString(params)}`),
   recordOutsidePayment: (payload) => request('/payments/outside', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -308,10 +345,7 @@ export const api = {
   }),
 
   // AI Marketing Studio
-  searchMarketingMedia: (params = {}) => {
-    const q = new URLSearchParams(params).toString();
-    return request(`/marketing/media${q ? `?${q}` : ''}`);
-  },
+  searchMarketingMedia: (params = {}) => request(`/marketing/media${toQueryString(params)}`),
   getMarketingPortfolios: () => request('/marketing/portfolios'),
   createMarketingPortfolio: (payload) => request('/marketing/portfolios', {
     method: 'POST',
@@ -348,5 +382,23 @@ export const api = {
   }),
   deleteAgentWorkflow: (id) => request(`/agent/workflows/${id}`, {
     method: 'DELETE'
+  }),
+
+  // Veronica Receptionist Telephony & Operations
+  getReceptionistCalls: () => request('/receptionist/calls'),
+  getReceptionistAppointments: () => request('/receptionist/appointments'),
+  getReceptionistTickets: () => request('/receptionist/tickets'),
+  getReceptionistCallbacks: () => request('/receptionist/callbacks'),
+  getTelephonyConfig: () => request('/receptionist/telephony-config'),
+  simulateIncomingCall: (payload) => request('/receptionist/simulate-incoming', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+
+  // Central Business Settings
+  getSettings: () => request('/settings'),
+  updateSettings: (payload) => request('/settings', {
+    method: 'PUT',
+    body: JSON.stringify(payload)
   })
 };

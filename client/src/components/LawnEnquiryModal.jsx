@@ -84,7 +84,7 @@ const LawnEnquiryModal = ({ isOpen, onClose }) => {
         setErrorMessage(res.message || 'Could not submit your lawn enquiry.');
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Network error submitting enquiry. Please call 9305465848 directly.');
+      setErrorMessage(err.message || 'Network error submitting enquiry. Please submit a callback request online.');
     } finally {
       setIsSubmitting(false);
     }
@@ -155,7 +155,7 @@ const LawnEnquiryModal = ({ isOpen, onClose }) => {
                     <span>Open WhatsApp with Venue Summary</span>
                   </a>
                   <p className="text-[11px] text-neutral-500 mt-2">
-                    Opens WhatsApp to send your preferred dates directly to our booking manager (+91 9305465848)
+                    Opens WhatsApp to send your preferred dates directly to our booking manager (Official Desk)
                   </p>
                 </div>
               )}
@@ -208,7 +208,7 @@ const LawnEnquiryModal = ({ isOpen, onClose }) => {
                     required
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="e.g. 9305465848"
+                    placeholder="e.g. 9876543210"
                     className="w-full pl-9 pr-3 py-2 text-sm border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none"
                   />
                 </div>

@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 950" width="1600" height="950" style="background:#faf7f2; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="layerGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a0e4e" />
+      <stop offset="100%" stop-color="#2d0832" />
+    </linearGradient>
+    <linearGradient id="goldGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" />
+      <stop offset="100%" stop-color="#aa7c11" />
+    </linearGradient>
+    <filter id="boxShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#4a0e4e" flood-opacity="0.08" />
+    </filter>
+    <marker id="arrowArch" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#c59a3f" />
+    </marker>
+  </defs>
+
+  <!-- Header Banner -->
+  <rect x="0" y="0" width="1600" height="120" fill="url(#layerGrad1)" />
+  <rect x="0" y="116" width="1600" height="4" fill="url(#goldGrad3)" />
+  <text x="60" y="55" fill="#faf7f2" font-size="28" font-weight="700" letter-spacing="0.5">KANDHARI TENT &amp; DWARKA SHRI LAWN — FULL-STACK ARCHITECTURE</text>
+  <text x="60" y="90" fill="#d4af37" font-size="16" font-weight="600" letter-spacing="1">VERIFIED PRODUCTION SYSTEM TOPOLOGY, COMPONENT DATA FLOW &amp; SECURITY GATES</text>
+  <rect x="1350" y="42" width="190" height="36" rx="18" fill="rgba(212,175,55,0.2)" stroke="#d4af37" stroke-width="1.5" />
+  <text x="1445" y="65" fill="#d4af37" font-size="13" font-weight="600" text-anchor="middle">VERIFIED FULL-STACK</text>
+
+  <!-- 4 Horizontal Architecture Layers -->
+
+  <!-- LAYER 1: Frontend Client Tier -->
+  <g transform="translate(60, 150)">
+    <rect width="1480" height="150" rx="14" fill="#ffffff" stroke="#e0d5c5" stroke-width="1.5" filter="url(#boxShadow)" />
+    <rect width="220" height="150" rx="14" fill="#fbf8f3" />
+    <text x="25" y="65" fill="#4a0e4e" font-size="18" font-weight="700">CLIENT TIER</text>
+    <text x="25" y="90" fill="#666666" font-size="12" font-weight="600">React 18 + Vite 5 SPA</text>
+    <text x="25" y="110" fill="#c59a3f" font-size="11">Tailwind CSS + Lucide Icons</text>
+
+    <!-- Component boxes -->
+    <rect x="240" y="20" width="280" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="255" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Customer Public Experience</text>
+    <text x="255" y="72" fill="#555555" font-size="12">• Hero &amp; Editorial Photo Gallery</text>
+    <text x="255" y="92" fill="#555555" font-size="12">• Equipment Catalogue with Sizing</text>
+    <text x="255" y="112" fill="#555555" font-size="12">• 125 Pure Veg Catering Menu</text>
+
+    <rect x="540" y="20" width="300" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="555" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Dwarka Shri Lawn Showcase (/lawn)</text>
+    <text x="555" y="72" fill="#555555" font-size="12">• Full-Width 2m 13s Video Player</text>
+    <text x="555" y="92" fill="#555555" font-size="12">• 7 Vertical 9:16 Modal Reels</text>
+    <text x="555" y="112" fill="#555555" font-size="12">• 6 Visual Venue Area Tabs</text>
+
+    <rect x="860" y="20" width="300" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="875" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Interactive Rental Cart &amp; Enquiry</text>
+    <text x="875" y="72" fill="#555555" font-size="12">• Area Sizer (Length × Width)</text>
+    <text x="875" y="92" fill="#555555" font-size="12">• Distance Band Delivery (0-3, 3-7, &gt;7km)</text>
+    <text x="875" y="112" fill="#555555" font-size="12">• Dual WhatsApp + DB Handoff</text>
+
+    <rect x="1180" y="20" width="280" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="1195" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Bilingual Admin Dashboard</text>
+    <text x="1195" y="72" fill="#555555" font-size="12">• 11 Functional Workspaces</text>
+    <text x="1195" y="92" fill="#555555" font-size="12">• Dual-Identifier Login</text>
+    <text x="1195" y="112" fill="#555555" font-size="12">• Razorpay Payment Verification</text>
+  </g>
+
+  <!-- Downward Dataflow Arrow -->
+  <line x1="800" y1="300" x2="800" y2="340" stroke="#c59a3f" stroke-width="3" marker-end="url(#arrowArch)" />
+
+  <!-- LAYER 2: API & Routing Tier -->
+  <g transform="translate(60, 345)">
+    <rect width="1480" height="150" rx="14" fill="#ffffff" stroke="#e0d5c5" stroke-width="1.5" filter="url(#boxShadow)" />
+    <rect width="220" height="150" rx="14" fill="#fbf8f3" />
+    <text x="25" y="65" fill="#4a0e4e" font-size="18" font-weight="700">API ROUTING TIER</text>
+    <text x="25" y="90" fill="#666666" font-size="12" font-weight="600">Express 4 + Dual-Mount Engine</text>
+    <text x="25" y="110" fill="#c59a3f" font-size="11">Vercel Serverless Ready</text>
+
+    <!-- Sub components -->
+    <rect x="240" y="20" width="280" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="255" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Dual-Mount Routing Engine</text>
+    <text x="255" y="72" fill="#555555" font-size="12">• Mounts /api/* and /* concurrently</text>
+    <text x="255" y="92" fill="#555555" font-size="12">• Solves Vercel prefix rewrite 404s</text>
+    <text x="255" y="112" fill="#555555" font-size="12">• Strict JSON error responses</text>
+
+    <rect x="540" y="20" width="300" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="555" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Authentication &amp; Guards</text>
+    <text x="555" y="72" fill="#555555" font-size="12">• POST /api/auth/login (Dual-Identifier)</text>
+    <text x="555" y="92" fill="#555555" font-size="12">• JWT Verification Middleware</text>
+    <text x="555" y="112" fill="#555555" font-size="12">• Customer vs. Admin Role Isolation</text>
+
+    <rect x="860" y="20" width="300" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="875" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Business Resource Endpoints</text>
+    <text x="875" y="72" fill="#555555" font-size="12">• /items (Rental catalogue CRUD)</text>
+    <text x="875" y="92" fill="#555555" font-size="12">• /catering (Menu &amp; Packages)</text>
+    <text x="875" y="112" fill="#555555" font-size="12">• /venue/reels &amp; /venue/video</text>
+
+    <rect x="1180" y="20" width="280" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="1195" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Operations Endpoints</text>
+    <text x="1195" y="72" fill="#555555" font-size="12">• /staff &amp; /staff/attendance</text>
+    <text x="1195" y="92" fill="#555555" font-size="12">• /payments/outside (Dhobi Ledger)</text>
+    <text x="1195" y="112" fill="#555555" font-size="12">• /invoices (INV-YYYY-XXXX)</text>
+  </g>
+
+  <!-- Downward Dataflow Arrow -->
+  <line x1="800" y1="495" x2="800" y2="535" stroke="#c59a3f" stroke-width="3" marker-end="url(#arrowArch)" />
+
+  <!-- LAYER 3: Business Logic & Calculation Engine -->
+  <g transform="translate(60, 540)">
+    <rect width="1480" height="150" rx="14" fill="#ffffff" stroke="#e0d5c5" stroke-width="1.5" filter="url(#boxShadow)" />
+    <rect width="220" height="150" rx="14" fill="#fbf8f3" />
+    <text x="25" y="65" fill="#4a0e4e" font-size="18" font-weight="700">BUSINESS LOGIC</text>
+    <text x="25" y="90" fill="#666666" font-size="12" font-weight="600">Authoritative Server Math</text>
+    <text x="25" y="110" fill="#c59a3f" font-size="11">pricingEngine.js &amp; Workflow</text>
+
+    <!-- Sub components -->
+    <rect x="240" y="20" width="280" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="255" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Area-Based Rental Math</text>
+    <text x="255" y="72" fill="#555555" font-size="12">• (Length × Width) × Rate × Days</text>
+    <text x="255" y="92" fill="#555555" font-size="12">• Shamiana ₹5/sq ft, Hangar ₹30/sq ft</text>
+    <text x="255" y="112" fill="#555555" font-size="12">• Inclusive calendar day counting</text>
+
+    <rect x="540" y="20" width="300" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="555" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Distance Band Logistics</text>
+    <text x="555" y="72" fill="#555555" font-size="12">• Band 1 (0–3 km): ₹500 Cartage + ₹500 Labour</text>
+    <text x="555" y="92" fill="#555555" font-size="12">• Band 2 (3–7 km): ₹1,000 Cartage + ₹1,000 Labour</text>
+    <text x="555" y="112" fill="#555555" font-size="12">• Band 3 (&gt;7 km): ₹1,500 base + ₹75/km</text>
+
+    <rect x="860" y="20" width="300" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="875" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Pre-Approval Booking Engine</text>
+    <text x="875" y="72" fill="#555555" font-size="12">• Step A: Pending Admin Review</text>
+    <text x="875" y="92" fill="#555555" font-size="12">• Step B: Admin Date &amp; Stock Verification</text>
+    <text x="875" y="112" fill="#555555" font-size="12">• Step C: Customer Acceptance &amp; Razorpay</text>
+
+    <rect x="1180" y="20" width="280" height="110" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="1195" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Payroll &amp; Audit Engine</text>
+    <text x="1195" y="72" fill="#555555" font-size="12">• Attendance: ₹500/day daily wage</text>
+    <text x="1195" y="92" fill="#555555" font-size="12">• Half-day (₹250), Absent (₹0)</text>
+    <text x="1195" y="112" fill="#555555" font-size="12">• Stock adjustment damage audit log</text>
+  </g>
+
+  <!-- Downward Dataflow Arrow -->
+  <line x1="800" y1="690" x2="800" y2="730" stroke="#c59a3f" stroke-width="3" marker-end="url(#arrowArch)" />
+
+  <!-- LAYER 4: Persistence Tier -->
+  <g transform="translate(60, 735)">
+    <rect width="1480" height="175" rx="14" fill="#ffffff" stroke="#e0d5c5" stroke-width="1.5" filter="url(#boxShadow)" />
+    <rect width="220" height="175" rx="14" fill="#fbf8f3" />
+    <text x="25" y="70" fill="#4a0e4e" font-size="18" font-weight="700">DATA &amp; MEDIA TIER</text>
+    <text x="25" y="95" fill="#666666" font-size="12" font-weight="600">Dual-Mode Persistence</text>
+    <text x="25" y="115" fill="#c59a3f" font-size="11">MongoDB + Resilient JSON</text>
+
+    <!-- Sub components -->
+    <rect x="240" y="20" width="370" height="135" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="255" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Primary Database: MongoDB Atlas (Mongoose)</text>
+    <text x="255" y="72" fill="#555555" font-size="12">• AdminUser schema (10-round bcrypt hash)</text>
+    <text x="255" y="92" fill="#555555" font-size="12">• Customer, Enquiry, Item, Venue, Conversation models</text>
+    <text x="255" y="112" fill="#555555" font-size="12">• Automatic connection failover &amp; heartbeat monitoring</text>
+
+    <rect x="630" y="20" width="410" height="135" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="645" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Resilient Fallback: Local JSON Store (localStore.json)</text>
+    <text x="645" y="72" fill="#555555" font-size="12">• Synchronous atomic read/write durability</text>
+    <text x="645" y="92" fill="#555555" font-size="12">• Guarantees 100% full-stack functionality without external DB</text>
+    <text x="645" y="112" fill="#555555" font-size="12">• Seeded with 19 items, 125 dishes, 7 reels, 5 staff records</text>
+
+    <rect x="1060" y="20" width="400" height="135" rx="10" fill="#faf7f2" stroke="#e0d5c5" />
+    <text x="1075" y="48" fill="#4a0e4e" font-size="14" font-weight="700">Media Pipeline: Static &amp; FFmpeg Synthesis</text>
+    <text x="1075" y="72" fill="#555555" font-size="12">• Raw WhatsApp Tour (DwarakaShreevideo.mp4, 19.32 MB)</text>
+    <text x="1075" y="92" fill="#555555" font-size="12">• 7 Pre-cut 9:16 vertical MP4 reels + HD poster covers</text>
+    <text x="1075" y="112" fill="#555555" font-size="12">• Fluent-FFmpeg rendering engine for dynamic video reels</text>
+  </g>
+</svg>

@@ -90,7 +90,7 @@ const PrivacyPolicyPage = () => {
           <div className="p-4 bg-neutral-50 rounded-xl text-xs space-y-1 text-neutral-800">
             <p className="font-bold">Kandhari Tent & Caterers & Dwarka Shri Lawn</p>
             <p>Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, Uttar Pradesh</p>
-            <p>Phone: +91 9305465848 | Email: contact@kandharitent.com</p>
+            <p>Toll-Free Helpline: 1800-XXX-XXXX | Email: contact@kandharitent.com</p>
           </div>
         </section>
 

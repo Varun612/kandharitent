@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Kandhari Tent",
+    "slug": "kandhari-tent-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#7c3aed"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kandharitent.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#7c3aed"
+      },
+      "package": "com.kandharitent.app",
+      "permissions": [
+        "INTERNET"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2:5050/api",
+      "productionApiUrl": "https://kandharitent.vercel.app/api",
+      "businessName": "Kandhari Tent & Caterers",
+      "venue": "Dwarka Shri Lawn, Kanpur Road, Lucknow",
+      "primaryColor": "#7c3aed"
+    }
+  }
+}

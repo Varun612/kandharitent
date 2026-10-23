@@ -40,6 +40,9 @@ lerna-debug.log*
 .cache/
 .temp/
 tmp/
+.agents/
+*.zip
+client/public/media/rendered_reels/*.mp4
 
 # Operating system files
 .DS_Store

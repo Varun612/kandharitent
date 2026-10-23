@@ -51,7 +51,7 @@ const ToolsPage = () => {
     const cleanPhone = visitFormData.phone.replace(/[\s-]/g, '');
     const phoneRegex = /^(?:\+91|0)?[6-9]\d{9}$/;
     if (!phoneRegex.test(cleanPhone)) {
-      setErrorMessage('Please enter a valid 10-digit Indian phone number (e.g. 9305465848).');
+      setErrorMessage('Please enter a valid 10-digit Indian phone number (e.g. 9876543210).');
       return;
     }
 
@@ -83,7 +83,7 @@ const ToolsPage = () => {
           message: 'Your site visit request has been received! Our venue manager will call to confirm the exact meeting time.'
         });
       } else {
-        setErrorMessage(res.message || 'Could not schedule visit. Please call 9305465848.');
+        setErrorMessage(res.message || 'Could not schedule visit. Please submit a callback request online.');
       }
     } catch (err) {
       setErrorMessage(err.message || 'Network error requesting site visit.');
@@ -158,7 +158,7 @@ const ToolsPage = () => {
                       <span>Open WhatsApp with Inspection Details</span>
                     </a>
                     <p className="text-[11px] text-neutral-500 mt-2">
-                      Opens WhatsApp to coordinate directions and timing directly with our venue manager (+91 9305465848)
+                      Opens WhatsApp to coordinate directions and timing directly with our venue manager (Official Desk)
                     </p>
                   </div>
                 )}
@@ -210,7 +210,7 @@ const ToolsPage = () => {
                         required
                         value={visitFormData.phone}
                         onChange={handleChange}
-                        placeholder="e.g. 9305465848"
+                        placeholder="e.g. 9876543210"
                         className="w-full pl-9 pr-3 py-2 text-xs border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                       />
                     </div>
@@ -422,11 +422,11 @@ const ToolsPage = () => {
               </p>
               <div className="pt-1 flex flex-col gap-2">
                 <a
-                  href="tel:9305465848"
+                  href="/contact"
                   className="py-2.5 px-4 rounded-xl bg-purple-50 text-brand-purple font-bold text-xs text-center hover:bg-purple-100 transition flex items-center justify-center gap-1.5"
                 >
                   <Phone className="w-3.5 h-3.5 text-brand-gold" />
-                  <span>Call Booking Desk: +91 9305465848</span>
+                  <span>Toll-Free Booking Desk: 1800-XXX-XXXX</span>
                 </a>
               </div>
             </div>

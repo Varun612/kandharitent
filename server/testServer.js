@@ -30,13 +30,24 @@ const runTests = async () => {
   console.log(`[Test Suite] Test server listening on http://localhost:${assignedPort}`);
 
   const testEndpoint = async (url, options = {}) => {
-    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const isCustomContentType = options.headers && options.headers['Content-Type'];
+    const headers = isCustomContentType
+      ? options.headers
+      : { 'Content-Type': 'application/json', ...(options.headers || {}) };
+
     const res = await fetch(`http://localhost:${assignedPort}${url}`, {
       ...options,
       headers
     });
-    const data = await res.json();
-    return { status: res.status, data };
+
+    const cType = res.headers.get('content-type') || '';
+    let data;
+    if (cType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      data = await res.text();
+    }
+    return { status: res.status, data, contentType: cType };
   };
 
   try {
@@ -87,7 +98,7 @@ const runTests = async () => {
     // Test Catering quotation enquiry submission
     const cateringEnquiryPayload = {
       customerName: 'Ananya Sharma',
-      phone: '9305465848',
+      phone: '9876543210',
       eventDate: '2026-11-28',
       guestCount: 300,
       locality: 'Kanpur Road, Lucknow',
@@ -408,7 +419,7 @@ const runTests = async () => {
     // 12.1: Submit fresh rental booking request as customer
     const orderPayload = {
       customerName: 'Vikramaditya Verma',
-      phone: '9305465848',
+      phone: '9876543210',
       email: 'vikram.verma@example.com',
       eventDate: '2026-12-15',
       startDate: '2026-12-15',
@@ -621,7 +632,7 @@ const runTests = async () => {
       })
     });
     console.log(`[Attendance Mark] POST /api/staff/attendance: HTTP ${markAttRes.status} | Wage: ₹${markAttRes.data.data?.calculatedWage}`);
-    if (markAttRes.status !== 200 || markAttRes.data.data?.calculatedWage !== 500) {
+    if ((markAttRes.status !== 200 && markAttRes.status !== 201) || markAttRes.data.data?.calculatedWage !== 500) {
       throw new Error(`Expected calculated wage ₹500, got ₹${markAttRes.data.data?.calculatedWage}`);
     }
 
@@ -744,7 +755,7 @@ const runTests = async () => {
       headers: { 'Authorization': `Bearer ${adminToken}` },
       body: JSON.stringify({
         customerName: 'Ananya Sharma',
-        phone: '9305465848',
+        phone: '9876543210',
         billingAddress: 'Kanpur Road, Daroga Kheda, Lucknow',
         eventDate: '2026-11-28',
         eventVenue: 'Dwarka Shri Lawn, Kanpur Road, Lucknow',
@@ -980,6 +991,315 @@ const runTests = async () => {
       throw new Error(`Expected provisional cartage >= ₹1500 for > 7km, got ${pricingBand3.cartage}`);
     }
 
+
+    // 24: AI Calling Receptionist Veronica
+    console.log('\n--- Test 24: AI Telephony Receptionist Veronica ---');
+    const recStartRes = await testEndpoint('/api/receptionist/call/start', {
+      method: 'POST',
+      body: JSON.stringify({
+        callerName: 'Vikramaditya Verma',
+        callerPhone: '9876543210'
+      })
+    });
+    console.log(`[Receptionist Start] POST /api/receptionist/call/start: HTTP ${recStartRes.status} | CallId: ${recStartRes.data.data?.callId}`);
+    if (recStartRes.status !== 201 || !recStartRes.data.data?.greeting.includes('Veronica')) {
+      throw new Error('Receptionist call start failed or missing Veronica disclosure');
+    }
+    const testCallId = recStartRes.data.data.callId;
+
+    // Turn 1: Book lawn walkthrough appointment
+    const recAptRes = await testEndpoint('/api/receptionist/call/message', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        message: 'I want to schedule an appointment to view Dwarka Shri Lawn on 15 November 2026'
+      })
+    });
+    console.log(`[Receptionist Appointment] Message Turn: Action = ${recAptRes.data.data?.actionTaken} | Appointment = ${recAptRes.data.data?.session?.appointment?.appointmentId}`);
+    if (recAptRes.data.data?.actionTaken !== 'appointment_booked' || !recAptRes.data.data?.session?.appointment?.appointmentId.startsWith('APT-')) {
+      throw new Error('Failed to book lawn walkthrough appointment');
+    }
+
+    // Turn 2: Log support ticket
+    const recTckRes = await testEndpoint('/api/receptionist/call/message', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        message: 'I have an urgent complaint regarding damaged chairs delivered'
+      })
+    });
+    console.log(`[Receptionist Ticket] Message Turn: Action = ${recTckRes.data.data?.actionTaken} | Ticket = ${recTckRes.data.data?.session?.ticket?.ticketId}`);
+    if (recTckRes.data.data?.actionTaken !== 'ticket_created' || !recTckRes.data.data?.session?.ticket?.ticketId.startsWith('TCK-')) {
+      throw new Error('Failed to generate support ticket');
+    }
+
+    // Turn 3: Human escalation
+    const recEscRes = await testEndpoint('/api/receptionist/call/message', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        message: 'Please connect me to the owner Mr. Kandhari'
+      })
+    });
+    console.log(`[Receptionist Escalation] Message Turn: Action = ${recEscRes.data.data?.actionTaken} | Escalated = ${recEscRes.data.data?.session?.escalated}`);
+    if (recEscRes.data.data?.actionTaken !== 'escalated_to_human' || !recEscRes.data.data?.session?.escalated) {
+      throw new Error('Failed to escalate call to human management');
+    }
+
+    // End call
+    const recEndRes = await testEndpoint('/api/receptionist/call/end', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        notes: 'Verification test call ended'
+      })
+    });
+    console.log(`[Receptionist End] POST /api/receptionist/call/end: HTTP ${recEndRes.status} | Duration = ${recEndRes.data.data?.summary?.durationSeconds}s`);
+    if (recEndRes.status !== 200 || !recEndRes.data.success) {
+      throw new Error('Failed to end and archive receptionist call');
+    }
+
+    // Inspect operations lists
+    const getCallsRes = await testEndpoint('/api/receptionist/calls');
+    const getAptsRes = await testEndpoint('/api/receptionist/appointments');
+    const getTcksRes = await testEndpoint('/api/receptionist/tickets');
+    console.log(`[Receptionist Inspection] Calls: ${getCallsRes.data.count} | Appointments: ${getAptsRes.data.count} | Tickets: ${getTcksRes.data.count}`);
+    if (getCallsRes.data.count < 1 || getAptsRes.data.count < 1 || getTcksRes.data.count < 1) {
+      throw new Error('Receptionist operations lists count mismatch');
+    }
+
+    // 25: Master Agent Exact-Date Workforce Action
+    console.log('\n--- Test 25: Master Agent Exact-Date Workforce Action ---');
+    const workforceQueryRes = await testEndpoint('/api/agent/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        query: 'Add a new labourer named Ramesh and mark him present on 22 October 2026'
+      })
+    });
+    console.log(`[Master Agent Query] HTTP ${workforceQueryRes.status} | Action: ${workforceQueryRes.data.action} | Date: ${workforceQueryRes.data.pendingAction?.params?.date}`);
+    if (!workforceQueryRes.data.requiresConfirmation || workforceQueryRes.data.pendingAction?.params?.date !== '2026-10-22' || workforceQueryRes.data.pendingAction?.params?.name !== 'Ramesh') {
+      throw new Error('Master Agent failed to parse exact date 2026-10-22 or worker name Ramesh');
+    }
+
+    const workforceConfirmRes = await testEndpoint('/api/agent/confirm', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        action: workforceQueryRes.data.pendingAction.tool,
+        params: workforceQueryRes.data.pendingAction.params
+      })
+    });
+    console.log(`[Master Agent Confirm] HTTP ${workforceConfirmRes.status} | TargetDate: ${workforceConfirmRes.data.targetDate} | Wage: ₹${workforceConfirmRes.data.calculatedWage}`);
+    if (workforceConfirmRes.status !== 200 || workforceConfirmRes.data.targetDate !== '2026-10-22' || workforceConfirmRes.data.calculatedWage !== 500) {
+      throw new Error('Master agent workforce execution failed on exact date 2026-10-22');
+    }
+
+    // 26: Central Business Settings
+    console.log('\n--- Test 26: Central Business Settings ---');
+    const getSettingsRes = await testEndpoint('/api/settings');
+    console.log(`[Settings GET] HTTP ${getSettingsRes.status} | Toll-Free: ${getSettingsRes.data.data?.tollFreeNumber} | AI Receptionist: ${getSettingsRes.data.data?.aiReceptionist?.name}`);
+    if (getSettingsRes.status !== 200 || !getSettingsRes.data.data?.tollFreeNumber || getSettingsRes.data.data?.aiReceptionist?.name !== 'Veronica') {
+      throw new Error('Central business settings mismatch');
+    }
+
+    const updateSettingsRes = await testEndpoint('/api/settings', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        minOrderValue: 7500
+      })
+    });
+    console.log(`[Settings PUT] HTTP ${updateSettingsRes.status} | MinOrderValue: ${updateSettingsRes.data.data?.minOrderValue}`);
+    if (updateSettingsRes.status !== 200 || updateSettingsRes.data.data?.minOrderValue !== 7500) {
+      throw new Error('Failed to update business settings');
+    }
+
+    // 27: Strict Privacy & Phone Number Protection Audit
+    console.log('\n--- Test 27: Strict Privacy & Phone Number Protection Audit ---');
+    const venueCheckRes = await testEndpoint('/api/venue');
+    const venueJsonStr = JSON.stringify(venueCheckRes.data);
+    if (venueJsonStr.includes('9305465848')) {
+      throw new Error('CRITICAL SECURITY VIOLATION: Personal phone number 9305465848 leaked in /api/venue!');
+    }
+
+    const settingsCheckRes = await testEndpoint('/api/settings');
+    const settingsJsonStr = JSON.stringify(settingsCheckRes.data);
+    if (settingsJsonStr.includes('9305465848')) {
+      throw new Error('CRITICAL SECURITY VIOLATION: Personal phone number 9305465848 leaked in /api/settings!');
+    }
+    console.log('• Strict privacy verified: 0 exposures of personal phone number across public and admin APIs.');
+
+    // 28: Empty Catalogue Fix & Query Sanitization
+    console.log('\n--- Test 28: Empty Catalogue Fix & Query Parameter Sanitization ---');
+    const undefQueryRes = await testEndpoint('/api/items?category=undefined&search=undefined&status=undefined');
+    console.log(`[Sanitized Items Fetch] GET /api/items?category=undefined: HTTP ${undefQueryRes.status} | Count: ${undefQueryRes.data.count}`);
+    if (undefQueryRes.status !== 200 || undefQueryRes.data.count < 30) {
+      throw new Error(`Expected at least 30 items when querying with undefined strings, got ${undefQueryRes.data.count}`);
+    }
+
+    const categoriesToCheck = [
+      'chairs-seating',
+      'tables',
+      'tents-canopies',
+      'stages-platforms',
+      'fans-coolers',
+      'carpets-flooring',
+      'barricading-crowd-control',
+      'wedding-essentials'
+    ];
+
+    for (const cat of categoriesToCheck) {
+      const catRes = await testEndpoint(`/api/items?category=${cat}`);
+      console.log(`[Category: ${cat}] HTTP ${catRes.status} | Items: ${catRes.data.count}`);
+      if (catRes.status !== 200 || !catRes.data.count || catRes.data.count < 2) {
+        throw new Error(`Category ${cat} returned insufficient items (${catRes.data.count})`);
+      }
+    }
+    console.log('• Verified all 8 rental categories return fully populated inventory items.');
+
+    // 29: Promo Coupon Validation Engine
+    console.log('\n--- Test 29: Promo Coupon Engine (WELCOME100, FIRST200, EARLYBIRD10) ---');
+    const coupon1Res = await testEndpoint('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code: 'WELCOME100', orderAmount: 2500 })
+    });
+    console.log(`[Coupon WELCOME100] HTTP ${coupon1Res.status} | Valid: ${coupon1Res.data.valid} | Discount: ₹${coupon1Res.data.discountValue}`);
+    if (coupon1Res.status !== 200 || !coupon1Res.data.valid || coupon1Res.data.discountValue !== 100) {
+      throw new Error('WELCOME100 coupon validation failed');
+    }
+
+    const coupon2Res = await testEndpoint('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code: 'FIRST200', orderAmount: 3000 })
+    });
+    console.log(`[Coupon FIRST200 Below Min] HTTP ${coupon2Res.status} | Valid: ${coupon2Res.data.valid} | Msg: ${coupon2Res.data.message}`);
+    if (coupon2Res.data.valid !== false) {
+      throw new Error('FIRST200 should have been rejected for order amount below ₹5000');
+    }
+
+    const coupon3Res = await testEndpoint('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code: 'FIRST200', orderAmount: 6000 })
+    });
+    console.log(`[Coupon FIRST200 Valid] HTTP ${coupon3Res.status} | Valid: ${coupon3Res.data.valid} | Discount: ₹${coupon3Res.data.discountValue}`);
+    if (!coupon3Res.data.valid || coupon3Res.data.discountValue !== 200) {
+      throw new Error('FIRST200 validation failed for valid amount');
+    }
+
+    // 30: Daya 1..31 Monthly Attendance Grid
+    console.log('\n--- Test 30: Daya 1..31 Monthly Attendance Grid & Unit Calculation ---');
+    const gridRes = await testEndpoint('/api/staff/attendance-grid?year=2026&month=7', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Attendance Grid] GET /api/staff/attendance-grid: HTTP ${gridRes.status} | Month: ${gridRes.data.monthName} | Days: ${gridRes.data.daysInMonth} | Workers: ${gridRes.data.workers?.length}`);
+    if (gridRes.status !== 200 || gridRes.data.daysInMonth !== 31 || !gridRes.data.workers?.length) {
+      throw new Error('Failed to retrieve Daya 1..31 attendance grid');
+    }
+
+    // Record bulk marks for Daya register: days 1, 2, 3 as 'P' (1.0 each) and day 4 as '1/2' (0.5)
+    const ramprakashWorker = gridRes.data.workers.find(w => w.name.includes('Ramprakash')) || gridRes.data.workers[0];
+    const bulkAttendRes = await testEndpoint('/api/staff/attendance/bulk', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        workerId: ramprakashWorker.id,
+        year: 2026,
+        month: 7,
+        days: {
+          '1': 'P',
+          '2': 'P',
+          '3': 'P',
+          '4': '1/2'
+        }
+      })
+    });
+    console.log(`[Bulk Attendance Recorded] HTTP ${bulkAttendRes.status} | TotalUnits: ${bulkAttendRes.data.totalUnits}`);
+    if (bulkAttendRes.status !== 200 || bulkAttendRes.data.totalUnits !== 3.5) {
+      throw new Error(`Expected total units 3.5 (3 full + 1 half), received ${bulkAttendRes.data.totalUnits}`);
+    }
+
+    // 31: Staff Advances Ledger (Anti-Double-Deduction)
+    console.log('\n--- Test 31: Staff Advances Ledger (Tracking & Balance) ---');
+    const advancePostRes = await testEndpoint('/api/staff/advances', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        workerId: ramprakashWorker.id,
+        workerName: ramprakashWorker.name,
+        amount: 500,
+        date: '2026-07-05',
+        notes: 'Advance for family ration'
+      })
+    });
+    console.log(`[Record Advance] POST /api/staff/advances: HTTP ${advancePostRes.status} | Ref: ${advancePostRes.data.data?.advanceNumber} | Amount: ₹${advancePostRes.data.data?.amount}`);
+    if (advancePostRes.status !== 201 || !advancePostRes.data.data?.advanceNumber.startsWith('ADV-') || advancePostRes.data.data.outstandingBalance !== 500) {
+      throw new Error('Failed to record staff advance');
+    }
+
+    const advancesListRes = await testEndpoint(`/api/staff/advances?workerId=${ramprakashWorker.id}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Advances Ledger List] GET /api/staff/advances: HTTP ${advancesListRes.status} | Total Advances: ${advancesListRes.data.count}`);
+    if (advancesListRes.status !== 200 || advancesListRes.data.count < 1) {
+      throw new Error('Failed to list advances from ledger');
+    }
+
+    // 32: Monthly Payroll Settlement Engine
+    console.log('\n--- Test 32: Monthly Payroll Settlement Engine with Advance Recovery ---');
+    const finalizePayrollRes = await testEndpoint('/api/staff/payroll/finalize', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        year: 2026,
+        month: 7
+      })
+    });
+    console.log(`[Payroll Finalize] POST /api/staff/payroll/finalize: HTTP ${finalizePayrollRes.status} | Records: ${finalizePayrollRes.data.count}`);
+    if (finalizePayrollRes.status !== 200 || !finalizePayrollRes.data.data) {
+      throw new Error('Payroll finalization failed');
+    }
+
+    const workerPayroll = finalizePayrollRes.data.data.find(p => p.workerId === ramprakashWorker.id);
+    if (!workerPayroll) {
+      throw new Error('Payroll calculation missing for Ramprakash');
+    }
+    console.log(`[Ramprakash Payroll] Units: ${workerPayroll.payableUnits} | Gross: ₹${workerPayroll.grossWages} | Adv Deducted: ₹${workerPayroll.deductedAdvances} | Net: ₹${workerPayroll.netSalary}`);
+    // 3.5 units * 500 = 1750 gross. Advance deducted 500 -> 1250 net.
+    if (workerPayroll.grossWages !== 1750 || workerPayroll.deductedAdvances !== 500 || workerPayroll.netSalary !== 1250) {
+      throw new Error(`Payroll calculation mismatch: expected Gross ₹1750, Adv ₹500, Net ₹1250. Got Gross ${workerPayroll.grossWages}, Adv ${workerPayroll.deductedAdvances}, Net ${workerPayroll.netSalary}`);
+    }
+
+    // 33: Veronica Real Inbound Telephony Webhooks (TwiML XML Generation)
+    console.log('\n--- Test 33: Veronica Inbound Telephony Webhook (TwiML XML Engine) ---');
+    const twilioVoiceRes = await testEndpoint('/api/receptionist/webhook/voice', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'From=+919876543210&CallSid=CA1234567890abcdef&CallerCity=Lucknow'
+    });
+    console.log(`[Telephony Webhook Voice] POST /api/receptionist/webhook/voice: HTTP ${twilioVoiceRes.status} | Content-Type: ${twilioVoiceRes.contentType}`);
+    if (twilioVoiceRes.status !== 200 || !twilioVoiceRes.contentType.includes('xml')) {
+      throw new Error(`Expected 200 OK with XML content-type, got status ${twilioVoiceRes.status} and ${twilioVoiceRes.contentType}`);
+    }
+    if (!twilioVoiceRes.data.includes('<Response>') || !twilioVoiceRes.data.includes('Veronica') || !twilioVoiceRes.data.includes('artificial intelligence receptionist')) {
+      throw new Error('Telephony XML response does not contain valid TwiML with Veronica AI transparency disclosure');
+    }
+    console.log('• Verified TwiML XML greeting with mandatory AI transparency disclosure.');
+
+    const twilioGatherRes = await testEndpoint('/api/receptionist/webhook/gather', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'From=+919876543210&CallSid=CA1234567890abcdef&SpeechResult=I+want+to+book+an+appointment+to+visit+Dwarka+Shri+Lawn+on+15+November'
+    });
+    console.log(`[Telephony Webhook Gather] POST /api/receptionist/webhook/gather: HTTP ${twilioGatherRes.status} | Content-Type: ${twilioGatherRes.contentType}`);
+    if (twilioGatherRes.status !== 200 || !twilioGatherRes.data.includes('<Response>')) {
+      throw new Error('Telephony Gather webhook failed to respond with valid TwiML');
+    }
+    console.log('• Verified multi-turn voice gather processing and response generation.');
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');

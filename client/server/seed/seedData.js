@@ -280,9 +280,9 @@ const venueDetails = {
   address: 'Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, Uttar Pradesh',
   city: 'Lucknow',
   state: 'Uttar Pradesh',
-  phoneNumbers: ['9305465848', '9307908994', '7355059566'],
-  primaryPhone: '9305465848',
-  whatsappPhone: '919305465848',
+  phoneNumbers: ['18008903456', '9307908994', '7355059566'],
+  primaryPhone: '18008903456',
+  whatsappPhone: '9118008903456',
   email: 'contact@kandharitent.com',
   suitableEvents: [
     'Weddings & Grand Receptions',

@@ -228,7 +228,7 @@ const CateringPage = () => {
   };
 
   const handleShareWhatsApp = () => {
-    const url = `https://wa.me/919305465848?text=${getWhatsAppMessage()}`;
+    const url = `https://wa.me/??text=${getWhatsAppMessage()}`;
     window.open(url, '_blank');
   };
 
@@ -1400,7 +1400,7 @@ const CateringPage = () => {
                     <input
                       type="tel"
                       required
-                      placeholder="e.g. 9305465848"
+                      placeholder="e.g. 9876543210"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple"
@@ -1549,7 +1549,7 @@ const CateringPage = () => {
       <div className="hidden print:block p-8 bg-white text-black font-serif">
         <div className="border-b-2 border-black pb-4 mb-6 text-center">
           <h1 className="text-3xl font-bold uppercase tracking-wider">Kandhari Tent & Caterers</h1>
-          <p className="text-sm font-sans mt-1">Dwarka Shri Lawn, Kanpur Road, Lucknow | Phone: 9305465848 / 9307908994</p>
+          <p className="text-sm font-sans mt-1">Dwarka Shri Lawn, Kanpur Road, Lucknow | Toll-Free Desk: 1800-890-3456</p>
           <p className="text-xs font-sans mt-1">Custom Wedding Catering Menu Proposal</p>
         </div>
 

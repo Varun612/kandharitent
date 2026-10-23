@@ -787,7 +787,7 @@ const LawnPage = () => {
               </button>
 
               <a 
-                href="tel:+919305465848"
+                href="/contact"
                 className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl border border-white/30 text-white hover:bg-white/10 text-xs sm:text-sm font-bold transition"
               >
                 <Phone className="w-4 h-4 text-brand-gold" />

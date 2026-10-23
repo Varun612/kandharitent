@@ -87,7 +87,7 @@ const runTests = async () => {
     // Test Catering quotation enquiry submission
     const cateringEnquiryPayload = {
       customerName: 'Ananya Sharma',
-      phone: '9305465848',
+      phone: '18008903456',
       eventDate: '2026-11-28',
       guestCount: 300,
       locality: 'Kanpur Road, Lucknow',
@@ -408,7 +408,7 @@ const runTests = async () => {
     // 12.1: Submit fresh rental booking request as customer
     const orderPayload = {
       customerName: 'Vikramaditya Verma',
-      phone: '9305465848',
+      phone: '18008903456',
       email: 'vikram.verma@example.com',
       eventDate: '2026-12-15',
       startDate: '2026-12-15',
@@ -744,7 +744,7 @@ const runTests = async () => {
       headers: { 'Authorization': `Bearer ${adminToken}` },
       body: JSON.stringify({
         customerName: 'Ananya Sharma',
-        phone: '9305465848',
+        phone: '18008903456',
         billingAddress: 'Kanpur Road, Daroga Kheda, Lucknow',
         eventDate: '2026-11-28',
         eventVenue: 'Dwarka Shri Lawn, Kanpur Road, Lucknow',

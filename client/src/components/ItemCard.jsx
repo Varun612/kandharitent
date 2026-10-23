@@ -9,17 +9,8 @@ const ItemCard = ({ item, onSelectDetail }) => {
   const { isCustomerAuthenticated, openAuthModal } = useAuth();
   const navigate = useNavigate();
 
-  const handleAddItem = () => {
-    if (!isCustomerAuthenticated) {
-      openAuthModal({
-        mode: 'login',
-        reason: `Sign in or register to add "${item.name}" to your rental quotation.`,
-        onAuthenticated: () => {
-          addItem(item, 1);
-        }
-      });
-      return;
-    }
+  const handleAddItem = (e) => {
+    e.stopPropagation();
     addItem(item, 1);
   };
 
@@ -145,20 +136,11 @@ const ItemCard = ({ item, onSelectDetail }) => {
             <button
               onClick={handleAddItem}
               disabled={item.availabilityStatus === 'Out of Stock'}
-              title={!isCustomerAuthenticated ? 'Sign in to add items to cart' : 'Add to cart'}
-              className="py-2 px-3 rounded-xl royal-gradient hover:opacity-95 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition disabled:opacity-40"
+              title="Add to rental cart"
+              className="py-2 px-3 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition disabled:opacity-40"
             >
-              {!isCustomerAuthenticated ? (
-                <>
-                  <Lock className="w-3.5 h-3.5 text-brand-gold" />
-                  <span>Book Item</span>
-                </>
-              ) : (
-                <>
-                  <Plus className="w-3.5 h-3.5 text-brand-gold" />
-                  <span>Add to List</span>
-                </>
-              )}
+              <Plus className="w-3.5 h-3.5 text-white" />
+              <span>Add to Cart</span>
             </button>
           </div>
         </div>

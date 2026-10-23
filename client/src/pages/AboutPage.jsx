@@ -144,11 +144,11 @@ const AboutPage = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
-              href="tel:9305465848"
+              href="/contact"
               className="px-6 py-3.5 rounded-xl bg-white text-brand-dark font-bold text-xs sm:text-sm hover:bg-brand-goldLight transition flex items-center gap-2"
             >
               <Phone className="w-4 h-4 text-brand-purple" />
-              <span>Call 9305465848</span>
+              <span>Toll-Free Helpline</span>
             </a>
             <Link
               to="/contact"

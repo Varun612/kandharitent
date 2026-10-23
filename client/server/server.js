@@ -110,7 +110,8 @@ mountDualRoute('/agent', masterAgentRoutes);
 mountDualRoute('/marketing', marketingRoutes);
 mountDualRoute('/invoices', invoiceRoutes);
 
-// Static media serving for rendered reels
+// Static media serving for lawn videos, reels, and rendered assets
+app.use('/media', express.static(path.join(__dirname, '../client/public/media')));
 app.use('/media/rendered_reels', express.static(path.join(__dirname, '../client/public/media/rendered_reels')));
 
 // Serve static client build and SPA routing if dist exists

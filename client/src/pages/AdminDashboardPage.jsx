@@ -13,7 +13,8 @@ import {
   AlertCircle, 
   Search, 
   Filter, 
-  Phone, 
+  Phone,
+  PhoneCall, 
   MessageCircle, 
   Calendar, 
   User, 
@@ -68,6 +69,7 @@ import {
   Copy
 } from 'lucide-react';
 import { api } from '../services/api';
+import VeronicaCallSimulatorModal from '../components/VeronicaCallSimulatorModal';
 import { useAuth } from '../context/AuthContext';
 import { CATEGORIES, LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems';
 import MasterAgentVoiceWidget from '../components/MasterAgentVoiceWidget';
@@ -246,6 +248,14 @@ const AdminDashboardPage = () => {
   // 9. Analytics & Venue
   const [analyticsSummary, setAnalyticsSummary] = useState(null);
   const [venue, setVenue] = useState(null);
+  const [isVeronicaModalOpen, setIsVeronicaModalOpen] = useState(false);
+  const [receptionistCalls, setReceptionistCalls] = useState([]);
+  const [receptionistAppointments, setReceptionistAppointments] = useState([]);
+  const [receptionistTickets, setReceptionistTickets] = useState([]);
+  const [receptionistCallbacks, setReceptionistCallbacks] = useState([]);
+  const [businessSettings, setBusinessSettings] = useState(null);
+  const [viewingTranscriptCall, setViewingTranscriptCall] = useState(null);
+  const [receptionistActiveSubTab, setReceptionistActiveSubTab] = useState('calls');
 
   // Show Toast Notification
   const showToast = (msg, type = 'success') => {
@@ -275,7 +285,12 @@ const AdminDashboardPage = () => {
         memRes,
         wfRes,
         anaRes,
-        venRes
+        venRes,
+        recCallsRes,
+        recAptsRes,
+        recTcksRes,
+        recCbksRes,
+        settingsRes
       ] = await Promise.all([
         api.getEnquiries().catch(() => ({ data: [] })),
         api.getCustomers().catch(() => ({ data: [] })),
@@ -295,7 +310,12 @@ const AdminDashboardPage = () => {
         api.getAgentMemories().catch(() => ({ data: [] })),
         api.getAgentWorkflows().catch(() => ({ data: [] })),
         api.getAnalyticsSummary().catch(() => ({ data: null })),
-        api.getVenue().catch(() => ({ data: null }))
+        api.getVenue().catch(() => ({ data: null })),
+        api.getReceptionistCalls().catch(() => ({ data: [] })),
+        api.getReceptionistAppointments().catch(() => ({ data: [] })),
+        api.getReceptionistTickets().catch(() => ({ data: [] })),
+        api.getReceptionistCallbacks().catch(() => ({ data: [] })),
+        api.getSettings().catch(() => ({ data: null }))
       ]);
 
       setEnquiries(enqRes.data || []);
@@ -317,6 +337,24 @@ const AdminDashboardPage = () => {
       setAgentWorkflows(wfRes.data || []);
       setAnalyticsSummary(anaRes.data || anaRes.summary || null);
       setVenue(venRes.data || null);
+
+      // Load Grid & Advances
+      try {
+        const [gRes, advRes, payRes, cpnRes, telRes] = await Promise.all([
+          api.getAttendanceGrid({ year: gridYear, month: gridMonth }),
+          api.getAdvances(),
+          api.getPayroll(),
+          api.getCoupons(),
+          api.getTelephonyConfig()
+        ]);
+        if (gRes.success) setGridData(gRes);
+        if (advRes.success) setAdvancesList(advRes.data || []);
+        if (payRes.success) setPayrollData(payRes);
+        if (cpnRes.success) setCouponsList(cpnRes.data || []);
+        if (telRes.success) setTelephonyConfig(telRes.data || null);
+      } catch (e) {
+        console.warn('Additional staff/coupon data load error:', e);
+      }
     } catch (err) {
       console.error('Error loading admin data:', err);
     }
@@ -325,6 +363,125 @@ const AdminDashboardPage = () => {
   useEffect(() => {
     loadAllData();
   }, [attendanceDate]);
+
+  
+  // Grid Attendance Cell Click Toggle: P -> 1/2 -> A -> -
+  const handleToggleGridCell = async (staffId, dayNumber) => {
+    if (!gridData) return;
+    const monthStr = gridMonth.toString().padStart(2, '0');
+    const dayStr = dayNumber.toString().padStart(2, '0');
+    const targetDate = `${gridYear}-${monthStr}-${dayStr}`;
+
+    const emp = (gridData.grid || []).find(e => e.staffId === staffId);
+    const currentMark = emp?.days ? emp.days[dayNumber] : '-';
+
+    let nextStatus = 'Present';
+    if (currentMark === 'P') nextStatus = 'Half-day';
+    else if (currentMark === '1/2') nextStatus = 'Absent';
+    else if (currentMark === 'A') nextStatus = 'Present';
+    else nextStatus = 'Present';
+
+    try {
+      await api.recordAttendance({
+        staffId,
+        date: targetDate,
+        status: nextStatus
+      });
+      // Refresh grid
+      const gRes = await api.getAttendanceGrid({ year: gridYear, month: gridMonth });
+      if (gRes.success) setGridData(gRes);
+    } catch (e) {
+      showToast('Error updating attendance mark', 'error');
+    }
+  };
+
+  const handleRecordAdvanceSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.recordAdvance(advanceFormData);
+      showToast(`Advance recorded: ₹${advanceFormData.amount}`);
+      setIsAdvanceModalOpen(false);
+      setAdvanceFormData({ staffId: '', amount: 500, date: new Date().toISOString().split('T')[0], notes: 'Staff cash advance' });
+      loadAllData();
+    } catch (err) {
+      showToast(err.message || 'Failed to record advance', 'error');
+    }
+  };
+
+  const handleDeleteAdvance = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this advance entry?')) return;
+    try {
+      await api.deleteAdvance(id);
+      showToast('Advance entry removed');
+      loadAllData();
+    } catch (err) {
+      showToast(err.message || 'Failed to delete advance', 'error');
+    }
+  };
+
+  const handleFinalizePayrollSubmit = async () => {
+    const monthStr = gridMonth.toString().padStart(2, '0');
+    const daysInMonth = new Date(gridYear, gridMonth, 0).getDate();
+    const periodStart = `${gridYear}-${monthStr}-01`;
+    const periodEnd = `${gridYear}-${monthStr}-${daysInMonth.toString().padStart(2, '0')}`;
+
+    try {
+      const res = await api.finalizePayroll({
+        periodStart,
+        periodEnd,
+        notes: `Finalized monthly payroll for ${monthStr}/${gridYear}`
+      });
+      showToast(`Payroll finalized successfully! Net: ₹${res.data?.totalNet?.toLocaleString('en-IN')}`);
+      loadAllData();
+    } catch (err) {
+      showToast(err.message || 'Failed to finalize payroll', 'error');
+    }
+  };
+
+  const handleCreateCouponSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.createCoupon(couponFormData);
+      showToast(`Coupon ${couponFormData.code} created`);
+      setIsCouponModalOpen(false);
+      setCouponFormData({ code: '', discountType: 'fixed', discountValue: 100, minOrderValue: 2000, description: 'Promotional discount' });
+      loadAllData();
+    } catch (err) {
+      showToast(err.message || 'Failed to create coupon', 'error');
+    }
+  };
+
+  const handleDeleteCoupon = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this coupon?')) return;
+    try {
+      await api.deleteCoupon(id);
+      showToast('Coupon deleted');
+      loadAllData();
+    } catch (err) {
+      showToast('Failed to delete coupon', 'error');
+    }
+  };
+
+  const handleTriggerSimulateCall = async () => {
+    setIsSimulatingCall(true);
+    try {
+      const res = await api.simulateIncomingCall({
+        callerPhone: '+91 98765 43210',
+        callerName: 'Telecom Walkthrough Caller',
+        userMessages: [
+          'Hello, I want to book Dwarka Shri Lawn for a wedding on 28 November 2026',
+          'We expect around 500 guests and need royal stage decor and catering',
+          'Please schedule an appointment for me to visit the lawn next Monday'
+        ]
+      });
+      showToast(`Simulated call verified! Ref: ${res.callId}`);
+      loadAllData();
+    } catch (err) {
+      showToast('Simulation failed', 'error');
+    } finally {
+      setIsSimulatingCall(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -363,7 +520,7 @@ const AdminDashboardPage = () => {
     e.preventDefault();
     try {
       await api.recordOutsidePayment(outsidePaymentForm);
-      showToast(`भुगतान दर्ज किया गया: ${outsidePaymentForm.recipientName} को ₹${outsidePaymentForm.amount}`);
+      showToast(`Payment recorded: ₹${outsidePaymentForm.amount} to ${outsidePaymentForm.recipientName}`);
       setIsOutsidePaymentModalOpen(false);
       setOutsidePaymentForm({
         recipientName: '',
@@ -376,7 +533,7 @@ const AdminDashboardPage = () => {
       });
       loadAllData();
     } catch (err) {
-      showToast(err.message || 'भुगतान दर्ज करने में विफल', 'error');
+      showToast(err.message || 'Failed to record payment', 'error');
     }
   };
 
@@ -384,11 +541,11 @@ const AdminDashboardPage = () => {
     e.preventDefault();
     try {
       const res = await api.generateInvoice(invoiceForm);
-      showToast(`इनवॉइस तैयार: ${res.data?.invoiceNumber || 'INV'}`);
+      showToast(`Invoice generated: ${res.data?.invoiceNumber || 'INV'}`);
       setIsGenerateInvoiceModalOpen(false);
       loadAllData();
     } catch (err) {
-      showToast(err.message || 'इनवॉइस बनाने में विफल', 'error');
+      showToast(err.message || 'Failed to generate invoice', 'error');
     }
   };
 
@@ -397,13 +554,13 @@ const AdminDashboardPage = () => {
     setIsRenderingReel(true);
     try {
       const res = await api.renderMarketingReel(reelFormData);
-      showToast('🎬 FFmpeg रील सफलतापूर्वक रेंडर हो गई!');
+      showToast('🎬 FFmpeg Reel rendered successfully!');
       loadAllData();
       if (res.data?.videoUrl) {
         setActivePreviewVideo(res.data);
       }
     } catch (err) {
-      showToast(err.message || 'रील रेंडरिंग विफल रही', 'error');
+      showToast(err.message || 'Reel rendering failed', 'error');
     } finally {
       setIsRenderingReel(false);
     }
@@ -420,11 +577,11 @@ const AdminDashboardPage = () => {
         reason: stockAdjustmentForm.reason,
         notes: stockAdjustmentForm.notes
       });
-      showToast(`स्टॉक अपडेट किया गया: ${stockModalItem.name}`);
+      showToast(`Stock updated: ${stockModalItem.name}`);
       setIsStockModalOpen(false);
       loadAllData();
     } catch (err) {
-      showToast(err.message || 'स्टॉक समायोजन विफल', 'error');
+      showToast(err.message || 'Stock adjustment failed', 'error');
     }
   };
 
@@ -433,16 +590,16 @@ const AdminDashboardPage = () => {
     try {
       if (editingStaffMember) {
         await api.updateStaff(editingStaffMember.id, staffFormData);
-        showToast('स्टाफ विवरण अपडेट हो गया');
+        showToast('Staff member details updated successfully');
       } else {
         await api.createStaff(staffFormData);
-        showToast('नया स्टाफ सदस्य सफलतापूर्वक जोड़ा गया');
+        showToast('New staff member added successfully');
       }
       setIsStaffModalOpen(false);
       setEditingStaffMember(null);
       loadAllData();
     } catch (err) {
-      showToast(err.message || 'स्टाफ सुरक्षित करने में विफल', 'error');
+      showToast(err.message || 'Failed to save staff member', 'error');
     }
   };
 
@@ -454,10 +611,10 @@ const AdminDashboardPage = () => {
         status,
         notes: 'Marked from Attendance Roster'
       });
-      showToast(`हाजिरी दर्ज: ${status}`);
+      showToast(`Attendance recorded: ${status}`);
       loadAllData();
     } catch (err) {
-      showToast(err.message || 'हाजिरी दर्ज करने में त्रुटि', 'error');
+      showToast(err.message || 'Error recording attendance', 'error');
     }
   };
 
@@ -472,11 +629,11 @@ const AdminDashboardPage = () => {
         referenceNumber: disbursementFormData.referenceNumber,
         notes: disbursementFormData.notes
       });
-      showToast('मजदूरी भुगतान रसीद दर्ज हो गई');
+      showToast('Wage payment receipt recorded successfully');
       setIsDisbursementModalOpen(false);
       loadAllData();
     } catch (err) {
-      showToast(err.message || 'भुगतान दर्ज करने में त्रुटि', 'error');
+      showToast(err.message || 'Error recording payment', 'error');
     }
   };
 
@@ -484,37 +641,38 @@ const AdminDashboardPage = () => {
     try {
       const nextStatus = mem.approvalStatus === 'approved' ? 'pending_review' : 'approved';
       await api.updateAgentMemory(mem.id, { approvalStatus: nextStatus });
-      showToast(`नियम स्थिति: ${nextStatus}`);
+      showToast(`Rule status: ${nextStatus}`);
       loadAllData();
     } catch (err) {
-      showToast('नियम अपडेट करने में विफल', 'error');
+      showToast('Failed to update rule', 'error');
     }
   };
 
   const handleDeleteMemory = async (id) => {
-    if (!window.confirm('क्या आप इस नियम को हटाना चाहते हैं?')) return;
+    if (!window.confirm('Are you sure you want to delete this business rule?')) return;
     try {
       await api.deleteAgentMemory(id);
-      showToast('नियम हटा दिया गया');
+      showToast('Business rule deleted successfully');
       loadAllData();
     } catch (err) {
-      showToast('हटाने में विफल', 'error');
+      showToast('Failed to delete rule', 'error');
     }
   };
 
   // Nav Items Definition
   const navItems = [
-    { id: 'dashboard', label: 'डैशबोर्ड (Dashboard)', icon: LayoutDashboard, badge: enquiries.filter(e => e.status === 'New').length },
-    { id: 'staff', label: 'स्टाफ व हाजिरी (Staff & Attendance)', icon: Users, badge: staffList.length },
-    { id: 'payments', label: 'मजदूरी व बाहर भुगतान (Wages & Payments)', icon: IndianRupee },
-    { id: 'customers', label: 'ग्राहक व कोट्स (Customers & Quotes)', icon: MessageCircle, badge: customers.length },
-    { id: 'bookings', label: 'बुकिंग व पूछताछ (Bookings & Orders)', icon: ShoppingBag, badge: enquiries.length },
-    { id: 'inventory', label: 'सामान व किराया (Inventory & Rentals)', icon: Package, badge: physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length ? 'Repair' : null },
-    { id: 'analytics', label: 'विज़िटर एनालिटिक्स (Analytics)', icon: BarChart3 },
-    { id: 'agent', label: 'बोलकर चलाएं AI (Master Agent)', icon: Mic, highlight: true },
-    { id: 'marketing', label: 'मार्केटिंग व रील स्टूडियो (Marketing Studio)', icon: Clapperboard, highlight: true },
-    { id: 'invoices', label: 'बिल व इनवॉइस (Bills & Documents)', icon: FileText, badge: invoices.length },
-    { id: 'settings', label: 'लॉन सेटिंग (Settings & Venue)', icon: Settings }
+    { id: 'dashboard', label: 'Overview & Dashboard', icon: LayoutDashboard, badge: enquiries.filter(e => e.status === 'New').length },
+    { id: 'receptionist', label: 'Receptionist Operations (Veronica)', icon: PhoneCall, highlight: true, badge: receptionistAppointments.length ? `${receptionistAppointments.length} Visits` : null },
+    { id: 'staff', label: 'Workforce & Attendance', icon: Users, badge: staffList.length },
+    { id: 'payments', label: 'Wages & Expenses', icon: IndianRupee },
+    { id: 'customers', label: 'Customers & CRM', icon: MessageCircle, badge: customers.length },
+    { id: 'bookings', label: 'Quotes & Inquiries', icon: ShoppingBag, badge: enquiries.length },
+    { id: 'inventory', label: 'Rental Inventory', icon: Package, badge: physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length ? 'Repair' : null },
+    { id: 'analytics', label: 'Visitor Analytics', icon: BarChart3 },
+    { id: 'agent', label: 'Master AI Agent', icon: Mic, highlight: true },
+    { id: 'marketing', label: 'Marketing & Reel Studio', icon: Clapperboard, highlight: true },
+    { id: 'invoices', label: 'Invoices & Billing', icon: FileText, badge: invoices.length },
+    { id: 'settings', label: 'Venue & Business Settings', icon: Settings }
   ];
 
   return (
@@ -579,7 +737,7 @@ const AdminDashboardPage = () => {
         <div className="px-5 py-3 bg-neutral-900/60 border-b border-neutral-800/60 flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 text-neutral-300">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>व्यवस्थापक: <strong className="text-white">{user?.username || 'माताजी (Admin)'}</strong></span>
+            <span>Administrator: <strong className="text-white">{user?.username || 'Executive Admin'}</strong></span>
           </div>
           <button 
             onClick={handleExportCSV}
@@ -631,7 +789,7 @@ const AdminDashboardPage = () => {
         <div className="p-4 border-t border-neutral-800 bg-neutral-950 flex items-center justify-between text-xs">
           <div className="text-[10px] text-neutral-500">
             <p>Dwarka Shri Lawn, Lucknow</p>
-            <p>Ph: 9305465848</p>
+            <p>Helpline: 1800-890-3456</p>
           </div>
           <button
             onClick={handleLogout}
@@ -675,13 +833,13 @@ const AdminDashboardPage = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">आज के जरूरी काम (Daily Urgent Tasks)</span>
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Daily Urgent Action Items</span>
                   </div>
                   <h2 className="text-lg font-serif font-bold text-white">
-                    {attendanceRecords.length === 0 ? '⚠️ आज की हाजिरी अभी दर्ज नहीं हुई है।' : `✅ आज ${attendanceRecords.filter(a => a.status === 'Present').length} कारीगर काम पर मौजूद हैं।`}
+                    {attendanceRecords.length === 0 ? "⚠️ Today's attendance has not been recorded yet." : `✅ Today ${attendanceRecords.filter(a => a.status === 'Present').length} workers present on duty today.`}
                   </h2>
                   <p className="text-xs text-neutral-300">
-                    अपुष्ट बुकिंग्स: <strong>{enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length}</strong> &bull; मरम्मत योग्य सामान: <strong>{physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length}</strong>
+                    Pending Inquiries: <strong>{enquiries.filter(e => e.status === 'Pending Admin Approval' || e.status === 'New').length}</strong> &bull; Items Needing Repair: <strong>{physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length}</strong>
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2.5">
@@ -690,14 +848,14 @@ const AdminDashboardPage = () => {
                     className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
                   >
                     <ClipboardCheck className="w-4 h-4" />
-                    <span>हाजिरी लगाएं (Mark Attendance)</span>
+                    <span>Mark Daily Attendance</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('agent')}
                     className="px-4 py-2.5 rounded-2xl royal-gradient text-white font-bold text-xs flex items-center gap-1.5 shadow-sm border border-brand-gold/40 transition"
                   >
                     <Mic className="w-4 h-4 text-brand-gold" />
-                    <span>बोलकर पूछें (Voice AI)</span>
+                    <span>Voice Agent Commands</span>
                   </button>
                 </div>
               </div>
@@ -705,27 +863,27 @@ const AdminDashboardPage = () => {
               {/* 4 Key Business Metrics */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 shadow-xs space-y-1">
-                  <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">कुल पूछताछ / बुकिंग्स</span>
+                  <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Total Inquiries / Bookings</span>
                   <p className="text-3xl font-serif font-black text-white">{enquiries.length}</p>
-                  <span className="text-[10px] text-amber-400 font-semibold block">{enquiries.filter(e => e.status === 'Confirmed').length} पक्की बुकिंग्स</span>
+                  <span className="text-[10px] text-amber-400 font-semibold block">{enquiries.filter(e => e.status === 'Confirmed').length} Confirmed Bookings</span>
                 </div>
 
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 shadow-xs space-y-1">
-                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">पंजीकृत कारीगर (Staff)</span>
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Registered Workforce</span>
                   <p className="text-3xl font-serif font-black text-white">{staffList.length}</p>
-                  <span className="text-[10px] text-neutral-400 font-semibold block">मानक मजदूरी: ₹500/दिन</span>
+                  <span className="text-[10px] text-neutral-400 font-semibold block">Standard Wage: ₹500/day</span>
                 </div>
 
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 shadow-xs space-y-1">
-                  <span className="text-[11px] font-bold text-brand-gold uppercase tracking-wider">गोदाम सामान (Assets)</span>
+                  <span className="text-[11px] font-bold text-brand-gold uppercase tracking-wider">Warehouse Assets</span>
                   <p className="text-3xl font-serif font-black text-white">{physicalInventory.length}</p>
-                  <span className="text-[10px] text-neutral-400 font-semibold block">किराया सूची: {rentalItems.length} उत्पाद</span>
+                  <span className="text-[10px] text-neutral-400 font-semibold block">Rental Catalogue: {rentalItems.length} items</span>
                 </div>
 
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 shadow-xs space-y-1">
-                  <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">तैयार इनवॉइस बिल</span>
+                  <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Generated Invoices</span>
                   <p className="text-3xl font-serif font-black text-white">{invoices.length}</p>
-                  <span className="text-[10px] text-neutral-400 font-semibold block">बाहरी भुगतान: {outsidePayments.length} प्रविष्टियां</span>
+                  <span className="text-[10px] text-neutral-400 font-semibold block">External Expenses: {outsidePayments.length} entries</span>
                 </div>
               </div>
 
@@ -739,11 +897,11 @@ const AdminDashboardPage = () => {
                     <ShoppingBag className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-serif font-bold text-base text-white">बुकिंग व कोटेशन पाइपलाइन</h3>
-                    <p className="text-xs text-neutral-400 mt-1">नई पूछताछ देखें, रेट कोटेशन बदलें, एडवांस जमा करें और बिल तैयार करें।</p>
+                    <h3 className="font-serif font-bold text-base text-white">Booking & Quotation Pipeline</h3>
+                    <p className="text-xs text-neutral-400 mt-1">Review incoming inquiries, adjust line-item quotes, log advance deposits, and generate formal invoices.</p>
                   </div>
                   <div className="text-xs font-bold text-brand-gold flex items-center gap-1">
-                    <span>खोलें (Manage Bookings)</span>
+                    <span>Manage Bookings</span>
                     <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
@@ -756,11 +914,11 @@ const AdminDashboardPage = () => {
                     <Clapperboard className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-serif font-bold text-base text-white">मार्केटिंग व FFmpeg रील स्टूडियो</h3>
-                    <p className="text-xs text-neutral-400 mt-1">तस्वीरों से इंस्टाग्राम रील (9:16) बनाएं, लखनऊ हैशटैग्स पाएं और डाउनलोड करें।</p>
+                    <h3 className="font-serif font-bold text-base text-white">Marketing & FFmpeg Reel Studio</h3>
+                    <p className="text-xs text-neutral-400 mt-1">Render 9:16 vertical reels from gallery photos with Ken Burns zoom, Lucknow hashtags, and MP4 downloads.</p>
                   </div>
                   <div className="text-xs font-bold text-amber-300 flex items-center gap-1">
-                    <span>खोलें (Render Reels)</span>
+                    <span>Open Studio</span>
                     <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
@@ -773,11 +931,11 @@ const AdminDashboardPage = () => {
                     <IndianRupee className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-serif font-bold text-base text-white">मजदूरी व धोबी खर्च</h3>
-                    <p className="text-xs text-neutral-400 mt-1">दैनिक हाजिरी मजदूरी, धोबी धुलाई बिल और बांस-बल्ली सप्लायर भुगतान दर्ज करें।</p>
+                    <h3 className="font-serif font-bold text-base text-white">Wages & Operational Expenses</h3>
+                    <p className="text-xs text-neutral-400 mt-1">Track daily staff wages, laundry washing bills, and hardware/bamboo supplier payments.</p>
                   </div>
                   <div className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                    <span>खोलें (Wages &amp; Expenses)</span>
+                    <span>Open Expenses</span>
                     <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
@@ -791,149 +949,402 @@ const AdminDashboardPage = () => {
              ======================================================== */}
           {activeTab === 'staff' && (
             <div className="space-y-6 animate-fadeIn">
+              {/* Header & Subtabs */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">👷 स्टाफ रोस्टर व दैनिक हाजिरी</h2>
-                  <p className="text-xs text-neutral-400">दैनिक मानक मजदूरी ₹500/दिन (Labourer, Fitter, Driver)। हाजिरी लगाएं व मजदूरी गिनें।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white flex items-center gap-2">
+                    <HardHat className="w-6 h-6 text-brand-gold" />
+                    <span>Workforce Register & Payroll Management</span>
+                  </h2>
+                  <p className="text-xs text-neutral-400 mt-0.5">
+                    Digital replacement for Daya handwritten register: 1..31 monthly grid, advances ledger, daily wages (₹500/₹450), and transparent payroll deductions.
+                  </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="date"
-                    value={attendanceDate}
-                    onChange={(e) => setAttendanceDate(e.target.value)}
-                    className="p-2.5 rounded-xl bg-neutral-950 border border-neutral-700 text-xs text-white font-mono font-bold"
-                  />
+                
+                {/* Subtab Switcher */}
+                <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex flex-wrap gap-1">
                   <button
-                    onClick={() => { setEditingStaffMember(null); setIsStaffModalOpen(true); }}
-                    className="px-4 py-2.5 rounded-xl royal-gradient text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    onClick={() => setStaffSubtab('register')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                      staffSubtab === 'register' ? 'bg-[#7c3aed] text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                    }`}
                   >
-                    <Plus className="w-4 h-4 text-brand-gold" />
-                    <span>+ नया स्टाफ जोड़ें</span>
+                    📅 Attendance Register (1..31 Grid)
+                  </button>
+                  <button
+                    onClick={() => setStaffSubtab('advances')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                      staffSubtab === 'advances' ? 'bg-[#7c3aed] text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    💵 Advances Ledger ({advancesList.length})
+                  </button>
+                  <button
+                    onClick={() => setStaffSubtab('payroll')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                      staffSubtab === 'payroll' ? 'bg-[#7c3aed] text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    🧾 Payroll Settlement
+                  </button>
+                  <button
+                    onClick={() => setStaffSubtab('roster')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                      staffSubtab === 'roster' ? 'bg-[#7c3aed] text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    👷 Worker Roster ({staffList.length})
                   </button>
                 </div>
               </div>
 
-              {/* Attendance Daily Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-center">
-                  <p className="text-[11px] font-bold text-neutral-400">कुल कर्मचारी</p>
-                  <p className="text-2xl font-serif font-bold text-white">{staffList.length}</p>
-                </div>
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-emerald-900/60 text-center">
-                  <p className="text-[11px] font-bold text-emerald-400">उपस्थित (Full Day ₹500)</p>
-                  <p className="text-2xl font-serif font-bold text-emerald-400">
-                    {attendanceRecords.filter(a => a.status === 'Present').length}
-                  </p>
-                </div>
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-amber-900/60 text-center">
-                  <p className="text-[11px] font-bold text-amber-400">आधा दिन (Half-day ₹250)</p>
-                  <p className="text-2xl font-serif font-bold text-amber-400">
-                    {attendanceRecords.filter(a => a.status === 'Half-day').length}
-                  </p>
-                </div>
-                <div className="bg-neutral-950 p-4 rounded-2xl border border-indigo-900/60 text-center">
-                  <p className="text-[11px] font-bold text-indigo-400">आज की कुल मजदूरी</p>
-                  <p className="text-2xl font-serif font-bold text-indigo-400">
-                    ₹{wageSummary?.totalWage?.toLocaleString('en-IN') || 0}
-                  </p>
-                </div>
-              </div>
+              {/* ========================================================
+                  SUBTAB 1: DAYA-STYLE 1..31 MONTHLY ATTENDANCE REGISTER GRID
+                 ======================================================== */}
+              {staffSubtab === 'register' && (
+                <div className="space-y-4">
+                  {/* Register Controls & Month Navigation */}
+                  <div className="bg-neutral-950 p-4 rounded-3xl border border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-amber-400/10 border border-amber-400/30 text-brand-gold">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif font-bold text-white text-base">
+                          Attendance for Month of: {new Date(gridYear, gridMonth - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+                        </h3>
+                        <p className="text-[11px] text-neutral-400">
+                          Click any cell (1..{gridData?.daysInMonth || 31}) to toggle status: P (Present) → ½ (Half Day) → A (Absent) → – (Clear)
+                        </p>
+                      </div>
+                    </div>
 
-              {/* Staff Table */}
-              <div className="bg-neutral-950 rounded-3xl border border-neutral-800 overflow-hidden shadow-xs">
-                <table className="w-full text-left text-xs text-neutral-300">
-                  <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800">
-                    <tr>
-                      <th className="p-4">नाम व पद (Staff &amp; Role)</th>
-                      <th className="p-4">मोबाइल नंबर</th>
-                      <th className="p-4">दैनिक दर</th>
-                      <th className="p-4">दिनांक {attendanceDate} हाजिरी</th>
-                      <th className="p-4 text-right">भुगतान रसीद</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-800/80">
-                    {staffList.map(st => {
-                      const att = attendanceRecords.find(a => a.staffId === st.id);
-                      const currentStatus = att?.status || 'Not Marked';
-                      return (
-                        <tr key={st.id} className="hover:bg-neutral-900/40 transition">
-                          <td className="p-4">
-                            <strong className="text-white text-sm block font-serif">{st.name}</strong>
-                            <span className="text-[10px] text-brand-gold uppercase">{st.role || st.category}</span>
-                          </td>
-                          <td className="p-4 font-mono">{st.phone}</td>
-                          <td className="p-4 font-mono font-bold text-white">₹{st.dailyWage || 500}</td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                onClick={() => handleAttendanceMark(st.id, 'Present')}
-                                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition ${
-                                  currentStatus === 'Present'
-                                    ? 'bg-emerald-600 text-white shadow-xs'
-                                    : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                                }`}
-                              >
-                                उपस्थित (₹500)
-                              </button>
-                              <button
-                                onClick={() => handleAttendanceMark(st.id, 'Half-day')}
-                                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition ${
-                                  currentStatus === 'Half-day'
-                                    ? 'bg-amber-600 text-white shadow-xs'
-                                    : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                                }`}
-                              >
-                                आधा (₹250)
-                              </button>
-                              <button
-                                onClick={() => handleAttendanceMark(st.id, 'Absent')}
-                                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition ${
-                                  currentStatus === 'Absent'
-                                    ? 'bg-rose-600 text-white shadow-xs'
-                                    : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                                }`}
-                              >
-                                गैरहाजिर (₹0)
-                              </button>
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                            <button
-                              onClick={() => {
-                                setDisbursementFormData({
-                                  staffId: st.id,
-                                  staffName: st.name,
-                                  amount: att?.status === 'Half-day' ? 250 : 500,
-                                  paymentMethod: 'Cash',
-                                  referenceNumber: 'CASH-' + Math.floor(1000 + Math.random() * 9000),
-                                  notes: `दरोगा खेड़ा गोदाम में दिनांक ${attendanceDate} की मजदूरी नकद दी गई।`
-                                });
-                                setIsDisbursementModalOpen(true);
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition inline-flex items-center gap-1"
-                            >
-                              <Receipt className="w-3.5 h-3.5" />
-                              <span>रसीद काटें</span>
-                            </button>
-                          </td>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const prev = gridMonth === 1 ? 12 : gridMonth - 1;
+                          const yr = gridMonth === 1 ? gridYear - 1 : gridYear;
+                          setGridMonth(prev);
+                          setGridYear(yr);
+                          api.getAttendanceGrid({ year: yr, month: prev }).then(r => r.success && setGridData(r));
+                        }}
+                        className="px-3 py-1.5 rounded-xl border border-neutral-700 text-xs font-bold text-neutral-300 hover:text-white hover:bg-neutral-900"
+                      >
+                        ◀ Previous Month
+                      </button>
+                      <button
+                        onClick={() => {
+                          const next = gridMonth === 12 ? 1 : gridMonth + 1;
+                          const yr = gridMonth === 12 ? gridYear + 1 : gridYear;
+                          setGridMonth(next);
+                          setGridYear(yr);
+                          api.getAttendanceGrid({ year: yr, month: next }).then(r => r.success && setGridData(r));
+                        }}
+                        className="px-3 py-1.5 rounded-xl border border-neutral-700 text-xs font-bold text-neutral-300 hover:text-white hover:bg-neutral-900"
+                      >
+                        Next Month ▶
+                      </button>
+                      <button
+                        onClick={() => setIsAdvanceModalOpen(true)}
+                        className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs flex items-center gap-1 shadow-sm"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Give Advance</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Register Status Legend */}
+                  <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-neutral-400">
+                    <span className="font-bold text-neutral-300">Legend:</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 border border-emerald-700"><strong>P</strong> = Present (1.0)</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-900/60 text-amber-300 border border-amber-700"><strong>½</strong> = Half Day (0.5)</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 border border-rose-700"><strong>A</strong> = Absent (0.0)</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-900/60 text-purple-300 border border-purple-700"><strong>L</strong> = Approved Leave</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 border border-neutral-700"><strong>–</strong> = Not Marked</span>
+                  </div>
+
+                  {/* 1..31 Daya Grid Table (Horizontal Scroll) */}
+                  <div className="bg-neutral-950 rounded-3xl border border-neutral-800 overflow-x-auto shadow-2xl">
+                    <table className="min-w-max text-left text-[11px] text-neutral-300 border-collapse">
+                      <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800 sticky top-0">
+                        <tr>
+                          <th className="p-3 sticky left-0 z-20 bg-neutral-900 border-r border-neutral-800 w-10 text-center">S.No</th>
+                          <th className="p-3 sticky left-10 z-20 bg-neutral-900 border-r border-neutral-800 min-w-[160px]">Worker Name &amp; Designation</th>
+                          <th className="p-3 border-r border-neutral-800 text-right min-w-[80px]">Daily Wage</th>
+                          {Array.from({ length: gridData?.daysInMonth || 31 }, (_, i) => i + 1).map(day => (
+                            <th key={day} className="p-2 border-r border-neutral-800/60 text-center w-8 font-mono">
+                              {day}
+                            </th>
+                          ))}
+                          <th className="p-3 border-r border-neutral-800 text-center bg-neutral-900/60">Present (P)</th>
+                          <th className="p-3 border-r border-neutral-800 text-center bg-neutral-900/60">Half (½)</th>
+                          <th className="p-3 border-r border-neutral-800 text-center bg-neutral-900/60 font-bold text-white">Payable Days</th>
+                          <th className="p-3 border-r border-neutral-800 text-right font-bold text-indigo-300">Gross Wages</th>
+                          <th className="p-3 border-r border-neutral-800 text-right font-bold text-amber-300">Total Advance</th>
+                          <th className="p-3 border-r border-neutral-800 text-right font-bold text-rose-300">Deduction</th>
+                          <th className="p-3 text-right font-bold text-emerald-400 bg-emerald-950/20">Net Payable</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-800/60">
+                        {(gridData?.grid || []).map((row, idx) => (
+                          <tr key={row.staffId} className="hover:bg-neutral-900/40 transition">
+                            <td className="p-2.5 sticky left-0 z-10 bg-neutral-950 border-r border-neutral-800 text-center text-neutral-400 font-mono">
+                              {idx + 1}
+                            </td>
+                            <td className="p-2.5 sticky left-10 z-10 bg-neutral-950 border-r border-neutral-800">
+                              <strong className="text-white text-xs block font-serif">{row.name}</strong>
+                              <span className="text-[10px] text-brand-gold uppercase">{row.category}</span>
+                            </td>
+                            <td className="p-2.5 border-r border-neutral-800 text-right font-mono font-bold text-neutral-200">
+                              ₹{row.dailyWage}
+                            </td>
+                            {Array.from({ length: gridData?.daysInMonth || 31 }, (_, i) => i + 1).map(day => {
+                              const mark = row.days ? row.days[day] : '-';
+                              let badgeClass = 'text-neutral-500 hover:bg-neutral-800';
+                              if (mark === 'P') badgeClass = 'bg-emerald-900/80 text-emerald-200 font-bold border border-emerald-600 shadow-xs';
+                              else if (mark === '1/2') badgeClass = 'bg-amber-900/80 text-amber-200 font-bold border border-amber-600';
+                              else if (mark === 'A') badgeClass = 'bg-rose-900/80 text-rose-200 font-bold border border-rose-600';
+                              else if (mark === 'L') badgeClass = 'bg-purple-900/80 text-purple-200 font-bold';
+
+                              return (
+                                <td key={day} className="p-1 border-r border-neutral-800/40 text-center">
+                                  <button
+                                    onClick={() => handleToggleGridCell(row.staffId, day)}
+                                    title={`Day ${day}: ${mark} (Click to toggle)`}
+                                    className={`w-7 h-7 rounded text-[11px] transition flex items-center justify-center mx-auto ${badgeClass}`}
+                                  >
+                                    {mark}
+                                  </button>
+                                </td>
+                              );
+                            })}
+                            <td className="p-2.5 border-r border-neutral-800 text-center font-bold text-emerald-400">
+                              {row.presentCount}
+                            </td>
+                            <td className="p-2.5 border-r border-neutral-800 text-center font-bold text-amber-400">
+                              {row.halfDayCount}
+                            </td>
+                            <td className="p-2.5 border-r border-neutral-800 text-center font-bold text-white font-mono">
+                              {row.payableUnits}
+                            </td>
+                            <td className="p-2.5 border-r border-neutral-800 text-right font-mono font-bold text-indigo-300">
+                              ₹{row.grossWages?.toLocaleString('en-IN')}
+                            </td>
+                            <td className="p-2.5 border-r border-neutral-800 text-right font-mono font-bold text-amber-300">
+                              ₹{row.totalAdvance?.toLocaleString('en-IN') || 0}
+                            </td>
+                            <td className="p-2.5 border-r border-neutral-800 text-right font-mono font-bold text-rose-300">
+                              -₹{row.advancesDeducted?.toLocaleString('en-IN') || 0}
+                            </td>
+                            <td className="p-2.5 text-right font-mono font-black text-emerald-400 bg-emerald-950/20 text-xs">
+                              ₹{row.netPayable?.toLocaleString('en-IN')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* ========================================================
+                  SUBTAB 2: EMPLOYEE ADVANCES LEDGER
+                 ======================================================== */}
+              {staffSubtab === 'advances' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center bg-neutral-950 p-4 rounded-3xl border border-neutral-800">
+                    <div>
+                      <h3 className="font-serif font-bold text-white text-base">Cash Advances Ledger</h3>
+                      <p className="text-xs text-neutral-400">Track all cash advances given to labourers, drivers, and fitters before salary day.</p>
+                    </div>
+                    <button
+                      onClick={() => setIsAdvanceModalOpen(true)}
+                      className="px-4 py-2.5 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Record New Advance</span>
+                    </button>
+                  </div>
+
+                  <div className="bg-neutral-950 rounded-3xl border border-neutral-800 overflow-hidden shadow-xs">
+                    <table className="w-full text-left text-xs text-neutral-300">
+                      <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800">
+                        <tr>
+                          <th className="p-4">Advance ID</th>
+                          <th className="p-4">Worker Name</th>
+                          <th className="p-4">Transaction Date</th>
+                          <th className="p-4">Advance Amount</th>
+                          <th className="p-4">Balance Owed</th>
+                          <th className="p-4">Settlement Status</th>
+                          <th className="p-4">Notes</th>
+                          <th className="p-4 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-800/80">
+                        {advancesList.map(adv => (
+                          <tr key={adv.id} className="hover:bg-neutral-900/40 transition">
+                            <td className="p-4 font-mono font-bold text-brand-gold">{adv.id}</td>
+                            <td className="p-4">
+                              <strong className="text-white text-sm font-serif block">{adv.staffName}</strong>
+                            </td>
+                            <td className="p-4 font-mono text-neutral-400">{adv.date}</td>
+                            <td className="p-4 font-mono font-bold text-amber-300">₹{adv.amount?.toLocaleString('en-IN')}</td>
+                            <td className="p-4 font-mono font-bold text-rose-300">₹{adv.balance?.toLocaleString('en-IN')}</td>
+                            <td className="p-4">
+                              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                adv.status === 'settled' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-600' : 'bg-amber-900/60 text-amber-300 border border-amber-600'
+                              }`}>
+                                {adv.status}
+                              </span>
+                            </td>
+                            <td className="p-4 text-neutral-400">{adv.notes}</td>
+                            <td className="p-4 text-right">
+                              {adv.status === 'outstanding' && (
+                                <button
+                                  onClick={() => handleDeleteAdvance(adv.id)}
+                                  className="text-rose-400 hover:text-rose-300 text-xs font-bold"
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* ========================================================
+                  SUBTAB 3: PAYROLL SETTLEMENT ENGINE
+                 ======================================================== */}
+              {staffSubtab === 'payroll' && (
+                <div className="space-y-6">
+                  <div className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-serif font-bold text-white text-base">Monthly Payroll Finalization &amp; Settlement</h3>
+                      <p className="text-xs text-neutral-400 mt-1">
+                        Review gross earnings, automatically deduct advances, and freeze payroll periods to prevent double-deductions.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={handleFinalizePayrollSubmit}
+                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition flex items-center gap-1.5"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Finalize &amp; Lock Month Payroll</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Summary Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
+                      <p className="text-[11px] font-bold text-neutral-400">Total Staff Active</p>
+                      <p className="text-2xl font-serif font-bold text-white mt-1">{payrollData?.summary?.totalStaff || staffList.length}</p>
+                    </div>
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-indigo-900/60">
+                      <p className="text-[11px] font-bold text-indigo-400">Gross Wages Earned</p>
+                      <p className="text-2xl font-serif font-bold text-indigo-400 mt-1">₹{payrollData?.summary?.totalGross?.toLocaleString('en-IN') || 0}</p>
+                    </div>
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-rose-900/60">
+                      <p className="text-[11px] font-bold text-rose-400">Advances Deducted</p>
+                      <p className="text-2xl font-serif font-bold text-rose-400 mt-1">-₹{payrollData?.summary?.totalDeductions?.toLocaleString('en-IN') || 0}</p>
+                    </div>
+                    <div className="bg-neutral-950 p-4 rounded-2xl border border-emerald-900/60">
+                      <p className="text-[11px] font-bold text-emerald-400">Net Salary Payable</p>
+                      <p className="text-2xl font-serif font-bold text-emerald-400 mt-1">₹{payrollData?.summary?.totalNet?.toLocaleString('en-IN') || 0}</p>
+                    </div>
+                  </div>
+
+                  {/* Employee Breakdown Table */}
+                  <div className="bg-neutral-950 rounded-3xl border border-neutral-800 overflow-hidden shadow-xs">
+                    <table className="w-full text-left text-xs text-neutral-300">
+                      <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800">
+                        <tr>
+                          <th className="p-4">Employee</th>
+                          <th className="p-4">Daily Wage</th>
+                          <th className="p-4 text-center">Days Worked</th>
+                          <th className="p-4 text-right">Gross Wages</th>
+                          <th className="p-4 text-right">Advances Deducted</th>
+                          <th className="p-4 text-right">Net Payable</th>
+                          <th className="p-4 text-right">Advance Balance Carried</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-800/80">
+                        {(payrollData?.breakdown || []).map(emp => (
+                          <tr key={emp.staffId} className="hover:bg-neutral-900/40 transition">
+                            <td className="p-4">
+                              <strong className="text-white text-sm font-serif block">{emp.name}</strong>
+                              <span className="text-[10px] text-brand-gold uppercase">{emp.category}</span>
+                            </td>
+                            <td className="p-4 font-mono">₹{emp.dailyWage}</td>
+                            <td className="p-4 text-center font-mono font-bold text-white">{emp.payableUnits}</td>
+                            <td className="p-4 text-right font-mono font-bold text-indigo-300">₹{emp.grossWage?.toLocaleString('en-IN')}</td>
+                            <td className="p-4 text-right font-mono font-bold text-rose-300">-₹{emp.advanceDeducted?.toLocaleString('en-IN')}</td>
+                            <td className="p-4 text-right font-mono font-black text-emerald-400 text-sm">₹{emp.netPayable?.toLocaleString('en-IN')}</td>
+                            <td className="p-4 text-right font-mono text-amber-300">₹{emp.carryForwardAdvance?.toLocaleString('en-IN') || 0}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* ========================================================
+                  SUBTAB 4: WORKER ROSTER
+                 ======================================================== */}
+              {staffSubtab === 'roster' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center bg-neutral-950 p-4 rounded-3xl border border-neutral-800">
+                    <div>
+                      <h3 className="font-serif font-bold text-white text-base">Worker Profiles &amp; Designations</h3>
+                      <p className="text-xs text-neutral-400">Add, edit, or configure individual daily wage rates for workers.</p>
+                    </div>
+                    <button
+                      onClick={() => { setEditingStaffMember(null); setIsStaffModalOpen(true); }}
+                      className="px-4 py-2.5 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ Add New Worker</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {staffList.map(st => (
+                      <div key={st.id} className="bg-neutral-950 p-5 rounded-2xl border border-neutral-800 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-serif font-bold text-white text-base">{st.name}</h4>
+                            <span className="text-[10px] uppercase font-bold text-brand-gold">{st.category || st.role}</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-900/60 text-emerald-300 border border-emerald-700">
+                            {st.status || 'Active'}
+                          </span>
+                        </div>
+                        <div className="pt-2 border-t border-neutral-800/80 space-y-1 text-xs">
+                          <p className="flex justify-between text-neutral-400"><span>Daily Wage Rate:</span> <strong className="text-white font-mono">₹{st.dailyWage || 500}/day</strong></p>
+                          <p className="flex justify-between text-neutral-400"><span>Phone Number:</span> <strong className="text-neutral-200 font-mono">{st.phone || 'N/A'}</strong></p>
+                          <p className="text-[11px] text-neutral-500 italic mt-2">{st.notes || 'Warehouse tent crew specialist.'}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* ========================================================
-              SECTION 3: WAGES & OUTSIDE PAYMENTS
-             ======================================================== */}
           {activeTab === 'payments' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">💰 मजदूरी व बाहर खर्च (Payments &amp; Expenses)</h2>
-                  <p className="text-xs text-neutral-400">आंतरिक कारीगर मजदूरी और बाहरी सप्लायर/धोबी भुगतान को अलग-अलग व्यवस्थित रखें।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">💰 Wages & External Operational Expenses</h2>
+                  <p className="text-xs text-neutral-400">Maintain separate, auditable ledgers for internal worker wages and external supplier/laundry expenses.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex">
@@ -943,7 +1354,7 @@ const AdminDashboardPage = () => {
                         paymentSubtab === 'staff_wages' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
-                      कारीगर मजदूरी ({wageDisbursements.length})
+                      Worker Wages ({wageDisbursements.length})
                     </button>
                     <button
                       onClick={() => setPaymentSubtab('outside_payments')}
@@ -951,7 +1362,7 @@ const AdminDashboardPage = () => {
                         paymentSubtab === 'outside_payments' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
-                      धोबी व सप्लायर खर्च ({outsidePayments.length})
+                      Laundry & Supplier Expenses ({outsidePayments.length})
                     </button>
                   </div>
                   {paymentSubtab === 'outside_payments' && (
@@ -960,7 +1371,7 @@ const AdminDashboardPage = () => {
                       className="px-4 py-2 rounded-xl royal-gradient text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
                     >
                       <Plus className="w-4 h-4 text-brand-gold" />
-                      <span>+ बाहरी भुगतान दर्ज करें</span>
+                      <span>+ Record External Expense</span>
                     </button>
                   )}
                 </div>
@@ -973,12 +1384,12 @@ const AdminDashboardPage = () => {
                     <table className="w-full text-left text-xs text-neutral-300">
                       <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800">
                         <tr>
-                          <th className="p-4">रसीद सं.</th>
-                          <th className="p-4">कारीगर नाम</th>
-                          <th className="p-4">दिनांक</th>
-                          <th className="p-4">राशि (₹)</th>
-                          <th className="p-4">माध्यम</th>
-                          <th className="p-4">टिप्पणी</th>
+                          <th className="p-4">Receipt No.</th>
+                          <th className="p-4">Worker Name</th>
+                          <th className="p-4">Date</th>
+                          <th className="p-4">Amount (₹)</th>
+                          <th className="p-4">Payment Mode</th>
+                          <th className="p-4">Notes / Description</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-neutral-800/80">
@@ -1003,19 +1414,19 @@ const AdminDashboardPage = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
-                      <span className="text-[11px] font-bold text-neutral-400">धोबी (लॉन्ड्री धुलाई)</span>
+                      <span className="text-[11px] font-bold text-neutral-400">Laundry (Cloth Washing)</span>
                       <p className="text-xl font-serif font-bold text-white mt-1">
                         ₹{outsidePayments.filter(p => p.category === 'dhobi').reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0).toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
-                      <span className="text-[11px] font-bold text-neutral-400">सप्लायर (बांस, बल्ली, हार्डवेयर)</span>
+                      <span className="text-[11px] font-bold text-neutral-400">Suppliers (Bamboo, Hardware, Poles)</span>
                       <p className="text-xl font-serif font-bold text-white mt-1">
                         ₹{outsidePayments.filter(p => p.category === 'supplier').reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0).toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800">
-                      <span className="text-[11px] font-bold text-neutral-400">कुल बाहरी खर्च</span>
+                      <span className="text-[11px] font-bold text-neutral-400">Total External Expenses</span>
                       <p className="text-xl font-serif font-bold text-emerald-400 mt-1">
                         ₹{outsidePayments.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0).toLocaleString('en-IN')}
                       </p>
@@ -1026,12 +1437,12 @@ const AdminDashboardPage = () => {
                     <table className="w-full text-left text-xs text-neutral-300">
                       <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800">
                         <tr>
-                          <th className="p-4">प्राप्तकर्ता (Recipient)</th>
-                          <th className="p-4">श्रेणी</th>
-                          <th className="p-4">उद्देश्य / मद (Purpose)</th>
-                          <th className="p-4">राशि (₹)</th>
-                          <th className="p-4">माध्यम व रसीद</th>
-                          <th className="p-4">दिनांक</th>
+                          <th className="p-4">Recipient Name</th>
+                          <th className="p-4">Category</th>
+                          <th className="p-4">Purpose / Expense Head</th>
+                          <th className="p-4">Amount (₹)</th>
+                          <th className="p-4">Payment Mode &amp; Receipt</th>
+                          <th className="p-4">Date</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-neutral-800/80">
@@ -1066,15 +1477,15 @@ const AdminDashboardPage = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">👥 ग्राहक संपर्क व ब्रांडेड कोटेशन</h2>
-                  <p className="text-xs text-neutral-400">ग्राहकों को मैन्युअल रूप से जोड़ें, आइटम दरें चुनें और WhatsApp पर शेयर करने योग्य कोट भेजें।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">👥 Customer Directory & Direct Quotations</h2>
+                  <p className="text-xs text-neutral-400">Add customer records, customize itemized quotation packages, and share direct WhatsApp estimates.</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
                     <input
                       type="text"
-                      placeholder="ग्राहक नाम या फोन नंबर..."
+                      placeholder="Search customer name or phone..."
                       value={customerSearchQuery}
                       onChange={(e) => setCustomerSearchQuery(e.target.value)}
                       className="pl-9 pr-3 py-2 rounded-xl bg-neutral-950 border border-neutral-700 text-xs text-white outline-none w-52 sm:w-64"
@@ -1085,7 +1496,7 @@ const AdminDashboardPage = () => {
                     className="px-4 py-2 rounded-xl royal-gradient text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
                   >
                     <Plus className="w-4 h-4 text-brand-gold" />
-                    <span>+ नया ग्राहक जोड़ें</span>
+                    <span>+ Add Customer</span>
                   </button>
                 </div>
               </div>
@@ -1106,13 +1517,13 @@ const AdminDashboardPage = () => {
                           {c.email && <p className="text-[11px] text-neutral-400">{c.email}</p>}
                         </div>
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-900 text-neutral-300 border border-neutral-700">
-                          {customerEnquiries.length} बुकिंग्स
+                          {customerEnquiries.length} Bookings
                         </span>
                       </div>
 
                       {customerEnquiries.length > 0 && (
                         <div className="p-3 bg-neutral-900/60 rounded-2xl border border-neutral-800/80 text-xs space-y-1">
-                          <span className="text-neutral-400 text-[10px] block uppercase font-bold">हालिया आयोजन:</span>
+                          <span className="text-neutral-400 text-[10px] block uppercase font-bold">Recent Event:</span>
                           <p className="font-semibold text-white">{customerEnquiries[0].serviceRequired || 'Wedding Setup'}</p>
                           <p className="text-neutral-400 font-mono text-[11px]">{customerEnquiries[0].eventDate} &bull; {customerEnquiries[0].eventVenue || 'Dwarka Shri Lawn'}</p>
                         </div>
@@ -1120,13 +1531,13 @@ const AdminDashboardPage = () => {
 
                       <div className="pt-2 flex gap-2">
                         <a
-                          href={`https://wa.me/91${c.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`नमस्ते ${c.name} जी! कंधारी टेंट एंड कैटरर्स व द्वारका श्री लॉन की ओर से आपका स्वागत है। आपके विवाह आयोजन के लिए हम तैयार हैं।`)}`}
+                          href={`https://wa.me/91${c.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hello ${c.name}, greetings from Kandhari Tent & Caterers and Dwarka Shri Lawn! We are ready to assist you with your wedding and celebration arrangements.`)}`}
                           target="_blank"
                           rel="noreferrer"
                           className="flex-1 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold text-center flex items-center justify-center gap-1.5 transition"
                         >
                           <MessageCircle className="w-3.5 h-3.5" />
-                          <span>WhatsApp संदेश</span>
+                          <span>WhatsApp Message</span>
                         </a>
                       </div>
                     </div>
@@ -1143,8 +1554,8 @@ const AdminDashboardPage = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">📋 शादी बुकिंग व पूछताछ पाइपलाइन</h2>
-                  <p className="text-xs text-neutral-400">ग्राहक के अनुरोध की समीक्षा करें, रेट संशोधित करें, एडवांस अनलॉक करें या रसीद निकालें।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">📋 Event Booking & Quotation Pipeline</h2>
+                  <p className="text-xs text-neutral-400">Review customer requirements, adjust line-item quotes, unlock advance payments, and generate official invoices.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
@@ -1152,11 +1563,11 @@ const AdminDashboardPage = () => {
                     onChange={(e) => setEnquiryStatusFilter(e.target.value)}
                     className="p-2 rounded-xl bg-neutral-950 border border-neutral-700 text-xs text-white outline-none"
                   >
-                    <option value="all">सभी स्थितियां (All Statuses)</option>
-                    <option value="Pending Admin Approval">प्रतीक्षारत (Pending Approval)</option>
-                    <option value="Approved — Awaiting Payment">भुगतान प्रतीक्षारत (Awaiting Payment)</option>
-                    <option value="Confirmed">पक्की बुकिंग (Confirmed)</option>
-                    <option value="Rejected">अस्वीकृत (Rejected)</option>
+                    <option value="all">All Statuses</option>
+                    <option value="Pending Admin Approval">Pending Approval</option>
+                    <option value="Approved — Awaiting Payment">Approved — Awaiting Payment</option>
+                    <option value="Confirmed">Confirmed Booking</option>
+                    <option value="Rejected">Rejected</option>
                   </select>
                 </div>
               </div>
@@ -1179,16 +1590,16 @@ const AdminDashboardPage = () => {
                           </span>
                         </div>
                         <p className="text-xs text-neutral-400 mt-1">
-                          Ref: <strong className="font-mono text-white">{enq.id}</strong> &bull; दिनांक: <strong className="text-white">{enq.eventDate}</strong> &bull; स्थान: <strong className="text-white">{enq.eventVenue || enq.locality || 'Dwarka Shri Lawn'}</strong>
+                          Ref: <strong className="font-mono text-white">{enq.id}</strong> &bull; Date: <strong className="text-white">{enq.eventDate}</strong> &bull; Venue: <strong className="text-white">{enq.eventVenue || enq.locality || 'Dwarka Shri Lawn'}</strong>
                         </p>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-[11px] text-neutral-400 block">कुल कोटेशन:</span>
+                        <span className="text-[11px] text-neutral-400 block">Total Quotation:</span>
                         <span className="text-xl font-serif font-black text-brand-gold">
                           ₹{(enq.grandTotal || enq.estimatedCost || 0).toLocaleString('en-IN')}
                         </span>
-                        <span className="text-[10px] text-emerald-400 block font-mono">जमा एडवांस: ₹{(enq.advancePaid || 0).toLocaleString('en-IN')}</span>
+                        <span className="text-[10px] text-emerald-400 block font-mono">Advance Paid: ₹{(enq.advancePaid || 0).toLocaleString('en-IN')}</span>
                       </div>
                     </div>
 
@@ -1200,7 +1611,7 @@ const AdminDashboardPage = () => {
                           className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
                         >
                           <Check className="w-4 h-4" />
-                          <span>स्वीकार करें (Direct Approve)</span>
+                          <span>Direct Approve (Unlock Advance)</span>
                         </button>
                       )}
 
@@ -1221,7 +1632,7 @@ const AdminDashboardPage = () => {
                         className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition"
                       >
                         <Edit3 className="w-3.5 h-3.5 text-brand-gold" />
-                        <span>कोटेशन संशोधित करें</span>
+                        <span>Modify Quotation</span>
                       </button>
 
                       <button
@@ -1232,7 +1643,7 @@ const AdminDashboardPage = () => {
                         className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition"
                       >
                         <Printer className="w-3.5 h-3.5 text-neutral-300" />
-                        <span>लेटरहेड रसीद / बिल</span>
+                        <span>Letterhead Invoice</span>
                       </button>
 
                       <button
@@ -1242,23 +1653,23 @@ const AdminDashboardPage = () => {
                             amount: Math.round((enq.grandTotal || enq.estimatedCost || 25000) * 0.5),
                             paymentMethod: 'Cash',
                             referenceNumber: 'CASH-' + Math.floor(1000 + Math.random() * 9000),
-                            notes: 'दरोगा खेड़ा कार्यालय में 50% नकद जमा प्राप्त।'
+                            notes: '50% advance cash deposit received at Daroga Kheda office.'
                           });
                         }}
                         className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold flex items-center gap-1.5 transition"
                       >
                         <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>नकद / ऑफलाइन भुगतान दर्ज करें</span>
+                        <span>Record Cash / Offline Advance</span>
                       </button>
 
                       <a
-                        href={`https://wa.me/91${enq.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`नमस्ते ${enq.customerName} जी! कंधारी टेंट एंड कैटरर्स द्वारा आपकी बुकिंग ${enq.id} की स्थिति: ${enq.status}। कुल राशि: ₹${enq.grandTotal || enq.estimatedCost}। द्वारका श्री लॉन, कानपुर रोड, लखनऊ।`)}`}
+                        href={`https://wa.me/91${enq.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hello ${enq.customerName}, regarding your booking ${enq.id} at Kandhari Tent & Caterers / Dwarka Shri Lawn: Status is ${enq.status}, total quote is ₹${enq.grandTotal || enq.estimatedCost}. Kanpur Road, Lucknow.`)}`}
                         target="_blank"
                         rel="noreferrer"
                         className="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
-                        <span>WhatsApp कोट भेजें</span>
+                        <span>Send WhatsApp Quote</span>
                       </a>
                     </div>
                   </div>
@@ -1274,8 +1685,8 @@ const AdminDashboardPage = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">📦 इन्वेंट्री व किराया कैटलॉग</h2>
-                  <p className="text-xs text-neutral-400">गोदाम में रखा भौतिक सामान (टूटी हुई कुर्सियां/पंडाल) और ग्राहकों के लिए दैनिक किराया दरें।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">📦 Rental Inventory & Warehouse Stock</h2>
+                  <p className="text-xs text-neutral-400">Manage physical warehouse equipment counts (available, damaged) and public rental catalogue rates.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex">
@@ -1285,7 +1696,7 @@ const AdminDashboardPage = () => {
                         inventorySubtab === 'physical' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
-                      गोदाम भौतिक स्टॉक ({physicalInventory.length})
+                      Warehouse Physical Stock ({physicalInventory.length})
                     </button>
                     <button
                       onClick={() => setInventorySubtab('catalogue')}
@@ -1293,7 +1704,7 @@ const AdminDashboardPage = () => {
                         inventorySubtab === 'catalogue' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                       }`}
                     >
-                      किराया कैटलॉग दरें ({rentalItems.length})
+                      Rental Catalogue Rates ({rentalItems.length})
                     </button>
                   </div>
                 </div>
@@ -1312,22 +1723,22 @@ const AdminDashboardPage = () => {
                           </div>
                           {(item.damagedQuantity || 0) > 0 && (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                              {item.damagedQuantity} क्षतिग्रस्त
+                              {item.damagedQuantity} Damaged
                             </span>
                           )}
                         </div>
 
                         <div className="grid grid-cols-3 gap-2 py-2 border-y border-neutral-800/80 text-center text-xs">
                           <div>
-                            <span className="text-neutral-400 text-[10px] block">कुल स्टॉक</span>
+                            <span className="text-neutral-400 text-[10px] block">Total Stock</span>
                             <strong className="text-white font-mono text-sm">{item.totalStock || item.totalQuantity || 0}</strong>
                           </div>
                           <div>
-                            <span className="text-emerald-400 text-[10px] block font-bold">उपलब्ध</span>
+                            <span className="text-emerald-400 text-[10px] block font-bold">Available</span>
                             <strong className="text-emerald-400 font-mono text-sm">{item.availableStock || item.availableQuantity || 0}</strong>
                           </div>
                           <div>
-                            <span className="text-rose-400 text-[10px] block font-bold">क्षतिग्रस्त</span>
+                            <span className="text-rose-400 text-[10px] block font-bold">Damaged</span>
                             <strong className="text-rose-400 font-mono text-sm">{item.damagedQuantity || 0}</strong>
                           </div>
                         </div>
@@ -1339,14 +1750,14 @@ const AdminDashboardPage = () => {
                               actionType: 'restock',
                               quantity: 20,
                               reason: 'Purchase',
-                              notes: 'दरोगा खेड़ा गोदाम में नया माल जोड़ा गया'
+                              notes: 'New stock added at Daroga Kheda warehouse'
                             });
                             setIsStockModalOpen(true);
                           }}
                           className="w-full py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-bold transition flex items-center justify-center gap-1.5"
                         >
                           <Wrench className="w-3.5 h-3.5 text-brand-gold" />
-                          <span>स्टॉक समायोजित करें (Adjust Stock)</span>
+                          <span>Adjust Stock</span>
                         </button>
                       </div>
                     ))}
@@ -1368,7 +1779,7 @@ const AdminDashboardPage = () => {
                         </div>
                         <div className="px-4">
                           <h4 className="font-serif font-bold text-sm text-white">{item.name}</h4>
-                          <p className="text-base font-bold text-brand-gold font-mono mt-1">₹{item.pricePerDay || item.price || 50} <span className="text-xs text-neutral-400">/ दिन</span></p>
+                          <p className="text-base font-bold text-brand-gold font-mono mt-1">₹{item.pricePerDay || item.price || 50} <span className="text-xs text-neutral-400">/ day</span></p>
                         </div>
                       </div>
                     ))}
@@ -1384,31 +1795,31 @@ const AdminDashboardPage = () => {
           {activeTab === 'analytics' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="pb-4 border-b border-neutral-800">
-                <h2 className="text-2xl font-serif font-bold text-white">📈 प्रथम-पक्षीय विज़िटर एनालिटिक्स</h2>
-                <p className="text-xs text-neutral-400">100% गोपनीय व आंतरिक ट्रैकिंग — व्यवस्थापक (Admin) के अपने दौरे इसमें शामिल नहीं होते।</p>
+                <h2 className="text-2xl font-serif font-bold text-white">📈 First-Party Visitor Analytics</h2>
+                <p className="text-xs text-neutral-400">100% private first-party analytics — Admin internal browsing sessions are excluded.</p>
               </div>
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
-                  <span className="text-[11px] font-bold text-neutral-400">आज के वास्तविक विज़िटर्स</span>
+                  <span className="text-[11px] font-bold text-neutral-400">Today's Unique Visitors</span>
                   <p className="text-3xl font-serif font-bold text-white">{analyticsSummary?.todayVisitors || 1}</p>
                 </div>
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
-                  <span className="text-[11px] font-bold text-neutral-400">कुल पेज व्यूज (Pageviews)</span>
+                  <span className="text-[11px] font-bold text-neutral-400">Total Pageviews</span>
                   <p className="text-3xl font-serif font-bold text-white">{analyticsSummary?.totalPageviews || 1}</p>
                 </div>
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
-                  <span className="text-[11px] font-bold text-emerald-400">कुल प्राप्त पूछताछ</span>
+                  <span className="text-[11px] font-bold text-emerald-400">Inquiries Generated</span>
                   <p className="text-3xl font-serif font-bold text-emerald-400">{enquiries.length}</p>
                 </div>
                 <div className="bg-neutral-950 p-5 rounded-3xl border border-neutral-800 space-y-1">
-                  <span className="text-[11px] font-bold text-brand-gold">रूपांतरण दर (Conversion)</span>
+                  <span className="text-[11px] font-bold text-brand-gold">Conversion Rate</span>
                   <p className="text-3xl font-serif font-bold text-brand-gold">{analyticsSummary?.conversionRate || '12.5%'}</p>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-neutral-950 border border-neutral-800 text-xs text-neutral-400">
-                🔒 <strong>सुरक्षित व आंतरिक:</strong> कोई बाहरी Google Analytics या तृतीय-पक्ष कुकीज़ नहीं हैं। सारा डेटा सीधे आपके निजी सर्वर पर प्रोसेस होता है।
+                🔒 <strong>Secure & Private:</strong> Zero third-party trackers or external cookies. All analytics reside exclusively on your private server.
               </div>
             </div>
           )}
@@ -1420,8 +1831,8 @@ const AdminDashboardPage = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">🎙️ मास्टर बिजनेस AI एजेंट (Master Agent)</h2>
-                  <p className="text-xs text-neutral-400">हिंदी व अंग्रेजी में बोलकर दुकान, गोदाम व कारीगरों का काम चलाएं। याद रखे गए नियम व वर्कफ़्लो प्रबंधित करें।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">🎙️ Master Business AI Operations Agent</h2>
+                  <p className="text-xs text-neutral-400">Voice and text AI operations console in English & Hindi. Manages learned business rules, workforce actions, and automated workflows.</p>
                 </div>
                 <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex">
                   <button
@@ -1430,7 +1841,7 @@ const AdminDashboardPage = () => {
                       agentSubtab === 'voice' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    बोलकर चलाएं (Voice AI)
+                    Voice Agent Console
                   </button>
                   <button
                     onClick={() => setAgentSubtab('memory')}
@@ -1438,7 +1849,7 @@ const AdminDashboardPage = () => {
                       agentSubtab === 'memory' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    व्यापार नियम (Learned Memories: {agentMemories.length})
+                    Learned Business Rules ({agentMemories.length})
                   </button>
                   <button
                     onClick={() => setAgentSubtab('workflows')}
@@ -1446,7 +1857,7 @@ const AdminDashboardPage = () => {
                       agentSubtab === 'workflows' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    कार्यप्रणाली (Workflows: {agentWorkflows.length})
+                    Standard Workflows ({agentWorkflows.length})
                   </button>
                 </div>
               </div>
@@ -1462,13 +1873,13 @@ const AdminDashboardPage = () => {
               {agentSubtab === 'memory' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-neutral-400">एजेंट द्वारा याद रखे गए व्यापारिक नियम (छूट नीति, धोबी रेट, जनरेटर शर्तें):</p>
+                    <p className="text-xs text-neutral-400">Learned business policies remembered by the AI (discount structures, laundry rates, power backup rules):</p>
                     <button
                       onClick={() => setIsAddMemoryModalOpen(true)}
                       className="px-3.5 py-1.5 rounded-xl royal-gradient text-white font-bold text-xs flex items-center gap-1.5 shadow-sm"
                     >
                       <Plus className="w-3.5 h-3.5 text-brand-gold" />
-                      <span>+ नया नियम जोड़ें</span>
+                      <span>+ Add Business Rule</span>
                     </button>
                   </div>
 
@@ -1482,7 +1893,7 @@ const AdminDashboardPage = () => {
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             mem.approvalStatus === 'approved' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
                           }`}>
-                            {mem.approvalStatus === 'approved' ? 'स्वीकृत (Approved)' : 'प्रतीक्षारत'}
+                            {mem.approvalStatus === 'approved' ? 'Approved' : 'Pending Approval'}
                           </span>
                         </div>
                         <p className="text-xs text-white font-medium leading-relaxed">{mem.content}</p>
@@ -1491,13 +1902,13 @@ const AdminDashboardPage = () => {
                             onClick={() => handleToggleMemoryApproval(mem)}
                             className="text-[11px] text-brand-gold hover:underline font-bold"
                           >
-                            {mem.approvalStatus === 'approved' ? 'स्वीकृति वापस लें' : 'स्वीकार करें'}
+                            {mem.approvalStatus === 'approved' ? 'Revoke Approval' : 'Approve Rule'}
                           </button>
                           <button
                             onClick={() => handleDeleteMemory(mem.id)}
                             className="text-[11px] text-rose-400 hover:text-rose-300 font-bold"
                           >
-                            नियम हटाएं
+                            Delete Rule
                           </button>
                         </div>
                       </div>
@@ -1519,7 +1930,7 @@ const AdminDashboardPage = () => {
                         <h4 className="font-serif font-bold text-sm text-white">{wf.name}</h4>
                         <p className="text-xs text-neutral-400">{wf.description}</p>
                         <div className="space-y-1.5 pt-2 border-t border-neutral-800 text-[11px]">
-                          <strong className="text-neutral-300 block text-[10px] uppercase">अनुक्रमित चरण (Steps):</strong>
+                          <strong className="text-neutral-300 block text-[10px] uppercase">Sequential Execution Steps:</strong>
                           {(wf.steps || []).map(s => (
                             <div key={s.step} className="flex items-center gap-2 text-neutral-400">
                               <span className="w-4 h-4 rounded-full bg-neutral-900 text-brand-gold font-bold flex items-center justify-center text-[10px]">
@@ -1544,8 +1955,8 @@ const AdminDashboardPage = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">🎬 एआई मार्केटिंग व रील स्टूडियो</h2>
-                  <p className="text-xs text-neutral-400">वास्तविक गैलरी तस्वीरों से वास्तविक MP4 रील रेंडर करें (FFmpeg Ken Burns ज़ूम, लखनऊ ब्रांडिंग व 5 हैशटैग्स)।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">🎬 AI Marketing & Video Reel Studio</h2>
+                  <p className="text-xs text-neutral-400">Render real MP4 video reels from genuine gallery photos with FFmpeg Ken Burns zoom, Lucknow branding, and hashtags.</p>
                 </div>
                 <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex">
                   <button
@@ -1554,7 +1965,7 @@ const AdminDashboardPage = () => {
                       marketingSubtab === 'lawn_reels' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    🌿 द्वारका श्री लॉन रील्स ({lawnReels.length})
+                    🌿 Dwarka Shri Lawn Reels ({lawnReels.length})
                   </button>
                   <button
                     onClick={() => setMarketingSubtab('reels')}
@@ -1562,7 +1973,7 @@ const AdminDashboardPage = () => {
                       marketingSubtab === 'reels' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    सिनेमैटिक रील्स ({renderedReels.length})
+                    Cinematic Reels ({renderedReels.length})
                   </button>
                   <button
                     onClick={() => setMarketingSubtab('media')}
@@ -1570,7 +1981,7 @@ const AdminDashboardPage = () => {
                       marketingSubtab === 'media' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    मीडिया लाइब्रेरी ({marketingMedia.length})
+                    Media Library ({marketingMedia.length})
                   </button>
                   <button
                     onClick={() => setMarketingSubtab('portfolios')}
@@ -1578,7 +1989,7 @@ const AdminDashboardPage = () => {
                       marketingSubtab === 'portfolios' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    ग्राहक पोर्टफोलियो ({portfolios.length})
+                    Client Portfolios ({portfolios.length})
                   </button>
                 </div>
               </div>
@@ -1591,10 +2002,10 @@ const AdminDashboardPage = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <Film className="w-5 h-5 text-amber-400" />
-                        <h3 className="font-serif font-bold text-base text-white">द्वारका श्री लॉन — 7 प्रमाणित वीडियो रील्स (9:16)</h3>
+                        <h3 className="font-serif font-bold text-base text-white">Dwarka Shri Lawn — 7 Verified Video Reels (9:16)</h3>
                       </div>
                       <p className="text-xs text-neutral-400 mt-1">
-                        वास्तविक वीडियो फुटेज से तैयार की गई 9:16 वर्टिकल रील्स। इन्हें वेबसाइट पर प्रदर्शित किया गया है।
+                        Vertical 9:16 reels produced from genuine venue footage, featured live across the customer website.
                       </p>
                     </div>
                     <a
@@ -1603,7 +2014,7 @@ const AdminDashboardPage = () => {
                       className="px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-brand-gold hover:text-white text-xs font-bold transition flex items-center gap-2 self-start sm:self-auto"
                     >
                       <Download className="w-4 h-4" />
-                      <span>मास्टर सोर्स वीडियो (19.3 MB)</span>
+                      <span>Master Source Video (19.3 MB)</span>
                     </a>
                   </div>
 
@@ -1638,13 +2049,13 @@ const AdminDashboardPage = () => {
                           <div className="pt-2 border-t border-neutral-800 flex items-center justify-between gap-2 text-xs">
                             <button
                               onClick={() => {
-                                const shareText = `द्वारका श्री लॉन (कानपुर रोड, लखनऊ) की वीडियो रील: ${window.location.origin}/lawn#${reel.id} — ${reel.title}`;
+                                const shareText = `Dwarka Shri Lawn (Kanpur Road, Lucknow) Video Reel: ${window.location.origin}/lawn#${reel.id} — ${reel.title}`;
                                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
                               }}
                               className="flex-1 py-1.5 px-2 rounded-lg bg-green-600/20 hover:bg-green-600/30 text-green-400 font-bold text-[11px] flex items-center justify-center gap-1"
                             >
                               <Share2 className="w-3.5 h-3.5" />
-                              <span>व्हाट्सएप</span>
+                              <span>WhatsApp</span>
                             </button>
                             <a
                               href={reel.videoUrl}
@@ -1670,7 +2081,7 @@ const AdminDashboardPage = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Film className="w-5 h-5 text-amber-400" />
-                        <h3 className="font-serif font-bold text-base text-white">FFmpeg 6.1.1 रील रेंडरिंग इंजन</h3>
+                        <h3 className="font-serif font-bold text-base text-white">FFmpeg Reel Rendering Engine</h3>
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
                         Ken Burns Slow Zoompan
@@ -1679,7 +2090,7 @@ const AdminDashboardPage = () => {
 
                     <form onSubmit={handleRenderReel} className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
                       <div className="sm:col-span-2">
-                        <label className="block text-neutral-400 mb-1 font-semibold">रील का शीर्षक (Title)</label>
+                        <label className="block text-neutral-400 mb-1 font-semibold">Reel Title</label>
                         <input
                           type="text"
                           required
@@ -1690,7 +2101,7 @@ const AdminDashboardPage = () => {
                       </div>
 
                       <div>
-                        <label className="block text-neutral-400 mb-1 font-semibold">फॉर्मेट (Aspect Ratio)</label>
+                        <label className="block text-neutral-400 mb-1 font-semibold">Aspect Ratio</label>
                         <select
                           value={reelFormData.format}
                           onChange={(e) => setReelFormData({ ...reelFormData, format: e.target.value })}
@@ -1703,7 +2114,7 @@ const AdminDashboardPage = () => {
                       </div>
 
                       <div>
-                        <label className="block text-neutral-400 mb-1 font-semibold">समय (Duration)</label>
+                        <label className="block text-neutral-400 mb-1 font-semibold">Duration</label>
                         <select
                           value={reelFormData.duration}
                           onChange={(e) => setReelFormData({ ...reelFormData, duration: parseInt(e.target.value, 10) })}
@@ -1724,12 +2135,12 @@ const AdminDashboardPage = () => {
                           {isRenderingReel ? (
                             <>
                               <div className="w-4 h-4 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
-                              <span>FFmpeg वीडियो रेंडर हो रहा है (कृपया प्रतीक्षा करें)...</span>
+                              <span>Rendering FFmpeg Video (Please wait)...</span>
                             </>
                           ) : (
                             <>
                               <Clapperboard className="w-4 h-4 text-neutral-950" />
-                              <span>🎬 वीडियो रील रेंडर करें (Render Real MP4 Video)</span>
+                              <span>🎬 Render Real MP4 Video Reel</span>
                             </>
                           )}
                         </button>
@@ -1764,7 +2175,7 @@ const AdminDashboardPage = () => {
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(reel.caption);
-                                showToast('कैप्शन व हैशटैग्स कॉपी हो गए!');
+                                showToast('Caption and hashtags copied to clipboard!');
                               }}
                               className="text-neutral-400 hover:text-white flex items-center gap-1 font-semibold"
                             >
@@ -1821,16 +2232,16 @@ const AdminDashboardPage = () => {
                         </div>
                         <p className="text-xs text-neutral-300 leading-relaxed">{p.description}</p>
                         <div className="pt-2 border-t border-neutral-800 flex items-center justify-between text-xs">
-                          <span className="text-neutral-400 text-[10px]">लिंक: {p.shareableUrl}</span>
+                          <span className="text-neutral-400 text-[10px]">Link: {p.shareableUrl}</span>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(p.whatsappMessage);
-                              showToast('WhatsApp संदेश कॉपी हो गया!');
+                              showToast('WhatsApp share message copied to clipboard!');
                             }}
                             className="px-3 py-1 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1"
                           >
                             <Share2 className="w-3.5 h-3.5" />
-                            <span>WhatsApp शेयर</span>
+                            <span>WhatsApp Share</span>
                           </button>
                         </div>
                       </div>
@@ -1848,15 +2259,15 @@ const AdminDashboardPage = () => {
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">📄 व्यावसायिक बिल व इनवॉइस</h2>
-                  <p className="text-xs text-neutral-400">औपचारिक इनवॉइस (INV-YYYY-XXXX), भुगतान स्थिति व प्रिंट करने योग्य लेटरहेड बिल।</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">📄 Formal Invoices & Billing</h2>
+                  <p className="text-xs text-neutral-400">Official GST invoices (INV-YYYY-XXXX), balance tracking, and printable letterhead billing.</p>
                 </div>
                 <button
                   onClick={() => setIsGenerateInvoiceModalOpen(true)}
                   className="px-4 py-2 rounded-xl royal-gradient text-white font-bold text-xs flex items-center gap-1.5 shadow-md"
                 >
                   <Plus className="w-4 h-4 text-brand-gold" />
-                  <span>+ नया इनवॉइस बिल बनाएं</span>
+                  <span>+ Generate New Invoice</span>
                 </button>
               </div>
 
@@ -1865,14 +2276,14 @@ const AdminDashboardPage = () => {
                 <table className="w-full text-left text-xs text-neutral-300">
                   <thead className="bg-neutral-900/90 text-neutral-400 uppercase text-[10px] tracking-wider border-b border-neutral-800">
                     <tr>
-                      <th className="p-4">इनवॉइस नंबर</th>
-                      <th className="p-4">ग्राहक नाम व फोन</th>
-                      <th className="p-4">आयोजन दिनांक</th>
-                      <th className="p-4">कुल राशि (₹)</th>
-                      <th className="p-4">जमा एडवांस</th>
-                      <th className="p-4">बकाया (Balance)</th>
-                      <th className="p-4">स्थिति</th>
-                      <th className="p-4 text-right">प्रिंट / रसीद</th>
+                      <th className="p-4">Invoice Number</th>
+                      <th className="p-4">Customer Name & Phone</th>
+                      <th className="p-4">Event Date</th>
+                      <th className="p-4">Total Amount (₹)</th>
+                      <th className="p-4">Advance Paid</th>
+                      <th className="p-4">Balance Due</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Print / Receipt</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-800/80">
@@ -1900,7 +2311,7 @@ const AdminDashboardPage = () => {
                             className="px-3 py-1.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-bold transition inline-flex items-center gap-1"
                           >
                             <Printer className="w-3.5 h-3.5 text-brand-gold" />
-                            <span>देखें / प्रिंट</span>
+                            <span>View / Print</span>
                           </button>
                         </td>
                       </tr>
@@ -1917,36 +2328,36 @@ const AdminDashboardPage = () => {
           {activeTab === 'settings' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="pb-4 border-b border-neutral-800">
-                <h2 className="text-2xl font-serif font-bold text-white">⚙️ द्वारका श्री लॉन व प्रतिष्ठान सेटिंग्स</h2>
-                <p className="text-xs text-neutral-400">कानपुर रोड, लखनऊ प्रतिष्ठान की आधिकारिक जानकारी, क्षमता और संपर्क सूत्र।</p>
+                <h2 className="text-2xl font-serif font-bold text-white">⚙️ Dwarka Shri Lawn & Business Settings</h2>
+                <p className="text-xs text-neutral-400">Official business specifications, guest capacity metrics, and contact hotline on Kanpur Road, Lucknow.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 space-y-4">
                   <div className="flex items-center gap-2">
                     <Building className="w-5 h-5 text-brand-gold" />
-                    <h3 className="font-serif font-bold text-base text-white">आधिकारिक व्यावसायिक पता (NAP)</h3>
+                    <h3 className="font-serif font-bold text-base text-white">Official Business Address (NAP)</h3>
                   </div>
                   <div className="text-xs space-y-2 text-neutral-300">
-                    <p><strong>प्रतिष्ठान:</strong> कंधारी टेंट एंड कैटरर्स (Kandhari Tent &amp; Caterers)</p>
-                    <p><strong>वेन्यू:</strong> द्वारका श्री लॉन (Dwarka Shri Lawn)</p>
-                    <p><strong>पता:</strong> कानपुर रोड, पिलर न. 37 के सामने, दरोगा खेड़ा, लखनऊ, उत्तर प्रदेश 226008</p>
-                    <p><strong>हेल्पलाइन फोन:</strong> 9305465848</p>
-                    <p><strong>WhatsApp:</strong> +91 9305465848</p>
+                    <p><strong>Business Entity:</strong> Kandhari Tent & Caterers</p>
+                    <p><strong>Signature Venue:</strong> Dwarka Shri Lawn</p>
+                    <p><strong>Address:</strong> Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, UP 226008</p>
+                    <p><strong>Helpline Phone:</strong> 1800-890-3456</p>
+                    <p><strong>WhatsApp Support:</strong> +91-1800-890-3456</p>
                   </div>
                 </div>
 
                 <div className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 space-y-4">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                    <h3 className="font-serif font-bold text-base text-white">लॉन क्षमता व सुविधाएं</h3>
+                    <h3 className="font-serif font-bold text-base text-white">Lawn Capacity & Specifications</h3>
                   </div>
                   <div className="text-xs space-y-2 text-neutral-300">
-                    <p><strong>मेहमान क्षमता:</strong> 1,200+ Guests (विशाल प्राकृतिक लॉन)</p>
-                    <p><strong>पार्किंग:</strong> 200+ चार पहिया वाहन पार्किंग</p>
-                    <p><strong>वाटरप्रूफ कैनोपी:</strong> जर्मन हैंगर शेड (ऑल-वेदर)</p>
-                    <p><strong>कमरे:</strong> 2 वातानुकूलित (AC) सुइट्स दुल्हन व परिवार हेतु</p>
-                    <p><strong>पावर बैकअप:</strong> 62.5 KVA साइलेंट जनरेटर</p>
+                    <p><strong>Guest Capacity:</strong> 1,200+ Guests (Expansive Natural Lawn)</p>
+                    <p><strong>Parking Facility:</strong> 200+ Four-Wheeler Parking Bays</p>
+                    <p><strong>Weatherproof Canopy:</strong> German Hangar Shed (All-Weather)</p>
+                    <p><strong>Guest Rooms:</strong> 2 Air-Conditioned (AC) Suites for Bride & Family</p>
+                    <p><strong>Power Backup:</strong> 62.5 KVA Silent Generator Backup</p>
                   </div>
                 </div>
               </div>
@@ -1955,6 +2366,44 @@ const AdminDashboardPage = () => {
 
         </div>
       </main>
+
+      
+      {/* Transcript Viewing Modal */}
+      {viewingTranscriptCall && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-neutral-950 rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-neutral-800 max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center pb-4 border-b border-neutral-800">
+              <div>
+                <h3 className="font-serif font-bold text-base text-white">Call Transcript: {viewingTranscriptCall.callId}</h3>
+                <p className="text-xs text-neutral-400 font-mono mt-0.5">Caller: {viewingTranscriptCall.callerName} ({viewingTranscriptCall.callerPhone})</p>
+              </div>
+              <button onClick={() => setViewingTranscriptCall(null)} className="text-neutral-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3 py-4">
+              {(viewingTranscriptCall.transcript || []).map((t, idx) => (
+                <div key={idx} className={`p-3 rounded-2xl text-xs ${t.speaker === 'Veronica' ? 'bg-purple-950/40 border border-purple-800/40 text-purple-200' : 'bg-neutral-900 border border-neutral-800 text-neutral-200'}`}>
+                  <div className="font-bold text-[10px] uppercase tracking-wider text-neutral-400 mb-1">{t.speaker} &bull; {t.timestamp}</div>
+                  <div className="leading-relaxed font-sans">{t.text}</div>
+                </div>
+              ))}
+            </div>
+            <div className="pt-4 border-t border-neutral-800 flex justify-end">
+              <button onClick={() => setViewingTranscriptCall(null)} className="py-2 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* In-Browser Telephony Call Simulator Modal */}
+      <VeronicaCallSimulatorModal
+        isOpen={isVeronicaModalOpen}
+        onClose={() => setIsVeronicaModalOpen(false)}
+        onCallCompleted={loadAllData}
+      />
 
       {/* ========================================================
           VIDEO REEL PREVIEW MODAL
@@ -1998,18 +2447,18 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">बाहरी खर्च / भुगतान दर्ज करें</h3>
+              <h3 className="font-serif font-bold text-base text-white">Record External Operational Expense</h3>
               <button onClick={() => setIsOutsidePaymentModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleRecordOutsidePayment} className="space-y-4 pt-4 text-xs">
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">प्राप्तकर्ता का नाम (Recipient) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Recipient Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="उदा. Ramesh Dhobi (लॉन्ड्री)"
+                  placeholder="e.g. Ramesh Dhobi (Laundry)"
                   value={outsidePaymentForm.recipientName}
                   onChange={(e) => setOutsidePaymentForm({ ...outsidePaymentForm, recipientName: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
@@ -2018,21 +2467,21 @@ const AdminDashboardPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">श्रेणी (Category) *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Category (Category) *</label>
                   <select
                     value={outsidePaymentForm.category}
                     onChange={(e) => setOutsidePaymentForm({ ...outsidePaymentForm, category: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
                   >
-                    <option value="dhobi">धोबी (लॉन्ड्री धुलाई)</option>
-                    <option value="supplier">सप्लायर (बांस, बल्ली, पाइप)</option>
-                    <option value="outside_worker">बाहरी कारीगर / जनरेटर</option>
-                    <option value="logistics">ट्रांसपोर्ट / पिकअप भाड़ा</option>
-                    <option value="other">अन्य खर्च</option>
+                    <option value="dhobi">Laundry (Cloth Washing)</option>
+                    <option value="supplier">Suppliers (Bamboo, Hardware, Pipes)</option>
+                    <option value="outside_worker">External Technician / Generator Operator</option>
+                    <option value="logistics">Vehicle Transport / Cartage</option>
+                    <option value="other">Other Expenses</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">राशि (₹ Amount) *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Amount (₹) *</label>
                   <input
                     type="number"
                     required
@@ -2046,11 +2495,11 @@ const AdminDashboardPage = () => {
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">उद्देश्य व विवरण (Purpose) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Purpose & Description *</label>
                 <input
                   type="text"
                   required
-                  placeholder="उदा. 100 कुर्सी कवर व 20 टेबल क्लॉथ धुलाई"
+                  placeholder="e.g. Washing 100 chair covers and 20 table cloths"
                   value={outsidePaymentForm.purpose}
                   onChange={(e) => setOutsidePaymentForm({ ...outsidePaymentForm, purpose: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
@@ -2059,19 +2508,19 @@ const AdminDashboardPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">भुगतान माध्यम *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Payment Method *</label>
                   <select
                     value={outsidePaymentForm.paymentMethod}
                     onChange={(e) => setOutsidePaymentForm({ ...outsidePaymentForm, paymentMethod: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
                   >
-                    <option value="Cash">नकद (Cash)</option>
+                    <option value="Cash">Cash in Hand</option>
                     <option value="Direct UPI">UPI (GPay / PhonePe)</option>
-                    <option value="Bank Transfer">बैंक ट्रांसफर (NEFT)</option>
+                    <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">रसीद सं. (Ref No.)</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Receipt No. (Ref No.)</label>
                   <input
                     type="text"
                     placeholder="CASH-4912"
@@ -2087,14 +2536,14 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
                 >
-                  भुगतान सुरक्षित करें
+                  Save Payment
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsOutsidePaymentModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>
@@ -2109,7 +2558,7 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">नया ग्राहक जोड़ें (Add Customer)</h3>
+              <h3 className="font-serif font-bold text-base text-white">Add New Customer Profile</h3>
               <button onClick={() => setIsAddCustomerModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -2123,20 +2572,20 @@ const AdminDashboardPage = () => {
                   email: newCustomerForm.email || `${newCustomerForm.phone}@kandhariclient.com`,
                   password: 'client@kandhari2026'
                 });
-                showToast(`ग्राहक जोड़ा गया: ${newCustomerForm.name}`);
+                showToast(`Customer profile created: ${newCustomerForm.name}`);
                 setIsAddCustomerModalOpen(false);
                 setNewCustomerForm({ name: '', phone: '', email: '', notes: '' });
                 loadAllData();
               } catch (err) {
-                showToast(err.message || 'ग्राहक जोड़ने में विफल', 'error');
+                showToast(err.message || 'Failed to create customer profile', 'error');
               }
             }} className="space-y-4 pt-4 text-xs">
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">ग्राहक का नाम (Customer Name) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Customer Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="उदा. राजेश वर्मा"
+                  placeholder="e.g. Rajesh Verma"
                   value={newCustomerForm.name}
                   onChange={(e) => setNewCustomerForm({ ...newCustomerForm, name: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
@@ -2144,7 +2593,7 @@ const AdminDashboardPage = () => {
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">मोबाइल नंबर (10 Digits) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Mobile Number (10 Digits) *</label>
                 <input
                   type="tel"
                   required
@@ -2157,7 +2606,7 @@ const AdminDashboardPage = () => {
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">ईमेल (वैकल्पिक)</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Email Address (Optional)</label>
                 <input
                   type="email"
                   placeholder="rajesh@example.com"
@@ -2172,14 +2621,14 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md transition"
                 >
-                  ग्राहक सुरक्षित करें
+                  Save Customer
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsAddCustomerModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>
@@ -2194,7 +2643,7 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-lg w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">औपचारिक इनवॉइस बिल बनाएं (Generate Invoice)</h3>
+              <h3 className="font-serif font-bold text-base text-white">Generate Formal Invoice (INV)</h3>
               <button onClick={() => setIsGenerateInvoiceModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -2202,7 +2651,7 @@ const AdminDashboardPage = () => {
             <form onSubmit={handleGenerateInvoice} className="space-y-4 pt-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">ग्राहक नाम *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Customer Name *</label>
                   <input
                     type="text"
                     required
@@ -2212,7 +2661,7 @@ const AdminDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">मोबाइल नंबर *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Mobile Number *</label>
                   <input
                     type="tel"
                     required
@@ -2225,7 +2674,7 @@ const AdminDashboardPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">आयोजन दिनांक *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Event Date *</label>
                   <input
                     type="date"
                     required
@@ -2235,7 +2684,7 @@ const AdminDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">स्थान (Venue)</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Event Venue</label>
                   <input
                     type="text"
                     value={invoiceForm.eventVenue}
@@ -2247,7 +2696,7 @@ const AdminDashboardPage = () => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">सामान राशि (₹)</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Items &amp; Service Total (₹)</label>
                   <input
                     type="number"
                     value={invoiceForm.subtotal}
@@ -2256,7 +2705,7 @@ const AdminDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">भाड़ा व मजदूरी (₹)</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Cartage & Labour Charges (₹)</label>
                   <input
                     type="number"
                     value={invoiceForm.cartage + invoiceForm.labour}
@@ -2265,7 +2714,7 @@ const AdminDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">एडवांस प्राप्त (₹)</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Advance Deposit Received (₹)</label>
                   <input
                     type="number"
                     value={invoiceForm.advancePaid}
@@ -2280,14 +2729,14 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md transition"
                 >
-                  इनवॉइस बिल जारी करें
+                  Issue Invoice
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsGenerateInvoiceModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>
@@ -2303,52 +2752,52 @@ const AdminDashboardPage = () => {
           <div className="bg-white text-neutral-900 rounded-3xl max-w-2xl w-full p-8 shadow-2xl border border-neutral-300 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-start pb-6 border-b-2 border-brand-primary">
               <div>
-                <h2 className="font-serif font-black text-2xl text-brand-primary">कंधारी टेंट एंड कैटरर्स</h2>
-                <p className="text-xs font-semibold text-brand-goldDark">द्वारका श्री लॉन &bull; कानपुर रोड, लखनऊ</p>
-                <p className="text-[11px] text-neutral-500 mt-1">पिलर न. 37 के सामने, दरोगा खेड़ा, लखनऊ &bull; Ph: 9305465848</p>
+                <h2 className="font-serif font-black text-2xl text-brand-primary">Kandhari Tent & Caterers</h2>
+                <p className="text-xs font-semibold text-brand-goldDark">Dwarka Shri Lawn &bull; Kanpur Road, Lucknow</p>
+                <p className="text-[11px] text-neutral-500 mt-1">Opp. Pillar No. 37, Daroga Kheda, Lucknow &bull; Helpline: 1800-890-3456</p>
               </div>
               <div className="text-right">
                 <span className="px-3 py-1 rounded-full text-xs font-black bg-brand-primary text-white font-mono">
                   {viewingInvoice.invoiceNumber}
                 </span>
-                <p className="text-[11px] text-neutral-500 font-mono mt-1">दिनांक: {viewingInvoice.createdAt?.split('T')[0]}</p>
+                <p className="text-[11px] text-neutral-500 font-mono mt-1">Date: {viewingInvoice.createdAt?.split('T')[0]}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 py-4 border-b border-neutral-200 text-xs">
               <div>
-                <span className="text-neutral-500 block">बिल प्राप्तकर्ता:</span>
+                <span className="text-neutral-500 block">Billed To:</span>
                 <strong className="text-sm font-serif block">{viewingInvoice.customerName}</strong>
                 <span className="font-mono text-neutral-700">{viewingInvoice.phone}</span>
                 <p className="text-neutral-600 mt-0.5">{viewingInvoice.billingAddress}</p>
               </div>
               <div className="text-right">
-                <span className="text-neutral-500 block">आयोजन स्थल:</span>
+                <span className="text-neutral-500 block">Event Venue:</span>
                 <strong className="block">{viewingInvoice.eventVenue}</strong>
-                <span className="font-mono text-neutral-700">दिनांक: {viewingInvoice.eventDate}</span>
-                <p className="text-neutral-600 mt-0.5">सेवा: {viewingInvoice.serviceRequired}</p>
+                <span className="font-mono text-neutral-700">Date: {viewingInvoice.eventDate}</span>
+                <p className="text-neutral-600 mt-0.5">Service: {viewingInvoice.serviceRequired}</p>
               </div>
             </div>
 
             <div className="py-4 space-y-2 text-xs">
               <div className="flex justify-between py-1 border-b border-neutral-100">
-                <span className="font-semibold text-neutral-700">सामान व कैटरिंग उप-योग (Subtotal):</span>
+                <span className="font-semibold text-neutral-700">Items & Catering Subtotal:</span>
                 <span className="font-mono font-bold">₹{viewingInvoice.subtotal?.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-neutral-100">
-                <span className="font-semibold text-neutral-700">ट्रांसपोर्ट व मजदूरी (Cartage &amp; Labour):</span>
+                <span className="font-semibold text-neutral-700">Transport, Cartage & Labour:</span>
                 <span className="font-mono">₹{((viewingInvoice.cartage || 0) + (viewingInvoice.labour || 0)).toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between py-2 border-b-2 border-neutral-900 text-sm">
-                <span className="font-black text-brand-primary">कुल बिल राशि (Grand Total):</span>
+                <span className="font-black text-brand-primary">Grand Total Bill Amount:</span>
                 <span className="font-black text-brand-primary font-mono">₹{viewingInvoice.grandTotal?.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between py-1 text-emerald-700 font-bold">
-                <span>जमा एडवांस राशि (Advance Paid):</span>
+                <span>Advance Amount Received:</span>
                 <span className="font-mono">₹{viewingInvoice.advancePaid?.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between py-2 bg-rose-50 p-3 rounded-xl border border-rose-200 text-sm font-bold text-rose-800">
-                <span>बकाया देय राशि (Balance Payable):</span>
+                <span>Balance Payable Due:</span>
                 <span className="font-mono">₹{viewingInvoice.balanceDue?.toLocaleString('en-IN')}</span>
               </div>
             </div>
@@ -2359,13 +2808,13 @@ const AdminDashboardPage = () => {
                 className="px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryDark text-white font-bold flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />
-                <span>प्रिंट करें (Print / PDF)</span>
+                <span>Print / Save PDF</span>
               </button>
               <button
                 onClick={() => setViewingInvoice(null)}
                 className="px-4 py-2.5 rounded-xl border border-neutral-300 text-neutral-600 font-bold"
               >
-                बंद करें
+                Close
               </button>
             </div>
           </div>
@@ -2379,7 +2828,7 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">मजदूरी भुगतान रसीद काटें</h3>
+              <h3 className="font-serif font-bold text-base text-white">Issue Worker Wage Payment Receipt</h3>
               <button onClick={() => setIsDisbursementModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -2387,11 +2836,11 @@ const AdminDashboardPage = () => {
             <form onSubmit={handleRecordDisbursement} className="space-y-4 pt-4 text-xs">
               <div className="p-3 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <p className="font-bold text-white text-sm">{disbursementFormData.staffName}</p>
-                <p className="text-neutral-400 mt-0.5">हाजिरी दिनांक: <strong className="text-white">{attendanceDate}</strong></p>
+                <p className="text-neutral-400 mt-0.5">Attendance Date: <strong className="text-white">{attendanceDate}</strong></p>
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">भुगतान राशि (₹ Amount) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Payment Amount (₹) *</label>
                 <input
                   type="number"
                   required
@@ -2403,20 +2852,20 @@ const AdminDashboardPage = () => {
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">भुगतान माध्यम *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Payment Method *</label>
                 <select
                   value={disbursementFormData.paymentMethod}
                   onChange={(e) => setDisbursementFormData({ ...disbursementFormData, paymentMethod: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white font-semibold"
                 >
-                  <option value="Cash">नकद दिया (Cash in Hand)</option>
-                  <option value="Direct UPI">सीधा UPI (GPay / PhonePe / Paytm)</option>
-                  <option value="Bank Transfer">बैंक ट्रांसफर (IMPS / NEFT)</option>
+                  <option value="Cash">Cash in Hand</option>
+                  <option value="Direct UPI">Direct UPI (GPay / PhonePe / Paytm)</option>
+                  <option value="Bank Transfer">Bank Transfer (IMPS / NEFT)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">रसीद / संदर्भ संख्या</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Receipt / Reference Number</label>
                 <input
                   type="text"
                   value={disbursementFormData.referenceNumber}
@@ -2431,14 +2880,14 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition"
                 >
-                  भुगतान दर्ज करें
+                  Record Payment
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsDisbursementModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>
@@ -2453,7 +2902,7 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">स्टॉक समायोजन (Stock Adjustment)</h3>
+              <h3 className="font-serif font-bold text-base text-white">Warehouse Stock Adjustment</h3>
               <button onClick={() => setIsStockModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -2461,25 +2910,25 @@ const AdminDashboardPage = () => {
             <form onSubmit={handleStockAdjustSubmit} className="space-y-4 pt-4 text-xs">
               <div className="p-3 bg-neutral-900 rounded-2xl border border-neutral-800">
                 <p className="font-bold text-white text-sm">{stockModalItem.name}</p>
-                <p className="text-neutral-400 mt-0.5">वर्तमान कुल स्टॉक: <strong className="text-white">{stockModalItem.totalStock}</strong> &bull; उपलब्ध: <strong className="text-emerald-400">{stockModalItem.availableStock}</strong></p>
+                <p className="text-neutral-400 mt-0.5">Current Total Stock: <strong className="text-white">{stockModalItem.totalStock}</strong> &bull; Available: <strong className="text-emerald-400">{stockModalItem.availableStock}</strong></p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">क्रिया का प्रकार *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Adjustment Action *</label>
                   <select
                     value={stockAdjustmentForm.actionType}
                     onChange={(e) => setStockAdjustmentForm({ ...stockAdjustmentForm, actionType: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
                   >
-                    <option value="restock">नया माल जोड़ा (+ Purchase)</option>
-                    <option value="damage">शादी में टूटा / क्षतिग्रस्त (+ Damage)</option>
-                    <option value="repair">मरम्मत होकर वापस आया (Repair Done)</option>
-                    <option value="audit_correction">ऑडिट सुधार (Audit Set)</option>
+                    <option value="restock">New Stock Purchase (+ Purchase)</option>
+                    <option value="damage">Damaged at Event (+ Damage)</option>
+                    <option value="repair">Repaired Stock Returned (Repair Done)</option>
+                    <option value="audit_correction">Physical Audit Recount (Set Stock)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">मात्रा (Quantity) *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Quantity *</label>
                   <input
                     type="number"
                     required
@@ -2492,12 +2941,12 @@ const AdminDashboardPage = () => {
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">कारण / टिप्पणी (Reason &amp; Notes)</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Reason &amp; Operational Notes</label>
                 <input
                   type="text"
                   value={stockAdjustmentForm.notes}
                   onChange={(e) => setStockAdjustmentForm({ ...stockAdjustmentForm, notes: e.target.value })}
-                  placeholder="उदा. शादी स्थल पर टूट-फूट या नया स्टॉक डिपो में आया"
+                  placeholder="e.g. Broken at wedding venue or fresh stock shipment arrived"
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
                 />
               </div>
@@ -2507,14 +2956,97 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md transition"
                 >
-                  स्टॉक अपडेट करें
+                  Update Stock
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsStockModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: RECORD CASH ADVANCE
+         ======================================================== */}
+      {isAdvanceModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
+              <h3 className="font-serif font-bold text-base text-white">Record Worker Cash Advance</h3>
+              <button onClick={() => setIsAdvanceModalOpen(false)} className="text-neutral-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleRecordAdvanceSubmit} className="space-y-4 pt-4 text-xs">
+              <div>
+                <label className="block text-neutral-300 mb-1 font-bold">Select Employee *</label>
+                <select
+                  required
+                  value={advanceFormData.staffId}
+                  onChange={(e) => setAdvanceFormData({ ...advanceFormData, staffId: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white font-semibold"
+                >
+                  <option value="">-- Choose Worker --</option>
+                  {staffList.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.category})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 mb-1 font-bold">Advance Amount (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  min="50"
+                  step="50"
+                  value={advanceFormData.amount}
+                  onChange={(e) => setAdvanceFormData({ ...advanceFormData, amount: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-amber-400 font-mono font-bold text-base"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 mb-1 font-bold">Date of Advance *</label>
+                <input
+                  type="date"
+                  required
+                  value={advanceFormData.date}
+                  onChange={(e) => setAdvanceFormData({ ...advanceFormData, date: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 mb-1 font-bold">Reason / Notes</label>
+                <input
+                  type="text"
+                  value={advanceFormData.notes}
+                  onChange={(e) => setAdvanceFormData({ ...advanceFormData, notes: e.target.value })}
+                  placeholder="e.g. Festival travel advance, medical emergency"
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs shadow-md transition"
+                >
+                  Save Advance
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAdvanceModalOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
+                >
+                  Cancel
                 </button>
               </div>
             </form>
@@ -2529,27 +3061,27 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">कारीगर / स्टाफ विवरण</h3>
+              <h3 className="font-serif font-bold text-base text-white">Worker & Staff Profile</h3>
               <button onClick={() => setIsStaffModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSaveStaffMember} className="space-y-4 pt-4 text-xs">
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">स्टाफ का नाम *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Worker Full Name *</label>
                 <input
                   type="text"
                   required
                   value={staffFormData.name}
                   onChange={(e) => setStaffFormData({ ...staffFormData, name: e.target.value })}
-                  placeholder="उदा. राम प्रकाश"
+                  placeholder="e.g. Ram Prakash"
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white font-bold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">मोबाइल नंबर *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Mobile Number *</label>
                   <input
                     type="tel"
                     required
@@ -2560,21 +3092,21 @@ const AdminDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-neutral-300 mb-1 font-bold">श्रेणी (Role) *</label>
+                  <label className="block text-neutral-300 mb-1 font-bold">Category (Role) *</label>
                   <select
                     value={staffFormData.role}
                     onChange={(e) => setStaffFormData({ ...staffFormData, role: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
                   >
-                    <option value="Labourer">मजदूर (Labourer)</option>
-                    <option value="Fitter">टेंट व लाइट फिटर (Fitter)</option>
-                    <option value="Driver">पिकअप ड्राइवर (Driver)</option>
+                    <option value="Labourer">Labourer</option>
+                    <option value="Fitter">Tent & Lighting Fitter</option>
+                    <option value="Driver">Transport Driver</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">दैनिक मजदूरी दर (₹ Daily Wage) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Daily Wage Rate (₹) *</label>
                 <input
                   type="number"
                   min="100"
@@ -2590,14 +3122,14 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md transition"
                 >
-                  कारीगर सुरक्षित करें
+                  Save Worker Profile
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsStaffModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>
@@ -2612,7 +3144,7 @@ const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
-              <h3 className="font-serif font-bold text-base text-white">नया व्यापारिक नियम जोड़ें (Add Rule)</h3>
+              <h3 className="font-serif font-bold text-base text-white">Add New Business Rule</h3>
               <button onClick={() => setIsAddMemoryModalOpen(false)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -2621,34 +3153,34 @@ const AdminDashboardPage = () => {
               e.preventDefault();
               try {
                 await api.createAgentMemory(memoryForm);
-                showToast('नया नियम सुरक्षित कर लिया गया');
+                showToast('New business rule saved successfully');
                 setIsAddMemoryModalOpen(false);
                 setMemoryForm({ category: 'pricing_rule', type: 'business_preference', content: '' });
                 loadAllData();
               } catch (err) {
-                showToast('नियम जोड़ने में विफल', 'error');
+                showToast('Failed to add rule', 'error');
               }
             }} className="space-y-4 pt-4 text-xs">
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">श्रेणी (Category) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Category (Category) *</label>
                 <select
                   value={memoryForm.category}
                   onChange={(e) => setMemoryForm({ ...memoryForm, category: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
                 >
-                  <option value="pricing_rule">छूट व दर नियम (Pricing Rule)</option>
-                  <option value="supplier_rate">सप्लायर व धोबी दर (Supplier Rate)</option>
-                  <option value="quotation_term">कोटेशन शर्तें व नोट्स (Quotation Terms)</option>
-                  <option value="operational_rule">गोदाम व संचालन नियम (Operational)</option>
+                  <option value="pricing_rule">Pricing & Discount Rule</option>
+                  <option value="supplier_rate">Supplier & Laundry Rates</option>
+                  <option value="quotation_term">Quotation Terms & Conditions</option>
+                  <option value="operational_rule">Operational & Warehouse Rules</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-bold">नियम का विवरण (Memory Content) *</label>
+                <label className="block text-neutral-300 mb-1 font-bold">Rule Description (Memory Content) *</label>
                 <textarea
                   rows={3}
                   required
-                  placeholder="उदा. 400 से अधिक मेहमानों के लिए स्टेज डेकोरेशन पर 10% की विशेष छूट दी जाती है।"
+                  placeholder="e.g. Special 10% discount on stage decoration for events with over 400 guests."
                   value={memoryForm.content}
                   onChange={(e) => setMemoryForm({ ...memoryForm, content: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white"
@@ -2660,14 +3192,14 @@ const AdminDashboardPage = () => {
                   type="submit"
                   className="flex-1 py-3 rounded-xl royal-gradient text-white font-bold text-xs shadow-md transition"
                 >
-                  नियम सुरक्षित करें
+                  Save Business Rule
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsAddMemoryModalOpen(false)}
                   className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>

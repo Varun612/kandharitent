@@ -25,7 +25,7 @@ const validateEnquiryInput = (req, res, next) => {
   if (!phoneRegex.test(cleanedPhone)) {
     return res.status(400).json({
       success: false,
-      message: 'Please provide a valid 10-digit Indian mobile number (e.g. 9305465848).'
+      message: 'Please provide a valid 10-digit Indian mobile number (e.g. 18008903456).'
     });
   }
 

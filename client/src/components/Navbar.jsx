@@ -63,29 +63,21 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <a 
-              href="tel:9305465848" 
+            <Link 
+              to="/contact" 
               className="flex items-center gap-1 text-white hover:text-brand-gold font-semibold transition"
             >
               <Phone className="w-3.5 h-3.5 text-brand-gold" />
-              <span>9305465848</span>
-            </a>
-            <span className="text-neutral-500">/</span>
-            <a 
-              href="tel:9307908994" 
-              className="hidden lg:inline text-neutral-300 hover:text-white transition"
-            >
-              9307908994
-            </a>
-            <a
-              href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent%20%26%20Caterers!%20I%20would%20like%20to%20enquire%20about%20event%20rentals%20and%20lawn%20booking."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-medium ml-1 transition"
+              <span>Toll-Free Helpline: 1800-890-3456</span>
+            </Link>
+            <span className="hidden sm:inline text-neutral-500">|</span>
+            <button
+              onClick={openDrawer}
+              className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-medium transition cursor-pointer"
             >
               <MessageCircle className="w-3.5 h-3.5 fill-emerald-400/20" />
-              <span className="hidden sm:inline">WhatsApp</span>
-            </a>
+              <span className="hidden sm:inline">Online Quote</span>
+            </button>
 
             {/* Customer Account Portal Link */}
             <Link 
@@ -315,11 +307,11 @@ const Navbar = () => {
               </Link>
 
               <a
-                href="tel:9305465848"
+                href="/contact"
                 className="w-full py-3 rounded-xl bg-amber-50 text-brand-primary border border-amber-200 font-semibold text-center flex items-center justify-center gap-2"
               >
                 <Phone className="w-4 h-4 text-brand-gold" />
-                <span>Call Now: 9305465848</span>
+                <span>Toll-Free Helpline</span>
               </a>
             </div>
           </div>

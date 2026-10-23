@@ -11,7 +11,7 @@ import {
   Phone
 } from 'lucide-react';
 import { api } from '../services/api';
-import { CATEGORIES } from '../data/seedItems';
+import { CATEGORIES, SEED_ITEMS } from '../data/seedItems';
 import { useEnquiry } from '../context/EnquiryContext';
 import ItemCard from '../components/ItemCard';
 import ItemDetailModal from '../components/ItemDetailModal';
@@ -22,13 +22,16 @@ const CataloguePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'all';
 
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(() => {
+    if (initialCategory === 'all') return SEED_ITEMS;
+    return SEED_ITEMS.filter(i => i.categoryId === initialCategory);
+  });
   const [categories, setCategories] = useState(CATEGORIES);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
   const { totalItemsCount, openDrawer } = useEnquiry();
@@ -36,7 +39,6 @@ const CataloguePage = () => {
   // Load items from API with fallbacks
   useEffect(() => {
     const fetchCatalogue = async () => {
-      setIsLoading(true);
       try {
         const res = await api.getItems({
           category: selectedCategory !== 'all' ? selectedCategory : undefined,
@@ -45,11 +47,23 @@ const CataloguePage = () => {
           sort: sortBy
         });
 
-        if (res.success && res.data) {
+        if (res.success && Array.isArray(res.data)) {
           setItems(res.data);
         }
       } catch (err) {
         console.warn('Error fetching items from server, using local fallback', err);
+        let fallback = [...SEED_ITEMS];
+        if (selectedCategory !== 'all') {
+          fallback = fallback.filter(i => i.categoryId === selectedCategory);
+        }
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          fallback = fallback.filter(i => i.name.toLowerCase().includes(q) || i.description.toLowerCase().includes(q));
+        }
+        if (statusFilter !== 'all') {
+          fallback = fallback.filter(i => i.availabilityStatus === statusFilter);
+        }
+        setItems(fallback);
       } finally {
         setIsLoading(false);
       }
@@ -166,11 +180,11 @@ const CataloguePage = () => {
           </span>
         </div>
         <a
-          href="tel:9305465848"
+          href="/contact"
           className="font-bold text-brand-purple hover:underline flex items-center gap-1 shrink-0"
         >
           <Phone className="w-3.5 h-3.5 text-brand-gold" />
-          <span>Immediate inquiries: 9305465848</span>
+          <span>Toll-Free Helpline: 1800-890-3456</span>
         </a>
       </div>
 

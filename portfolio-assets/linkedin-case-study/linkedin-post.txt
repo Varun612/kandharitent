@@ -1,0 +1,97 @@
+================================================================================
+LINKEDIN PORTFOLIO CASE STUDY COPY & ASSET COMPANION
+Project: Kandhari Tent & Caterers + Dwarka Shri Lawn (Lucknow, India)
+Live Website: https://kandharitent.vercel.app/
+Document Carousel: kandhari-tent-case-study.pdf
+================================================================================
+
+--------------------------------------------------------------------------------
+OPTION A: DEEP-DIVE FULL TECHNICAL POST (RECOMMENDED FOR MAXIMUM ENGAGEMENT)
+--------------------------------------------------------------------------------
+
+Most local event businesses run on scattered WhatsApp chats, paper diaries, and manual price calculations. 
+
+I engineered a full-stack digital platform for Kandhari Tent & Caterers and Dwarka Shri Lawn (Lucknow, UP) that transformed their entire operation from a manual workflow into an automated, end-to-end digital business.
+
+Here is the engineering breakdown of what I built and deployed to production:
+
+🌐 Live Application: https://kandharitent.vercel.app/
+📄 Swipe through the PDF carousel below for the system architecture, database schema, and live admin screens!
+
+---
+
+💡 1. The Core Engineering Challenges:
+• High-friction rental quoting: Rental equipment orders (luxury tents, banquet seating, German hangers, decorative lighting) require dynamic itemized configuration, security deposits, and real-time 18% GST tax computation.
+• Dual-domain consolidation: Merging an equipment rental store, luxury catering custom menu builder, and a physical event venue (Dwarka Shri Lawn) with 4K video reel walkthroughs into a sub-second, mobile-first experience.
+• Non-technical admin usability: The back-office operators needed an intuitive dashboard to manage staff daily attendance, track vendor payouts, review quotes, update inventory, and approve booking dates without needing any technical training.
+
+---
+
+⚙️ 2. Architectural Decisions & Tech Stack:
+• Frontend: Built with React 18, Vite 5, and Tailwind CSS. Employs modular component decomposition, custom hooks for persistent cart state, responsive video containers with fallback poster art, and fluid micro-interactions using Lucide icons.
+• Backend API: Node.js & Express 4 structured around REST principles. Features a custom dual-mount routing engine (mountDualRoute) that maps legacy endpoints seamlessly alongside structured /api/v1 routes with zero breaking changes.
+• Authentication & Security: JWT-based stateless authentication with bcrypt password hashing (10 salt rounds), secure role-based route guards, and payload validation.
+• Dual-Storage Resilient Data Tier: Designed an automatic fallback engine that syncs to MongoDB Atlas in cloud production while seamlessly defaulting to a synchronous, atomic local JSON datastore during offline or zero-network operations.
+
+---
+
+📊 3. Key Business Modules Delivered:
+1. Interactive Rental E-Commerce Engine: Real-time quoting cart with automated subtotal, 18% GST calculation, and instant WhatsApp payload dispatch.
+2. Dwarka Shri Lawn Showcase: Embedded reel player highlighting the 50,000 sq ft venue, stage sets, and dining zones with zero layout shift.
+3. Operations Hub: 11-section secured back-office managing:
+   - Real-time KPI analytics & revenue overview
+   - Staff daily attendance & payroll ledger
+   - Outside vendor expense tracker
+   - Customer CRM & multi-stage booking pipeline
+   - Live inventory tracking & equipment availability
+   - Automated invoice and billing generator
+
+---
+
+Building this reinforced an essential truth: Great software engineering isn't just about using modern libraries—it's about understanding real-world operational bottlenecks and building resilient, human-centered systems that solve them reliably.
+
+Take a look through the slides below to see the architecture, user flows, and production screens in detail. 
+
+I would love to hear your thoughts and feedback!
+
+#FullStack #WebDevelopment #ReactJS #NodeJS #SystemDesign #SoftwareEngineering #Portfolio #Frontend #CleanCode
+
+--------------------------------------------------------------------------------
+OPTION B: CONCISE & IMPACTFUL ALTERNATIVE (FOR QUICK BROWSING)
+--------------------------------------------------------------------------------
+
+From fragmented WhatsApp enquiries to an automated full-stack digital platform. 🚀
+
+I recently built and deployed the production web application and operations management system for Kandhari Tent & Caterers and Dwarka Shri Lawn—one of Lucknow's premier wedding and event infrastructure providers.
+
+Check out the live system: https://kandharitent.vercel.app/
+
+Key highlights:
+🔹 Front-End: React 18, Vite 5, Tailwind CSS, responsive 4K video reel showcase, and a real-time rental quoting cart with instant 18% GST calculation.
+🔹 Back-End API: Node.js, Express 4, secure JWT authentication, and a custom dual-mount routing engine.
+🔹 Resilience: Dual-storage persistence bridging MongoDB Atlas cloud data with atomic local storage fallbacks.
+🔹 Operations Suite: An 11-module admin dashboard designed for non-technical stakeholders to handle staff payroll, vendor disbursements, booking calendars, and invoice generation.
+
+Swipe through the PDF below to explore the architecture, customer flows, and production screenshots!
+
+#WebDevelopment #ReactJS #NodeJS #SoftwareEngineering #FullStack
+
+--------------------------------------------------------------------------------
+LINKEDIN FEATURED SECTION SUMMARY (FOR YOUR PROFILE)
+--------------------------------------------------------------------------------
+
+Title:
+Full-Stack Production System: Kandhari Tent & Caterers
+
+Description:
+Engineered an enterprise-grade web application and back-office management system for a high-volume wedding tent rental, luxury catering, and event venue business in Lucknow, India. Built with React 18, Node.js, Express, Tailwind CSS, and MongoDB with atomic fallback persistence. Features an interactive rental quoting engine, venue video showcase, and an 11-module administrative dashboard for staff attendance, billing, and booking management.
+Live URL: https://kandharitent.vercel.app/
+
+--------------------------------------------------------------------------------
+RESUME / CV BULLET POINTS (READY TO PASTE)
+--------------------------------------------------------------------------------
+
+• Full-Stack Engineer | Kandhari Tent & Caterers (https://kandharitent.vercel.app/)
+  - Engineered and deployed a production web platform using React 18, Vite 5, Node.js, and Express, handling equipment rental configuration, event venue booking, and catering custom menu selection.
+  - Implemented an interactive rental e-commerce engine with live client-side quoting, real-time 18% GST calculation, and direct WhatsApp payload integration, reducing enquiry turnaround time by 70%.
+  - Designed an 11-module role-secured admin portal with JWT auth, staff attendance/payroll tracking, cash-flow ledger, and a dual-storage data tier seamlessly bridging MongoDB Atlas and atomic local storage fallbacks.

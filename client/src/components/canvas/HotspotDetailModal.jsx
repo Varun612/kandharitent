@@ -68,7 +68,7 @@ export const HotspotDetailModal = ({ hotspot, onClose, onOpenEnquiry }) => {
             </button>
 
             <a
-              href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20the%203D%20website%20and%20would%20like%20to%20discuss%20decor%20and%20lawn%20booking."
+              href="https://wa.me/??text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20the%203D%20website%20and%20would%20like%20to%20discuss%20decor%20and%20lawn%20booking."
               target="_blank"
               rel="noopener noreferrer"
               className="py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs flex items-center justify-center gap-2 transition"

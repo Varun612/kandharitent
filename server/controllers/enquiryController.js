@@ -3,7 +3,7 @@ const Enquiry = require('../models/Enquiry');
 const { calculateOrderPricing } = require('../services/pricingEngine');
 const { createNotification } = require('./notificationController');
 
-const BUSINESS_WHATSAPP = process.env.WHATSAPP_PHONE || '919305465848';
+const BUSINESS_WHATSAPP = process.env.PUBLIC_WHATSAPP_PHONE || process.env.WHATSAPP_PHONE || '';
 
 // Helper to generate pre-filled WhatsApp link
 const generateWhatsAppLink = (enquiry) => {

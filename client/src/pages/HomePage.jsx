@@ -698,7 +698,7 @@ const HomePage = () => {
             </div>
             <div className="shrink-0 flex items-center gap-3">
               <a
-                href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20We%20require%20an%20institutional%2Fcorporate%20seminar%20setup%20with%20GST%20quotation."
+                href="https://wa.me/??text=Namaste%20Kandhari%20Tent!%20We%20require%20an%20institutional%2Fcorporate%20seminar%20setup%20with%20GST%20quotation."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-2"
@@ -873,11 +873,11 @@ const HomePage = () => {
               Enquire Lawn Dates
             </button>
             <a
-              href="tel:9305465848"
+              href="/contact"
               className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-brand-accent hover:bg-brand-accentLight text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
             >
               <Phone className="w-4 h-4 text-brand-gold" />
-              <span>Call 9305465848</span>
+              <span>Toll-Free Helpline</span>
             </a>
           </div>
         </div>

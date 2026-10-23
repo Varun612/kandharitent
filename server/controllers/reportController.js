@@ -221,7 +221,7 @@ const getPrintableReportHtml = async (req, res) => {
       </div>
       <div class="header">
         <div class="title">KANDHARI TENT & CATERERS &bull; DWARKA SHRI LAWN</div>
-        <div class="subtitle">Kanpur Road, Opp. Pillar No. 37, Daroga Kheda, Lucknow - 226023 | Contact: 9305465848</div>
+        <div class="subtitle">Kanpur Road, Opp. Pillar No. 37, Daroga Kheda, Lucknow - 226023 | Lucknow, Uttar Pradesh</div>
         <div style="margin-top: 6px; font-size: 12px; font-weight: bold; color: #C5A059;">OFFICIAL BUSINESS & REVENUE REPORT</div>
         <div style="font-size: 10px; color: #9ca3af;">Generated on: ${new Date().toLocaleString('en-IN')}</div>
       </div>

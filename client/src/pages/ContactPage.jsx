@@ -89,7 +89,7 @@ const ContactPage = () => {
         setErrorMessage(res.message || 'Could not send enquiry. Please call us directly.');
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Network error sending enquiry. Please call 9305465848.');
+      setErrorMessage(err.message || 'Network error sending enquiry. Please try again or request a callback.');
     } finally {
       setIsSubmitting(false);
     }
@@ -99,7 +99,7 @@ const ContactPage = () => {
     <div className="space-y-16 pb-20 animate-fadeIn">
       <SEO
         title="Contact Kandhari Tent & Caterers | Kanpur Road, Lucknow"
-        description="Contact Kandhari Tent & Caterers & Dwarka Shri Lawn: Opp. Pillar No. 37, Kanpur Road, Lucknow. Call 9305465848 or send booking enquiries online."
+        description="Contact Kandhari Tent & Caterers & Dwarka Shri Lawn: Opp. Pillar No. 37, Kanpur Road, Lucknow. Call our toll-free helpline or send booking enquiries online."
         canonical="/contact"
       />
       
@@ -134,48 +134,42 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-serif font-bold text-brand-primary">
-                    Direct Contact Numbers
+                    Official Business Helpline
                   </h3>
-                  <p className="text-xs text-neutral-500">Call anytime between 9:00 AM – 9:00 PM</p>
+                  <p className="text-xs text-neutral-500">Toll-Free & Online Support (9:00 AM – 9:00 PM)</p>
                 </div>
               </div>
 
-              <div className="space-y-2 pt-2">
-                <a
-                  href="tel:9305465848"
-                  className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 hover:bg-purple-50 text-neutral-800 hover:text-brand-purple font-bold text-sm transition"
-                >
-                  <span>Primary: +91 9305465848</span>
-                  <Phone className="w-4 h-4 text-brand-gold" />
-                </a>
+              <div className="space-y-3 pt-2">
+                <div className="p-3.5 rounded-xl bg-purple-50/60 border border-purple-100 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold text-brand-primary">Toll-Free Customer Line</div>
+                    <div className="text-sm font-bold text-neutral-800">1800-XXX-XXXX</div>
+                    <div className="text-[10px] text-amber-700 font-medium">Pending Telephony Provisioning</div>
+                  </div>
+                  <Phone className="w-5 h-5 text-brand-primary" />
+                </div>
 
-                <a
-                  href="tel:9307908994"
-                  className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 hover:bg-purple-50 text-neutral-800 hover:text-brand-purple font-semibold text-sm transition"
-                >
-                  <span>Manager: +91 9307908994</span>
-                  <Phone className="w-4 h-4 text-brand-gold" />
-                </a>
-
-                <a
-                  href="tel:7355059566"
-                  className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 hover:bg-purple-50 text-neutral-800 hover:text-brand-purple font-semibold text-sm transition"
-                >
-                  <span>Operations: +91 7355059566</span>
-                  <Phone className="w-4 h-4 text-brand-gold" />
-                </a>
+                <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/80">
+                  <div className="text-xs font-bold text-neutral-800">Request Instant Callback</div>
+                  <div className="text-xs text-neutral-500 mt-0.5">
+                    Submit your number in the form below. Our operations manager will call you back within 30 minutes.
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2">
-                <a
-                  href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent%20%26%20Caterers!%20I%20would%20like%20to%20enquire%20about%20event%20rentals%20and%20lawn%20booking."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2"
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('contact-name-input');
+                    if (el) el.focus();
+                  }}
+                  className="w-full py-3.5 px-4 rounded-xl bg-brand-primary hover:bg-brand-dark text-white font-bold text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <MessageCircle className="w-5 h-5 fill-white/20" />
-                  <span>Start WhatsApp Conversation</span>
-                </a>
+                  <Send className="w-4 h-4" />
+                  <span>Request Callback via Form</span>
+                </button>
               </div>
             </div>
 
@@ -264,7 +258,7 @@ const ContactPage = () => {
                         <span>Open WhatsApp with Inquiry Summary</span>
                       </a>
                       <p className="text-[11px] text-neutral-500 mt-2">
-                        Opens WhatsApp to send your prefilled details directly to our booking desk (+91 9305465848)
+                        Opens WhatsApp to send your prefilled details directly to our booking desk (Official Desk)
                       </p>
                     </div>
                   )}
@@ -310,7 +304,7 @@ const ContactPage = () => {
                         required
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="e.g. 9305465848"
+                        placeholder="e.g. 9876543210"
                         className="w-full px-3.5 py-2.5 text-sm border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                       />
                     </div>

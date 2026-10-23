@@ -218,7 +218,7 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
             </button>
 
             <a
-              href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20your%20wedding%20website%20and%20would%20like%20to%20discuss%20decor%2C%20catering%2C%20and%20lawn%20booking."
+              href="https://wa.me/??text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20your%20wedding%20website%20and%20would%20like%20to%20discuss%20decor%2C%20catering%2C%20and%20lawn%20booking."
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-3.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow-md"
@@ -228,11 +228,11 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
             </a>
 
             <a
-              href="tel:9305465848"
+              href="/contact"
               className="px-4 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm backdrop-blur-md border border-white/20 transition flex items-center gap-2"
             >
               <Phone className="w-4 h-4 text-brand-gold" />
-              <span>9305465848</span>
+              <span>Toll-Free Desk</span>
             </a>
           </div>
 

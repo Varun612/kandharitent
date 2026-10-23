@@ -3,6 +3,96 @@ const { ensureInventoryInit } = require('./inventoryController');
 const { ensureStaffInit } = require('./staffController');
 const { ensureAnalyticsInit } = require('./analyticsController');
 
+// --- Helper: Exact Date & Natural Language Parser ---
+function parseExactDate(text) {
+  if (!text) return new Date().toISOString().split('T')[0];
+  const str = text.toLowerCase();
+  
+  if (str.includes('today') || str.includes('आज')) {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  const monthMap = {
+    jan: '01', january: '01', feb: '02', february: '02', mar: '03', march: '03',
+    apr: '04', april: '04', may: '05', jun: '06', june: '06', jul: '07', july: '07',
+    aug: '08', august: '08', sep: '09', september: '09', oct: '10', october: '10',
+    nov: '11', november: '11', dec: '12', december: '12'
+  };
+
+  // Match e.g. "22 October 2026" or "22nd October 2026"
+  const dmyMatch = text.match(/(\d{1,2})(?:st|nd|rd|th)?\s+([a-zA-Z]+)(?:,)?\s+(\d{4})/i);
+  if (dmyMatch) {
+    const day = dmyMatch[1].padStart(2, '0');
+    const monthStr = dmyMatch[2].toLowerCase();
+    const month = monthMap[monthStr] || monthMap[monthStr.substring(0, 3)];
+    const year = dmyMatch[3];
+    if (month) return `${year}-${month}-${day}`;
+  }
+
+  // Match e.g. "October 22, 2026" or "October 22 2026"
+  const mdyMatch = text.match(/([a-zA-Z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,)?\s+(\d{4})/i);
+  if (mdyMatch) {
+    const monthStr = mdyMatch[1].toLowerCase();
+    const month = monthMap[monthStr] || monthMap[monthStr.substring(0, 3)];
+    const day = mdyMatch[2].padStart(2, '0');
+    const year = mdyMatch[3];
+    if (month) return `${year}-${month}-${day}`;
+  }
+
+  // Match YYYY-MM-DD
+  const isoMatch = text.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return isoMatch[0];
+
+  // Match DD/MM/YYYY
+  const slashMatch = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (slashMatch) {
+    return `${slashMatch[3]}-${slashMatch[2].padStart(2, '0')}-${slashMatch[1].padStart(2, '0')}`;
+  }
+
+  return new Date().toISOString().split('T')[0];
+}
+
+function extractStaffEntities(query) {
+  const qLower = query.toLowerCase();
+  
+  // Extract Name
+  let name = '';
+  const namedMatch = query.match(/(?:named|name is|called|नाम)\s+([A-Za-z\u0900-\u097F]+)/i);
+  if (namedMatch) {
+    name = namedMatch[1];
+  } else {
+    const roleNameMatch = query.match(/(?:labourer|fitter|driver|worker|staff|कारीगर|मजदूर|ड्राइवर)\s+([A-Za-z\u0900-\u097F]+)/i);
+    if (roleNameMatch && !['named', 'and', 'on', 'with', 'to', 'is', 'for'].includes(roleNameMatch[1].toLowerCase())) {
+      name = roleNameMatch[1];
+    }
+  }
+  if (!name) name = 'Ramesh';
+
+  // Extract Role
+  let category = 'Labourer';
+  if (qLower.includes('driver') || qLower.includes('ड्राइवर')) category = 'Driver';
+  else if (qLower.includes('fitter') || qLower.includes('फिटर')) category = 'Fitter';
+  else if (qLower.includes('labourer') || qLower.includes('मजदूर') || qLower.includes('helper')) category = 'Labourer';
+
+  // Extract Status
+  let status = 'Present';
+  if (qLower.includes('half') || qLower.includes('आधा')) status = 'Half-day';
+  else if (qLower.includes('absent') || qLower.includes('अनुपस्थित')) status = 'Absent';
+
+  // Extract Wage
+  let dailyWage = 500;
+  const wageMatch = query.match(/(?:₹|rs\.?|inr|wage\s*of|rate\s*of|wage\s*is|wage)\s*(\d{3,4})/i) || query.match(/(\d{3,4})\s*(?:rs|rupees|wage|\/day|per day)/i);
+  if (wageMatch) {
+    dailyWage = parseInt(wageMatch[1], 10);
+  }
+
+  const date = parseExactDate(query);
+  const calculatedWage = status === 'Present' ? dailyWage : (status === 'Half-day' ? Math.round(dailyWage / 2) : 0);
+
+  return { name, category, status, dailyWage, date, calculatedWage };
+}
+
+
 // Ensure memory layers are initialized
 const ensureMemoryInit = (db) => {
   if (!db.agentConversations) db.agentConversations = [];
@@ -213,6 +303,152 @@ const handleAgentQuery = async (req, res) => {
        m.content.toLowerCase().split(' ').some(w => w.length > 4 && qLower.includes(w)))
     );
 
+    
+    // 0. STAFF ADVANCES ("Record that I gave Ramprakash ₹500 as an advance today")
+    if ((qLower.includes('advance') || qLower.includes('एडवांस')) && (qLower.includes('record') || qLower.includes('gave') || qLower.includes('give') || qLower.includes('दिया') || qLower.includes('देना') || qLower.includes('add') || qLower.includes('जोड़ो'))) {
+      const amountMatch = query.match(/(?:₹|rs.?|inr)?s*(d+)/i);
+      const amount = amountMatch ? parseInt(amountMatch[1], 10) : 500;
+      
+      let empName = '';
+      const nameMatch = query.match(/(?:gave|give|to|for|employee|worker|staff|दिया|नाम)s+([A-Za-z]+)/i);
+      if (nameMatch && !['that', 'an', 'advance', 'him', 'her', 'the', 'today', 'rs', 'inr'].includes(nameMatch[1].toLowerCase())) {
+        empName = nameMatch[1];
+      }
+      if (!empName) {
+        const staffList = db.staff || [];
+        const found = staffList.find(s => qLower.includes(s.name.toLowerCase()));
+        empName = found ? found.name : 'Ramprakash';
+      }
+
+      const date = parseExactDate(query);
+
+      return res.json({
+        success: true,
+        query,
+        action: 'record_staff_advance',
+        requiresConfirmation: true,
+        reply: `👷 **Employee Advance Ready for Confirmation:**\n\n• **Employee:** ${empName}\n• **Advance Amount:** ₹${amount.toLocaleString('en-IN')}\n• **Date:** ${date}\n• **Purpose:** Staff cash advance\n\n*Please confirm to record this advance in the ledger.* `,
+        spokenReply: `Please confirm recording a ₹${amount} advance for ${empName} on ${date}.`,
+        pendingAction: {
+          tool: 'record_staff_advance',
+          params: {
+            name: empName,
+            amount,
+            date,
+            notes: 'Recorded via Master AI Agent'
+          }
+        }
+      });
+    }
+
+    // 0.1 SHOW WAGES & OUTSTANDING ADVANCES ("Show this week's staff wages and outstanding advances")
+    if ((qLower.includes('wage') || qLower.includes('मजदूरी')) && (qLower.includes('advance') || qLower.includes('outstanding') || qLower.includes('एडवांस'))) {
+      const staffList = db.staff || [];
+      const advances = db.staffAdvances || [];
+      const totalOutstanding = advances.filter(a => a.balance > 0).reduce((sum, a) => sum + (Number(a.balance) || 0), 0);
+      
+      const attendance = db.attendance || [];
+      const todayStr = new Date().toISOString().split('T')[0];
+      const recentAtt = attendance.filter(a => a.date >= todayStr.substring(0, 7) + '-01');
+      const totalGrossWages = recentAtt.reduce((sum, a) => sum + (Number(a.calculatedWage) || 0), 0);
+
+      let reply = `💼 **Staff Wages & Outstanding Advances Overview:**\n\n`;
+      reply += `• Active Workers: **${staffList.length}**\n`;
+      reply += `• Month-to-Date Gross Wages: **₹${totalGrossWages.toLocaleString('en-IN')}**\n`;
+      reply += `• Total Outstanding Advances: **₹${totalOutstanding.toLocaleString('en-IN')}**\n\n`;
+      reply += `**Recent Active Advances:**\n`;
+      advances.slice(0, 5).forEach(adv => {
+        reply += `• ${adv.staffName} (${adv.id}): ₹${adv.amount} on ${adv.date} (Balance: ₹${adv.balance || adv.amount}) [${adv.status || 'outstanding'}]\n`;
+      });
+
+      return res.json({
+        success: true,
+        query,
+        action: 'get_wages_and_advances',
+        requiresConfirmation: false,
+        reply,
+        spokenReply: `Gross wages are ₹${totalGrossWages} and total outstanding advances are ₹${totalOutstanding}.`,
+        data: { totalGrossWages, totalOutstanding, activeStaff: staffList.length, advances: advances.slice(0, 10) }
+      });
+    }
+
+    // 0.2 VERONICA INQUIRIES ("Show all new inquiries from Veronica")
+    if (qLower.includes('veronica') || (qLower.includes('inquir') && qLower.includes('new')) || qLower.includes('receptionist')) {
+      const calls = db.receptionistCalls || [];
+      const appointments = db.appointments || [];
+      const tickets = db.supportTickets || [];
+
+      let reply = `🎙️ **Veronica AI Receptionist Inquiries & Live Calls:**\n\n`;
+      reply += `• Total Inbound Calls: **${calls.length}**\n`;
+      reply += `• Walkthrough Appointments: **${appointments.length}**\n`;
+      reply += `• Support Tickets Logged: **${tickets.length}**\n\n`;
+      reply += `**Recent Caller Inquiries:**\n`;
+      calls.slice(0, 5).forEach(c => {
+        reply += `• **${c.callerName}** (${c.callerPhone}): Status ${c.status} | Intent: ${c.intent || 'General'} | Ref: ${c.callId}\n`;
+      });
+
+      return res.json({
+        success: true,
+        query,
+        action: 'get_veronica_inquiries',
+        requiresConfirmation: false,
+        reply,
+        spokenReply: `Veronica has logged ${calls.length} calls and ${appointments.length} appointments.`,
+        data: { callsCount: calls.length, appointmentsCount: appointments.length, ticketsCount: tickets.length, recentCalls: calls.slice(0, 5) }
+      });
+    }
+
+    // 0.3 PENDING APPOINTMENTS ("Show the appointments awaiting confirmation")
+    if (qLower.includes('appointment') || qLower.includes('walkthrough') || qLower.includes('awaiting confirmation')) {
+      const appointments = db.appointments || [];
+      let reply = `📅 **Lawn Walkthrough Appointments Awaiting Review:**\n\n`;
+      if (appointments.length === 0) {
+        reply += 'No appointments currently awaiting confirmation.';
+      } else {
+        appointments.forEach(apt => {
+          reply += `• **${apt.appointmentId}** - ${apt.customerName} (${apt.customerPhone}): Date ${apt.date} at ${apt.timeSlot || '11:00 AM'} [${apt.status}]\n`;
+        });
+      }
+
+      return res.json({
+        success: true,
+        query,
+        action: 'get_pending_appointments',
+        requiresConfirmation: false,
+        reply,
+        spokenReply: `There are ${appointments.length} appointments in the system.`,
+        data: appointments
+      });
+    }
+
+    // 0.4 ADD NEW VARIANT ("Add a new PVC chair variant to the inventory")
+    if ((qLower.includes('add') || qLower.includes('जोड़ो')) && (qLower.includes('variant') || qLower.includes('product') || qLower.includes('item'))) {
+      const isChair = qLower.includes('chair') || qLower.includes('कुर्सी');
+      const isTable = qLower.includes('table') || qLower.includes('टेबल');
+      const itemName = isChair ? 'Premium White PVC Armless Chair' : (isTable ? 'Round Cocktail High Table' : 'Custom Event Equipment');
+      const rate = isChair ? 20 : (isTable ? 250 : 500);
+
+      return res.json({
+        success: true,
+        query,
+        action: 'add_product_variant',
+        requiresConfirmation: true,
+        reply: `📦 **New Inventory Product Variant Ready for Confirmation:**\n\n• **Product Name:** ${itemName}\n• **Category:** ${isChair ? 'Chairs & Seating' : (isTable ? 'Tables' : 'Equipment')}\n• **Daily Rental Rate:** ₹${rate}/day\n• **Default Stock:** 100 units\n\n*Please confirm to add this product to the rental catalogue.* `,
+        spokenReply: `Please confirm adding ${itemName} at ₹${rate} per day to the catalogue.`,
+        pendingAction: {
+          tool: 'add_product_variant',
+          params: {
+            name: itemName,
+            category: isChair ? 'Chairs & Seating' : (isTable ? 'Tables' : 'Equipment'),
+            categoryId: isChair ? 'chairs-seating' : (isTable ? 'tables' : 'other-equipment'),
+            rentalPrice: rate,
+            rate: rate,
+            availableQuantity: 100
+          }
+        }
+      });
+    }
+
     // 1. Check for OUTSIDE PAYMENTS / DHOBI (धोबी / सप्लायर)
     if (qLower.includes('dhobi') || qLower.includes('धोबी') || qLower.includes('supplier') || qLower.includes('सप्लायर') || qLower.includes('outside payment')) {
       // Check if user is asking to RECORD a payment
@@ -352,26 +588,24 @@ const handleAgentQuery = async (req, res) => {
       });
     }
 
-    // 5. STAFF & ATTENDANCE (हाजिरी / कारीगर)
-    if (qLower.includes('attendance') || qLower.includes('हाजिरी') || qLower.includes('उपस्थिति') || qLower.includes('स्टाफ') || qLower.includes('कारीगर') || qLower.includes('मजदूरी')) {
-      // Check for add staff
-      const isAddStaff = (qLower.includes('add') || qLower.includes('जोड़ो')) && (qLower.includes('driver') || qLower.includes('ड्राइवर') || qLower.includes('labourer') || qLower.includes('कारीगर'));
-      if (isAddStaff) {
+    // 5. STAFF & ATTENDANCE (Workforce & Daily Wages)
+    if (qLower.includes('attendance') || qLower.includes('हाजिरी') || qLower.includes('उपस्थिति') || qLower.includes('स्टाफ') || qLower.includes('कारीगर') || qLower.includes('मजदूरी') || qLower.includes('labourer') || qLower.includes('driver') || qLower.includes('fitter') || qLower.includes('present') || qLower.includes('absent')) {
+      // Check for add staff or mark attendance action
+      const isWorkforceAction = (qLower.includes('add') || qLower.includes('mark') || qLower.includes('लगाओ') || qLower.includes('जोड़ो') || qLower.includes('दर्ज')) && 
+        (qLower.includes('driver') || qLower.includes('ड्राइवर') || qLower.includes('labourer') || qLower.includes('कारीगर') || qLower.includes('fitter') || qLower.includes('worker') || qLower.includes('staff') || qLower.includes('present') || qLower.includes('हाजिरी'));
+
+      if (isWorkforceAction) {
+        const entities = extractStaffEntities(query);
         return res.json({
           success: true,
           query,
-          action: 'add_staff',
+          action: 'add_staff_and_attendance',
           requiresConfirmation: true,
-          reply: `👷 **नया स्टाफ सदस्य जोड़ने के लिए पुष्टि करें:**\n\n• पद: पिकअप ड्राइवर (Driver)\n• दैनिक दर: ₹500/दिन\n• स्थिति: सक्रिय\n• आज की हाजिरी: Present`,
-          spokenReply: `नया ड्राइवर जोड़ने और आज की हाजिरी लगाने के लिए कृपया पुष्टि करें।`,
+          reply: `👷 **Workforce Action Ready for Confirmation:**\n\n• **Action:** Verify/Add Worker & Mark Attendance\n• **Worker Name:** ${entities.name}\n• **Role:** ${entities.category}\n• **Daily Wage Rate:** ₹${entities.dailyWage}/day\n• **Attendance Date:** ${entities.date}\n• **Status:** ${entities.status}\n• **Calculated Wage:** ₹${entities.calculatedWage}\n\n*Please confirm to execute this action.* `,
+          spokenReply: `Please confirm adding ${entities.name} as ${entities.category} and marking attendance as ${entities.status} on ${entities.date}.`,
           pendingAction: {
-            tool: 'add_staff',
-            params: {
-              name: 'Ram Prakash (राम प्रकाश)',
-              category: 'Driver',
-              dailyWage: 500,
-              markPresentToday: true
-            }
+            tool: 'add_staff_and_attendance',
+            params: entities
           }
         });
       }
@@ -486,6 +720,95 @@ const confirmAgentAction = async (req, res) => {
     const db = getLocalDb();
     ensureMemoryInit(db);
 
+    
+    // 0. Record Staff Advance Action
+    if (action === 'record_staff_advance') {
+      ensureStaffInit(db);
+      const { name, amount, date, notes } = params || {};
+      const targetName = name || 'Ramprakash';
+      const targetAmount = Number(amount) || 500;
+      const targetDate = date || new Date().toISOString().split('T')[0];
+
+      // Find or create staff member
+      let worker = (db.staff || []).find(s => s.name && s.name.toLowerCase().trim() === targetName.toLowerCase().trim());
+      if (!worker) {
+        worker = {
+          id: 'staff-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5),
+          name: targetName.trim(),
+          category: 'Labourer',
+          dailyWage: 500,
+          startDate: targetDate,
+          status: 'active',
+          createdAt: new Date().toISOString()
+        };
+        if (!db.staff) db.staff = [];
+        db.staff.push(worker);
+      }
+
+      const year = new Date().getFullYear();
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const advanceId = `ADV-${year}-${rand}`;
+
+      const newAdvance = {
+        id: advanceId,
+        staffId: worker.id,
+        staffName: worker.name,
+        amount: targetAmount,
+        date: targetDate,
+        recordedBy: 'admin (Master Agent)',
+        notes: notes || 'Recorded via Master AI voice/typed command',
+        status: 'outstanding',
+        amountRecovered: 0,
+        balance: targetAmount,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!db.staffAdvances) db.staffAdvances = [];
+      db.staffAdvances.push(newAdvance);
+      saveLocalStore();
+
+      return res.json({
+        success: true,
+        advanceCreated: true,
+        advance: newAdvance,
+        worker,
+        message: `✅ Advance recorded successfully: ₹${targetAmount} to ${worker.name} on ${targetDate} (${advanceId}).`,
+        spokenReply: `Successfully recorded advance of ₹${targetAmount} for ${worker.name}.`
+      });
+    }
+
+    // 0.1 Add Product Variant Action
+    if (action === 'add_product_variant') {
+      const { name, category, categoryId, rentalPrice, availableQuantity } = params || {};
+      const newProduct = {
+        id: 'item-' + Date.now().toString(36),
+        name: name || 'Custom Event Rental Item',
+        category: category || 'Chairs & Seating',
+        categoryId: categoryId || 'chairs-seating',
+        rentalPrice: Number(rentalPrice) || 20,
+        rate: Number(rentalPrice) || 20,
+        billingUnit: 'per piece/day',
+        availabilityStatus: 'Available',
+        availableQuantity: Number(availableQuantity) || 100,
+        imageUrl: '/media/seating/seating-2.jpg',
+        description: 'New product variant added via Master AI Agent.',
+        featured: false,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!db.items) db.items = [];
+      db.items.push(newProduct);
+      saveLocalStore();
+
+      return res.json({
+        success: true,
+        productCreated: true,
+        product: newProduct,
+        message: `✅ Added new product variant "${newProduct.name}" at ₹${newProduct.rentalPrice}/day.`,
+        spokenReply: `Successfully added ${newProduct.name} to the catalogue.`
+      });
+    }
+
     // 1. Outside Payment (Dhobi / Supplier)
     if (action === 'record_outside_payment') {
       const { recipientName, category, amount, purpose, paymentMethod, notes } = params;
@@ -533,40 +856,84 @@ const confirmAgentAction = async (req, res) => {
       });
     }
 
-    // 3. Add Staff
-    if (action === 'add_staff') {
+    // 3. Workforce Management: Add Staff & Mark Attendance (Supports Exact Dates)
+    if (action === 'add_staff_and_attendance' || action === 'add_staff') {
       ensureStaffInit(db);
-      const { name, category, dailyWage, markPresentToday } = params;
-      const newStaff = {
-        id: 'staff-' + Date.now().toString(36),
-        name: name || 'Ram Prakash',
-        category: category || 'Driver',
-        dailyWage: Number(dailyWage) || 500,
-        startDate: new Date().toISOString().split('T')[0],
-        status: 'active',
-        createdAt: new Date().toISOString()
-      };
-      db.staff.push(newStaff);
-
-      if (markPresentToday) {
-        db.attendance.push({
-          id: 'att-' + Date.now().toString(36),
-          staffId: newStaff.id,
-          staffName: newStaff.name,
-          category: newStaff.category,
-          date: new Date().toISOString().split('T')[0],
-          status: 'Present',
-          dailyWage: newStaff.dailyWage,
-          calculatedWage: newStaff.dailyWage,
-          recordedAt: new Date().toISOString()
-        });
+      const { name, category, dailyWage, status = 'Present', date, markPresentToday } = params || {};
+      
+      if (!name) {
+        return res.status(400).json({ success: false, message: 'Worker name is required for workforce operations' });
       }
+
+      const targetDate = date ? parseExactDate(date) : new Date().toISOString().split('T')[0];
+      const targetRole = category || 'Labourer';
+      const wageRate = Number(dailyWage) || 500;
+      const attendanceStatus = status || 'Present';
+      const calculatedWage = attendanceStatus === 'Present' ? wageRate : (attendanceStatus === 'Half-day' ? Math.round(wageRate / 2) : 0);
+
+      // 1. Check if worker already exists (case-insensitive name check)
+      let worker = (db.staff || []).find(s => s.name && s.name.toLowerCase().trim() === name.toLowerCase().trim());
+      let workerCreated = false;
+
+      if (!worker) {
+        worker = {
+          id: 'staff-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5),
+          name: name.trim(),
+          category: targetRole,
+          dailyWage: wageRate,
+          startDate: targetDate,
+          status: 'active',
+          createdAt: new Date().toISOString()
+        };
+        if (!db.staff) db.staff = [];
+        db.staff.push(worker);
+        workerCreated = true;
+      }
+
+      // 2. Attendance handling for targetDate
+      let attendanceRecord = null;
+      let attendanceCreated = false;
+      let attendanceUpdated = false;
+
+      if (!db.attendance) db.attendance = [];
+      const existingAttIndex = db.attendance.findIndex(a => a.staffId === worker.id && a.date === targetDate);
+
+      if (existingAttIndex >= 0) {
+        db.attendance[existingAttIndex].status = attendanceStatus;
+        db.attendance[existingAttIndex].calculatedWage = calculatedWage;
+        db.attendance[existingAttIndex].updatedAt = new Date().toISOString();
+        attendanceRecord = db.attendance[existingAttIndex];
+        attendanceUpdated = true;
+      } else {
+        attendanceRecord = {
+          id: 'att-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5),
+          staffId: worker.id,
+          staffName: worker.name,
+          category: worker.category,
+          date: targetDate,
+          status: attendanceStatus,
+          dailyWage: worker.dailyWage || wageRate,
+          calculatedWage,
+          recordedAt: new Date().toISOString()
+        };
+        db.attendance.push(attendanceRecord);
+        attendanceCreated = true;
+      }
+
       saveLocalStore();
 
       return res.json({
         success: true,
-        message: `✅ ${newStaff.name} (${newStaff.category}) को पंजीकृत किया गया और आज की हाजिरी (Present) दर्ज हुई।`,
-        spokenReply: `पुष्टि सफल! ${newStaff.name} को ड्राइवर के रूप में जोड़ दिया गया है।`
+        workerCreated,
+        worker,
+        attendanceMarked: true,
+        attendanceCreated,
+        attendanceUpdated,
+        attendance: attendanceRecord,
+        targetDate,
+        calculatedWage,
+        message: `✅ Workforce action completed: ${worker.name} (${worker.category}) marked ${attendanceStatus} on ${targetDate} (Calculated wage: ₹${calculatedWage}).`,
+        spokenReply: `Success! ${worker.name} is marked ${attendanceStatus} on ${targetDate}.`
       });
     }
 
@@ -582,7 +949,7 @@ const confirmAgentAction = async (req, res) => {
         invoiceNumber,
         enquiryId,
         customerName: customerName || 'Ananya Sharma',
-        phone: phone || '9305465848',
+        phone: phone || '9876543210',
         billingAddress: 'Lucknow, Uttar Pradesh',
         eventDate: new Date().toISOString().split('T')[0],
         eventVenue: 'Dwarka Shri Lawn, Kanpur Road, Lucknow',

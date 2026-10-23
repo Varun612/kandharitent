@@ -122,13 +122,41 @@ const EnquiryDrawer = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError('');
+    try {
+      const res = await api.validateCoupon(couponCode, subtotal);
+      if (res.success && res.data) {
+        setAppliedCoupon(res.data);
+      }
+    } catch (err) {
+      setCouponError(err.message || 'Invalid or expired coupon code');
+      setAppliedCoupon(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
 
   if (!isDrawerOpen) return null;
 
   const rentalDays = calculateRentalDays(startDate, endDate);
   const subtotal = enquiryList.reduce((sum, it) => sum + getLineItemTotal(it, rentalDays), 0);
   const { cartage, labour } = estimateLogistics(enquiryList, formData.deliveryDistanceKm, formData.isReturningCustomer);
-  const grandTotal = subtotal + (enquiryList.length > 0 ? (cartage + labour) : 0);
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const grandTotal = Math.max(0, subtotal - discountAmount + (enquiryList.length > 0 ? (cartage + labour) : 0));
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -151,7 +179,7 @@ const EnquiryDrawer = () => {
     const cleanPhone = formData.phone.replace(/[\s-]/g, '');
     const phoneRegex = /^(?:\+91|0)?[6-9]\d{9}$/;
     if (!phoneRegex.test(cleanPhone)) {
-      setErrorMessage('Please enter a valid 10-digit Indian phone number (e.g. 9305465848).');
+      setErrorMessage('Please enter a valid 10-digit Indian phone number (e.g. 9876543210).');
       return;
     }
 
@@ -179,6 +207,8 @@ const EnquiryDrawer = () => {
         startDate: startDate,
         endDate: endDate || startDate,
         rentalDays,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
+        discount: discountAmount,
         deliveryDistanceKm: formData.deliveryDistanceKm,
         isReturningCustomer: formData.isReturningCustomer,
         locality: formData.locality,
@@ -216,7 +246,7 @@ const EnquiryDrawer = () => {
         setErrorMessage(res.message || 'Could not submit your enquiry. Please call us directly.');
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Network error submitting enquiry. Please call 9305465848.');
+      setErrorMessage(err.message || 'Network error submitting enquiry. Please submit a callback request online.');
     } finally {
       setIsSubmitting(false);
     }
@@ -289,7 +319,7 @@ const EnquiryDrawer = () => {
                       <span>Open WhatsApp with Inquiry Summary</span>
                     </a>
                     <p className="text-[11px] text-neutral-500 mt-2">
-                      Opens WhatsApp to send your prefilled details directly to our desk (+91 9305465848)
+                      Opens WhatsApp to send your prefilled details directly to our desk (Official Desk)
                     </p>
                   </div>
                 )}
@@ -476,6 +506,57 @@ const EnquiryDrawer = () => {
                       <span className="font-semibold">₹{labour.toLocaleString('en-IN')}</span>
                     </div>
 
+                    {/* Promotional Coupon Entry */}
+                    <div className="pt-2 border-t border-neutral-200/70 space-y-2">
+                      <label className="block text-[11px] font-semibold text-neutral-700">
+                        Have a promotional coupon?
+                      </label>
+                      {!appliedCoupon ? (
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={couponCode}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value.toUpperCase());
+                              if (couponError) setCouponError('');
+                            }}
+                            placeholder="e.g. WELCOME100 or FIRST200"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#7c3aed]"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyCoupon}
+                            disabled={couponLoading || !couponCode.trim()}
+                            className="px-3 py-1.5 bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-xs font-bold rounded-lg transition disabled:opacity-50"
+                          >
+                            {couponLoading ? 'Checking...' : 'Apply'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+                          <div className="text-xs text-emerald-800">
+                            <span className="font-bold">✓ {appliedCoupon.code}</span> applied: Saved <strong>₹{appliedCoupon.discountAmount}</strong>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCoupon}
+                            className="text-xs font-bold text-rose-600 hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      {couponError && (
+                        <p className="text-[11px] text-rose-600 font-medium">{couponError}</p>
+                      )}
+                      {appliedCoupon && (
+                        <div className="flex justify-between text-emerald-700 font-semibold pt-1">
+                          <span>Coupon Discount ({appliedCoupon.code}):</span>
+                          <span>- ₹{appliedCoupon.discountAmount.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Returning Customer Rule Toggle */}
                     <div className="pt-2 border-t border-neutral-200/70 flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer text-[11px] text-neutral-600">
@@ -571,7 +652,7 @@ const EnquiryDrawer = () => {
                           required
                           value={formData.phone}
                           onChange={handleChange}
-                          placeholder="e.g. 9305465848"
+                          placeholder="e.g. 9876543210"
                           className="w-full pl-9 pr-3 py-2 text-xs border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"
                         />
                       </div>
@@ -737,11 +818,11 @@ const EnquiryDrawer = () => {
                     </button>
 
                     <a
-                      href="tel:9305465848"
+                      href="/contact"
                       className="w-full py-2.5 px-4 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-semibold text-xs flex items-center justify-center gap-2 transition"
                     >
                       <Phone className="w-3.5 h-3.5 text-brand-gold" />
-                      <span>Immediate Booking Call: +91 9305465848</span>
+                      <span>Toll-Free Booking Desk: 1800-XXX-XXXX</span>
                     </a>
                   </div>
                 </form>

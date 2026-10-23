@@ -162,8 +162,8 @@ JWT_SECRET=your_secure_random_32_char_secret
 ADMIN_EMAIL=varunkandhari612@gmail.com
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your_chosen_admin_password
-BUSINESS_PHONE=9305465848
-WHATSAPP_PHONE=919305465848
+BUSINESS_PHONE=1800-890-3456
+WHATSAPP_PHONE=9118008903456
 ```
 
 ### 4. Starting the Application
@@ -233,6 +233,6 @@ Compiles optimized assets to `client/dist/` in under 20 seconds.
 - **Business Name:** Kandhari Tent & Caterers
 - **Venue:** Dwarka Shri Lawn (Managed by Kandhari Tent & Caterers)
 - **Address:** Kanpur Road, Opp. Pillar No. 37, Daroga Kheda, Lucknow, Uttar Pradesh, India
-- **Phone:** +91 9305465848 | +91 9307908994 | +91 7355059566
-- **WhatsApp:** +91 9305465848
+- **Phone:** +91 1800-890-3456 | +91 9307908994 | +91 7355059566
+- **WhatsApp:** +91 1800-890-3456
 - **Email:** varunkandhari612@gmail.com

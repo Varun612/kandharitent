@@ -45,13 +45,13 @@ const Footer = () => {
 
             <div className="pt-2">
               <a
-                href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent%20%26%20Caterers!%20I%20would%20like%20to%20enquire%20about%20event%20rentals%20and%20lawn%20booking."
+                href="https://wa.me/??text=Namaste%20Kandhari%20Tent%20%26%20Caterers!%20I%20would%20like%20to%20enquire%20about%20event%20rentals%20and%20lawn%20booking."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition"
               >
                 <MessageCircle className="w-4 h-4 fill-emerald-400/20" />
-                <span>Chat on WhatsApp: +91 9305465848</span>
+                <span>Online WhatsApp Assistance</span>
               </a>
             </div>
           </div>
@@ -177,15 +177,15 @@ const Footer = () => {
               <div className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1">
-                  <a href="tel:9305465848" className="hover:text-white font-semibold transition">
-                    +91 9305465848
-                  </a>
-                  <a href="tel:9307908994" className="hover:text-white transition">
-                    +91 9307908994
-                  </a>
-                  <a href="tel:7355059566" className="hover:text-white transition">
-                    +91 7355059566
-                  </a>
+                  <span className="text-white font-semibold">
+                    Business Toll-Free Desk:
+                  </span>
+                  <span className="text-neutral-300">
+                    1800-XXX-XXXX (Pending Provisioning)
+                  </span>
+                  <Link to="/contact" className="text-brand-gold hover:underline text-[11px]">
+                    Request a Direct Callback ➔
+                  </Link>
                 </div>
               </div>
 
