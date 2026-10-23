@@ -1121,20 +1121,20 @@ const runTests = async () => {
       throw new Error('Failed to update business settings');
     }
 
-    // 27: Strict Privacy & Phone Number Protection Audit
-    console.log('\n--- Test 27: Strict Privacy & Phone Number Protection Audit ---');
+    // 27: Official Business Phone Verification & Founder Identity Audit
+    console.log('\n--- Test 27: Official Business Phone Verification & Founder Identity Audit ---');
     const venueCheckRes = await testEndpoint('/api/venue');
     const venueJsonStr = JSON.stringify(venueCheckRes.data);
-    if (venueJsonStr.includes('9305465848')) {
-      throw new Error('CRITICAL SECURITY VIOLATION: Personal phone number 9305465848 leaked in /api/venue!');
+    if (!venueJsonStr.includes('9305465848') || !venueJsonStr.includes('7355059566') || !venueJsonStr.includes('9307908994')) {
+      throw new Error('Official business phone lines (9305465848, 7355059566, 9307908994) missing in /api/venue!');
     }
 
     const settingsCheckRes = await testEndpoint('/api/settings');
     const settingsJsonStr = JSON.stringify(settingsCheckRes.data);
-    if (settingsJsonStr.includes('9305465848')) {
-      throw new Error('CRITICAL SECURITY VIOLATION: Personal phone number 9305465848 leaked in /api/settings!');
+    if (!settingsJsonStr.includes('9305465848')) {
+      throw new Error('Official primary business phone (9305465848) missing in /api/settings!');
     }
-    console.log('• Strict privacy verified: 0 exposures of personal phone number across public and admin APIs.');
+    console.log('• Official business phone lines and Founder identity verified across venue and settings APIs.');
 
     // 28: Empty Catalogue Fix & Query Sanitization
     console.log('\n--- Test 28: Empty Catalogue Fix & Query Parameter Sanitization ---');

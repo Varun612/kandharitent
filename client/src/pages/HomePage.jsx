@@ -32,12 +32,15 @@ import ItemCard from '../components/ItemCard';
 import ItemDetailModal from '../components/ItemDetailModal';
 import HeroRealPhotography from '../components/HeroRealPhotography';
 import EditorialEventGallery from '../components/EditorialEventGallery';
+import FounderSection from '../components/FounderSection';
+import PhoneCallModal from '../components/PhoneCallModal';
 import TestimonialsSection from '../components/TestimonialsSection';
 import SEO from '../components/SEO';
 
 const HomePage = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
   const [isLawnModalOpen, setIsLawnModalOpen] = useState(false);
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
   const { openDrawer, addItem } = useEnquiry();
 
@@ -123,52 +126,72 @@ const HomePage = () => {
         onScrollToCelebrations={scrollToCelebrations}
       />
 
-      {/* Dynamic Live Lucknow Activity & Veronica AI Receptionist Ticker */}
-      <div className="bg-gradient-to-r from-neutral-900 via-purple-950 to-neutral-900 text-white py-3 border-y border-amber-500/30 overflow-hidden shadow-lg relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+      {/* Redesigned Royal Live Lucknow Activity & Direct Telephony Ticker */}
+      <div className="bg-[#0b0414] text-white py-3.5 border-y-2 border-amber-500/40 shadow-xl relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-3 text-xs">
+          
           {/* Live Activity Stream */}
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <span className="flex h-2.5 w-2.5 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          <div className="flex items-center gap-3 overflow-hidden w-full lg:w-auto">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-mono text-[10px] font-bold uppercase tracking-wider shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
+              <span>Live Demand</span>
             </span>
-            <span className="font-bold text-amber-300 uppercase tracking-wider text-[11px] shrink-0">
-              Live Lucknow Bookings:
-            </span>
-            <div className="flex items-center gap-6 text-neutral-300 text-xs overflow-x-auto no-scrollbar whitespace-nowrap">
-              <span>📍 Kanpur Road: <strong>300 PVC Chairs</strong> confirmed for Nov Wedding</span>
-              <span>•</span>
-              <span>📍 Gomti Nagar: <strong>Haldi & Mehendi Yellow Setup</strong> reserved</span>
-              <span>•</span>
-              <span>📍 Alambagh: <strong>Waterproof German Hangar</strong> booked for Reception</span>
-              <span>•</span>
-              <span>📍 Daroga Kheda: <strong>Dwarka Shri Lawn</strong> visit scheduled</span>
+            
+            <div className="flex items-center gap-4 text-neutral-200 text-xs truncate">
+              <span className="flex items-center gap-1 text-amber-300 font-semibold shrink-0">
+                <span>📍 Kanpur Road:</span>
+                <span className="text-white font-normal">300 PVC Chairs confirmed for Nov Wedding</span>
+              </span>
+              <span className="text-amber-500/60 hidden sm:inline">&bull;</span>
+              <span className="hidden sm:flex items-center gap-1 text-amber-300 font-semibold shrink-0">
+                <span>📍 Gomti Nagar:</span>
+                <span className="text-white font-normal">Haldi &amp; Mehendi Yellow Setup reserved</span>
+              </span>
+              <span className="text-amber-500/60 hidden md:inline">&bull;</span>
+              <span className="hidden md:flex items-center gap-1 text-amber-300 font-semibold shrink-0">
+                <span>📍 Alambagh:</span>
+                <span className="text-white font-normal">Waterproof German Hangar booked</span>
+              </span>
             </div>
           </div>
 
-          {/* Veronica Telephony Trigger */}
-          <div className="flex items-center gap-3 shrink-0">
-            <a
-              href="tel:18008903456"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 hover:bg-amber-400/30 transition text-xs font-bold"
+          {/* Genuine Telephony & AI Receptionist Action Desk */}
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap justify-center sm:justify-end">
+            <button
+              onClick={() => setIsPhoneModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs shadow-md transition cursor-pointer"
             >
-              <Phone className="w-3.5 h-3.5 text-amber-300 animate-bounce" />
-              <span>Veronica AI Receptionist: 1800-890-3456</span>
+              <Phone className="w-3.5 h-3.5 text-black animate-bounce" />
+              <span>Call: +91 9305465848</span>
+            </button>
+
+            <a
+              href="https://wa.me/919305465848?text=Namaste%2C%20I%20want%20to%20enquire%20about%20event%20rentals."
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">WhatsApp</span>
             </a>
+
             <button
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('open-ai-chat', {
-                  detail: { initialMessage: 'Namaste Veronica, I want to explore wedding packages and check lawn availability.' }
+                  detail: { mode: 'voice', initialMessage: 'Namaste Veronica, I want to explore wedding packages and check lawn availability.' }
                 }));
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7c3aed] text-white hover:bg-[#6d28d9] transition text-xs font-bold shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1e0d36] text-amber-300 hover:text-white border border-amber-500/40 hover:bg-[#2a134a] transition text-xs font-bold shadow-xs cursor-pointer"
             >
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>Chat with AI</span>
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Voice AI Desk</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* 1.25. FOUNDER & BRAND IDENTITY SECTION: SHRI MAHENDRA KANDHARI */}
+      <FounderSection onOpenDrawer={openDrawer} />
 
       {/* 1.5. EDITORIAL EVENT GALLERY SHOWCASE */}
       <EditorialEventGallery
@@ -940,6 +963,17 @@ const HomePage = () => {
       <ItemDetailModal
         item={selectedDetailItem}
         onClose={() => setSelectedDetailItem(null)}
+      />
+
+      {/* Multi-Line Phone Call Modal */}
+      <PhoneCallModal
+        isOpen={isPhoneModalOpen}
+        onClose={() => setIsPhoneModalOpen(false)}
+        onOpenVoiceAi={() => {
+          window.dispatchEvent(new CustomEvent('open-ai-chat', {
+            detail: { mode: 'voice', initialMessage: 'Namaste Veronica, I want to discuss a rental booking.' }
+          }));
+        }}
       />
 
     </div>

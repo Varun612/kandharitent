@@ -241,57 +241,222 @@ const EditorialEventGallery = ({ onOpenEnquiryWithItem }) => {
           </p>
         </div>
 
-        {/* Multi-Angle Photo Grid - Spacious Cards with Zero Text Overlap */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeEvent.photos.map((photo, pIdx) => (
+        {/* Multi-Angle Bento Photo Grid - Left Tall, Middle Two Stacked, Right Tall */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+          
+          {/* COLUMN 1 (LEFT): 1 Tall Feature Card */}
+          {activeEvent.photos[0] && (
             <div
-              key={photo.id}
-              onClick={() => setLightboxPhotoIndex(pIdx)}
-              className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/90 shadow-xs hover:shadow-luxury hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
+              onClick={() => setLightboxPhotoIndex(0)}
+              className="group bg-[#0d0618] rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-lg hover:border-amber-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full min-h-[440px] sm:min-h-[500px]"
             >
-              {/* Photo Area with Aspect Ratio & Badges */}
-              <div className="relative aspect-4/3 w-full overflow-hidden bg-neutral-900">
+              <div className="relative w-full flex-1 overflow-hidden bg-black min-h-[280px]">
                 <img
-                  src={photo.imageUrl}
-                  alt={photo.title}
+                  src={activeEvent.photos[0].imageUrl}
+                  alt={activeEvent.photos[0].title}
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-
-                {/* Category Pill Tag at Top Left - Completely Disjoint from Title */}
                 <div className="absolute top-3 left-3 z-10">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-neutral-950/80 backdrop-blur-md text-brand-gold border border-brand-gold/40 uppercase tracking-wider shadow-sm">
-                    {photo.tag}
+                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500 text-black uppercase tracking-wider shadow-md">
+                    {activeEvent.photos[0].tag}
                   </span>
                 </div>
-
-                {/* Expand Icon Button at Top Right */}
                 <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-8 h-8 rounded-full bg-black/70 text-white flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-md">
-                    <Maximize2 className="w-4 h-4 text-brand-gold" />
+                  <div className="w-8 h-8 rounded-full bg-black/80 text-amber-300 flex items-center justify-center border border-amber-400 shadow-md">
+                    <Maximize2 className="w-4 h-4" />
                   </div>
                 </div>
               </div>
 
-              {/* Lower Details Card - Generous Padding, No Text Collision */}
-              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-2 bg-white">
-                <div className="space-y-1.5">
-                  <h4 className="text-sm font-serif font-bold text-neutral-900 group-hover:text-brand-primary transition">
-                    {photo.title}
+              <div className="p-5 bg-[#120822] text-white flex flex-col justify-between space-y-2 border-t border-amber-500/30">
+                <div className="space-y-1">
+                  <h4 className="text-base font-serif font-bold text-amber-200 group-hover:text-amber-300 transition">
+                    {activeEvent.photos[0].title}
                   </h4>
-                  <p className="text-xs text-neutral-500 leading-relaxed">
-                    {photo.caption}
+                  <p className="text-xs text-neutral-300 leading-relaxed">
+                    {activeEvent.photos[0].caption}
                   </p>
                 </div>
-
-                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-[11px] font-bold text-brand-purple">
+                <div className="pt-2 border-t border-neutral-800 flex items-center justify-between text-xs font-bold text-amber-400">
                   <span>View High-Res Photo</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </div>
-          ))}
+          )}
+
+          {/* COLUMN 2 (MIDDLE): 2 Cards Stacked Vertically (One Above The Other!) */}
+          <div className="flex flex-col gap-6 justify-between">
+            
+            {/* Card 2A (Top Card in Middle Section) */}
+            {activeEvent.photos[1] && (
+              <div
+                onClick={() => setLightboxPhotoIndex(1)}
+                className="group bg-[#0d0618] rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-lg hover:border-amber-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col flex-1"
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                  <img
+                    src={activeEvent.photos[1].imageUrl}
+                    alt={activeEvent.photos[1].title}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-[#7c3aed] text-white uppercase tracking-wider shadow-md">
+                      {activeEvent.photos[1].tag}
+                    </span>
+                  </div>
+                  <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-8 h-8 rounded-full bg-black/80 text-amber-300 flex items-center justify-center border border-amber-400 shadow-md">
+                      <Maximize2 className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-[#120822] text-white flex flex-col justify-between space-y-1.5 border-t border-amber-500/30">
+                  <div>
+                    <h4 className="text-sm font-serif font-bold text-amber-200 group-hover:text-amber-300 transition">
+                      {activeEvent.photos[1].title}
+                    </h4>
+                    <p className="text-xs text-neutral-300 leading-snug">
+                      {activeEvent.photos[1].caption}
+                    </p>
+                  </div>
+                  <div className="pt-1.5 border-t border-neutral-800 flex items-center justify-between text-[11px] font-bold text-amber-400">
+                    <span>View High-Res Photo</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Card 2B (Bottom Card in Middle Section) */}
+            {activeEvent.photos[4] && (
+              <div
+                onClick={() => setLightboxPhotoIndex(4)}
+                className="group bg-[#0d0618] rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-lg hover:border-amber-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col flex-1"
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                  <img
+                    src={activeEvent.photos[4].imageUrl}
+                    alt={activeEvent.photos[4].title}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider shadow-md">
+                      {activeEvent.photos[4].tag}
+                    </span>
+                  </div>
+                  <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-8 h-8 rounded-full bg-black/80 text-amber-300 flex items-center justify-center border border-amber-400 shadow-md">
+                      <Maximize2 className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-[#120822] text-white flex flex-col justify-between space-y-1.5 border-t border-amber-500/30">
+                  <div>
+                    <h4 className="text-sm font-serif font-bold text-amber-200 group-hover:text-amber-300 transition">
+                      {activeEvent.photos[4].title}
+                    </h4>
+                    <p className="text-xs text-neutral-300 leading-snug">
+                      {activeEvent.photos[4].caption}
+                    </p>
+                  </div>
+                  <div className="pt-1.5 border-t border-neutral-800 flex items-center justify-between text-[11px] font-bold text-amber-400">
+                    <span>View High-Res Photo</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* COLUMN 3 (RIGHT): 1 Tall Feature Card */}
+          {activeEvent.photos[2] && (
+            <div
+              onClick={() => setLightboxPhotoIndex(2)}
+              className="group bg-[#0d0618] rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-lg hover:border-amber-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full min-h-[440px] sm:min-h-[500px]"
+            >
+              <div className="relative w-full flex-1 overflow-hidden bg-black min-h-[280px]">
+                <img
+                  src={activeEvent.photos[2].imageUrl}
+                  alt={activeEvent.photos[2].title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500 text-black uppercase tracking-wider shadow-md">
+                    {activeEvent.photos[2].tag}
+                  </span>
+                </div>
+                <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-8 h-8 rounded-full bg-black/80 text-amber-300 flex items-center justify-center border border-amber-400 shadow-md">
+                    <Maximize2 className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 bg-[#120822] text-white flex flex-col justify-between space-y-2 border-t border-amber-500/30">
+                <div className="space-y-1">
+                  <h4 className="text-base font-serif font-bold text-amber-200 group-hover:text-amber-300 transition">
+                    {activeEvent.photos[2].title}
+                  </h4>
+                  <p className="text-xs text-neutral-300 leading-relaxed">
+                    {activeEvent.photos[2].caption}
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-neutral-800 flex items-center justify-between text-xs font-bold text-amber-400">
+                  <span>View High-Res Photo</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
+
+        {/* Supplementary Setups Row (VIP Seating, Lawn & Additional Angles) */}
+        {activeEvent.photos.length > 3 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+            {[3, 5].map((idx) => {
+              const photo = activeEvent.photos[idx];
+              if (!photo) return null;
+              return (
+                <div
+                  key={photo.id}
+                  onClick={() => setLightboxPhotoIndex(idx)}
+                  className="group bg-[#0d0618] rounded-2xl overflow-hidden border border-neutral-800 hover:border-amber-400 shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col"
+                >
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                    <img
+                      src={photo.imageUrl}
+                      alt={photo.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-neutral-900/90 text-amber-300 border border-amber-400/40 uppercase tracking-wider">
+                        {photo.tag}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-[#120822] text-white space-y-1 border-t border-neutral-800">
+                    <h5 className="text-xs font-serif font-bold text-white group-hover:text-amber-300 transition">
+                      {photo.title}
+                    </h5>
+                    <p className="text-[11px] text-neutral-400 line-clamp-1">
+                      {photo.caption}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
       </div>
 

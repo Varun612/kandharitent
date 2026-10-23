@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Phone, 
   MapPin, 
@@ -9,7 +9,6 @@ import {
   Sparkles, 
   Calendar,
   MessageCircle,
-  ShieldCheck,
   User,
   ExternalLink,
   ChevronDown,
@@ -17,18 +16,38 @@ import {
 } from 'lucide-react';
 import { useEnquiry } from '../context/EnquiryContext';
 import { useAuth } from '../context/AuthContext';
+import PhoneCallModal from './PhoneCallModal';
+import TrackOrderModal from './TrackOrderModal';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { totalItemsCount, openDrawer } = useEnquiry();
   const { isCustomerAuthenticated, customerUser, unreadNotifsCount } = useAuth();
+
+  const lastOrderId = localStorage.getItem('lastEnquiryReference') || customerUser?.lastOrderId;
+
+  const handleTrackClick = (e) => {
+    e.preventDefault();
+    if (lastOrderId) {
+      navigate(`/track/${lastOrderId}`);
+    } else {
+      setIsTrackModalOpen(true);
+    }
+  };
 
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Rental Catalogue', path: '/catalogue' },
-    { name: 'Track Order', path: '/track' },
+    { 
+      name: 'Track Order', 
+      path: '/track',
+      isCustomTrack: true
+    },
     { name: 'Dwarka Shri Lawn', path: '/lawn', highlight: true },
     { name: 'Catering Menu', path: '/catering', highlight: true },
     { name: 'Services', path: '/services' },
@@ -60,26 +79,29 @@ const Navbar = () => {
             <span className="hidden md:inline-block text-neutral-500">|</span>
             <span className="hidden md:flex items-center gap-1.5 text-neutral-300">
               <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-              Dwarka Shri Lawn & Complete Tent Solutions
+              Dwarka Shri Lawn &bull; Managed by Kandhari Tent House
             </span>
           </div>
 
           <div className="flex items-center gap-4">
-            <Link 
-              to="/contact" 
-              className="flex items-center gap-1 text-white hover:text-brand-gold font-semibold transition"
+            <button 
+              onClick={() => setIsPhoneModalOpen(true)}
+              className="flex items-center gap-1 text-white hover:text-brand-gold font-semibold transition cursor-pointer"
             >
-              <Phone className="w-3.5 h-3.5 text-brand-gold" />
-              <span>Toll-Free Helpline: 1800-890-3456</span>
-            </Link>
+              <Phone className="w-3.5 h-3.5 text-brand-gold animate-bounce" />
+              <span>Helpline: +91 9305465848</span>
+            </button>
             <span className="hidden sm:inline text-neutral-500">|</span>
-            <Link
-              to="/track"
+            <button
+              onClick={handleTrackClick}
               className="inline-flex items-center gap-1 text-amber-300 hover:text-white font-medium transition cursor-pointer"
             >
               <Truck className="w-3.5 h-3.5 text-amber-400" />
               <span>Track Order</span>
-            </Link>
+              {lastOrderId && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="Active Booking Running" />
+              )}
+            </button>
             <span className="hidden sm:inline text-neutral-500">|</span>
             <button
               onClick={openDrawer}
@@ -103,22 +125,12 @@ const Navbar = () => {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ring-2 ring-neutral-900" title={`${unreadNotifsCount} new updates`} />
               )}
             </Link>
-
-            {/* Admin Portal Link */}
-            <Link 
-              to="/admin/login" 
-              className="text-neutral-400 hover:text-brand-gold ml-1 transition flex items-center gap-1"
-              title="Admin Portal"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span className="hidden xl:inline text-[11px]">Admin</span>
-            </Link>
           </div>
         </div>
       </div>
 
       {/* Main Navigation Bar */}
-      <nav className="glass-nav border-b border-neutral-200">
+      <nav className="bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Brand Logo & Title */}
@@ -128,11 +140,12 @@ const Navbar = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl sm:text-2xl font-serif font-bold text-brand-primary tracking-tight leading-tight group-hover:text-brand-purple transition">
-                  Kandhari Tent & Caterers
+                  Kandhari Tent &amp; Caterers
                 </span>
-                <span className="text-xs font-semibold text-brand-gold tracking-wide uppercase flex items-center gap-1">
-                  <span>Dwarka Shri Lawn</span>
-                  <span className="text-[10px] text-neutral-500 font-normal lowercase">(managed)</span>
+                <span className="text-[11px] font-bold text-amber-600 tracking-wide flex items-center gap-1">
+                  <span>Founded by Shri Mahendra Kandhari</span>
+                  <span className="text-neutral-400">&bull;</span>
+                  <span className="text-neutral-600 font-normal">Dwarka Shri Lawn</span>
                 </span>
               </div>
             </Link>
@@ -195,6 +208,26 @@ const Navbar = () => {
                         </div>
                       )}
                     </div>
+                  );
+                }
+
+                if (link.isCustomTrack) {
+                  return (
+                    <button
+                      key={link.name}
+                      onClick={handleTrackClick}
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold tracking-wide transition flex items-center gap-1.5 cursor-pointer ${
+                        isActive(link.path)
+                          ? 'text-brand-primary font-bold bg-brand-cream border border-brand-border/60'
+                          : 'text-neutral-700 hover:text-brand-primary hover:bg-brand-cream/60'
+                      }`}
+                    >
+                      <Truck className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{link.name}</span>
+                      {lastOrderId && (
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Active Booking" />
+                      )}
+                    </button>
                   );
                 }
 
@@ -270,20 +303,45 @@ const Navbar = () => {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-neutral-200 bg-white px-4 pt-3 pb-6 space-y-2 shadow-xl animate-fadeIn">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium transition ${
-                  isActive(link.path)
-                    ? 'text-brand-purple font-bold bg-purple-50'
-                    : 'text-neutral-700 hover:text-brand-purple hover:bg-neutral-50'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              if (link.isCustomTrack) {
+                return (
+                  <button
+                    key={link.name}
+                    onClick={(e) => {
+                      setMobileMenuOpen(false);
+                      handleTrackClick(e);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-base font-medium transition flex items-center justify-between text-neutral-700 hover:text-brand-purple hover:bg-neutral-50 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-amber-500" />
+                      <span>{link.name}</span>
+                    </span>
+                    {lastOrderId && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        Active Order
+                      </span>
+                    )}
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block px-4 py-3 rounded-xl text-base font-medium transition ${
+                    isActive(link.path)
+                      ? 'text-brand-purple font-bold bg-purple-50'
+                      : 'text-neutral-700 hover:text-brand-purple hover:bg-neutral-50'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
 
             <Link
               to="/tools/creative-director"
@@ -316,17 +374,38 @@ const Navbar = () => {
                 <span>Book Dwarka Shri Lawn</span>
               </Link>
 
-              <a
-                href="/contact"
-                className="w-full py-3 rounded-xl bg-amber-50 text-brand-primary border border-amber-200 font-semibold text-center flex items-center justify-center gap-2"
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsPhoneModalOpen(true);
+                }}
+                className="w-full py-3 rounded-xl bg-amber-50 text-brand-primary border border-amber-200 font-semibold text-center flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Phone className="w-4 h-4 text-brand-gold" />
-                <span>Toll-Free Helpline</span>
-              </a>
+                <Phone className="w-4 h-4 text-brand-gold animate-bounce" />
+                <span>Direct Helpline (+91 9305465848)</span>
+              </button>
             </div>
           </div>
         )}
       </nav>
+
+      {/* Multi-Line Phone Connect Modal */}
+      <PhoneCallModal
+        isOpen={isPhoneModalOpen}
+        onClose={() => setIsPhoneModalOpen(false)}
+        onOpenVoiceAi={() => {
+          window.dispatchEvent(new CustomEvent('open-ai-chat', {
+            detail: { mode: 'voice', initialMessage: 'Namaste Veronica, I want to discuss a rental booking.' }
+          }));
+        }}
+      />
+
+      {/* Smart Track Order Modal (for guests/empty cart) */}
+      <TrackOrderModal
+        isOpen={isTrackModalOpen}
+        onClose={() => setIsTrackModalOpen(false)}
+        onOpenRentalCatalogue={() => openDrawer()}
+      />
     </header>
   );
 };

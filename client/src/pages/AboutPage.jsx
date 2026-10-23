@@ -39,6 +39,60 @@ const AboutPage = () => {
         </div>
       </section>
 
+      {/* Founder Identity & Visionary Tribute */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#11081e] text-white rounded-3xl p-8 sm:p-12 border-2 border-amber-500/40 shadow-2xl relative overflow-hidden space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            
+            {/* Photos */}
+            <div className="md:col-span-5 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl overflow-hidden border border-amber-400/50 aspect-[3/4] bg-neutral-900 shadow-md">
+                <img
+                  src="/media/founder/mahendra-kandhari-founder-portrait.jpg"
+                  alt="Shri Mahendra Kandhari - Founder"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="rounded-2xl overflow-hidden border border-amber-400/50 aspect-[3/4] bg-neutral-900 shadow-md mt-4">
+                <img
+                  src="/media/founder/mahendra-kandhari-founder-garland.jpg"
+                  alt="Shri Mahendra Kandhari with Garland"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Narrative */}
+            <div className="md:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[11px] font-bold uppercase tracking-wider">
+                <span>The Brand Creator &bull; Founding Father</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-serif font-black text-white">
+                Shri Mahendra Kandhari
+              </h2>
+              <p className="text-xs sm:text-sm text-amber-200/90 italic font-serif leading-relaxed">
+                &ldquo;Honesty in pricing, punctuality in delivery, and treating every guest as our own family.&rdquo;
+              </p>
+              <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                Kandhari Tent &amp; Caterers was founded by <strong>Shri Mahendra Kandhari</strong> with an unshakeable commitment to authentic Awadhi hospitality. Every milestone celebration, luxury German hangar structure, and marriage setup at <strong>Dwarka Shri Lawn</strong> continues to be guided by his personal values of direct family accountability and heartfelt care.
+              </p>
+              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-amber-300">
+                <a href="tel:9305465848" className="bg-amber-500/20 px-3 py-1.5 rounded-xl border border-amber-500/40 hover:bg-amber-500/30 transition">
+                  📞 +91 9305465848 (Founder Desk)
+                </a>
+                <a href="tel:7355059566" className="bg-neutral-800 px-3 py-1.5 rounded-xl border border-neutral-700 hover:text-white transition">
+                  📞 7355059566
+                </a>
+                <a href="tel:9307908994" className="bg-neutral-800 px-3 py-1.5 rounded-xl border border-neutral-700 hover:text-white transition">
+                  📞 9307908994
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Main Narrative */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         

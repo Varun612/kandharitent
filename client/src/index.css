@@ -31,36 +31,46 @@
   background: #8C1D40;
 }
 
-/* Glassmorphism and Luxury Surface helpers */
-.glass-nav {
-  background: rgba(253, 251, 247, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+/* Solid Royal Luxury Surfaces (Replacing washed-out glassmorphism with high-contrast Awadhi royal surfaces) */
+.solid-nav, .glass-nav {
+  background: #0B0414;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-.glass-nav-dark {
-  background: rgba(26, 5, 18, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+.solid-nav-dark, .glass-nav-dark {
+  background: #0B0414;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
 }
 
-.glass-card {
-  background: rgba(253, 251, 247, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(235, 227, 213, 0.85);
+.solid-card, .glass-card {
+  background: #110720;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 158, 11, 0.1);
+}
+
+.royal-card {
+  background: #120722;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(245, 158, 11, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.royal-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 10px rgba(245, 158, 11, 0.25);
 }
 
 .luxury-card {
-  background: #FDFBF7;
-  border: 1px solid #EBE3D5;
-  box-shadow: 0 10px 30px -5px rgba(42, 8, 27, 0.05), 0 0 0 1px rgba(197, 160, 89, 0.12);
+  background: #FAF7F2;
+  border: 1px solid #E4DAC8;
+  box-shadow: 0 10px 30px -5px rgba(18, 7, 34, 0.08), 0 0 0 1px rgba(197, 160, 89, 0.2);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .luxury-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 20px 40px -10px rgba(42, 8, 27, 0.12), 0 0 0 1px rgba(197, 160, 89, 0.3);
+  box-shadow: 0 20px 40px -10px rgba(18, 7, 34, 0.16), 0 0 0 1px rgba(197, 160, 89, 0.4);
 }
 
 .royal-gradient {

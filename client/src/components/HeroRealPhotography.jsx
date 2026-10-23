@@ -65,6 +65,7 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
   const [activeSetupIndex, setActiveSetupIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isVideoMode, setIsVideoMode] = useState(true);
+  const [activeVideoSrc, setActiveVideoSrc] = useState('/media/lawn/DwarakaShreevideo.mp4');
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -93,13 +94,14 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
   const currentSetup = HERO_SETUPS[activeSetupIndex];
 
   return (
-    <section className="relative w-full min-h-[620px] sm:min-h-[720px] lg:min-h-[780px] bg-brand-dark flex flex-col justify-between overflow-hidden">
+    <section className="relative w-full min-h-[620px] sm:min-h-[720px] lg:min-h-[780px] bg-[#090312] flex flex-col justify-between overflow-hidden">
       
       {/* Background Photography & Video Layers */}
       <div className="absolute inset-0 z-0">
-        {/* Cinematic Video Reel Layer */}
+        {/* Cinematic Scenic Video Layer */}
         {isVideoMode && !prefersReducedMotion && (
           <video
+            key={activeVideoSrc}
             autoPlay
             loop
             muted
@@ -107,7 +109,7 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
             className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000"
             poster={currentSetup.image}
           >
-            <source src="/media/videos/night-decor-reel.mp4" type="video/mp4" />
+            <source src={activeVideoSrc} type="video/mp4" />
           </video>
         )}
 
@@ -128,65 +130,93 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
           </div>
         ))}
 
-        {/* Radiant, High-Visibility Overlays that preserve photography and video brilliance */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/85 via-transparent to-black/25 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-dark/75 via-brand-dark/35 to-transparent pointer-events-none" />
+        {/* High-Contrast Obsidian & Royal Gold Framing Vignette (No Cloudy Glass) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#090312] via-black/40 to-black/50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#090312]/90 via-[#090312]/50 to-transparent pointer-events-none" />
       </div>
 
-      {/* Top Brand Banner & Trust Badges */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 w-full">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-gold/20 pb-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-brand-gold/40 text-brand-goldLight text-xs sm:text-sm font-semibold tracking-wide shadow-luxury">
-            <Sparkles className="w-3.5 h-3.5 text-brand-gold animate-pulse" />
-            <span>Kandhari Tent & Caterers &bull; Dwarka Shri Lawn</span>
+      {/* Top Brand Banner & Founder Heritage Badge */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 w-full">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/25 pb-4">
+          
+          {/* Founder Identity Pill */}
+          <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#140726] border border-amber-400/50 text-white text-xs sm:text-sm font-semibold shadow-lg">
+            <img
+              src="/media/founder/mahendra-kandhari-founder-portrait.jpg"
+              alt="Shri Mahendra Kandhari"
+              className="w-6 h-6 rounded-full object-cover border border-amber-300 shrink-0"
+            />
+            <span className="text-amber-300 font-bold">Founded by Shri Mahendra Kandhari</span>
+            <span className="text-neutral-400 hidden sm:inline">&bull;</span>
+            <span className="text-neutral-300 text-xs hidden sm:inline">Dwarka Shri Lawn, Lucknow</span>
           </div>
 
-          <div className="flex items-center gap-4 text-[11px] sm:text-xs text-neutral-300">
-            <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-brand-gold" />
-              <span className="hidden sm:inline">Kanpur Road</span> Opp. Pillar No. 37, Lucknow
-            </span>
-            <span className="hidden md:inline text-neutral-500">&bull;</span>
-            <span className="hidden md:flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>DRDO Approved Contractor</span>
+          <div className="flex items-center gap-3 text-[11px] sm:text-xs text-neutral-300 flex-wrap">
+            <span className="flex items-center gap-1.5 text-neutral-200 font-medium">
+              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Kanpur Road, Opp. Pillar No. 37</span>
             </span>
 
-            <button
-              type="button"
-              onClick={() => setIsVideoMode(!isVideoMode)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all border ${
-                isVideoMode
-                  ? 'bg-brand-gold text-brand-dark border-brand-gold shadow-md font-bold'
-                  : 'bg-black/50 text-neutral-300 hover:text-white border-white/20 hover:border-brand-gold/40'
-              }`}
-              title={isVideoMode ? "Switch to Real Event Photography" : "Switch to Cinematic Night Video Reel"}
-            >
-              {isVideoMode ? (
-                <>
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Photo Gallery</span>
-                </>
-              ) : (
-                <>
-                  <Film className="w-3.5 h-3.5 text-brand-gold animate-pulse" />
-                  <span>Night Reel</span>
-                </>
-              )}
-            </button>
+            {/* Scenic Video & Photo Tour Toggles */}
+            <div className="flex items-center gap-1.5 bg-black/70 p-1 rounded-xl border border-amber-400/30">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVideoMode(true);
+                  setActiveVideoSrc('/media/lawn/DwarakaShreevideo.mp4');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
+                  isVideoMode && activeVideoSrc.includes('DwarakaShree')
+                    ? 'bg-amber-500 text-black shadow-sm'
+                    : 'text-neutral-300 hover:text-white'
+                }`}
+              >
+                <Film className="w-3 h-3" />
+                <span>Drone View</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVideoMode(true);
+                  setActiveVideoSrc('/media/lawn/reels/01_Grand_Entrance.mp4');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
+                  isVideoMode && activeVideoSrc.includes('Entrance')
+                    ? 'bg-amber-500 text-black shadow-sm'
+                    : 'text-neutral-300 hover:text-white'
+                }`}
+              >
+                <span>Grand Gate</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsVideoMode(false)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
+                  !isVideoMode
+                    ? 'bg-amber-500 text-black shadow-sm'
+                    : 'text-neutral-300 hover:text-white'
+                }`}
+              >
+                <Camera className="w-3 h-3" />
+                <span>Photos</span>
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
 
       {/* Main Editorial Hero Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 w-full flex-1 flex flex-col justify-center">
-        <div className="max-w-2xl lg:max-w-3xl space-y-4 sm:space-y-5 animate-fade-in bg-black/45 backdrop-blur-md p-6 sm:p-9 rounded-3xl border border-white/20 shadow-2xl">
+        <div className="max-w-2xl lg:max-w-3xl space-y-4 sm:space-y-5 animate-fade-in bg-[#0e061c]/95 p-6 sm:p-9 rounded-3xl border-2 border-amber-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
           
           {/* Active Setup Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-brand-primary/90 border border-brand-gold/40 text-brand-goldLight text-xs font-bold uppercase tracking-widest shadow-md">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold uppercase tracking-widest shadow-md">
             <span>{currentSetup.tag}</span>
-            <span className="text-brand-gold">&bull;</span>
-            <span className="text-white/90 text-[11px] font-normal">{currentSetup.locality}</span>
+            <span className="text-amber-400">&bull;</span>
+            <span className="text-neutral-200 text-[11px] font-medium">{currentSetup.locality}</span>
           </div>
 
           {/* Majestic Heading */}
@@ -203,67 +233,67 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
           <div className="flex flex-wrap items-center gap-3 pt-3">
             <button
               onClick={onOpenDrawer}
-              className="px-6 py-3.5 rounded-xl royal-gradient text-white font-bold text-xs sm:text-sm shadow-luxury hover:opacity-95 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 border border-brand-gold/30"
+              className="px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
             >
-              <Calendar className="w-4 h-4 text-brand-gold" />
+              <Calendar className="w-4 h-4 text-black" />
               <span>Plan Your Event</span>
             </button>
 
             <button
               onClick={onScrollToCelebrations}
-              className="px-6 py-3.5 rounded-xl bg-brand-cream/90 hover:bg-white text-brand-primary font-bold text-xs sm:text-sm shadow-md transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+              className="px-6 py-3.5 rounded-xl bg-white hover:bg-neutral-100 text-[#140726] font-bold text-xs sm:text-sm shadow-md transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
             >
-              <Eye className="w-4 h-4 text-brand-primary" />
+              <Eye className="w-4 h-4 text-[#140726]" />
               <span>Explore Real Setups</span>
             </button>
 
             <a
-              href="https://wa.me/??text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20your%20wedding%20website%20and%20would%20like%20to%20discuss%20decor%2C%20catering%2C%20and%20lawn%20booking."
+              href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20your%20wedding%20website%20and%20would%20like%20to%20discuss%20decor%2C%20catering%2C%20and%20lawn%20booking."
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-3.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow-md"
+              className="px-4 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow-md"
             >
               <MessageCircle className="w-4 h-4" />
               <span>WhatsApp Desk</span>
             </a>
 
             <a
-              href="/contact"
-              className="px-4 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm backdrop-blur-md border border-white/20 transition flex items-center gap-2"
+              href="tel:9305465848"
+              className="px-4 py-3.5 rounded-xl bg-[#1d0b38] hover:bg-[#27104b] text-amber-300 font-bold text-xs sm:text-sm border border-amber-500/40 transition flex items-center gap-2"
             >
-              <Phone className="w-4 h-4 text-brand-gold" />
-              <span>Toll-Free Desk</span>
+              <Phone className="w-4 h-4 text-amber-400 animate-bounce" />
+              <span>Call: 9305465848</span>
             </a>
           </div>
 
           {/* Genuine Trust Badges Row */}
-          <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-5 text-[11px] sm:text-xs text-neutral-300/90">
+          <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-5 text-[11px] sm:text-xs text-neutral-300/90 border-t border-amber-500/20">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>100% Real Lucknow Work</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>Punctual On-Site Execution</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-brand-gold shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>Direct Family Commitment</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <Award className="w-3.5 h-3.5 text-brand-gold shrink-0" />
-              <span>GST & Tender Compliant</span>
+              <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>GST &amp; DRDO Approved</span>
             </span>
           </div>
 
         </div>
       </div>
 
-      {/* Bottom Setup Switcher Strip */}
-      <div className="relative z-10 w-full bg-brand-dark/90 backdrop-blur-md border-t border-brand-gold/25 py-3 px-4 sm:px-6 lg:px-8">
+      {/* Bottom Setup Switcher Strip - Solid Royal Obsidian Bar */}
+      <div className="relative z-10 w-full bg-[#0B0414] border-t border-amber-500/30 py-3 px-4 sm:px-6 lg:px-8 shadow-2xl">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           
-          <div className="text-[11px] font-bold text-brand-gold uppercase tracking-wider hidden md:block">
+          <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider hidden md:block">
             Genuine Setup Showcases:
           </div>
 

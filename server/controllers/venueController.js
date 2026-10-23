@@ -4,10 +4,12 @@ const Venue = require('../models/Venue');
 const sanitizePublicVenue = (venue) => {
   if (!venue) return venue;
   const clone = typeof venue.toObject === 'function' ? venue.toObject() : { ...venue };
-  const tollFree = process.env.BUSINESS_TOLL_FREE_NUMBER || '';
-  clone.primaryPhone = tollFree || 'Pending Provisioning';
-  clone.whatsappPhone = process.env.PUBLIC_WHATSAPP_PHONE || '';
-  clone.phoneNumbers = tollFree ? [tollFree] : [];
+  clone.primaryPhone = '+91 9305465848';
+  clone.secondaryPhone = '+91 7355059566';
+  clone.coordinatorPhone = '+91 9307908994';
+  clone.whatsappPhone = '919305465848';
+  clone.phoneNumbers = ['+91 9305465848', '+91 7355059566', '+91 9307908994'];
+  clone.founder = 'Shri Mahendra Kandhari';
   return clone;
 };
 
