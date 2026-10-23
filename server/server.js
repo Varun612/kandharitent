@@ -143,7 +143,14 @@ if (staticPath) {
   // SPA Fallback for client routes
   app.get('*', (req, res, next) => {
     const p = req.path || '';
-    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/agents') || p.startsWith('/marketing') || p.startsWith('/invoices') || p.startsWith('/receptionist') || p.startsWith('/settings') || p.startsWith('/coupons') || p.startsWith('/delivery-partners') || p.startsWith('/health')) {
+    const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
+
+    // If browser request for HTML, always serve the SPA unless requesting /api
+    if (acceptsHtml && !p.startsWith('/api')) {
+      return res.sendFile(path.join(staticPath, 'index.html'));
+    }
+
+    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/health') || p.startsWith('/catering/menu') || p.startsWith('/catering/packages') || p.startsWith('/catering/enquiries')) {
       return next();
     }
     res.sendFile(path.join(staticPath, 'index.html'));

@@ -59,15 +59,7 @@
       "destination": "/api"
     },
     {
-      "source": "/settings/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/settings",
-      "destination": "/api"
-    },
-    {
-      "source": "/((?!api|items|enquiries|health|catering/menu|catering/packages|catering/enquiries|delivery-partners|agents|settings|media).*)",
+      "source": "/((?!api|health|items|enquiries|delivery-partners|agents|catering/menu|catering/packages|catering/enquiries).*)",
       "destination": "/index.html"
     }
   ]
