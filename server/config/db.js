@@ -90,7 +90,7 @@ const saveLocalStore = () => {
 
 // Connect to MongoDB with graceful fallback
 const connectDB = async () => {
-  if (isMongoConnected) return;
+  if (mongoose.connection.readyState === 1) return;
   const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kandhari_tent';
   
   loadLocalStore();
@@ -100,18 +100,20 @@ const connectDB = async () => {
     const conn = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 2500 // Don't hang if Mongo isn't running locally
     });
-    isMongoConnected = true;
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    isMongoConnected = false;
     console.log(`[Database] MongoDB not available (${error.message}). Using resilient Local JSON Store.`);
     console.log(`[Database] Full CRUD operations for items, enquiries, venue, and gallery are active.`);
   }
 };
 
+mongoose.connection.on('disconnected', () => {
+  console.log('[Database] MongoDB disconnected. Falling back to resilient Local JSON Store.');
+});
+
 module.exports = {
   connectDB,
-  isMongoConnected: () => isMongoConnected,
+  isMongoConnected: () => mongoose.connection.readyState === 1,
   getLocalDb: () => localDb,
   saveLocalStore
 };

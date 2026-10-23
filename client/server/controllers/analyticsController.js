@@ -164,8 +164,104 @@ const getAnalyticsSummary = (req, res) => {
   }
 };
 
+// Baseline viewing counts mapped to item IDs
+const DEFAULT_VIEW_COUNTS = {
+  'item-chair-pvc': 34,
+  'item-chair-velvet': 22,
+  'item-chair-highback': 28,
+  'item-sofa-2seater': 19,
+  'item-table-set': 16,
+  'item-table-round': 18,
+  'item-tent-waterproof': 27,
+  'item-tent-normal': 21,
+  'item-carpet-red': 25,
+  'item-jumbo-cooler': 15,
+  'item-stage-8x12': 18,
+  'item-gate-royal': 23
+};
+
+const ensureItemViewsInit = (db) => {
+  if (!db.itemViews) {
+    db.itemViews = { ...DEFAULT_VIEW_COUNTS };
+  }
+  if (!db.recentViewerEvents) {
+    db.recentViewerEvents = [];
+  }
+};
+
+/**
+ * POST /api/analytics/item-view
+ * Live view event recorder as user scrolls through catalogue
+ */
+const recordItemView = (req, res) => {
+  try {
+    const { itemId, location = 'Gurgaon', userCity = 'Lucknow' } = req.body || {};
+    if (!itemId) {
+      return res.status(400).json({ success: false, message: 'itemId is required' });
+    }
+
+    const db = getLocalDb();
+    ensureItemViewsInit(db);
+
+    // Increment count live
+    const current = db.itemViews[itemId] !== undefined ? db.itemViews[itemId] : (DEFAULT_VIEW_COUNTS[itemId] || 15);
+    const updatedCount = current + 1;
+    db.itemViews[itemId] = updatedCount;
+
+    // Record viewer event with real location
+    const viewerEvent = {
+      itemId,
+      location: location || 'Gurgaon',
+      targetCity: userCity || 'Lucknow',
+      timestamp: new Date().toISOString()
+    };
+    db.recentViewerEvents.unshift(viewerEvent);
+    if (db.recentViewerEvents.length > 500) {
+      db.recentViewerEvents = db.recentViewerEvents.slice(0, 500);
+    }
+
+    saveLocalStore();
+
+    return res.json({
+      success: true,
+      itemId,
+      liveCount: updatedCount,
+      liveViews: updatedCount,
+      viewerLocation: location,
+      targetCity: userCity
+    });
+  } catch (error) {
+    console.error('recordItemView error:', error);
+    return res.status(500).json({ success: false, message: 'Error recording item view' });
+  }
+};
+
+/**
+ * GET /api/analytics/live-views
+ * Returns live viewing counts for items
+ */
+const getLiveViews = (req, res) => {
+  try {
+    const db = getLocalDb();
+    ensureItemViewsInit(db);
+
+    return res.json({
+      success: true,
+      views: db.itemViews,
+      liveViews: db.itemViews,
+      totalActiveViewers: Object.values(db.itemViews).reduce((a, b) => a + b, 0),
+      recentEvents: (db.recentViewerEvents || []).slice(0, 10)
+    });
+  } catch (error) {
+    console.error('getLiveViews error:', error);
+    return res.status(500).json({ success: false, message: 'Error fetching live views' });
+  }
+};
+
 module.exports = {
   logAnalyticsEvent,
   getAnalyticsSummary,
-  ensureAnalyticsInit
+  ensureAnalyticsInit,
+  recordItemView,
+  getLiveViews
 };

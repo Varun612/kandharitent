@@ -18,8 +18,14 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const masterAgentRoutes = require('./routes/masterAgentRoutes');
+const threeAgentRoutes = require('./routes/threeAgentRoutes');
 const marketingRoutes = require('./routes/marketingRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
+const receptionistRoutes = require('./routes/receptionistRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
+const couponRoutes = require('./routes/couponRoutes');
+const deliveryPartnerRoutes = require('./routes/deliveryPartnerRoutes');
+const { authLimiter, enquiryLimiter, chatLimiter, receptionistLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 const PORT = process.env.PORT || 5050;
@@ -92,6 +98,12 @@ const mountDualRoute = (basePath, router) => {
   app.use(cleanPath, router);
 };
 
+// Rate Limiting on sensitive surfaces
+app.use(['/api/auth', '/auth'], authLimiter);
+app.use(['/api/enquiries', '/enquiries'], enquiryLimiter);
+app.use(['/api/chat', '/chat'], chatLimiter);
+app.use(['/api/receptionist', '/receptionist'], receptionistLimiter);
+
 // API Routes
 mountDualRoute('/items', itemRoutes);
 mountDualRoute('/enquiries', enquiryRoutes);
@@ -107,8 +119,13 @@ mountDualRoute('/inventory', inventoryRoutes);
 mountDualRoute('/staff', staffRoutes);
 mountDualRoute('/analytics', analyticsRoutes);
 mountDualRoute('/agent', masterAgentRoutes);
+mountDualRoute('/agents', threeAgentRoutes);
 mountDualRoute('/marketing', marketingRoutes);
 mountDualRoute('/invoices', invoiceRoutes);
+mountDualRoute('/receptionist', receptionistRoutes);
+mountDualRoute('/settings', settingsRoutes);
+mountDualRoute('/coupons', couponRoutes);
+mountDualRoute('/delivery-partners', deliveryPartnerRoutes);
 
 // Static media serving for lawn videos, reels, and rendered assets
 app.use('/media', express.static(path.join(__dirname, '../client/public/media')));
@@ -126,7 +143,7 @@ if (staticPath) {
   // SPA Fallback for client routes
   app.get('*', (req, res, next) => {
     const p = req.path || '';
-    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/marketing') || p.startsWith('/invoices') || p.startsWith('/health')) {
+    if (p.startsWith('/api') || p.startsWith('/items') || p.startsWith('/enquiries') || p.startsWith('/venue') || p.startsWith('/gallery') || p.startsWith('/auth') || p.startsWith('/chat') || p.startsWith('/catering') || p.startsWith('/payments') || p.startsWith('/notifications') || p.startsWith('/reports') || p.startsWith('/inventory') || p.startsWith('/staff') || p.startsWith('/analytics') || p.startsWith('/agent') || p.startsWith('/agents') || p.startsWith('/marketing') || p.startsWith('/invoices') || p.startsWith('/receptionist') || p.startsWith('/settings') || p.startsWith('/coupons') || p.startsWith('/delivery-partners') || p.startsWith('/health')) {
       return next();
     }
     res.sendFile(path.join(staticPath, 'index.html'));

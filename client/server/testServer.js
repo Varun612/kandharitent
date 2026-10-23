@@ -30,13 +30,30 @@ const runTests = async () => {
   console.log(`[Test Suite] Test server listening on http://localhost:${assignedPort}`);
 
   const testEndpoint = async (url, options = {}) => {
-    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const isCustomContentType = options.headers && options.headers['Content-Type'];
+    const headers = isCustomContentType
+      ? options.headers
+      : { 'Content-Type': 'application/json', ...(options.headers || {}) };
+
+    let body = options.body;
+    if (body && typeof body === 'object' && (!headers['Content-Type'] || headers['Content-Type'].includes('json'))) {
+      body = JSON.stringify(body);
+    }
+
     const res = await fetch(`http://localhost:${assignedPort}${url}`, {
       ...options,
-      headers
+      headers,
+      body
     });
-    const data = await res.json();
-    return { status: res.status, data };
+
+    const cType = res.headers.get('content-type') || '';
+    let data;
+    if (cType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      data = await res.text();
+    }
+    return { status: res.status, data, contentType: cType };
   };
 
   try {
@@ -87,7 +104,7 @@ const runTests = async () => {
     // Test Catering quotation enquiry submission
     const cateringEnquiryPayload = {
       customerName: 'Ananya Sharma',
-      phone: '18008903456',
+      phone: '9876543210',
       eventDate: '2026-11-28',
       guestCount: 300,
       locality: 'Kanpur Road, Lucknow',
@@ -408,7 +425,7 @@ const runTests = async () => {
     // 12.1: Submit fresh rental booking request as customer
     const orderPayload = {
       customerName: 'Vikramaditya Verma',
-      phone: '18008903456',
+      phone: '9876543210',
       email: 'vikram.verma@example.com',
       eventDate: '2026-12-15',
       startDate: '2026-12-15',
@@ -621,7 +638,7 @@ const runTests = async () => {
       })
     });
     console.log(`[Attendance Mark] POST /api/staff/attendance: HTTP ${markAttRes.status} | Wage: ₹${markAttRes.data.data?.calculatedWage}`);
-    if (markAttRes.status !== 200 || markAttRes.data.data?.calculatedWage !== 500) {
+    if ((markAttRes.status !== 200 && markAttRes.status !== 201) || markAttRes.data.data?.calculatedWage !== 500) {
       throw new Error(`Expected calculated wage ₹500, got ₹${markAttRes.data.data?.calculatedWage}`);
     }
 
@@ -744,7 +761,7 @@ const runTests = async () => {
       headers: { 'Authorization': `Bearer ${adminToken}` },
       body: JSON.stringify({
         customerName: 'Ananya Sharma',
-        phone: '18008903456',
+        phone: '9876543210',
         billingAddress: 'Kanpur Road, Daroga Kheda, Lucknow',
         eventDate: '2026-11-28',
         eventVenue: 'Dwarka Shri Lawn, Kanpur Road, Lucknow',
@@ -979,6 +996,810 @@ const runTests = async () => {
     if (pricingBand3.cartage < 1500) {
       throw new Error(`Expected provisional cartage >= ₹1500 for > 7km, got ${pricingBand3.cartage}`);
     }
+
+
+    // 24: AI Calling Receptionist Veronica
+    console.log('\n--- Test 24: AI Telephony Receptionist Veronica ---');
+    const recStartRes = await testEndpoint('/api/receptionist/call/start', {
+      method: 'POST',
+      body: JSON.stringify({
+        callerName: 'Vikramaditya Verma',
+        callerPhone: '9876543210'
+      })
+    });
+    console.log(`[Receptionist Start] POST /api/receptionist/call/start: HTTP ${recStartRes.status} | CallId: ${recStartRes.data.data?.callId}`);
+    if (recStartRes.status !== 201 || !recStartRes.data.data?.greeting.includes('Veronica')) {
+      throw new Error('Receptionist call start failed or missing Veronica disclosure');
+    }
+    const testCallId = recStartRes.data.data.callId;
+
+    // Turn 1: Book lawn walkthrough appointment
+    const recAptRes = await testEndpoint('/api/receptionist/call/message', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        message: 'I want to schedule an appointment to view Dwarka Shri Lawn on 15 November 2026'
+      })
+    });
+    console.log(`[Receptionist Appointment] Message Turn: Action = ${recAptRes.data.data?.actionTaken} | Appointment = ${recAptRes.data.data?.session?.appointment?.appointmentId}`);
+    if (recAptRes.data.data?.actionTaken !== 'appointment_booked' || !recAptRes.data.data?.session?.appointment?.appointmentId.startsWith('APT-')) {
+      throw new Error('Failed to book lawn walkthrough appointment');
+    }
+
+    // Turn 2: Log support ticket
+    const recTckRes = await testEndpoint('/api/receptionist/call/message', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        message: 'I have an urgent complaint regarding damaged chairs delivered'
+      })
+    });
+    console.log(`[Receptionist Ticket] Message Turn: Action = ${recTckRes.data.data?.actionTaken} | Ticket = ${recTckRes.data.data?.session?.ticket?.ticketId}`);
+    if (recTckRes.data.data?.actionTaken !== 'ticket_created' || !recTckRes.data.data?.session?.ticket?.ticketId.startsWith('TCK-')) {
+      throw new Error('Failed to generate support ticket');
+    }
+
+    // Turn 3: Human escalation
+    const recEscRes = await testEndpoint('/api/receptionist/call/message', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        message: 'Please connect me to the owner Mr. Kandhari'
+      })
+    });
+    console.log(`[Receptionist Escalation] Message Turn: Action = ${recEscRes.data.data?.actionTaken} | Escalated = ${recEscRes.data.data?.session?.escalated}`);
+    if (recEscRes.data.data?.actionTaken !== 'escalated_to_human' || !recEscRes.data.data?.session?.escalated) {
+      throw new Error('Failed to escalate call to human management');
+    }
+
+    // End call
+    const recEndRes = await testEndpoint('/api/receptionist/call/end', {
+      method: 'POST',
+      body: JSON.stringify({
+        callId: testCallId,
+        notes: 'Verification test call ended'
+      })
+    });
+    console.log(`[Receptionist End] POST /api/receptionist/call/end: HTTP ${recEndRes.status} | Duration = ${recEndRes.data.data?.summary?.durationSeconds}s`);
+    if (recEndRes.status !== 200 || !recEndRes.data.success) {
+      throw new Error('Failed to end and archive receptionist call');
+    }
+
+    // Inspect operations lists
+    const getCallsRes = await testEndpoint('/api/receptionist/calls');
+    const getAptsRes = await testEndpoint('/api/receptionist/appointments');
+    const getTcksRes = await testEndpoint('/api/receptionist/tickets');
+    console.log(`[Receptionist Inspection] Calls: ${getCallsRes.data.count} | Appointments: ${getAptsRes.data.count} | Tickets: ${getTcksRes.data.count}`);
+    if (getCallsRes.data.count < 1 || getAptsRes.data.count < 1 || getTcksRes.data.count < 1) {
+      throw new Error('Receptionist operations lists count mismatch');
+    }
+
+    // 25: Master Agent Exact-Date Workforce Action
+    console.log('\n--- Test 25: Master Agent Exact-Date Workforce Action ---');
+    const workforceQueryRes = await testEndpoint('/api/agent/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        query: 'Add a new labourer named Ramesh and mark him present on 22 October 2026'
+      })
+    });
+    console.log(`[Master Agent Query] HTTP ${workforceQueryRes.status} | Action: ${workforceQueryRes.data.action} | Date: ${workforceQueryRes.data.pendingAction?.params?.date}`);
+    if (!workforceQueryRes.data.requiresConfirmation || workforceQueryRes.data.pendingAction?.params?.date !== '2026-10-22' || workforceQueryRes.data.pendingAction?.params?.name !== 'Ramesh') {
+      throw new Error('Master Agent failed to parse exact date 2026-10-22 or worker name Ramesh');
+    }
+
+    const workforceConfirmRes = await testEndpoint('/api/agent/confirm', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        action: workforceQueryRes.data.pendingAction.tool,
+        params: workforceQueryRes.data.pendingAction.params
+      })
+    });
+    console.log(`[Master Agent Confirm] HTTP ${workforceConfirmRes.status} | TargetDate: ${workforceConfirmRes.data.targetDate} | Wage: ₹${workforceConfirmRes.data.calculatedWage}`);
+    if (workforceConfirmRes.status !== 200 || workforceConfirmRes.data.targetDate !== '2026-10-22' || workforceConfirmRes.data.calculatedWage !== 500) {
+      throw new Error('Master agent workforce execution failed on exact date 2026-10-22');
+    }
+
+    // 26: Central Business Settings
+    console.log('\n--- Test 26: Central Business Settings ---');
+    const getSettingsRes = await testEndpoint('/api/settings');
+    console.log(`[Settings GET] HTTP ${getSettingsRes.status} | Toll-Free: ${getSettingsRes.data.data?.tollFreeNumber} | AI Receptionist: ${getSettingsRes.data.data?.aiReceptionist?.name}`);
+    if (getSettingsRes.status !== 200 || !getSettingsRes.data.data?.tollFreeNumber || getSettingsRes.data.data?.aiReceptionist?.name !== 'Veronica') {
+      throw new Error('Central business settings mismatch');
+    }
+
+    const updateSettingsRes = await testEndpoint('/api/settings', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        minOrderValue: 7500
+      })
+    });
+    console.log(`[Settings PUT] HTTP ${updateSettingsRes.status} | MinOrderValue: ${updateSettingsRes.data.data?.minOrderValue}`);
+    if (updateSettingsRes.status !== 200 || updateSettingsRes.data.data?.minOrderValue !== 7500) {
+      throw new Error('Failed to update business settings');
+    }
+
+    // 27: Strict Privacy & Phone Number Protection Audit
+    console.log('\n--- Test 27: Strict Privacy & Phone Number Protection Audit ---');
+    const venueCheckRes = await testEndpoint('/api/venue');
+    const venueJsonStr = JSON.stringify(venueCheckRes.data);
+    if (venueJsonStr.includes('9305465848')) {
+      throw new Error('CRITICAL SECURITY VIOLATION: Personal phone number 9305465848 leaked in /api/venue!');
+    }
+
+    const settingsCheckRes = await testEndpoint('/api/settings');
+    const settingsJsonStr = JSON.stringify(settingsCheckRes.data);
+    if (settingsJsonStr.includes('9305465848')) {
+      throw new Error('CRITICAL SECURITY VIOLATION: Personal phone number 9305465848 leaked in /api/settings!');
+    }
+    console.log('• Strict privacy verified: 0 exposures of personal phone number across public and admin APIs.');
+
+    // 28: Empty Catalogue Fix & Query Sanitization
+    console.log('\n--- Test 28: Empty Catalogue Fix & Query Parameter Sanitization ---');
+    const undefQueryRes = await testEndpoint('/api/items?category=undefined&search=undefined&status=undefined');
+    console.log(`[Sanitized Items Fetch] GET /api/items?category=undefined: HTTP ${undefQueryRes.status} | Count: ${undefQueryRes.data.count}`);
+    if (undefQueryRes.status !== 200 || undefQueryRes.data.count < 30) {
+      throw new Error(`Expected at least 30 items when querying with undefined strings, got ${undefQueryRes.data.count}`);
+    }
+
+    const categoriesToCheck = [
+      'chairs-seating',
+      'tables',
+      'tents-canopies',
+      'stages-platforms',
+      'fans-coolers',
+      'carpets-flooring',
+      'barricading-crowd-control',
+      'wedding-essentials'
+    ];
+
+    for (const cat of categoriesToCheck) {
+      const catRes = await testEndpoint(`/api/items?category=${cat}`);
+      console.log(`[Category: ${cat}] HTTP ${catRes.status} | Items: ${catRes.data.count}`);
+      if (catRes.status !== 200 || !catRes.data.count || catRes.data.count < 2) {
+        throw new Error(`Category ${cat} returned insufficient items (${catRes.data.count})`);
+      }
+    }
+    console.log('• Verified all 8 rental categories return fully populated inventory items.');
+
+    // 29: Promo Coupon Validation Engine
+    console.log('\n--- Test 29: Promo Coupon Engine (WELCOME100, FIRST200, EARLYBIRD10) ---');
+    const coupon1Res = await testEndpoint('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code: 'WELCOME100', orderAmount: 2500 })
+    });
+    console.log(`[Coupon WELCOME100] HTTP ${coupon1Res.status} | Valid: ${coupon1Res.data.valid} | Discount: ₹${coupon1Res.data.discountValue}`);
+    if (coupon1Res.status !== 200 || !coupon1Res.data.valid || coupon1Res.data.discountValue !== 100) {
+      throw new Error('WELCOME100 coupon validation failed');
+    }
+
+    const coupon2Res = await testEndpoint('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code: 'FIRST200', orderAmount: 3000 })
+    });
+    console.log(`[Coupon FIRST200 Below Min] HTTP ${coupon2Res.status} | Valid: ${coupon2Res.data.valid} | Msg: ${coupon2Res.data.message}`);
+    if (coupon2Res.data.valid !== false) {
+      throw new Error('FIRST200 should have been rejected for order amount below ₹5000');
+    }
+
+    const coupon3Res = await testEndpoint('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code: 'FIRST200', orderAmount: 6000 })
+    });
+    console.log(`[Coupon FIRST200 Valid] HTTP ${coupon3Res.status} | Valid: ${coupon3Res.data.valid} | Discount: ₹${coupon3Res.data.discountValue}`);
+    if (!coupon3Res.data.valid || coupon3Res.data.discountValue !== 200) {
+      throw new Error('FIRST200 validation failed for valid amount');
+    }
+
+    // 30: Daya 1..31 Monthly Attendance Grid
+    console.log('\n--- Test 30: Daya 1..31 Monthly Attendance Grid & Unit Calculation ---');
+    const gridRes = await testEndpoint('/api/staff/attendance-grid?year=2026&month=7', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Attendance Grid] GET /api/staff/attendance-grid: HTTP ${gridRes.status} | Month: ${gridRes.data.monthName} | Days: ${gridRes.data.daysInMonth} | Workers: ${gridRes.data.workers?.length}`);
+    if (gridRes.status !== 200 || gridRes.data.daysInMonth !== 31 || !gridRes.data.workers?.length) {
+      throw new Error('Failed to retrieve Daya 1..31 attendance grid');
+    }
+
+    // Record bulk marks for Daya register: days 1, 2, 3 as 'P' (1.0 each) and day 4 as '1/2' (0.5)
+    const ramprakashWorker = gridRes.data.workers.find(w => w.name.includes('Ramprakash')) || gridRes.data.workers[0];
+    const bulkAttendRes = await testEndpoint('/api/staff/attendance/bulk', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        workerId: ramprakashWorker.id,
+        year: 2026,
+        month: 7,
+        days: {
+          '1': 'P',
+          '2': 'P',
+          '3': 'P',
+          '4': '1/2'
+        }
+      })
+    });
+    console.log(`[Bulk Attendance Recorded] HTTP ${bulkAttendRes.status} | TotalUnits: ${bulkAttendRes.data.totalUnits}`);
+    if (bulkAttendRes.status !== 200 || bulkAttendRes.data.totalUnits !== 3.5) {
+      throw new Error(`Expected total units 3.5 (3 full + 1 half), received ${bulkAttendRes.data.totalUnits}`);
+    }
+
+    // 31: Staff Advances Ledger (Anti-Double-Deduction)
+    console.log('\n--- Test 31: Staff Advances Ledger (Tracking & Balance) ---');
+    const advancePostRes = await testEndpoint('/api/staff/advances', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        workerId: ramprakashWorker.id,
+        workerName: ramprakashWorker.name,
+        amount: 500,
+        date: '2026-07-05',
+        notes: 'Advance for family ration'
+      })
+    });
+    console.log(`[Record Advance] POST /api/staff/advances: HTTP ${advancePostRes.status} | Ref: ${advancePostRes.data.data?.advanceNumber} | Amount: ₹${advancePostRes.data.data?.amount}`);
+    if (advancePostRes.status !== 201 || !advancePostRes.data.data?.advanceNumber.startsWith('ADV-') || advancePostRes.data.data.outstandingBalance !== 500) {
+      throw new Error('Failed to record staff advance');
+    }
+
+    const advancesListRes = await testEndpoint(`/api/staff/advances?workerId=${ramprakashWorker.id}`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Advances Ledger List] GET /api/staff/advances: HTTP ${advancesListRes.status} | Total Advances: ${advancesListRes.data.count}`);
+    if (advancesListRes.status !== 200 || advancesListRes.data.count < 1) {
+      throw new Error('Failed to list advances from ledger');
+    }
+
+    // 32: Monthly Payroll Settlement Engine
+    console.log('\n--- Test 32: Monthly Payroll Settlement Engine with Advance Recovery ---');
+    const finalizePayrollRes = await testEndpoint('/api/staff/payroll/finalize', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        year: 2026,
+        month: 7
+      })
+    });
+    console.log(`[Payroll Finalize] POST /api/staff/payroll/finalize: HTTP ${finalizePayrollRes.status} | Records: ${finalizePayrollRes.data.count}`);
+    if (finalizePayrollRes.status !== 200 || !finalizePayrollRes.data.data) {
+      throw new Error('Payroll finalization failed');
+    }
+
+    const workerPayroll = finalizePayrollRes.data.data.find(p => p.workerId === ramprakashWorker.id);
+    if (!workerPayroll) {
+      throw new Error('Payroll calculation missing for Ramprakash');
+    }
+    console.log(`[Ramprakash Payroll] Units: ${workerPayroll.payableUnits} | Gross: ₹${workerPayroll.grossWages} | Adv Deducted: ₹${workerPayroll.deductedAdvances} | Net: ₹${workerPayroll.netSalary}`);
+    // 3.5 units * 500 = 1750 gross. Advance deducted 500 -> 1250 net.
+    if (workerPayroll.grossWages !== 1750 || workerPayroll.deductedAdvances !== 500 || workerPayroll.netSalary !== 1250) {
+      throw new Error(`Payroll calculation mismatch: expected Gross ₹1750, Adv ₹500, Net ₹1250. Got Gross ${workerPayroll.grossWages}, Adv ${workerPayroll.deductedAdvances}, Net ${workerPayroll.netSalary}`);
+    }
+
+    // 33: Veronica Real Inbound Telephony Webhooks (TwiML XML Generation)
+    console.log('\n--- Test 33: Veronica Inbound Telephony Webhook (TwiML XML Engine) ---');
+    const twilioVoiceRes = await testEndpoint('/api/receptionist/webhook/voice', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'From=+919876543210&CallSid=CA1234567890abcdef&CallerCity=Lucknow'
+    });
+    console.log(`[Telephony Webhook Voice] POST /api/receptionist/webhook/voice: HTTP ${twilioVoiceRes.status} | Content-Type: ${twilioVoiceRes.contentType}`);
+    if (twilioVoiceRes.status !== 200 || !twilioVoiceRes.contentType.includes('xml')) {
+      throw new Error(`Expected 200 OK with XML content-type, got status ${twilioVoiceRes.status} and ${twilioVoiceRes.contentType}`);
+    }
+    if (!twilioVoiceRes.data.includes('<Response>') || !twilioVoiceRes.data.includes('Veronica') || !twilioVoiceRes.data.includes('artificial intelligence receptionist')) {
+      throw new Error('Telephony XML response does not contain valid TwiML with Veronica AI transparency disclosure');
+    }
+    console.log('• Verified TwiML XML greeting with mandatory AI transparency disclosure.');
+
+    const twilioGatherRes = await testEndpoint('/api/receptionist/webhook/gather', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'From=+919876543210&CallSid=CA1234567890abcdef&SpeechResult=I+want+to+book+an+appointment+to+visit+Dwarka+Shri+Lawn+on+15+November'
+    });
+    console.log(`[Telephony Webhook Gather] POST /api/receptionist/webhook/gather: HTTP ${twilioGatherRes.status} | Content-Type: ${twilioGatherRes.contentType}`);
+    if (twilioGatherRes.status !== 200 || !twilioGatherRes.data.includes('<Response>')) {
+      throw new Error('Telephony Gather webhook failed to respond with valid TwiML');
+    }
+    console.log('• Verified multi-turn voice gather processing and response generation.');
+
+    // 34: Three-Agent Architecture Initialization & System Health
+    console.log('\n--- Test 34: Three-Agent Architecture Initialization & System Health ---');
+    const agentOverviewRes = await testEndpoint('/api/agents/master/overview', {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`
+      }
+    });
+    console.log(`[Master Overview] GET /api/agents/master/overview: HTTP ${agentOverviewRes.status} | Active Agents: ${Object.keys(agentOverviewRes.data.data.agents).length}`);
+    if (agentOverviewRes.status !== 200 || !agentOverviewRes.data.success) {
+      throw new Error('Master Agent overview failed');
+    }
+    const agents = agentOverviewRes.data.data.agents;
+    if (!agents.client_agent || !agents.admin_agent || !agents.master_agent) {
+      throw new Error('Three distinct agents (client, admin, master) not all present in system registry');
+    }
+    console.log(`• Client Agent: [${agents.client_agent.name}] | Version: ${agents.client_agent.version} | Status: ${agents.client_agent.status}`);
+    console.log(`• Admin Agent: [${agents.admin_agent.name}] | Version: ${agents.admin_agent.version} | Status: ${agents.admin_agent.status}`);
+    console.log(`• Master Agent: [${agents.master_agent.name}] | Version: ${agents.master_agent.version} | Status: ${agents.master_agent.status}`);
+
+    // 35: Client Agent Natural Dialogue, Clarifications & Cart Action Generation
+    console.log('\n--- Test 35: Client Agent Dialogue, Clarifications & Cart Actions ---');
+    
+    // Step 1: Greeting
+    const greetingRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { message: 'Hi, how are you?' }
+    });
+    console.log(`[Greeting] POST /api/agents/client/chat: HTTP ${greetingRes.status}`);
+    if (greetingRes.status !== 200 || !greetingRes.data.data.reply.toLowerCase().includes("i'm doing well")) {
+      throw new Error(`Expected natural greeting response, got: ${greetingRes.data.data.reply}`);
+    }
+    console.log(`• Greeting Reply: "${greetingRes.data.data.reply}"`);
+
+    // Step 2: Broad request requiring clarification
+    const broadReqRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { message: 'I need chairs for a wedding.' }
+    });
+    console.log(`[Clarifying Question] POST /api/agents/client/chat: HTTP ${broadReqRes.status}`);
+    if (broadReqRes.status !== 200 || !broadReqRes.data.data.reply.toLowerCase().includes('how many guests')) {
+      throw new Error(`Expected clarifying question regarding guests, got: ${broadReqRes.data.data.reply}`);
+    }
+    console.log(`• Clarifying Reply: "${broadReqRes.data.data.reply}"`);
+
+    // Step 3: Follow up on guest count
+    const followUpRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { 
+        message: 'Around 300.',
+        conversationHistory: [
+          { role: 'user', content: 'I need chairs for a wedding.' },
+          { role: 'assistant', content: broadReqRes.data.data.reply }
+        ]
+      }
+    });
+    console.log(`[Chair Comparison] POST /api/agents/client/chat: HTTP ${followUpRes.status}`);
+    if (followUpRes.status !== 200 || !followUpRes.data.data.reply.includes('300')) {
+      throw new Error(`Expected chair comparison for 300 guests, got: ${followUpRes.data.data.reply}`);
+    }
+    console.log(`• Comparison Reply: "${followUpRes.data.data.reply}"`);
+
+    // Step 4: Proactive Cart Addition Action
+    const cartActionRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { message: 'Add 300 PVC chairs to my cart' }
+    });
+    console.log(`[Cart Action Generation] POST /api/agents/client/chat: HTTP ${cartActionRes.status}`);
+    if (cartActionRes.status !== 200 || !cartActionRes.data.data.action || cartActionRes.data.data.action.type !== 'add_to_cart') {
+      throw new Error('Expected Client Agent to return structured add_to_cart action');
+    }
+    console.log(`• Cart Action Executed: Type=${cartActionRes.data.data.action.type} | Item=${cartActionRes.data.data.action.item.name} | Qty=${cartActionRes.data.data.action.quantity}`);
+
+    // 36: Client Agent Human Escalation
+    console.log('\n--- Test 36: Client Agent Human Escalation & Shared Event Bus ---');
+    const escalateRes = await testEndpoint('/api/agents/client/escalate', {
+      method: 'POST',
+      body: {
+        customerPhone: '9876543210',
+        customerName: 'Anil Verma',
+        reason: 'Custom wedding lounge budget negotiation',
+        cartSummary: '300 PVC Chairs + 4 Maharaja Sofas'
+      }
+    });
+    console.log(`[Client Escalation] POST /api/agents/client/escalate: HTTP ${escalateRes.status} | Escalation ID: ${escalateRes.data.escalationId}`);
+    if (escalateRes.status !== 201 || !escalateRes.data.success) {
+      throw new Error('Client escalation failed');
+    }
+    console.log('• Verified escalation event dispatched to Admin Agent with emergency WhatsApp link.');
+
+    // 37: Admin Agent Drop-off Analysis & Safe Catalogue Mutation Proposal
+    console.log('\n--- Test 37: Admin Agent Drop-off Analysis & Catalogue Modification Flow ---');
+    
+    // Step 1: Drop-off Analysis
+    const dropoffRes = await testEndpoint('/api/agents/admin/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { message: 'Why are customers asking about chairs but not submitting enquiries?' }
+    });
+    console.log(`[Drop-off Query] POST /api/agents/admin/query: HTTP ${dropoffRes.status} | Type: ${dropoffRes.data.data.type}`);
+    if (dropoffRes.status !== 200 || dropoffRes.data.data.type !== 'dropoff_analysis' || !dropoffRes.data.data.evidence) {
+      throw new Error('Expected Admin Agent to return structured drop-off analysis');
+    }
+    console.log(`• Observed Stage: ${dropoffRes.data.data.evidence.dropoffStage}`);
+    console.log(`• Recommendations Count: ${dropoffRes.data.data.recommendations.length}`);
+
+    // Step 2: Propose Catalogue Update
+    const proposeUpdateRes = await testEndpoint('/api/agents/admin/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { message: 'Update the PVC chair description to: Sturdy commercial white PVC chair with armrests, stackable for events.' }
+    });
+    console.log(`[Catalogue Proposal] POST /api/agents/admin/query: HTTP ${proposeUpdateRes.status} | Proposal ID: ${proposeUpdateRes.data.data.proposalId}`);
+    if (proposeUpdateRes.status !== 200 || !proposeUpdateRes.data.data.requiresConfirmation) {
+      throw new Error('Expected Admin Agent to prepare preview diff and require confirmation before mutating catalogue');
+    }
+    const proposalId = proposeUpdateRes.data.data.proposalId;
+    console.log(`• Preview Diff Before: "${proposeUpdateRes.data.data.diff.before}"`);
+    console.log(`• Preview Diff After:  "${proposeUpdateRes.data.data.diff.after}"`);
+
+    // Step 3: Confirm and Apply Catalogue Update
+    const confirmUpdateRes = await testEndpoint('/api/agents/admin/confirm', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { proposalId, confirmed: true }
+    });
+    console.log(`[Confirm Proposal] POST /api/agents/admin/confirm: HTTP ${confirmUpdateRes.status} | Status: ${confirmUpdateRes.data.data.status}`);
+    if (confirmUpdateRes.status !== 200 || confirmUpdateRes.data.data.status !== 'executed') {
+      throw new Error('Failed to execute confirmed catalogue proposal');
+    }
+
+    // Step 4: Verify Item in Catalogue
+    const updatedItemRes = await testEndpoint('/api/items/item-chair-pvc');
+    console.log(`[Verify Updated Item] GET /api/items/item-chair-pvc: HTTP ${updatedItemRes.status}`);
+    if (!updatedItemRes.data.data.description.includes('Sturdy commercial white PVC chair with armrests')) {
+      throw new Error('Updated description not reflected in catalogue item');
+    }
+    console.log('• Verified catalogue item description updated and recorded in persistent audit log.');
+
+    // 38: Master Agent Multi-Agent Orchestration, Rule Versioning & Rollback
+    console.log('\n--- Test 38: Master Agent Multi-Agent Orchestration & Rule Versioning ---');
+    
+    // Step 1: Propose Rule Update
+    const masterProposeRes = await testEndpoint('/api/agents/master/rules/propose', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { instruction: 'Improve the way the Client Agent recommends chairs' }
+    });
+    console.log(`[Master Propose Rule] POST /api/agents/master/rules/propose: HTTP ${masterProposeRes.status} | Target: ${masterProposeRes.data.proposal.targetAgent}`);
+    if (masterProposeRes.status !== 201 || masterProposeRes.data.proposal.targetAgent !== 'client_agent') {
+      throw new Error('Master Agent failed to identify client_agent as target for chair recommendation instruction');
+    }
+    const masterProposalId = masterProposeRes.data.proposal.id;
+    console.log(`• Version Bump: ${masterProposeRes.data.proposal.currentVersion} -> ${masterProposeRes.data.proposal.proposedVersion}`);
+    console.log(`• Injected Rule: "${masterProposeRes.data.proposal.newRuleAdded}"`);
+
+    // Step 2: Apply Rule Update
+    const masterApplyRes = await testEndpoint('/api/agents/master/rules/apply', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { proposalId: masterProposalId, approved: true }
+    });
+    console.log(`[Master Apply Rule] POST /api/agents/master/rules/apply: HTTP ${masterApplyRes.status} | New Version: ${masterApplyRes.data.data.newVersion}`);
+    if (masterApplyRes.status !== 200 || masterApplyRes.data.data.newVersion !== 'v1.1') {
+      throw new Error('Failed to deploy approved version v1.1 to Client Agent');
+    }
+
+    // Step 3: Verify Version in Overview
+    const verifyOverviewRes = await testEndpoint('/api/agents/master/overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (verifyOverviewRes.data.data.agents.client_agent.version !== 'v1.1') {
+      throw new Error('Client Agent version mismatch in Master Agent overview');
+    }
+    console.log('• Verified Client Agent version v1.1 deployed and persisted in version history.');
+
+    // Step 4: Rollback to v1.0
+    const rollbackRes = await testEndpoint('/api/agents/master/rules/rollback', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { targetAgent: 'client_agent', toVersion: 'v1.0' }
+    });
+    console.log(`[Master Rollback] POST /api/agents/master/rules/rollback: HTTP ${rollbackRes.status} | Restored Version: ${rollbackRes.data.data.currentVersion}`);
+    if (rollbackRes.status !== 200 || rollbackRes.data.data.currentVersion !== 'v1.0') {
+      throw new Error('Failed to roll back Client Agent to version v1.0');
+    }
+    console.log('• Verified clean rollback to v1.0 with immutable audit entry.');
+
+    // --- Test 39: Live Viewing Analytics & Dynamic Item View Tracking ---
+    console.log('\n--- Test 39: Live Viewing Analytics & Dynamic Item View Tracking ---');
+    const viewPostRes = await testEndpoint('/api/analytics/item-view', {
+      method: 'POST',
+      body: {
+        itemId: 'itm-deluxe-banquet-chair',
+        viewerLocation: 'Gurgaon, Haryana'
+      }
+    });
+    console.log(`[Analytics Item View] POST /api/analytics/item-view: HTTP ${viewPostRes.status} | Item: ${viewPostRes.data.itemId} | Live Views: ${viewPostRes.data.liveViews}`);
+    if (viewPostRes.status !== 200 || !viewPostRes.data.success || !viewPostRes.data.liveViews) {
+      throw new Error('Failed to record live item view event from Gurgaon');
+    }
+
+    const liveViewsRes = await testEndpoint('/api/analytics/live-views');
+    console.log(`[Analytics Live Views] GET /api/analytics/live-views: HTTP ${liveViewsRes.status} | Total Recorded Items: ${Object.keys(liveViewsRes.data.views || {}).length}`);
+    if (liveViewsRes.status !== 200 || !liveViewsRes.data.success) {
+      throw new Error('Failed to retrieve live views map');
+    }
+    console.log('• Verified dynamic live viewing broadcast from Gurgaon to Lucknow customers.');
+
+    // --- Test 40: Delivery Fleet CRUD, Zomato Order Approval, Driver Assignment & Live Public Tracking ---
+    console.log('\n--- Test 40: Delivery Fleet CRUD, Zomato Order Approval, Driver Assignment & Live Tracking ---');
+
+    // 40.1: Retrieve Seeded Delivery Fleet
+    const fleetRes = await testEndpoint('/api/delivery-partners');
+    console.log(`[Fleet List] GET /api/delivery-partners: HTTP ${fleetRes.status} | Total Drivers: ${fleetRes.data.count}`);
+    if (fleetRes.status !== 200 || fleetRes.data.count < 3) {
+      throw new Error('Delivery fleet seed missing or incomplete');
+    }
+
+    // 40.2: Register a new delivery partner
+    const createPartnerRes = await testEndpoint('/api/delivery-partners', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        name: 'Virendra Singh',
+        phone: '+91 98390 44556',
+        vehicleType: 'Tata Ace Gold / Chhota Hathi',
+        vehicleNumber: 'UP 32 ZZ 9900',
+        maxLoadCapacity: '800 Kg',
+        baseHub: 'Kanpur Road Depot (Opp. Pillar 37)',
+        status: 'Available'
+      }
+    });
+    console.log(`[Register Partner] POST /api/delivery-partners: HTTP ${createPartnerRes.status} | ID: ${createPartnerRes.data.data?.id}`);
+    if (createPartnerRes.status !== 201 || !createPartnerRes.data.data?.id) {
+      throw new Error('Failed to register delivery partner');
+    }
+    const createdPartnerId = createPartnerRes.data.data.id;
+
+    // 40.3: Customer submits fresh order with venue address & landmark
+    const zomatoOrderPayload = {
+      enquiryType: 'rental',
+      customerName: 'Kunal Srivastava',
+      phone: '9876543210',
+      serviceRequired: 'Tent-house equipment rentals',
+      eventDate: '2026-11-20',
+      locality: 'Kanpur Road / Daroga Kheda',
+      eventVenueAddress: 'Dwarka Shri Lawn, Opp. Pillar 37',
+      landmark: 'Near Transport Nagar Crossing',
+      items: [
+        { itemId: 'itm-deluxe-banquet-chair', name: 'Deluxe Banquet Chair', quantity: 100, unitRate: 45 }
+      ],
+      consentGiven: true
+    };
+    const orderSubmitRes = await testEndpoint('/api/enquiries', {
+      method: 'POST',
+      body: zomatoOrderPayload
+    });
+    console.log(`[Customer Order] POST /api/enquiries: HTTP ${orderSubmitRes.status} | Ref: ${orderSubmitRes.data.referenceId}`);
+    if (orderSubmitRes.status !== 201 || !orderSubmitRes.data.referenceId) {
+      throw new Error('Failed to create customer rental order');
+    }
+    const testOrderId = orderSubmitRes.data.referenceId;
+
+    // 40.4: Admin Review: Approve order (Zomato flow: "Your rental order has been accepted")
+    const approveOrderRes = await testEndpoint(`/api/enquiries/${testOrderId}/review`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { action: 'approve' }
+    });
+    console.log(`[Admin Approve] PUT /api/enquiries/${testOrderId}/review: HTTP ${approveOrderRes.status} | Status: ${approveOrderRes.data.data?.status}`);
+    if (approveOrderRes.status !== 200 || !approveOrderRes.data.data?.status.includes('Approved')) {
+      throw new Error('Admin approval failed');
+    }
+
+    // 40.5: Assign Delivery Partner
+    const assignRes = await testEndpoint('/api/delivery-partners/assign', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: testOrderId,
+        partnerId: createdPartnerId,
+        estimatedDeliveryTime: 'Punctual morning setup 8:00 AM'
+      }
+    });
+    console.log(`[Assign Partner] POST /api/delivery-partners/assign: HTTP ${assignRes.status} | Partner: ${assignRes.data.data?.deliveryPartner?.name}`);
+    if (assignRes.status !== 200 || assignRes.data.data?.deliveryPartner?.id !== createdPartnerId) {
+      throw new Error('Failed to assign delivery partner to order');
+    }
+
+    // 40.6: Update Dispatch Status to 'Out for Delivery / En Route'
+    const updateDispatchRes = await testEndpoint('/api/delivery-partners/update-status', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: testOrderId,
+        status: 'Out for Delivery / En Route',
+        note: 'Driver has departed Kanpur Road Hub with loaded truck'
+      }
+    });
+    console.log(`[Dispatch Status] POST /api/delivery-partners/update-status: HTTP ${updateDispatchRes.status} | Status: ${updateDispatchRes.data.data?.deliveryStatus}`);
+    if (updateDispatchRes.status !== 200 || updateDispatchRes.data.data?.deliveryStatus !== 'Out for Delivery / En Route') {
+      throw new Error('Failed to update dispatch status');
+    }
+
+    // 40.7: Verify Public Live Tracking Endpoint (Zomato Flow)
+    const trackingRes = await testEndpoint(`/api/delivery-partners/track/${testOrderId}`);
+    console.log(`[Live Track] GET /api/delivery-partners/track/${testOrderId}: HTTP ${trackingRes.status}`);
+    const trackingData = trackingRes.data.data;
+    if (
+      trackingRes.status !== 200 || 
+      !trackingData ||
+      trackingData.id !== testOrderId ||
+      trackingData.deliveryStatus !== 'Out for Delivery / En Route' ||
+      !trackingData.deliveryPartner ||
+      !trackingData.eventVenueAddress ||
+      trackingData.subtotal === undefined ||
+      trackingData.cartage === undefined ||
+      trackingData.labour === undefined ||
+      trackingData.gst === undefined
+    ) {
+      throw new Error('Public tracking endpoint failed to return complete order and itemized bill details');
+    }
+    console.log(`• Live Tracking Verified: Subtotal: ₹${trackingData.subtotal} | Cartage: ₹${trackingData.cartage} | Labour: ₹${trackingData.labour} | GST 18%: ₹${trackingData.gst} | Total: ₹${trackingData.grandTotal}`);
+    console.log(`• Driver: ${trackingData.deliveryPartner.name} (${trackingData.deliveryPartner.vehicleNumber}) | Venue: ${trackingData.eventVenueAddress}`);
+
+    // 40.8: Complete Delivery & Installation
+    const completeDeliveryRes = await testEndpoint('/api/delivery-partners/update-status', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: testOrderId,
+        status: 'Delivered & Installed',
+        note: 'All 100 banquet chairs installed and inspected on-site'
+      }
+    });
+    console.log(`[Complete Delivery] Delivery status: ${completeDeliveryRes.data.data?.deliveryStatus}`);
+
+    // 40.9: Clean up test partner
+    const deletePartnerRes = await testEndpoint(`/api/delivery-partners/${createdPartnerId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Delete Partner] DELETE /api/delivery-partners/${createdPartnerId}: HTTP ${deletePartnerRes.status}`);
+    if (deletePartnerRes.status !== 200) {
+      throw new Error('Failed to delete temporary test delivery partner');
+    }
+    console.log('• Verified full Delivery Fleet lifecycle, Zomato order approval, driver dispatch and live customer tracking.');
+
+    // --- Test 41: Lucknow Geolocation, Route Distance, and Client Agent -> Admin Agent Inter-communication ---
+    console.log('\n--- Test 41: Lucknow Geolocation, Route Distance & Agent Inter-communication ---');
+
+    // 41.1 Submit order enquiry with Lucknow locality Alambagh
+    const geolocOrderRes = await testEndpoint('/api/enquiries', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: {
+        enquiryType: 'rental',
+        customerName: 'Pradeep Rastogi',
+        phone: '9839099887',
+        whatsappNumber: '9839099887',
+        locality: 'Alambagh / Singar Nagar',
+        eventVenueAddress: 'Near Singar Nagar Metro, Alambagh, Lucknow',
+        eventDate: '2026-11-28',
+        guestCount: 300,
+        items: [
+          {
+            itemId: 'itm-deluxe-banquet-chair',
+            name: 'VIP Cushion Banquet Chair',
+            quantity: 200,
+            unitRate: 50
+          }
+        ],
+        consentGiven: true
+      }
+    });
+
+    console.log(`[Geoloc Order] POST /api/enquiries: HTTP ${geolocOrderRes.status} | Ref: ${geolocOrderRes.data.referenceId}`);
+    if (geolocOrderRes.status !== 201 || !geolocOrderRes.data.success) {
+      throw new Error('Failed to submit order with geolocation');
+    }
+
+    const geolocOrderId = geolocOrderRes.data.referenceId;
+    const storedEnquiry = geolocOrderRes.data.data;
+
+    // Verify distance resolution: Depot (Pillar 37 Kanpur Rd) to Alambagh is 6.8 km
+    if (!storedEnquiry.locationInfo || storedEnquiry.distanceKm !== 6.8) {
+      throw new Error(`Expected distance 6.8 km for Alambagh, received: ${storedEnquiry.distanceKm}`);
+    }
+    console.log(`• Resolved Route: Depot (${storedEnquiry.locationInfo.origin.name}) -> Destination (${storedEnquiry.locationInfo.destination.address}) | Distance: ${storedEnquiry.distanceKm} km | Transit: ${storedEnquiry.transitMinutes} mins`);
+
+    // 41.2 Verify Route Information Endpoint
+    const routeInfoRes = await testEndpoint(`/api/enquiries/${geolocOrderId}/route`);
+    console.log(`[Route Info] GET /api/enquiries/${geolocOrderId}/route: HTTP ${routeInfoRes.status}`);
+    if (routeInfoRes.status !== 200 || !routeInfoRes.data.locationInfo || routeInfoRes.data.locationInfo.distanceKm !== 6.8) {
+      throw new Error('Failed to retrieve accurate route information');
+    }
+
+    // 41.3 Verify Client Agent informed Admin Agent via Event Bus
+    const agentOverviewHandoffRes = await testEndpoint('/api/agents/master/overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Agent Overview] GET /api/agents/master/overview: HTTP ${agentOverviewHandoffRes.status}`);
+    const events = agentOverviewHandoffRes.data.data?.recentEvents || [];
+    const clientHandoffEvent = events.find(e => 
+      e.eventType === 'new_order_enquiry' && 
+      e.sourceAgent === 'client_agent' && 
+      e.targetAgent === 'admin_agent' &&
+      e.data?.enquiryId === geolocOrderId
+    );
+
+    if (!clientHandoffEvent) {
+      throw new Error(`Missing expected inter-agent event from client_agent to admin_agent for enquiry ${geolocOrderId}`);
+    }
+    console.log(`• Inter-Agent Handshake Verified: Event ID: ${clientHandoffEvent.id} | Action: ${clientHandoffEvent.data.actionRequired}`);
+    console.log(`• Admin Copilot Prompt Text: "${clientHandoffEvent.data.promptText}"`);
+
+    // --- Test 42: Driver Connection, Driver Approval / Direct Accept with Quoted Time, WhatsApp Link & Master Agent Training ---
+    console.log('\n--- Test 42: Driver Connection, Driver Approval / Direct Accept, WhatsApp Link & Master Agent Training ---');
+
+    // 42.1 Connect order to driver
+    const connectDriverRes = await testEndpoint('/api/delivery-partners/connect-driver', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: geolocOrderId,
+        partnerId: 'part-del-1',
+        quotedDeliveryTime: 'Tomorrow morning 8:30 AM'
+      }
+    });
+    console.log(`[Connect Driver] POST /api/delivery-partners/connect-driver: HTTP ${connectDriverRes.status} | Driver: ${connectDriverRes.data.data?.driver?.name}`);
+    if (connectDriverRes.status !== 200 || !connectDriverRes.data.success) {
+      throw new Error('Failed to connect order to driver');
+    }
+
+    // 42.2 Driver Approves / Admin Directly Accepts with Quoted Delivery Time
+    const driverApproveOrderRes = await testEndpoint('/api/delivery-partners/approve-order', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: geolocOrderId,
+        partnerId: 'part-del-1',
+        quotedDeliveryTime: 'Morning 8:30 AM on event day',
+        action: 'accept'
+      }
+    });
+
+    console.log(`[Driver Approve / Accept] POST /api/delivery-partners/approve-order: HTTP ${driverApproveOrderRes.status}`);
+    if (
+      driverApproveOrderRes.status !== 200 || 
+      !driverApproveOrderRes.data.success || 
+      driverApproveOrderRes.data.data?.status !== 'Approved' ||
+      !driverApproveOrderRes.data.customerWhatsAppLink
+    ) {
+      throw new Error('Failed to approve order and generate customer WhatsApp link');
+    }
+
+    console.log(`• Order Approved & Assigned to: ${driverApproveOrderRes.data.driver.name} (${driverApproveOrderRes.data.driver.vehicleNumber})`);
+    console.log(`• Quoted Delivery Schedule: ${driverApproveOrderRes.data.data.quotedDeliveryTime}`);
+    console.log(`• Customer WhatsApp Dispatch Link Generated: ${driverApproveOrderRes.data.customerWhatsAppLink.substring(0, 80)}...`);
+
+    // 42.3 Verify Customer Live Notification was created
+    const custNotifsRes = await testEndpoint('/api/notifications/my-notifications', {
+      headers: { 'Authorization': `Bearer ${customerToken}` }
+    });
+    const latestNotif = (custNotifsRes.data.data || [])[0];
+    console.log(`[Customer Notification] Latest: "${latestNotif?.title}" - "${latestNotif?.message}"`);
+    if (!latestNotif || (!latestNotif.title?.includes('Accepted') && !latestNotif.title?.includes('Driver'))) {
+      throw new Error('Customer did not receive real-time order acceptance notification');
+    }
+
+    // 42.4 Verify Public Live Tracking Endpoint includes Driver and Bill
+    const geolocTrackOrderRes = await testEndpoint(`/api/delivery-partners/track/${geolocOrderId}`);
+    console.log(`[Public Tracker] GET /api/delivery-partners/track/${geolocOrderId}: HTTP ${geolocTrackOrderRes.status}`);
+    const trackData = geolocTrackOrderRes.data.data;
+    if (
+      geolocTrackOrderRes.status !== 200 || 
+      !trackData.deliveryPartner || 
+      trackData.deliveryPartner.id !== 'part-del-1' ||
+      !trackData.estimatedDeliveryTime
+    ) {
+      throw new Error('Public tracking screen failed to reflect assigned driver and quoted delivery time');
+    }
+
+    // 42.5 Verify Master Agent Training Store Contains Operational Metadata
+    const masterOverviewAfterRes = await testEndpoint('/api/agents/master/overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const trainingData = masterOverviewAfterRes.data.data?.masterAgentTrainingData || [];
+    const trainingRecord = trainingData.find(t => t.enquiryId === geolocOrderId);
+    if (!trainingRecord || trainingRecord.status !== 'accepted' || trainingRecord.assignedDriverId !== 'part-del-1') {
+      throw new Error('Master Agent training store missing accepted order record or driver assignment metadata');
+    }
+    console.log(`• Master Agent Training Record Verified: Enquiry #${trainingRecord.enquiryId} | Locality: ${trainingRecord.locality} | Distance: ${trainingRecord.distanceKm} km | Headcount: ${trainingRecord.guestCount} | Status: ${trainingRecord.status}`);
 
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');

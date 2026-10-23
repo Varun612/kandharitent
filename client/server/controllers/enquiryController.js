@@ -3,7 +3,81 @@ const Enquiry = require('../models/Enquiry');
 const { calculateOrderPricing } = require('../services/pricingEngine');
 const { createNotification } = require('./notificationController');
 
-const BUSINESS_WHATSAPP = process.env.WHATSAPP_PHONE || '9118008903456';
+const BUSINESS_WHATSAPP = process.env.PUBLIC_WHATSAPP_PHONE || process.env.WHATSAPP_PHONE || '';
+
+const LUCKNOW_DEPOT = {
+  name: 'Kandhari Tent House & Dwarka Shri Lawn Hub',
+  address: 'Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, UP 226008',
+  lat: 26.7645,
+  lng: 80.8842
+};
+
+const LUCKNOW_GEO_LOCATIONS = {
+  'Kanpur Road / Daroga Kheda': { lat: 26.7645, lng: 80.8842, distanceKm: 0.5, transitMinutes: 3 },
+  'Transport Nagar / Amausi': { lat: 26.7725, lng: 80.8750, distanceKm: 2.2, transitMinutes: 8 },
+  'Alambagh / Singar Nagar': { lat: 26.8125, lng: 80.9015, distanceKm: 6.8, transitMinutes: 16 },
+  'Krishna Nagar / Ashiyana': { lat: 26.7915, lng: 80.8980, distanceKm: 4.5, transitMinutes: 12 },
+  'Charbagh / Station Road': { lat: 26.8315, lng: 80.9230, distanceKm: 9.4, transitMinutes: 22 },
+  'Hazratganj / Central Lucknow': { lat: 26.8500, lng: 80.9499, distanceKm: 12.8, transitMinutes: 28 },
+  'Gomti Nagar / Vibhuti Khand': { lat: 26.8605, lng: 80.9990, distanceKm: 18.5, transitMinutes: 38 },
+  'Gomti Nagar Extension / Shaheed Path': { lat: 26.8150, lng: 81.0150, distanceKm: 16.2, transitMinutes: 32 },
+  'Indira Nagar / Munshi Pulia': { lat: 26.8850, lng: 80.9850, distanceKm: 19.6, transitMinutes: 42 },
+  'Mahanagar / Nishatganj': { lat: 26.8720, lng: 80.9560, distanceKm: 15.4, transitMinutes: 35 },
+  'Aliganj / Kapoorthala': { lat: 26.8870, lng: 80.9380, distanceKm: 16.8, transitMinutes: 36 },
+  'Jankipuram / Ring Road': { lat: 26.9150, lng: 80.9400, distanceKm: 21.0, transitMinutes: 45 },
+  'Vikas Nagar / Tedhi Pulia': { lat: 26.8980, lng: 80.9520, distanceKm: 18.9, transitMinutes: 40 },
+  'Chowk / Old City / Thakurganj': { lat: 26.8680, lng: 80.9020, distanceKm: 14.2, transitMinutes: 34 },
+  'Rajajipuram / Talkatora': { lat: 26.8320, lng: 80.8870, distanceKm: 8.9, transitMinutes: 20 },
+  'Vrindavan Yojana / Raebareli Road': { lat: 26.7750, lng: 80.9550, distanceKm: 9.8, transitMinutes: 22 },
+  'Telibagh / SGPGI': { lat: 26.7860, lng: 80.9420, distanceKm: 8.5, transitMinutes: 19 },
+  'Sarojini Nagar / Banthra': { lat: 26.7450, lng: 80.8550, distanceKm: 4.8, transitMinutes: 12 },
+  'Sultanpur Road / IT City / Arjunganj': { lat: 26.8080, lng: 81.0020, distanceKm: 15.8, transitMinutes: 32 },
+  'Faizabad Road / Chinhat': { lat: 26.8780, lng: 81.0450, distanceKm: 22.5, transitMinutes: 48 },
+  'Dubagga / Hardoi Road': { lat: 26.8700, lng: 80.8500, distanceKm: 13.5, transitMinutes: 30 }
+};
+
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 10) / 10;
+}
+
+function resolveLocationInfo(locality, customCoords = null) {
+  let matched = null;
+  if (locality) {
+    for (const [key, val] of Object.entries(LUCKNOW_GEO_LOCATIONS)) {
+      if (locality.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(locality.toLowerCase())) {
+        matched = { key, ...val };
+        break;
+      }
+    }
+  }
+  if (!matched) {
+    matched = { key: locality || 'Lucknow', lat: 26.8467, lng: 80.9462, distanceKm: 12.0, transitMinutes: 28 };
+  }
+
+  const destCoords = customCoords && customCoords.lat ? customCoords : { lat: matched.lat, lng: matched.lng };
+  const dist = customCoords && customCoords.lat
+    ? calculateHaversineDistance(LUCKNOW_DEPOT.lat, LUCKNOW_DEPOT.lng, customCoords.lat, customCoords.lng)
+    : matched.distanceKm;
+
+  return {
+    origin: LUCKNOW_DEPOT,
+    destination: {
+      address: locality || 'Lucknow, Uttar Pradesh',
+      lat: destCoords.lat,
+      lng: destCoords.lng
+    },
+    distanceKm: dist,
+    transitMinutes: Math.max(5, Math.round(dist * 2.2 + 5))
+  };
+}
 
 // Helper to generate pre-filled WhatsApp link
 const generateWhatsAppLink = (enquiry) => {
@@ -82,6 +156,10 @@ const submitEnquiry = async (req, res) => {
     const effStartDate = startDate || eventDate;
     const effEndDate = endDate || startDate || eventDate;
 
+    // Resolve Geolocation & Route distance from Lucknow Depot
+    const locationInfo = resolveLocationInfo(locality || eventVenueAddress || 'Kanpur Road, Lucknow', req.body.coords || null);
+    const effectiveDistanceKm = deliveryDistanceKm || locationInfo.distanceKm || 3;
+
     // Calculate official server-side pricing if rental items are present
     let pricing = null;
     let computedItems = Array.isArray(items) ? items : [];
@@ -91,7 +169,7 @@ const submitEnquiry = async (req, res) => {
         items: computedItems,
         startDate: effStartDate,
         endDate: effEndDate,
-        deliveryDistanceKm: deliveryDistanceKm || 3,
+        deliveryDistanceKm: effectiveDistanceKm,
         isReturningCustomer: isReturningCustomer || false
       });
       computedItems = pricing.lineItems;
@@ -114,7 +192,15 @@ const submitEnquiry = async (req, res) => {
       endDate: effEndDate,
       rentalDays: pricing ? pricing.rentalDays : 1,
       locality: locality || 'Kanpur Road, Lucknow',
-      eventVenueAddress: eventVenueAddress || '',
+      eventVenueAddress: eventVenueAddress || locality || 'Kanpur Road, Lucknow',
+      locationInfo: {
+        origin: locationInfo.origin,
+        destination: locationInfo.destination,
+        distanceKm: locationInfo.distanceKm,
+        transitMinutes: locationInfo.transitMinutes
+      },
+      distanceKm: locationInfo.distanceKm,
+      transitMinutes: locationInfo.transitMinutes,
       eventType: eventType || 'Wedding / Celebration',
       guestCount: parseInt(guestCount, 10) || 0,
       budgetRange: budgetRange || 'Flexible',
@@ -137,6 +223,7 @@ const submitEnquiry = async (req, res) => {
       detailedRequirements: req.body.detailedRequirements || notes || '',
       consentGiven: consentGiven !== false,
       status: 'Pending Admin Approval',
+      deliveryStatus: 'Pending Approval',
       referredTo: '',
       nextFollowUpDate: '',
       internalNotes: '',
@@ -144,6 +231,70 @@ const submitEnquiry = async (req, res) => {
     };
 
     const whatsappLink = generateWhatsAppLink(enquiryData);
+
+    // 1. Notify Customer if authenticated (Immediate portal notification)
+    if (enquiryData.customerId) {
+      try {
+        await createNotification({
+          customerId: enquiryData.customerId,
+          enquiryId: enquiryId,
+          title: '📋 Order Enquiry Sent',
+          message: `Your rental order enquiry #${enquiryId} has been sent and is awaiting admin approval.`,
+          type: 'enquiry_submitted'
+        });
+      } catch (notifErr) {
+        console.warn('Customer notification warning:', notifErr.message);
+      }
+    }
+
+    // 2. Client Agent communicates to Admin Agent via shared Event Bus
+    try {
+      const { recordAgentEvent } = require('../services/threeAgentService');
+      recordAgentEvent({
+        sourceAgent: 'client_agent',
+        targetAgent: 'admin_agent',
+        eventType: 'new_order_enquiry',
+        severity: 'high',
+        data: {
+          enquiryId,
+          customerId: enquiryData.customerId,
+          customerName: enquiryData.customerName,
+          phone: enquiryData.phone,
+          guestCount: enquiryData.guestCount,
+          locality: enquiryData.locality,
+          grandTotal: enquiryData.grandTotal,
+          distanceKm: locationInfo.distanceKm,
+          itemsCount: (enquiryData.items || []).length,
+          actionRequired: 'prompt_admin_decision',
+          promptText: `New order enquiry #${enquiryId} received from ${enquiryData.customerName} for ${enquiryData.locality} (Headcount: ${enquiryData.guestCount || 'Flexible'}, Total: ₹${(enquiryData.grandTotal || 0).toLocaleString('en-IN')}, Distance: ${locationInfo.distanceKm} km). Please review and Accept or Reject.`
+        }
+      });
+    } catch (agentErr) {
+      console.warn('Agent event recording warning:', agentErr.message);
+    }
+
+    // 3. Record Operational Metadata for Master Agent Self-Training
+    try {
+      const db = getLocalDb();
+      if (!db.masterAgentTrainingData) {
+        db.masterAgentTrainingData = [];
+      }
+      db.masterAgentTrainingData.unshift({
+        enquiryId,
+        customerId: enquiryData.customerId,
+        locality: enquiryData.locality,
+        destinationCoords: locationInfo.destination,
+        distanceKm: locationInfo.distanceKm,
+        transitMinutes: locationInfo.transitMinutes,
+        guestCount: enquiryData.guestCount,
+        grandTotal: enquiryData.grandTotal,
+        itemTypes: (enquiryData.items || []).map(i => i.name),
+        status: 'submitted',
+        createdAt: new Date().toISOString()
+      });
+    } catch (trainErr) {
+      console.warn('Master Agent training storage warning:', trainErr.message);
+    }
 
     if (isMongoConnected()) {
       const created = await Enquiry.create(enquiryData);
@@ -700,10 +851,45 @@ const acceptQuotation = async (req, res) => {
   }
 };
 
+// GET /api/enquiries/:id/route - Geolocation, Haversine distance, and route from Lucknow Depot
+const getEnquiryRouteInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let enquiry = null;
+    const db = getLocalDb();
+    enquiry = (db.enquiries || []).find(e => e.id === id || e._id?.toString() === id);
+
+    if (!enquiry && isMongoConnected()) {
+      enquiry = await Enquiry.findOne({ $or: [{ id }, { _id: id }] }).lean();
+    }
+
+    if (!enquiry) {
+      return res.status(404).json({ success: false, message: 'Enquiry not found' });
+    }
+
+    const locationInfo = enquiry.locationInfo || resolveLocationInfo(enquiry.locality || enquiry.eventVenueAddress);
+    return res.json({
+      success: true,
+      enquiryId: enquiry.id,
+      customerName: enquiry.customerName,
+      phone: enquiry.phone,
+      locality: enquiry.locality,
+      eventVenueAddress: enquiry.eventVenueAddress,
+      guestCount: enquiry.guestCount,
+      grandTotal: enquiry.grandTotal,
+      locationInfo
+    });
+  } catch (error) {
+    console.error('Error in getEnquiryRouteInfo:', error);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve enquiry route info' });
+  }
+};
+
 module.exports = {
   submitEnquiry,
   getEnquiries,
   getEnquiryById,
+  getEnquiryRouteInfo,
   updateEnquiryStatus,
   updateEnquiryQuotation,
   exportEnquiriesCSV,

@@ -4,7 +4,10 @@ const Item = require('../models/Item');
 // GET /api/items - Retrieve all items with search, category filtering & sorting
 const getItems = async (req, res) => {
   try {
-    const { search, category, status, sort, featured } = req.query;
+    let { search, category, status, sort, featured } = req.query;
+    if (search === 'undefined' || search === 'null') search = '';
+    if (category === 'undefined' || category === 'null') category = '';
+    if (status === 'undefined' || status === 'null') status = '';
 
     if (isMongoConnected()) {
       let query = {};
@@ -15,10 +18,25 @@ const getItems = async (req, res) => {
         ];
       }
       if (category && category !== 'all') {
+        const catLower = category.toLowerCase();
+        const matchTerms = [category, catLower];
+        if (catLower === 'stages-platforms' || catLower === 'stage-platform') {
+          matchTerms.push('stages-platforms', 'stage-platform', 'Stage & Platform Equipment');
+        } else if (catLower === 'carpets-flooring' || catLower === 'carpet-flooring') {
+          matchTerms.push('carpets-flooring', 'carpet-flooring');
+        } else if (catLower === 'barricading-crowd-control') {
+          matchTerms.push('barricading-crowd-control');
+        }
         query.$or = [
-          { category: category },
-          { categoryId: category }
+          { category: { $in: matchTerms } },
+          { categoryId: { $in: matchTerms } }
         ];
+        if (catLower === 'carpets-flooring') {
+          query.$or.push({ name: { $regex: 'carpet', $options: 'i' } });
+        }
+        if (catLower === 'barricading-crowd-control') {
+          query.$or.push({ name: { $regex: 'barricading', $options: 'i' } });
+        }
       }
       if (status && status !== 'all') {
         query.availabilityStatus = status;
@@ -48,10 +66,23 @@ const getItems = async (req, res) => {
 
     if (category && category !== 'all') {
       const catLower = category.toLowerCase();
-      items = items.filter(it => 
-        (it.categoryId && it.categoryId.toLowerCase() === catLower) ||
-        (it.category && it.category.toLowerCase() === catLower)
-      );
+      const aliases = [catLower];
+      if (catLower === 'stages-platforms' || catLower === 'stage-platform') {
+        aliases.push('stages-platforms', 'stage-platform', 'stage & platform equipment');
+      } else if (catLower === 'carpets-flooring' || catLower === 'carpet-flooring') {
+        aliases.push('carpets-flooring', 'carpet-flooring');
+      } else if (catLower === 'barricading-crowd-control') {
+        aliases.push('barricading-crowd-control', 'other-equipment');
+      }
+
+      items = items.filter(it => {
+        const itemCatId = (it.categoryId || '').toLowerCase();
+        const itemCat = (it.category || '').toLowerCase();
+        return aliases.includes(itemCatId) ||
+               aliases.includes(itemCat) ||
+               (catLower === 'carpets-flooring' && it.name.toLowerCase().includes('carpet')) ||
+               (catLower === 'barricading-crowd-control' && it.name.toLowerCase().includes('barricading'));
+      });
     }
 
     if (status && status !== 'all') {

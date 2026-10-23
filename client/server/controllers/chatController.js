@@ -192,7 +192,46 @@ const getConversation = async (req, res) => {
     }
 
     if (!conv) {
-      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+      // Auto-recover and initialize persistent session with this ID instead of throwing 404
+      conv = {
+        id: conversationId,
+        customerId: req.user ? req.user.id : null,
+        status: 'active',
+        recognizedIntent: 'general_inquiry',
+        collectedState: {
+          customerName: req.user ? req.user.name : '',
+          phone: req.user ? req.user.phone : '',
+          whatsappNumber: req.user ? req.user.phone : '',
+          preferredContactMethod: 'Phone',
+          eventType: '',
+          eventDate: '',
+          locality: '',
+          guestCount: 0,
+          selectedServices: [],
+          budget: '',
+          specialRequests: '',
+          enquiryReference: null,
+          consentGiven: true
+        },
+        messages: [
+          {
+            id: generateId('msg'),
+            role: 'assistant',
+            content: 'Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.',
+            timestamp: new Date()
+          }
+        ],
+        lastActivityAt: new Date()
+      };
+
+      if (isMongoConnected()) {
+        conv = await Conversation.create(conv);
+      } else {
+        const localDb = getLocalDb();
+        if (!localDb.conversations) localDb.conversations = [];
+        localDb.conversations.push(conv);
+        saveLocalStore();
+      }
     }
 
     // Access check: If conversation belongs to authenticated customer, ensure requester is owner or admin
@@ -229,7 +268,46 @@ const sendMessage = async (req, res) => {
     }
 
     if (!conv) {
-      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+      // Auto-recover and initialize persistent session with this ID instead of throwing 404
+      conv = {
+        id: conversationId,
+        customerId: req.user ? req.user.id : null,
+        status: 'active',
+        recognizedIntent: 'general_inquiry',
+        collectedState: {
+          customerName: req.user ? req.user.name : '',
+          phone: req.user ? req.user.phone : '',
+          whatsappNumber: req.user ? req.user.phone : '',
+          preferredContactMethod: 'Phone',
+          eventType: '',
+          eventDate: '',
+          locality: '',
+          guestCount: 0,
+          selectedServices: [],
+          budget: '',
+          specialRequests: '',
+          enquiryReference: null,
+          consentGiven: true
+        },
+        messages: [
+          {
+            id: generateId('msg'),
+            role: 'assistant',
+            content: 'Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.',
+            timestamp: new Date()
+          }
+        ],
+        lastActivityAt: new Date()
+      };
+
+      if (isMongoConnected()) {
+        conv = await Conversation.create(conv);
+      } else {
+        const localDb = getLocalDb();
+        if (!localDb.conversations) localDb.conversations = [];
+        localDb.conversations.push(conv);
+        saveLocalStore();
+      }
     }
 
     // Privacy access check
@@ -319,7 +397,46 @@ const submitEnquiryFromChat = async (req, res) => {
     }
 
     if (!conv) {
-      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+      // Auto-recover and initialize persistent session with this ID instead of throwing 404
+      conv = {
+        id: conversationId,
+        customerId: req.user ? req.user.id : null,
+        status: 'active',
+        recognizedIntent: 'general_inquiry',
+        collectedState: {
+          customerName: req.user ? req.user.name : '',
+          phone: req.user ? req.user.phone : '',
+          whatsappNumber: req.user ? req.user.phone : '',
+          preferredContactMethod: 'Phone',
+          eventType: '',
+          eventDate: '',
+          locality: '',
+          guestCount: 0,
+          selectedServices: [],
+          budget: '',
+          specialRequests: '',
+          enquiryReference: null,
+          consentGiven: true
+        },
+        messages: [
+          {
+            id: generateId('msg'),
+            role: 'assistant',
+            content: 'Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow. How may I assist you with your celebration today? You can ask about our tents, lawn availability, catering coordination, floral & stage decor, or ask to view our photo gallery.',
+            timestamp: new Date()
+          }
+        ],
+        lastActivityAt: new Date()
+      };
+
+      if (isMongoConnected()) {
+        conv = await Conversation.create(conv);
+      } else {
+        const localDb = getLocalDb();
+        if (!localDb.conversations) localDb.conversations = [];
+        localDb.conversations.push(conv);
+        saveLocalStore();
+      }
     }
 
     // Check conversation ownership if it belongs to another customer
@@ -338,7 +455,7 @@ const submitEnquiryFromChat = async (req, res) => {
     const refNumber = `ENQ-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const customerName = (req.body.customerName && req.body.customerName.trim()) || (req.user && req.user.name) || state.customerName || 'Customer via Chat';
-    const phone = (req.body.phone && req.body.phone.trim()) || (req.user && req.user.phone) || state.phone || '18008903456';
+    const phone = (req.body.phone && req.body.phone.trim()) || (req.user && req.user.phone) || state.phone || '';
     const whatsappNumber = (req.body.whatsappNumber && req.body.whatsappNumber.trim()) || req.body.phone || state.whatsappNumber || (req.user && req.user.phone) || phone;
     const email = (req.body.email && req.body.email.trim()) || (req.user && req.user.email) || '';
     const eventType = (req.body.eventType && req.body.eventType.trim()) || state.eventType || 'Celebration';
@@ -423,7 +540,8 @@ const submitEnquiryFromChat = async (req, res) => {
       `Guests: ${newEnquiry.guestCount || 'TBD'}\n` +
       `Services: ${newEnquiry.serviceRequired}`
     );
-    const whatsappUrl = `https://wa.me/9118008903456?text=${waText}`;
+    const waTarget = process.env.PUBLIC_WHATSAPP_PHONE || process.env.WHATSAPP_PHONE || '9118008903456';
+    const whatsappUrl = waTarget ? `https://wa.me/${waTarget.replace(/\D/g, '')}?text=${waText}` : '';
 
     res.status(201).json({
       success: true,
