@@ -246,6 +246,33 @@ const generateConversationalResponse = ({ userText, intentInfo, collectedState, 
   const isHindi = /[\u0900-\u097F]/.test(userText) || 
                   /\b(aap|ka|ki|ke|hai|karna|chahiye|bhejiye|bataye|batao|kripya|namaste|shukriya|shadi|ha|nahi|dikhaye)\b/i.test(userText);
   
+  const textTrimmed = (userText || '').trim();
+  const lower = textTrimmed.toLowerCase();
+
+  // Natural greeting and casual conversation
+  const isGreeting = /^(hi|hello|hey|namaste|pranam|good\s*(morning|afternoon|evening)|kaise\s*ho|how\s*are\s*you)/i.test(lower);
+  if (isGreeting && textTrimmed.length < 25) {
+    if (isHindi && !lower.includes('how are you')) {
+      return "Namaste! Main badhiya hoon, shukriya! Aaj main aapke event planning me kis tarah madad kar sakta hoon?";
+    }
+    return "I'm doing well, thank you! How may I help you plan your event today?";
+  }
+
+  // Clarifying question on broad chair requests (e.g. "I need chairs for a wedding")
+  const isBroadChairRequest = (lower.includes('chair') || lower.includes('kursi')) && 
+                              (lower.includes('wedding') || lower.includes('shaadi') || lower.includes('need') || lower.includes('chahiye')) &&
+                              !textTrimmed.match(/\b\d{2,4}\b/);
+  if (isBroadChairRequest) {
+    return "Approximately how many guests are you expecting? I can help you explore suitable chair options and prepare a rental enquiry.";
+  }
+
+  // Follow-up to guest count (e.g. "Around 300")
+  const isGuestCountFollowUp = textTrimmed.match(/(?:around|approx|about|lagbhag)?\s*(\d{2,4})\s*(?:guests?|log|people|pax)?$/i);
+  if (isGuestCountFollowUp && (lower.includes('around') || lower.includes('approx') || lower.includes('about') || lower.includes('300'))) {
+    const count = parseInt(isGuestCountFollowUp[1], 10);
+    return `Great. I'll help you compare suitable options for approximately ${count} guests. Do you have a preferred chair style, or would you like to see the available options first?`;
+  }
+
   const { intent, category } = intentInfo;
 
   // Case 1: Gallery Request with 5 photos

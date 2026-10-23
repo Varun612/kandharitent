@@ -35,9 +35,15 @@ const runTests = async () => {
       ? options.headers
       : { 'Content-Type': 'application/json', ...(options.headers || {}) };
 
+    let body = options.body;
+    if (body && typeof body === 'object' && (!headers['Content-Type'] || headers['Content-Type'].includes('json'))) {
+      body = JSON.stringify(body);
+    }
+
     const res = await fetch(`http://localhost:${assignedPort}${url}`, {
       ...options,
-      headers
+      headers,
+      body
     });
 
     const cType = res.headers.get('content-type') || '';
@@ -1300,6 +1306,194 @@ const runTests = async () => {
       throw new Error('Telephony Gather webhook failed to respond with valid TwiML');
     }
     console.log('• Verified multi-turn voice gather processing and response generation.');
+
+    // 34: Three-Agent Architecture Initialization & System Health
+    console.log('\n--- Test 34: Three-Agent Architecture Initialization & System Health ---');
+    const agentOverviewRes = await testEndpoint('/api/agents/master/overview', {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`
+      }
+    });
+    console.log(`[Master Overview] GET /api/agents/master/overview: HTTP ${agentOverviewRes.status} | Active Agents: ${Object.keys(agentOverviewRes.data.data.agents).length}`);
+    if (agentOverviewRes.status !== 200 || !agentOverviewRes.data.success) {
+      throw new Error('Master Agent overview failed');
+    }
+    const agents = agentOverviewRes.data.data.agents;
+    if (!agents.client_agent || !agents.admin_agent || !agents.master_agent) {
+      throw new Error('Three distinct agents (client, admin, master) not all present in system registry');
+    }
+    console.log(`• Client Agent: [${agents.client_agent.name}] | Version: ${agents.client_agent.version} | Status: ${agents.client_agent.status}`);
+    console.log(`• Admin Agent: [${agents.admin_agent.name}] | Version: ${agents.admin_agent.version} | Status: ${agents.admin_agent.status}`);
+    console.log(`• Master Agent: [${agents.master_agent.name}] | Version: ${agents.master_agent.version} | Status: ${agents.master_agent.status}`);
+
+    // 35: Client Agent Natural Dialogue, Clarifications & Cart Action Generation
+    console.log('\n--- Test 35: Client Agent Dialogue, Clarifications & Cart Actions ---');
+    
+    // Step 1: Greeting
+    const greetingRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { message: 'Hi, how are you?' }
+    });
+    console.log(`[Greeting] POST /api/agents/client/chat: HTTP ${greetingRes.status}`);
+    if (greetingRes.status !== 200 || !greetingRes.data.data.reply.toLowerCase().includes("i'm doing well")) {
+      throw new Error(`Expected natural greeting response, got: ${greetingRes.data.data.reply}`);
+    }
+    console.log(`• Greeting Reply: "${greetingRes.data.data.reply}"`);
+
+    // Step 2: Broad request requiring clarification
+    const broadReqRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { message: 'I need chairs for a wedding.' }
+    });
+    console.log(`[Clarifying Question] POST /api/agents/client/chat: HTTP ${broadReqRes.status}`);
+    if (broadReqRes.status !== 200 || !broadReqRes.data.data.reply.toLowerCase().includes('how many guests')) {
+      throw new Error(`Expected clarifying question regarding guests, got: ${broadReqRes.data.data.reply}`);
+    }
+    console.log(`• Clarifying Reply: "${broadReqRes.data.data.reply}"`);
+
+    // Step 3: Follow up on guest count
+    const followUpRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { 
+        message: 'Around 300.',
+        conversationHistory: [
+          { role: 'user', content: 'I need chairs for a wedding.' },
+          { role: 'assistant', content: broadReqRes.data.data.reply }
+        ]
+      }
+    });
+    console.log(`[Chair Comparison] POST /api/agents/client/chat: HTTP ${followUpRes.status}`);
+    if (followUpRes.status !== 200 || !followUpRes.data.data.reply.includes('300')) {
+      throw new Error(`Expected chair comparison for 300 guests, got: ${followUpRes.data.data.reply}`);
+    }
+    console.log(`• Comparison Reply: "${followUpRes.data.data.reply}"`);
+
+    // Step 4: Proactive Cart Addition Action
+    const cartActionRes = await testEndpoint('/api/agents/client/chat', {
+      method: 'POST',
+      body: { message: 'Add 300 PVC chairs to my cart' }
+    });
+    console.log(`[Cart Action Generation] POST /api/agents/client/chat: HTTP ${cartActionRes.status}`);
+    if (cartActionRes.status !== 200 || !cartActionRes.data.data.action || cartActionRes.data.data.action.type !== 'add_to_cart') {
+      throw new Error('Expected Client Agent to return structured add_to_cart action');
+    }
+    console.log(`• Cart Action Executed: Type=${cartActionRes.data.data.action.type} | Item=${cartActionRes.data.data.action.item.name} | Qty=${cartActionRes.data.data.action.quantity}`);
+
+    // 36: Client Agent Human Escalation
+    console.log('\n--- Test 36: Client Agent Human Escalation & Shared Event Bus ---');
+    const escalateRes = await testEndpoint('/api/agents/client/escalate', {
+      method: 'POST',
+      body: {
+        customerPhone: '9876543210',
+        customerName: 'Anil Verma',
+        reason: 'Custom wedding lounge budget negotiation',
+        cartSummary: '300 PVC Chairs + 4 Maharaja Sofas'
+      }
+    });
+    console.log(`[Client Escalation] POST /api/agents/client/escalate: HTTP ${escalateRes.status} | Escalation ID: ${escalateRes.data.escalationId}`);
+    if (escalateRes.status !== 201 || !escalateRes.data.success) {
+      throw new Error('Client escalation failed');
+    }
+    console.log('• Verified escalation event dispatched to Admin Agent with emergency WhatsApp link.');
+
+    // 37: Admin Agent Drop-off Analysis & Safe Catalogue Mutation Proposal
+    console.log('\n--- Test 37: Admin Agent Drop-off Analysis & Catalogue Modification Flow ---');
+    
+    // Step 1: Drop-off Analysis
+    const dropoffRes = await testEndpoint('/api/agents/admin/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { message: 'Why are customers asking about chairs but not submitting enquiries?' }
+    });
+    console.log(`[Drop-off Query] POST /api/agents/admin/query: HTTP ${dropoffRes.status} | Type: ${dropoffRes.data.data.type}`);
+    if (dropoffRes.status !== 200 || dropoffRes.data.data.type !== 'dropoff_analysis' || !dropoffRes.data.data.evidence) {
+      throw new Error('Expected Admin Agent to return structured drop-off analysis');
+    }
+    console.log(`• Observed Stage: ${dropoffRes.data.data.evidence.dropoffStage}`);
+    console.log(`• Recommendations Count: ${dropoffRes.data.data.recommendations.length}`);
+
+    // Step 2: Propose Catalogue Update
+    const proposeUpdateRes = await testEndpoint('/api/agents/admin/query', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { message: 'Update the PVC chair description to: Sturdy commercial white PVC chair with armrests, stackable for events.' }
+    });
+    console.log(`[Catalogue Proposal] POST /api/agents/admin/query: HTTP ${proposeUpdateRes.status} | Proposal ID: ${proposeUpdateRes.data.data.proposalId}`);
+    if (proposeUpdateRes.status !== 200 || !proposeUpdateRes.data.data.requiresConfirmation) {
+      throw new Error('Expected Admin Agent to prepare preview diff and require confirmation before mutating catalogue');
+    }
+    const proposalId = proposeUpdateRes.data.data.proposalId;
+    console.log(`• Preview Diff Before: "${proposeUpdateRes.data.data.diff.before}"`);
+    console.log(`• Preview Diff After:  "${proposeUpdateRes.data.data.diff.after}"`);
+
+    // Step 3: Confirm and Apply Catalogue Update
+    const confirmUpdateRes = await testEndpoint('/api/agents/admin/confirm', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { proposalId, confirmed: true }
+    });
+    console.log(`[Confirm Proposal] POST /api/agents/admin/confirm: HTTP ${confirmUpdateRes.status} | Status: ${confirmUpdateRes.data.data.status}`);
+    if (confirmUpdateRes.status !== 200 || confirmUpdateRes.data.data.status !== 'executed') {
+      throw new Error('Failed to execute confirmed catalogue proposal');
+    }
+
+    // Step 4: Verify Item in Catalogue
+    const updatedItemRes = await testEndpoint('/api/items/item-chair-pvc');
+    console.log(`[Verify Updated Item] GET /api/items/item-chair-pvc: HTTP ${updatedItemRes.status}`);
+    if (!updatedItemRes.data.data.description.includes('Sturdy commercial white PVC chair with armrests')) {
+      throw new Error('Updated description not reflected in catalogue item');
+    }
+    console.log('• Verified catalogue item description updated and recorded in persistent audit log.');
+
+    // 38: Master Agent Multi-Agent Orchestration, Rule Versioning & Rollback
+    console.log('\n--- Test 38: Master Agent Multi-Agent Orchestration & Rule Versioning ---');
+    
+    // Step 1: Propose Rule Update
+    const masterProposeRes = await testEndpoint('/api/agents/master/rules/propose', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { instruction: 'Improve the way the Client Agent recommends chairs' }
+    });
+    console.log(`[Master Propose Rule] POST /api/agents/master/rules/propose: HTTP ${masterProposeRes.status} | Target: ${masterProposeRes.data.proposal.targetAgent}`);
+    if (masterProposeRes.status !== 201 || masterProposeRes.data.proposal.targetAgent !== 'client_agent') {
+      throw new Error('Master Agent failed to identify client_agent as target for chair recommendation instruction');
+    }
+    const masterProposalId = masterProposeRes.data.proposal.id;
+    console.log(`• Version Bump: ${masterProposeRes.data.proposal.currentVersion} -> ${masterProposeRes.data.proposal.proposedVersion}`);
+    console.log(`• Injected Rule: "${masterProposeRes.data.proposal.newRuleAdded}"`);
+
+    // Step 2: Apply Rule Update
+    const masterApplyRes = await testEndpoint('/api/agents/master/rules/apply', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { proposalId: masterProposalId, approved: true }
+    });
+    console.log(`[Master Apply Rule] POST /api/agents/master/rules/apply: HTTP ${masterApplyRes.status} | New Version: ${masterApplyRes.data.data.newVersion}`);
+    if (masterApplyRes.status !== 200 || masterApplyRes.data.data.newVersion !== 'v1.1') {
+      throw new Error('Failed to deploy approved version v1.1 to Client Agent');
+    }
+
+    // Step 3: Verify Version in Overview
+    const verifyOverviewRes = await testEndpoint('/api/agents/master/overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (verifyOverviewRes.data.data.agents.client_agent.version !== 'v1.1') {
+      throw new Error('Client Agent version mismatch in Master Agent overview');
+    }
+    console.log('• Verified Client Agent version v1.1 deployed and persisted in version history.');
+
+    // Step 4: Rollback to v1.0
+    const rollbackRes = await testEndpoint('/api/agents/master/rules/rollback', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: { targetAgent: 'client_agent', toVersion: 'v1.0' }
+    });
+    console.log(`[Master Rollback] POST /api/agents/master/rules/rollback: HTTP ${rollbackRes.status} | Restored Version: ${rollbackRes.data.data.currentVersion}`);
+    if (rollbackRes.status !== 200 || rollbackRes.data.data.currentVersion !== 'v1.0') {
+      throw new Error('Failed to roll back Client Agent to version v1.0');
+    }
+    console.log('• Verified clean rollback to v1.0 with immutable audit entry.');
+
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');

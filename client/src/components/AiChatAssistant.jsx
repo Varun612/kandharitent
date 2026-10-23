@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useEnquiry } from '../context/EnquiryContext';
 import { 
   MessageSquare, X, Send, Sparkles, RefreshCw, 
   CheckCircle, ArrowRight, Image as ImageIcon, MapPin, 
   Calendar, Phone, ExternalLink, ChevronDown, Minimize2, Maximize2,
-  Lock, Mail, User, ShieldCheck, Edit3, AlertCircle
+  Lock, Mail, User, ShieldCheck, Edit3, AlertCircle, ShoppingBag, Plus
 } from 'lucide-react';
 
 // Extract phone and details from text
@@ -136,6 +137,7 @@ const AiChatAssistant = () => {
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const { isCustomerAuthenticated, customerUser, customerLogin, customerRegister } = useAuth();
+  const { enquiryList = [], addItem, setIsDrawerOpen, subtotal = 0 } = useEnquiry();
 
   // Auth Modal State (Chat -> Auth flow)
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -289,6 +291,49 @@ const AiChatAssistant = () => {
     };
     setMessages(prev => [...prev, tempUserMsg]);
     setLoading(true);
+
+    // 1. Primary: Three-Agent Client Agent Architecture
+    try {
+      const agentRes = await api.agents.clientChat({
+        message: text,
+        conversationHistory: messages,
+        activeCart: enquiryList || []
+      });
+
+      if (agentRes && agentRes.success && agentRes.data) {
+        const agentData = agentRes.data;
+
+        // Proactive Cart Addition Execution
+        if (agentData.action && agentData.action.type === 'add_to_cart' && agentData.action.item && addItem) {
+          addItem(agentData.action.item, agentData.action.quantity || 1);
+        }
+
+        const assistantMsg = {
+          id: 'ast-' + Date.now(),
+          role: 'assistant',
+          content: agentData.reply,
+          suggestedQuestions: agentData.suggestedQuestions,
+          recommendedItems: agentData.recommendedItems,
+          action: agentData.action,
+          timestamp: new Date()
+        };
+
+        setMessages(prev => {
+          const filtered = prev.filter(m => m.id !== tempUserMsg.id);
+          return [...filtered, tempUserMsg, assistantMsg];
+        });
+
+        // Fire-and-forget sync to persistent conversation
+        try {
+          api.sendChatMessage(activeConvId, text).catch(() => {});
+        } catch (e) {}
+
+        setLoading(false);
+        return;
+      }
+    } catch (agentErr) {
+      console.warn('Client agent specialized route error, falling back to standard conversation:', agentErr);
+    }
 
     try {
       const res = await api.sendChatMessage(activeConvId, text);
@@ -666,6 +711,93 @@ const AiChatAssistant = () => {
                               </div>
                             ))}
                           </div>
+                        </div>
+                      )}
+
+                      {/* Display Add to Cart Confirmation Action Pill */}
+                      {msg.action && msg.action.type === 'add_to_cart' && (
+                        <div className="mt-3 p-2.5 rounded-xl bg-purple-50 border border-brand-purple/30 flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-2 text-brand-purple font-bold">
+                            <ShoppingBag className="w-4 h-4 text-brand-purple" />
+                            <span>Added to Enquiry Cart</span>
+                          </div>
+                          <button
+                            onClick={() => setIsDrawerOpen(true)}
+                            className="px-2.5 py-1 bg-brand-primary text-white rounded-lg font-bold text-[10px] hover:bg-brand-primaryDark transition flex items-center gap-1 shadow-xs"
+                          >
+                            <span>View Cart</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Display Escalation to Owner / WhatsApp */}
+                      {msg.action && msg.action.type === 'escalation' && (
+                        <div className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                          <p className="font-bold text-[11px] text-emerald-800 flex items-center gap-1">
+                            <Phone className="w-3.5 h-3.5" />
+                            <span>Direct Human / Owner Connect:</span>
+                          </p>
+                          <div className="flex gap-2">
+                            <a
+                              href={msg.action.whatsappLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold text-center flex items-center justify-center gap-1"
+                            >
+                              <span>WhatsApp Desk</span>
+                            </a>
+                            <a
+                              href={`tel:${msg.action.phone}`}
+                              className="flex-1 py-1.5 rounded-lg bg-neutral-900 hover:bg-black text-white text-[10px] font-bold text-center flex items-center justify-center gap-1"
+                            >
+                              <span>Call Toll-Free</span>
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Display Recommended Items with 1-Click Cart Addition */}
+                      {msg.recommendedItems && msg.recommendedItems.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-neutral-100 space-y-2">
+                          <p className="font-bold text-[11px] text-brand-purple flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Recommended Catalogue Options:</span>
+                          </p>
+                          <div className="grid grid-cols-1 gap-2">
+                            {msg.recommendedItems.map((item, i) => (
+                              <div key={item.id || i} className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200 flex items-center justify-between text-[11px]">
+                                <div>
+                                  <p className="font-bold text-neutral-800">{item.name}</p>
+                                  <p className="text-[10px] text-neutral-500">₹{item.unitRate}/pc &bull; {item.bestFor}</p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    if (addItem) addItem(item, 100);
+                                  }}
+                                  className="px-2.5 py-1 bg-brand-purple text-white rounded-lg font-bold text-[10px] hover:bg-brand-purple/90 transition flex items-center gap-1"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>Add 100</span>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Display Suggested Question Chips */}
+                      {msg.suggestedQuestions && msg.suggestedQuestions.length > 0 && (
+                        <div className="mt-2.5 flex flex-wrap gap-1.5">
+                          {msg.suggestedQuestions.map((sq, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handleSend(sq)}
+                              className="text-[10px] px-2.5 py-1 rounded-full bg-purple-50 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple hover:text-white transition font-medium"
+                            >
+                              {sq}
+                            </button>
+                          ))}
                         </div>
                       )}
                     </div>

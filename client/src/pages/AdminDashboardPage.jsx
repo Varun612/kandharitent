@@ -58,6 +58,7 @@ import {
   Clapperboard,
   Settings,
   Brain,
+  Bot,
   History,
   Workflow,
   Send,
@@ -74,6 +75,8 @@ import VeronicaCallSimulatorModal from '../components/VeronicaCallSimulatorModal
 import { useAuth } from '../context/AuthContext';
 import { CATEGORIES, LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems';
 import MasterAgentVoiceWidget from '../components/MasterAgentVoiceWidget';
+import AdminAgentCopilot from '../components/AdminAgentCopilot';
+import MasterAgentWorkspace from '../components/MasterAgentWorkspace';
 
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
@@ -88,7 +91,7 @@ const AdminDashboardPage = () => {
   const [paymentSubtab, setPaymentSubtab] = useState('staff_wages'); // staff_wages, outside_payments
   const [inventorySubtab, setInventorySubtab] = useState('physical'); // physical, catalogue
   const [marketingSubtab, setMarketingSubtab] = useState('reels'); // reels, media, portfolios
-  const [agentSubtab, setAgentSubtab] = useState('voice'); // voice, memory, workflows
+  const [agentSubtab, setAgentSubtab] = useState('orchestration'); // orchestration, voice, memory, workflows
 
   // ==========================================
   // STATE DEFINITIONS
@@ -700,7 +703,8 @@ const AdminDashboardPage = () => {
     { id: 'bookings', label: 'Quotes & Inquiries', icon: ShoppingBag, badge: enquiries.length },
     { id: 'inventory', label: 'Rental Inventory', icon: Package, badge: physicalInventory.filter(i => (i.damagedQuantity || 0) > 0).length ? 'Repair' : null },
     { id: 'analytics', label: 'Visitor Analytics', icon: BarChart3 },
-    { id: 'agent', label: 'Master AI Agent', icon: Mic, highlight: true },
+    { id: 'admin_copilot', label: 'Admin Agent Copilot', icon: Bot, highlight: true },
+    { id: 'agent', label: 'Master Agent Supervision', icon: Brain, highlight: true },
     { id: 'marketing', label: 'Marketing & Reel Studio', icon: Clapperboard, highlight: true },
     { id: 'invoices', label: 'Invoices & Billing', icon: FileText, badge: invoices.length },
     { id: 'settings', label: 'Venue & Business Settings', icon: Settings }
@@ -1856,16 +1860,33 @@ const AdminDashboardPage = () => {
           )}
 
           {/* ========================================================
-              SECTION 8: MASTER AGENT & LEARNED WORKFLOWS
+              SECTION 7.5: ADMIN AGENT OPERATIONS COPILOT
+             ======================================================== */}
+          {activeTab === 'admin_copilot' && (
+            <div className="space-y-6 animate-fadeIn">
+              <AdminAgentCopilot onCatalogueUpdated={loadAllData} />
+            </div>
+          )}
+
+          {/* ========================================================
+              SECTION 8: MASTER AGENT & MULTI-AGENT SUPERVISION
              ======================================================== */}
           {activeTab === 'agent' && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-white">🎙️ Master Business AI Operations Agent</h2>
-                  <p className="text-xs text-neutral-400">Voice and text AI operations console in English & Hindi. Manages learned business rules, workforce actions, and automated workflows.</p>
+                  <h2 className="text-2xl font-serif font-bold text-white">👑 Master Agent Supervision &amp; Orchestration</h2>
+                  <p className="text-xs text-neutral-400">Owner-level multi-agent supervision, prompt rule versioning, and voice operations console.</p>
                 </div>
                 <div className="bg-neutral-950 p-1 rounded-2xl border border-neutral-800 flex">
+                  <button
+                    onClick={() => setAgentSubtab('orchestration')}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+                      agentSubtab === 'orchestration' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    Agent Supervision
+                  </button>
                   <button
                     onClick={() => setAgentSubtab('voice')}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
@@ -1880,7 +1901,7 @@ const AdminDashboardPage = () => {
                       agentSubtab === 'memory' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    Learned Business Rules ({agentMemories.length})
+                    Learned Rules ({agentMemories.length})
                   </button>
                   <button
                     onClick={() => setAgentSubtab('workflows')}
@@ -1888,10 +1909,17 @@ const AdminDashboardPage = () => {
                       agentSubtab === 'workflows' ? 'bg-brand-primary text-white shadow-xs' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
-                    Standard Workflows ({agentWorkflows.length})
+                    Workflows ({agentWorkflows.length})
                   </button>
                 </div>
               </div>
+
+              {/* Subtab 0: Master Agent Orchestration Workspace */}
+              {agentSubtab === 'orchestration' && (
+                <div className="space-y-4">
+                  <MasterAgentWorkspace />
+                </div>
+              )}
 
               {/* Subtab 1: Voice & Chat Interface */}
               {agentSubtab === 'voice' && (

@@ -400,5 +400,50 @@ export const api = {
   updateSettings: (payload) => request('/settings', {
     method: 'PUT',
     body: JSON.stringify(payload)
-  })
+  }),
+
+  // Three-Agent AI System Architecture
+  agents: {
+    // 1. Client Agent
+    clientChat: (payload) => request('/agents/client/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    clientCartAction: (payload) => request('/agents/client/cart-action', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    clientEscalate: (payload) => request('/agents/client/escalate', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+
+    // 2. Admin Agent
+    adminQuery: (payload) => request('/agents/admin/query', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    adminConfirm: (payload) => request('/agents/admin/confirm', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    adminDropoffAnalysis: () => request('/agents/admin/dropoff-analysis'),
+
+    // 3. Master Agent
+    masterOverview: () => request('/agents/master/overview'),
+    masterProposeRule: (payload) => request('/agents/master/rules/propose', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    masterApplyRule: (payload) => request('/agents/master/rules/apply', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    masterRollbackRule: (payload) => request('/agents/master/rules/rollback', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+    masterEvents: (limit = 50) => request(`/agents/master/events?limit=${limit}`),
+    masterAudit: (limit = 50) => request(`/agents/master/audit?limit=${limit}`)
+  }
 };
