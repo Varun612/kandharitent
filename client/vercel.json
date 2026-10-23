@@ -19,19 +19,23 @@
       "destination": "/api"
     },
     {
+      "source": "/catering/menu",
+      "destination": "/api"
+    },
+    {
+      "source": "/catering/packages",
+      "destination": "/api"
+    },
+    {
+      "source": "/catering/enquiries",
+      "destination": "/api"
+    },
+    {
       "source": "/items/(.*)",
       "destination": "/api"
     },
     {
       "source": "/items",
-      "destination": "/api"
-    },
-    {
-      "source": "/venue/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/venue",
       "destination": "/api"
     },
     {
@@ -43,123 +47,15 @@
       "destination": "/api"
     },
     {
-      "source": "/gallery/(.*)",
+      "source": "/delivery-partners/(.*)",
       "destination": "/api"
     },
     {
-      "source": "/gallery",
-      "destination": "/api"
-    },
-    {
-      "source": "/auth/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/auth",
-      "destination": "/api"
-    },
-    {
-      "source": "/chat/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/chat",
-      "destination": "/api"
-    },
-    {
-      "source": "/catering/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/catering",
-      "destination": "/api"
-    },
-    {
-      "source": "/payments/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/payments",
-      "destination": "/api"
-    },
-    {
-      "source": "/notifications/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/notifications",
-      "destination": "/api"
-    },
-    {
-      "source": "/reports/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/reports",
-      "destination": "/api"
-    },
-    {
-      "source": "/inventory/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/inventory",
-      "destination": "/api"
-    },
-    {
-      "source": "/staff/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/staff",
-      "destination": "/api"
-    },
-    {
-      "source": "/analytics/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/analytics",
-      "destination": "/api"
-    },
-    {
-      "source": "/agent/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/agent",
+      "source": "/delivery-partners",
       "destination": "/api"
     },
     {
       "source": "/agents/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/agents",
-      "destination": "/api"
-    },
-    {
-      "source": "/receptionist/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/receptionist",
-      "destination": "/api"
-    },
-    {
-      "source": "/invoices/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/invoices",
-      "destination": "/api"
-    },
-    {
-      "source": "/marketing/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/marketing",
       "destination": "/api"
     },
     {
@@ -171,23 +67,7 @@
       "destination": "/api"
     },
     {
-      "source": "/coupons/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/coupons",
-      "destination": "/api"
-    },
-    {
-      "source": "/delivery-partners/(.*)",
-      "destination": "/api"
-    },
-    {
-      "source": "/delivery-partners",
-      "destination": "/api"
-    },
-    {
-      "source": "/((?!api|items|venue|enquiries|gallery|auth|chat|catering|payments|notifications|reports|inventory|staff|analytics|agent|agents|receptionist|invoices|marketing|settings|coupons|delivery-partners|health).*)",
+      "source": "/((?!api|items|enquiries|health|catering/menu|catering/packages|catering/enquiries|delivery-partners|agents|settings|media).*)",
       "destination": "/index.html"
     }
   ]
