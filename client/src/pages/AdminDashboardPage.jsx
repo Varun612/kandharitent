@@ -46,6 +46,7 @@ import {
   MicOff,
   Wrench,
   ShieldAlert,
+  ShieldCheck,
   ClipboardCheck,
   Truck,
   HardHat,
@@ -177,6 +178,36 @@ const AdminDashboardPage = () => {
     notes: ''
   });
   const [wageDisbursements, setWageDisbursements] = useState([]);
+
+  // 4.1 Daya 1..31 Attendance Grid, Advances & Payroll State
+  const [staffSubtab, setStaffSubtab] = useState('register'); // 'register', 'advances', 'payroll', 'roster'
+  const [gridYear, setGridYear] = useState(new Date().getFullYear());
+  const [gridMonth, setGridMonth] = useState(new Date().getMonth() + 1);
+  const [gridData, setGridData] = useState(null);
+  const [advancesList, setAdvancesList] = useState([]);
+  const [isAdvanceModalOpen, setIsAdvanceModalOpen] = useState(false);
+  const [advanceFormData, setAdvanceFormData] = useState({
+    staffId: '',
+    amount: 500,
+    date: new Date().toISOString().split('T')[0],
+    notes: 'Staff cash advance'
+  });
+  const [payrollData, setPayrollData] = useState(null);
+
+  // 4.2 Promo Coupons & Telephony Simulator
+  const [couponsList, setCouponsList] = useState([]);
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [couponFormData, setCouponFormData] = useState({
+    code: '',
+    discountType: 'fixed',
+    discountValue: 100,
+    minOrderValue: 2000,
+    description: '',
+    active: true,
+    expiryDate: '2026-12-31'
+  });
+  const [telephonyConfig, setTelephonyConfig] = useState(null);
+  const [isSimulatingCall, setIsSimulatingCall] = useState(false);
 
   // 5. Outside Payments (Dhobi, Suppliers)
   const [outsidePayments, setOutsidePayments] = useState([]);
