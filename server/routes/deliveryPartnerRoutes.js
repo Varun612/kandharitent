@@ -6,6 +6,8 @@ const {
   updateDeliveryPartner,
   deleteDeliveryPartner,
   assignPartnerToOrder,
+  connectDriverRequest,
+  driverApproveOrder,
   updateOrderDeliveryStatus,
   getOrderTrackingInfo
 } = require('../controllers/deliveryPartnerController');
@@ -24,6 +26,8 @@ router.delete('/:id', protectAdmin, deleteDeliveryPartner);
 
 // Assignment and dispatch status tracking
 router.post('/assign', protectAdmin, assignPartnerToOrder);
+router.post('/connect-driver', protectAdmin, connectDriverRequest);
+router.post('/approve-order', protectAdmin, driverApproveOrder);
 router.post('/update-status', protectAdmin, updateOrderDeliveryStatus);
 
 module.exports = router;

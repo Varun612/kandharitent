@@ -426,6 +426,15 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(payload)
   }),
+  connectDriverRequest: (payload) => request('/delivery-partners/connect-driver', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  driverApproveOrder: (payload) => request('/delivery-partners/approve-order', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getEnquiryRouteInfo: (id) => request(`/enquiries/${encodeURIComponent(id)}/route`),
   updateOrderDeliveryStatus: (payload) => request('/delivery-partners/update-status', {
     method: 'POST',
     body: JSON.stringify(payload)

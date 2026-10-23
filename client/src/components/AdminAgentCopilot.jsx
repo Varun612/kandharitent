@@ -41,11 +41,29 @@ const AdminAgentCopilot = ({ onCatalogueUpdated }) => {
   const [auditLogs, setAuditLogs] = useState([]);
   const [activeSubtab, setActiveSubtab] = useState('chat'); // 'chat', 'dropoff', 'audit'
   const [dropoffData, setDropoffData] = useState(null);
+  const [pendingEnquiryPrompts, setPendingEnquiryPrompts] = useState([]);
 
-  // Load audit logs on mount
+  // Load audit logs & inter-agent enquiry prompts on mount
   useEffect(() => {
     loadAuditLogs();
+    loadPendingPrompts();
   }, []);
+
+  const loadPendingPrompts = async () => {
+    try {
+      const overviewRes = await api.agents.overview();
+      if (overviewRes && overviewRes.success && overviewRes.data) {
+        const events = overviewRes.data.recentEvents || [];
+        const enqEvents = events.filter(e => 
+          (e.targetAgent === 'admin_agent' || e.sourceAgent === 'client_agent') &&
+          e.eventType === 'new_order_enquiry'
+        );
+        setPendingEnquiryPrompts(enqEvents);
+      }
+    } catch (err) {
+      console.warn('Could not load pending enquiry prompts:', err);
+    }
+  };
 
   const loadAuditLogs = async () => {
     try {
@@ -226,6 +244,61 @@ const AdminAgentCopilot = ({ onCatalogueUpdated }) => {
 
           {/* Messages Window */}
           <div className="flex-1 p-5 overflow-y-auto space-y-4">
+            {/* Active Inter-Agent Prompts from Client Agent */}
+            {pendingEnquiryPrompts.length > 0 && (
+              <div className="space-y-3 pb-2">
+                {pendingEnquiryPrompts.map((evt) => (
+                  <div key={evt.id} className="p-4 bg-amber-950/40 border border-amber-500/40 rounded-2xl space-y-2 text-xs animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-amber-300 font-bold">
+                        <Sparkles className="w-4 h-4 text-amber-400" />
+                        <span>Action Required: Client Agent Order Enquiry Prompt</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-neutral-400">
+                        {evt.timestamp ? new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
+                    </div>
+                    <p className="text-neutral-200 leading-relaxed">
+                      {evt.data?.promptText || `New order enquiry #${evt.data?.enquiryId} received from ${evt.data?.customerName} (${evt.data?.locality}). Please review and choose: [Accept Order] or [Reject Order].`}
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await api.driverApproveOrder({ enquiryId: evt.data?.enquiryId, action: 'accept' });
+                            alert(res.message || `Order #${evt.data?.enquiryId} accepted and assigned to fleet!`);
+                            setPendingEnquiryPrompts(prev => prev.filter(p => p.id !== evt.id));
+                            if (onCatalogueUpdated) onCatalogueUpdated();
+                          } catch (e) {
+                            alert(e.message || 'Error accepting order');
+                          }
+                        }}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs transition"
+                      >
+                        ✓ Accept Order
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const reason = prompt('Rejection reason:', 'Unavailable on requested date');
+                          if (!reason) return;
+                          try {
+                            const res = await api.driverApproveOrder({ enquiryId: evt.data?.enquiryId, action: 'reject', rejectionReason: reason });
+                            alert(res.message || `Order #${evt.data?.enquiryId} rejected.`);
+                            setPendingEnquiryPrompts(prev => prev.filter(p => p.id !== evt.id));
+                            if (onCatalogueUpdated) onCatalogueUpdated();
+                          } catch (e) {
+                            alert(e.message || 'Error rejecting order');
+                          }
+                        }}
+                        className="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-semibold text-xs transition"
+                      >
+                        ✕ Reject Order
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {messages.map((m) => {
               const isAgent = m.sender === 'agent';
               const isSystem = m.sender === 'system';

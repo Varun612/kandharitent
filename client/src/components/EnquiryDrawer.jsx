@@ -27,7 +27,7 @@ import {
 import { useEnquiry } from '../context/EnquiryContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems';
+import { SEED_ITEMS, LUCKNOW_LOCALITIES, SERVICES_LIST } from '../data/seedItems';
 import IndividualTicketModal from './IndividualTicketModal';
 
 const calculateRentalDays = (start, end) => {
@@ -82,6 +82,7 @@ const EnquiryDrawer = () => {
     enquiryList, 
     removeItem, 
     updateQuantity, 
+    addItem,
     clearList, 
     startDate,
     setStartDate,
@@ -91,7 +92,7 @@ const EnquiryDrawer = () => {
     closeDrawer 
   } = useEnquiry();
 
-  const { customerUser, isCustomerAuthenticated, openAuthModal } = useAuth();
+  const { customerUser, isCustomerAuthenticated, openAuthModal, refreshNotifications } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -175,41 +176,20 @@ const EnquiryDrawer = () => {
     if (errorMessage) setErrorMessage('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const executeOrderSubmission = async (userOverride = null) => {
+    setIsSubmitting(true);
     setErrorMessage('');
 
-    if (!formData.customerName.trim()) {
-      setErrorMessage('Please enter your full name.');
-      return;
-    }
-
-    const cleanPhone = formData.phone.replace(/[\s-]/g, '');
-    const phoneRegex = /^(?:\+91|0)?[6-9]\d{9}$/;
-    if (!phoneRegex.test(cleanPhone)) {
-      setErrorMessage('Please enter a valid 10-digit Indian phone number (e.g. 9876543210).');
-      return;
-    }
-
-    if (!startDate) {
-      setErrorMessage('Please select the rental start date.');
-      return;
-    }
-
-    if (!formData.consentGiven) {
-      setErrorMessage('Please check the consent box to allow us to contact you regarding your quotation.');
-      return;
-    }
-
-    setIsSubmitting(true);
-
     try {
+      const activeUser = userOverride || customerUser;
+      const cleanPhone = (formData.phone || activeUser?.phone || '').replace(/[\s-]/g, '');
+
       const payload = {
         enquiryType: enquiryList.length > 0 ? 'rental' : 'general',
-        customerName: formData.customerName.trim(),
+        customerName: (formData.customerName || activeUser?.name || 'Valued Customer').trim(),
         phone: cleanPhone,
         whatsappNumber: formData.whatsappNumber ? formData.whatsappNumber.replace(/[\s-]/g, '') : cleanPhone,
-        email: formData.email.trim(),
+        email: (formData.email || activeUser?.email || '').trim(),
         serviceRequired: formData.serviceRequired,
         eventDate: startDate,
         startDate: startDate,
@@ -220,7 +200,7 @@ const EnquiryDrawer = () => {
         deliveryDistanceKm: formData.deliveryDistanceKm,
         isReturningCustomer: formData.isReturningCustomer,
         locality: formData.locality,
-        eventVenueAddress: formData.eventVenueAddress.trim(),
+        eventVenueAddress: formData.eventVenueAddress.trim() || formData.locality,
         landmark: (formData.landmark || '').trim(),
         guestCount: parseInt(formData.guestCount, 10) || 0,
         budgetRange: formData.budgetRange,
@@ -253,6 +233,14 @@ const EnquiryDrawer = () => {
         try {
           localStorage.setItem('last_kandhari_enquiry_id', res.referenceId);
         } catch (e) {}
+
+        // Immediate customer notification refresh so bell icon updates
+        if (refreshNotifications) {
+          try {
+            await refreshNotifications();
+          } catch (ne) {}
+        }
+
         setSubmissionSuccess({
           referenceId: res.referenceId,
           whatsappLink: res.whatsappLink,
@@ -268,6 +256,49 @@ const EnquiryDrawer = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setErrorMessage('');
+
+    const activeUser = customerUser;
+    const nameToValidate = formData.customerName || activeUser?.name || '';
+    if (!nameToValidate.trim()) {
+      setErrorMessage('Please enter your full name.');
+      return;
+    }
+
+    const cleanPhone = (formData.phone || activeUser?.phone || '').replace(/[\s-]/g, '');
+    const phoneRegex = /^(?:\+91|0)?[6-9]\d{9}$/;
+    if (!phoneRegex.test(cleanPhone)) {
+      setErrorMessage('Please enter a valid 10-digit Indian phone number (e.g. 9876543210).');
+      return;
+    }
+
+    if (!startDate) {
+      setErrorMessage('Please select the rental start date.');
+      return;
+    }
+
+    if (!formData.consentGiven) {
+      setErrorMessage('Please check the consent box to allow us to contact you regarding your quotation.');
+      return;
+    }
+
+    // Intercept if customer is not authenticated: prompt sign-in, then submit automatically!
+    if (!isCustomerAuthenticated) {
+      openAuthModal({
+        mode: 'login',
+        reason: 'Please sign in or create an account to submit your rental order.',
+        onAuthenticated: (newlyLoggedInUser) => {
+          executeOrderSubmission(newlyLoggedInUser);
+        }
+      });
+      return;
+    }
+
+    await executeOrderSubmission(customerUser);
   };
 
   const resetDrawer = () => {
@@ -378,6 +409,46 @@ const EnquiryDrawer = () => {
               </div>
             ) : (
               <>
+                {/* 0. Headcount / Expected Guests Selector */}
+                <div className="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-800">
+                      <Users className="w-4 h-4 text-brand-gold" />
+                      <span>Headcount / Expected Guests:</span>
+                    </div>
+                    <span className="text-xs font-bold text-brand-primary font-mono px-2.5 py-0.5 bg-white border border-brand-gold/40 rounded-full shadow-2xs">
+                      {formData.guestCount} Guests
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {[50, 100, 200, 300, 500].map(cnt => (
+                      <button
+                        key={cnt}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, guestCount: cnt }))}
+                        className={`px-3 py-1 rounded-xl text-xs font-bold transition ${
+                          parseInt(formData.guestCount, 10) === cnt
+                            ? 'bg-brand-primary text-white shadow-xs'
+                            : 'bg-white border border-neutral-300 text-neutral-700 hover:border-brand-primary'
+                        }`}
+                      >
+                        {cnt}
+                      </button>
+                    ))}
+                    <div className="flex items-center gap-1 ml-auto">
+                      <span className="text-[10px] text-neutral-500 font-bold uppercase">Custom:</span>
+                      <input
+                        type="number"
+                        min="10"
+                        max="10000"
+                        value={formData.guestCount}
+                        onChange={(e) => setFormData(prev => ({ ...prev, guestCount: Math.max(1, parseInt(e.target.value, 10) || 0) }))}
+                        className="w-16 px-2 py-1 text-xs bg-white border border-neutral-300 rounded-xl outline-none font-bold text-center"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* 1. Date Selection Section */}
                 <div className="bg-brand-cream/80 p-3.5 rounded-2xl border border-brand-gold/30 space-y-3">
                   <div className="flex items-center justify-between">
@@ -525,6 +596,72 @@ const EnquiryDrawer = () => {
                       })}
                     </div>
                   )}
+                </div>
+
+                {/* 2.1 "Add More Items" Quick-Add Carousel / Mini-Cards */}
+                <div className="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-200/70 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-900">
+                      <Plus className="w-4 h-4 text-[#7c3aed]" />
+                      <span>Add More Items to Rental Cart</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeDrawer();
+                        navigate('/rentals');
+                      }}
+                      className="text-[11px] font-bold text-[#7c3aed] hover:underline flex items-center gap-0.5"
+                    >
+                      <span>Full Catalogue &rarr;</span>
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-neutral-500">
+                    Frequently paired rental equipment for events in Lucknow:
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1">
+                    {(SEED_ITEMS || []).slice(0, 6).map((item) => {
+                      const isAlreadyInCart = enquiryList.some(it => it.id === item.id);
+                      return (
+                        <div key={item.id} className="p-2 rounded-xl bg-white border border-neutral-200 flex flex-col justify-between hover:border-purple-300 transition shadow-2xs">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={item.imageUrl} 
+                              alt={item.name} 
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = '/media/rich-decor/decor-1.jpg';
+                              }}
+                              className="w-10 h-10 object-cover rounded-lg shrink-0 border border-neutral-200"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <h5 className="text-[11px] font-serif font-bold text-neutral-900 truncate" title={item.name}>
+                                {item.name}
+                              </h5>
+                              <span className="text-[10px] font-bold text-brand-primary">
+                                ₹{item.unitRate || (item.ratePerSqFt ? `${item.ratePerSqFt}/sq ft` : 'Flexible')}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              addItem(item, item.category === 'tents' ? 1 : 25);
+                            }}
+                            className={`mt-2 w-full py-1 px-2 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 ${
+                              isAlreadyInCart
+                                ? 'bg-purple-100 text-[#7c3aed] hover:bg-purple-200'
+                                : 'bg-[#7c3aed] hover:bg-[#6d28d9] text-white shadow-xs'
+                            }`}
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>{isAlreadyInCart ? '+ Add More' : '+ Add Item'}</span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* 3. Pricing Summary Breakdown */}

@@ -269,6 +269,249 @@ const assignPartnerToOrder = async (req, res) => {
 };
 
 /**
+ * 5.1 POST /api/delivery-partners/connect-driver (Admin)
+ * Connects order requirements and venue location to available fleet driver
+ */
+const connectDriverRequest = async (req, res) => {
+  try {
+    const { enquiryId, partnerId, quotedDeliveryTime, notes } = req.body || {};
+    if (!enquiryId) {
+      return res.status(400).json({ success: false, message: 'enquiryId is required.' });
+    }
+
+    const db = getLocalDb();
+    ensurePartnersInit(db);
+
+    const enquiry = (db.enquiries || []).find(e => e.id === enquiryId);
+    if (!enquiry) {
+      return res.status(404).json({ success: false, message: 'Enquiry not found.' });
+    }
+
+    const partner = partnerId ? db.deliveryPartners.find(p => p.id === partnerId) : db.deliveryPartners[0];
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'Delivery partner not found.' });
+    }
+
+    enquiry.driverDispatchStatus = 'Pending Driver Approval';
+    enquiry.pendingPartnerId = partner.id;
+    enquiry.pendingPartnerName = partner.name;
+    enquiry.pendingQuotedTime = quotedDeliveryTime || 'Scheduled on event date';
+
+    saveLocalStore();
+
+    return res.json({
+      success: true,
+      message: `Driver connection dispatched to ${partner.name}. Awaiting driver acceptance.`,
+      data: {
+        enquiryId: enquiry.id,
+        driver: {
+          id: partner.id,
+          name: partner.name,
+          phone: partner.phone,
+          vehicleType: partner.vehicleType,
+          vehicleNumber: partner.vehicleNumber
+        },
+        venue: enquiry.eventVenueAddress || enquiry.locality,
+        distanceKm: enquiry.locationInfo?.distanceKm || enquiry.distanceKm || 5,
+        quotedDeliveryTime: enquiry.pendingQuotedTime
+      }
+    });
+  } catch (error) {
+    console.error('connectDriverRequest error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to connect driver.' });
+  }
+};
+
+/**
+ * 5.2 POST /api/delivery-partners/approve-order (Admin or Driver)
+ * Driver approves order OR Admin directly accepts order using available driver
+ */
+const driverApproveOrder = async (req, res) => {
+  try {
+    const { enquiryId, partnerId, quotedDeliveryTime, action = 'accept', rejectionReason } = req.body || {};
+    if (!enquiryId) {
+      return res.status(400).json({ success: false, message: 'enquiryId is required.' });
+    }
+
+    const db = getLocalDb();
+    ensurePartnersInit(db);
+
+    const enquiry = (db.enquiries || []).find(e => e.id === enquiryId);
+    if (!enquiry) {
+      return res.status(404).json({ success: false, message: 'Rental order not found.' });
+    }
+
+    if (action === 'reject') {
+      enquiry.status = 'Rejected';
+      enquiry.deliveryStatus = 'Rejected';
+      enquiry.rejectionReason = rejectionReason || 'Capacity or vehicle unavailable on requested date.';
+      enquiry.rejectedAt = new Date().toISOString();
+
+      if (!enquiry.deliveryTimeline) enquiry.deliveryTimeline = [];
+      enquiry.deliveryTimeline.push({
+        status: 'Order Rejected',
+        note: enquiry.rejectionReason,
+        timestamp: new Date().toISOString()
+      });
+
+      saveLocalStore();
+
+      if (enquiry.customerId) {
+        await createNotification({
+          customerId: enquiry.customerId,
+          enquiryId: enquiry.id,
+          title: '❌ Order Update',
+          message: `Your rental enquiry #${enquiry.id} could not be accepted: ${enquiry.rejectionReason}.`,
+          type: 'enquiry_update'
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: 'Order has been rejected.',
+        data: enquiry
+      });
+    }
+
+    // Action === 'accept'
+    const targetPartnerId = partnerId || enquiry.pendingPartnerId || (db.deliveryPartners[0]?.id);
+    const partner = db.deliveryPartners.find(p => p.id === targetPartnerId) || db.deliveryPartners[0];
+
+    const effectiveQuotedTime = quotedDeliveryTime || enquiry.pendingQuotedTime || 'Morning 8:00 AM on event day';
+
+    enquiry.status = 'Approved';
+    enquiry.deliveryStatus = 'Delivery Partner Assigned';
+    enquiry.quotedDeliveryTime = effectiveQuotedTime;
+    enquiry.estimatedDeliveryTime = effectiveQuotedTime;
+    enquiry.deliveryPartner = {
+      id: partner.id,
+      name: partner.name,
+      phone: partner.phone,
+      vehicleType: partner.vehicleType,
+      vehicleNumber: partner.vehicleNumber,
+      baseHub: partner.baseHub,
+      rating: partner.rating || '4.9'
+    };
+    enquiry.driverDispatchStatus = 'Approved & Dispatched';
+    enquiry.approvedAt = new Date().toISOString();
+
+    if (!enquiry.deliveryTimeline) {
+      enquiry.deliveryTimeline = [];
+    }
+    enquiry.deliveryTimeline.push({
+      status: 'Order Accepted & Driver Assigned',
+      note: `Accepted by ${partner.name} (${partner.vehicleType} - ${partner.vehicleNumber}). Quoted delivery: ${effectiveQuotedTime}`,
+      timestamp: new Date().toISOString()
+    });
+
+    partner.status = 'On Trip';
+    partner.currentEnquiryId = enquiry.id;
+
+    // Customer WhatsApp dispatch payload & link
+    const cleanCustomerPhone = (enquiry.whatsappNumber || enquiry.phone || '').replace(/[\s+-]/g, '');
+    const liveTrackLink = `https://kandharitent.vercel.app/track/${enquiry.id}`;
+    const waText = 
+      `*Namaste ${enquiry.customerName}!* 🙏\n` +
+      `Your rental order *#${enquiry.id}* from *Kandhari Tent House* has been *ACCEPTED*!\n\n` +
+      `🚚 *Assigned Delivery Partner:* ${partner.name}\n` +
+      `📞 *Driver Phone:* ${partner.phone}\n` +
+      `🚛 *Vehicle:* ${partner.vehicleType} (${partner.vehicleNumber})\n` +
+      `⏰ *Quoted Delivery Time:* ${effectiveQuotedTime}\n` +
+      `📍 *Venue:* ${enquiry.eventVenueAddress || enquiry.locality}\n\n` +
+      `🔗 *Live Track your order here:*\n${liveTrackLink}\n\n` +
+      `Our crew will arrive punctually for installation. Thank you for choosing Kandhari Tent House!`;
+    const customerWhatsAppLink = `https://wa.me/${cleanCustomerPhone}?text=${encodeURIComponent(waText)}`;
+    enquiry.customerWhatsAppLink = customerWhatsAppLink;
+
+    saveLocalStore();
+
+    // 1. Notify Customer via system notification
+    if (enquiry.customerId) {
+      await createNotification({
+        customerId: enquiry.customerId,
+        enquiryId: enquiry.id,
+        title: '🎉 Order Accepted & Driver Assigned!',
+        message: `Your rental order #${enquiry.id} has been accepted! Driver ${partner.name} (${partner.vehicleNumber}) will deliver by ${effectiveQuotedTime}. Live tracking available.`,
+        type: 'delivery_update'
+      });
+    }
+
+    // 2. Inter-agent event: Admin Agent informs Master Agent & Client Agent
+    try {
+      const { recordAgentEvent } = require('../services/threeAgentService');
+      recordAgentEvent({
+        sourceAgent: 'admin_agent',
+        targetAgent: 'master_agent',
+        eventType: 'order_approved_driver_assigned',
+        severity: 'info',
+        data: {
+          enquiryId: enquiry.id,
+          driverId: partner.id,
+          driverName: partner.name,
+          quotedDeliveryTime: effectiveQuotedTime,
+          grandTotal: enquiry.grandTotal,
+          distanceKm: enquiry.locationInfo?.distanceKm || enquiry.distanceKm || 5
+        }
+      });
+    } catch (agentErr) {
+      console.warn('Agent event warning in driverApproveOrder:', agentErr.message);
+    }
+
+    // 3. Save Master Agent Operational Training Metadata
+    try {
+      if (!db.masterAgentTrainingData) db.masterAgentTrainingData = [];
+      const existingIdx = db.masterAgentTrainingData.findIndex(t => t.enquiryId === enquiry.id);
+      const trainingRecord = {
+        enquiryId: enquiry.id,
+        customerId: enquiry.customerId,
+        locality: enquiry.locality,
+        distanceKm: enquiry.locationInfo?.distanceKm || enquiry.distanceKm || 5,
+        transitMinutes: enquiry.locationInfo?.transitMinutes || enquiry.transitMinutes || 15,
+        guestCount: enquiry.guestCount,
+        grandTotal: enquiry.grandTotal,
+        assignedDriverId: partner.id,
+        assignedDriverName: partner.name,
+        driverVehicle: partner.vehicleNumber,
+        quotedDeliveryTime: effectiveQuotedTime,
+        status: 'accepted',
+        acceptedAt: new Date().toISOString(),
+        trainingFeatures: {
+          headcountPerCrewRatio: Math.round((enquiry.guestCount || 100) / 4),
+          dispatchLatencySec: 35,
+          localityZone: enquiry.locality || 'Kanpur Road'
+        }
+      };
+
+      if (existingIdx > -1) {
+        db.masterAgentTrainingData[existingIdx] = { ...db.masterAgentTrainingData[existingIdx], ...trainingRecord };
+      } else {
+        db.masterAgentTrainingData.unshift(trainingRecord);
+      }
+      saveLocalStore();
+    } catch (trainErr) {
+      console.warn('Master Agent training storage error:', trainErr.message);
+    }
+
+    return res.json({
+      success: true,
+      message: `Order accepted and assigned to driver ${partner.name}. Delivery quoted for ${effectiveQuotedTime}.`,
+      data: enquiry,
+      customerWhatsAppLink,
+      driver: {
+        id: partner.id,
+        name: partner.name,
+        phone: partner.phone,
+        vehicleType: partner.vehicleType,
+        vehicleNumber: partner.vehicleNumber
+      }
+    });
+  } catch (error) {
+    console.error('driverApproveOrder error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to approve order and assign driver.' });
+  }
+};
+
+/**
  * 6. POST /api/delivery-partners/update-status (Admin or Driver)
  * Updates real-time dispatch and setup status
  */
@@ -433,6 +676,8 @@ module.exports = {
   updateDeliveryPartner,
   deleteDeliveryPartner,
   assignPartnerToOrder,
+  connectDriverRequest,
+  driverApproveOrder,
   updateOrderDeliveryStatus,
   getOrderTrackingInfo
 };

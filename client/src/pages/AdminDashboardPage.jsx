@@ -309,6 +309,12 @@ const AdminDashboardPage = () => {
   const [selectedPartnerIdForAssign, setSelectedPartnerIdForAssign] = useState('');
   const [estimatedDeliveryTimeInput, setEstimatedDeliveryTimeInput] = useState('');
 
+  // Location Detection & Embedded Map View Modal State
+  const [locationModalEnquiry, setLocationModalEnquiry] = useState(null);
+  const [locationModalData, setLocationModalData] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [lastApprovedWhatsAppLink, setLastApprovedWhatsAppLink] = useState(null);
+
   // 1-Click Individual Ticket Modal State
   const [selectedTicketForModal, setSelectedTicketForModal] = useState(null);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
@@ -633,28 +639,97 @@ const AdminDashboardPage = () => {
     }
   };
 
-  const handleAssignPartnerSubmit = async (e) => {
-    e.preventDefault();
+  const handleOpenLocationModal = async (enquiry) => {
+    setLocationModalEnquiry(enquiry);
+    setLocationLoading(true);
+    try {
+      const res = await api.getEnquiryRouteInfo(enquiry.id);
+      if (res && res.success && res.locationInfo) {
+        setLocationModalData(res.locationInfo);
+      } else {
+        setLocationModalData(enquiry.locationInfo || null);
+      }
+    } catch (err) {
+      setLocationModalData(enquiry.locationInfo || null);
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  const handleConnectDriverRequest = async () => {
     if (!assignPartnerModalOrder || !selectedPartnerIdForAssign) {
       showToast('Please select a driver from the fleet', 'error');
       return;
     }
     try {
-      const res = await api.assignDeliveryPartner({
+      const res = await api.connectDriverRequest({
         enquiryId: assignPartnerModalOrder.id,
         partnerId: selectedPartnerIdForAssign,
-        estimatedDeliveryTime: estimatedDeliveryTimeInput || 'Punctual morning setup on event date'
+        quotedDeliveryTime: estimatedDeliveryTimeInput || 'Punctual morning setup on event date'
       });
       if (res.success) {
-        showToast(res.message || 'Delivery partner assigned successfully!');
+        showToast(res.message || 'Driver connection request sent!');
+        loadAllData();
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to connect driver', 'error');
+    }
+  };
+
+  const handleDriverApproveSubmit = async (actionType = 'accept') => {
+    if (!assignPartnerModalOrder) return;
+    if (actionType === 'reject') {
+      const reason = window.prompt('Please enter rejection reason:', 'Vehicles booked / Capacity unavailable');
+      if (reason === null) return;
+      try {
+        const res = await api.driverApproveOrder({
+          enquiryId: assignPartnerModalOrder.id,
+          action: 'reject',
+          rejectionReason: reason
+        });
+        showToast(res.message || 'Order rejected.');
+        setAssignPartnerModalOrder(null);
+        loadAllData();
+      } catch (err) {
+        showToast(err.message || 'Failed to reject order', 'error');
+      }
+      return;
+    }
+
+    if (!selectedPartnerIdForAssign) {
+      showToast('Please select an available fleet driver', 'error');
+      return;
+    }
+
+    try {
+      const res = await api.driverApproveOrder({
+        enquiryId: assignPartnerModalOrder.id,
+        partnerId: selectedPartnerIdForAssign,
+        quotedDeliveryTime: estimatedDeliveryTimeInput || 'Punctual morning setup on event date',
+        action: 'accept'
+      });
+      if (res.success) {
+        showToast(res.message || 'Order accepted and driver assigned!');
+        if (res.customerWhatsAppLink) {
+          setLastApprovedWhatsAppLink({
+            link: res.customerWhatsAppLink,
+            customerName: assignPartnerModalOrder.customerName,
+            orderId: assignPartnerModalOrder.id
+          });
+        }
         setAssignPartnerModalOrder(null);
         setSelectedPartnerIdForAssign('');
         setEstimatedDeliveryTimeInput('');
         loadAllData();
       }
     } catch (err) {
-      showToast(err.message || 'Failed to assign partner', 'error');
+      showToast(err.message || 'Failed to accept order and assign driver', 'error');
     }
+  };
+
+  const handleAssignPartnerSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    await handleDriverApproveSubmit('accept');
   };
 
   const handleUpdateDeliveryDispatch = async (enquiryId, status, note = '') => {
@@ -1733,8 +1808,40 @@ const AdminDashboardPage = () => {
 
               {/* Bookings List */}
               <div className="space-y-4">
+                {lastApprovedWhatsAppLink && (
+                  <div className="p-4 bg-emerald-950/70 border border-emerald-500/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-fadeIn">
+                    <div className="flex items-center gap-2.5 text-emerald-300">
+                      <MessageCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <span>
+                        Order <strong>#{lastApprovedWhatsAppLink.orderId}</strong> accepted! Driver details and live tracking link prepared for <strong>{lastApprovedWhatsAppLink.customerName}</strong>.
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href={lastApprovedWhatsAppLink.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Send WhatsApp Update</span>
+                      </a>
+                      <button
+                        onClick={() => setLastApprovedWhatsAppLink(null)}
+                        className="text-neutral-400 hover:text-white p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {enquiries.filter(e => enquiryStatusFilter === 'all' || e.status === enquiryStatusFilter).map(enq => (
-                  <div key={enq.id} className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 space-y-4 shadow-xs">
+                  <div 
+                    key={enq.id} 
+                    onClick={() => handleOpenLocationModal(enq)}
+                    className="bg-neutral-950 p-6 rounded-3xl border border-neutral-800 hover:border-neutral-700 transition cursor-pointer space-y-4 shadow-xs"
+                  >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-neutral-800/60">
                       <div>
                         <div className="flex items-center gap-2">
@@ -1749,7 +1856,7 @@ const AdminDashboardPage = () => {
                           </span>
                         </div>
                         <p className="text-xs text-neutral-400 mt-1">
-                          Ref: <strong className="font-mono text-white">{enq.id}</strong> &bull; Date: <strong className="text-white">{enq.eventDate}</strong> &bull; Venue: <strong className="text-white">{enq.eventVenue || enq.locality || 'Dwarka Shri Lawn'}</strong>
+                          Ref: <strong className="font-mono text-white">{enq.id}</strong> &bull; Date: <strong className="text-white">{enq.eventDate}</strong> &bull; Venue: <strong className="text-white">{enq.eventVenue || enq.locality || 'Dwarka Shri Lawn'}</strong> &bull; Distance: <strong className="text-brand-gold font-mono">{enq.distanceKm || enq.locationInfo?.distanceKm || 3} km</strong>
                         </p>
                       </div>
 
@@ -1763,7 +1870,17 @@ const AdminDashboardPage = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <div className="flex flex-wrap items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                      {/* 1-Click Detect Location & Route */}
+                      <button
+                        onClick={() => handleOpenLocationModal(enq)}
+                        className="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
+                        title="Detect venue location, distance & embedded interactive mapview"
+                      >
+                        <Navigation className="w-3.5 h-3.5 text-blue-400" />
+                        <span>🗺️ Route & Distance ({enq.distanceKm || enq.locationInfo?.distanceKm || 3} km)</span>
+                      </button>
+
                       {/* 1-Click Individual Ticket */}
                       <button
                         onClick={() => {
@@ -1784,7 +1901,7 @@ const AdminDashboardPage = () => {
                             className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
                           >
                             <Check className="w-4 h-4" />
-                            <span>Approve Order (Zomato Accept)</span>
+                            <span>Approve Order</span>
                           </button>
 
                           <button
@@ -1797,7 +1914,7 @@ const AdminDashboardPage = () => {
                         </>
                       )}
 
-                      {/* Delivery Partner Assignment */}
+                      {/* Connect to Driver with Customer Details & Location */}
                       {enq.status !== 'Rejected' && !enq.deliveryPartner && (
                         <button
                           onClick={() => {
@@ -1808,7 +1925,7 @@ const AdminDashboardPage = () => {
                           className="px-3.5 py-2 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
                         >
                           <Truck className="w-3.5 h-3.5 text-amber-300" />
-                          <span>Assign Delivery Partner</span>
+                          <span>Connect to Driver</span>
                         </button>
                       )}
 
@@ -3808,31 +3925,44 @@ const AdminDashboardPage = () => {
       )}
 
       {/* ========================================================
-          MODAL: ASSIGN DELIVERY PARTNER TO ORDER
+          MODAL: CONNECT DRIVER & ORDER APPROVAL (ZOMATO FLOW)
          ======================================================== */}
       {assignPartnerModalOrder && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-neutral-950 rounded-3xl max-w-md w-full p-6 border border-neutral-700 shadow-2xl text-xs space-y-4">
+          <div className="bg-neutral-950 rounded-3xl max-w-lg w-full p-6 border border-neutral-700 shadow-2xl text-xs space-y-4">
             <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
               <div className="flex items-center gap-2">
                 <Truck className="w-5 h-5 text-amber-300" />
-                <h3 className="font-serif font-bold text-base text-white">Assign Delivery Partner (Zomato Flow)</h3>
+                <h3 className="font-serif font-bold text-base text-white">Connect with Driver & Approve Order</h3>
               </div>
               <button onClick={() => setAssignPartnerModalOrder(null)} className="text-neutral-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3 bg-neutral-900 rounded-xl border border-neutral-800 space-y-1">
-              <p className="font-bold text-white">Order #{assignPartnerModalOrder.id}</p>
-              <p className="text-neutral-300">Customer: <strong>{assignPartnerModalOrder.customerName}</strong> ({assignPartnerModalOrder.phone})</p>
-              <p className="text-neutral-400">Venue: {assignPartnerModalOrder.eventVenueAddress || assignPartnerModalOrder.locality || 'Kanpur Road, Lucknow'}</p>
-              <p className="text-neutral-400">Event Date: {assignPartnerModalOrder.eventDate}</p>
+            <div className="p-3 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-1.5">
+              <div className="flex justify-between items-center">
+                <p className="font-bold text-white text-sm">Order #{assignPartnerModalOrder.id}</p>
+                <span className="px-2 py-0.5 rounded-full bg-brand-primary/20 text-brand-gold font-mono font-bold text-[10px]">
+                  ₹{(assignPartnerModalOrder.grandTotal || 0).toLocaleString('en-IN')}
+                </span>
+              </div>
+              <p className="text-neutral-300">
+                Customer: <strong>{assignPartnerModalOrder.customerName}</strong> ({assignPartnerModalOrder.phone})
+              </p>
+              <p className="text-neutral-300">
+                📍 Venue: <strong>{assignPartnerModalOrder.eventVenueAddress || assignPartnerModalOrder.locality || 'Kanpur Road, Lucknow'}</strong>
+              </p>
+              <div className="flex items-center gap-3 text-[11px] text-neutral-400 pt-1 border-t border-neutral-800">
+                <span>Distance: <strong className="text-white">{assignPartnerModalOrder.distanceKm || assignPartnerModalOrder.locationInfo?.distanceKm || 3} km</strong></span>
+                <span>Est. Transit: <strong className="text-white">{assignPartnerModalOrder.transitMinutes || 15} mins</strong></span>
+                <span>Event Date: <strong className="text-white">{assignPartnerModalOrder.eventDate}</strong></span>
+              </div>
             </div>
 
             <form onSubmit={handleAssignPartnerSubmit} className="space-y-3">
               <div>
-                <label className="block text-neutral-300 mb-1 font-semibold">Select Fleet Driver & Truck *</label>
+                <label className="block text-neutral-300 mb-1 font-semibold">Select Available Fleet Driver *</label>
                 <select
                   required
                   value={selectedPartnerIdForAssign}
@@ -3849,36 +3979,214 @@ const AdminDashboardPage = () => {
               </div>
 
               <div>
-                <label className="block text-neutral-300 mb-1 font-semibold">Estimated Delivery / Setup Schedule</label>
+                <label className="block text-neutral-300 mb-1 font-semibold">Quoted Delivery & Setup Time *</label>
                 <input
                   type="text"
-                  placeholder="e.g. Morning 7:30 AM before ceremony"
+                  placeholder="e.g. Tomorrow 8:00 AM or Within 45 mins"
                   value={estimatedDeliveryTimeInput}
                   onChange={(e) => setEstimatedDeliveryTimeInput(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none"
+                  className="w-full p-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-white outline-none focus:border-[#7c3aed]"
                 />
               </div>
 
-              <div className="p-3 bg-purple-950/40 rounded-xl border border-purple-800/40 text-[11px] text-purple-200">
-                🔔 Assigning will update customer status to <strong>"Delivery Partner Assigned"</strong> and show driver contact details on the live tracker screen.
+              <div className="p-3 bg-purple-950/40 rounded-xl border border-purple-800/40 text-[11px] text-purple-200 space-y-1">
+                <p>🔔 Customer will immediately receive:</p>
+                <ul className="list-disc pl-4 space-y-0.5 text-neutral-300">
+                  <li>Portal Notification that order has been accepted with driver details.</li>
+                  <li>Pre-filled WhatsApp message with live tracking link and driver contact.</li>
+                  <li>Real-time Zomato-style tracking on website at <code>/track/{assignPartnerModalOrder.id}</code>.</li>
+                </ul>
               </div>
 
-              <div className="pt-2 flex gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={handleConnectDriverRequest}
+                  className="flex-1 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold transition flex items-center justify-center gap-1.5"
+                >
+                  <span>Connect with Driver</span>
+                </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold transition shadow-sm"
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-sm flex items-center justify-center gap-1.5"
                 >
-                  Confirm & Dispatch Assignment
+                  <Check className="w-4 h-4" />
+                  <span>Accept & Assign Driver</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAssignPartnerModalOrder(null)}
-                  className="px-4 py-3 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
+                  onClick={() => handleDriverApproveSubmit('reject')}
+                  className="px-3 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-bold transition"
                 >
-                  Cancel
+                  Reject
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: LOCATION DETECTION & EMBEDDED MAPVIEW
+         ======================================================== */}
+      {locationModalEnquiry && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-neutral-950 rounded-3xl max-w-2xl w-full p-6 border border-neutral-700 shadow-2xl text-xs space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
+              <div className="flex items-center gap-2">
+                <Navigation className="w-5 h-5 text-blue-400" />
+                <h3 className="font-serif font-bold text-base text-white">Requirement Location & Embedded Map View</h3>
+              </div>
+              <button onClick={() => setLocationModalEnquiry(null)} className="text-neutral-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Geolocation & Distance Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-3.5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-1.5">
+                <span className="text-[10px] uppercase font-bold text-brand-gold flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Depot Hub Origin</span>
+                </span>
+                <p className="font-bold text-white text-xs">
+                  {locationModalData?.origin?.name || 'Kandhari Tent House & Dwarka Shri Lawn Hub'}
+                </p>
+                <p className="text-[11px] text-neutral-400">
+                  {locationModalData?.origin?.address || 'Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow'}
+                </p>
+                <p className="text-[10px] font-mono text-neutral-500">
+                  Coords: {locationModalData?.origin?.lat || 26.7645}° N, {locationModalData?.origin?.lng || 80.8842}° E
+                </p>
+              </div>
+
+              <div className="p-3.5 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-1.5">
+                <span className="text-[10px] uppercase font-bold text-blue-400 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Customer Event Destination</span>
+                </span>
+                <p className="font-bold text-white text-xs">
+                  {locationModalEnquiry.customerName} ({locationModalEnquiry.phone})
+                </p>
+                <p className="text-[11px] text-neutral-300">
+                  {locationModalEnquiry.eventVenueAddress || locationModalEnquiry.locality || 'Kanpur Road, Lucknow'}
+                </p>
+                <p className="text-[10px] font-mono text-neutral-500">
+                  Coords: {locationModalData?.destination?.lat || 26.8467}° N, {locationModalData?.destination?.lng || 80.9462}° E
+                </p>
+              </div>
+            </div>
+
+            {/* Metric Callouts */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-3 bg-neutral-900/80 rounded-xl border border-neutral-800 text-center">
+                <span className="text-[10px] text-neutral-400 block uppercase font-semibold">Haversine Distance</span>
+                <span className="text-lg font-bold text-brand-gold font-mono">
+                  {locationModalData?.distanceKm || locationModalEnquiry.distanceKm || 3} km
+                </span>
+              </div>
+              <div className="p-3 bg-neutral-900/80 rounded-xl border border-neutral-800 text-center">
+                <span className="text-[10px] text-neutral-400 block uppercase font-semibold">Est. Transit Time</span>
+                <span className="text-lg font-bold text-blue-300 font-mono">
+                  {locationModalData?.transitMinutes || locationModalEnquiry.transitMinutes || 15} mins
+                </span>
+              </div>
+              <div className="p-3 bg-neutral-900/80 rounded-xl border border-neutral-800 text-center">
+                <span className="text-[10px] text-neutral-400 block uppercase font-semibold">Guest Headcount</span>
+                <span className="text-lg font-bold text-emerald-400 font-mono">
+                  {locationModalEnquiry.guestCount || 'Flexible'}
+                </span>
+              </div>
+            </div>
+
+            {/* Embedded Route Visualization */}
+            <div className="p-4 bg-neutral-900 rounded-2xl border border-neutral-800 space-y-3">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <Navigation className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Depot to Venue Logistics Path</span>
+                </span>
+                <span className="text-[11px] text-emerald-400 font-medium">Clear Route via Kanpur Road Corridor</span>
+              </div>
+
+              {/* Visual Route Schematic SVG */}
+              <div className="h-28 w-full bg-neutral-950 rounded-xl border border-neutral-800 flex items-center justify-between px-6 relative overflow-hidden">
+                <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/50" />
+                <div className="z-10 flex flex-col items-center gap-1 bg-neutral-950 px-2 py-1 rounded-lg border border-neutral-800">
+                  <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 flex items-center justify-center font-bold text-[10px]">
+                    🏢
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-300">Depot Hub</span>
+                  <span className="text-[9px] text-neutral-500">Pillar 37</span>
+                </div>
+
+                <div className="z-10 bg-neutral-900 border border-neutral-700 px-3 py-1 rounded-full text-[10px] font-mono text-neutral-300 flex items-center gap-1 shadow-xs">
+                  <Truck className="w-3 h-3 text-amber-400 animate-pulse" />
+                  <span>{locationModalData?.distanceKm || locationModalEnquiry.distanceKm || 3} km</span>
+                </div>
+
+                <div className="z-10 flex flex-col items-center gap-1 bg-neutral-950 px-2 py-1 rounded-lg border border-neutral-800">
+                  <div className="w-7 h-7 rounded-full bg-blue-500/20 border border-blue-500 text-blue-400 flex items-center justify-center font-bold text-[10px]">
+                    📍
+                  </div>
+                  <span className="text-[10px] font-bold text-blue-300">Event Venue</span>
+                  <span className="text-[9px] text-neutral-500 truncate max-w-[90px]">
+                    {locationModalEnquiry.locality || 'Lucknow'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Embedded Mapview Iframe */}
+              <div className="rounded-xl overflow-hidden border border-neutral-800 h-48 bg-neutral-950">
+                <iframe
+                  title="Lucknow Route Map"
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  scrolling="no"
+                  marginHeight="0"
+                  marginWidth="0"
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=80.85%2C26.74%2C81.02%2C26.92&layer=mapnik&marker=${locationModalData?.destination?.lat || 26.8467}%2C${locationModalData?.destination?.lng || 80.9462}`}
+                  className="opacity-85 hover:opacity-100 transition"
+                />
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&origin=26.7645,80.8842&destination=${encodeURIComponent(locationModalEnquiry.eventVenueAddress || locationModalEnquiry.locality || 'Lucknow')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white font-semibold transition text-center flex items-center justify-center gap-1.5"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                <span>Open in Google Maps</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const targetEnq = locationModalEnquiry;
+                  setLocationModalEnquiry(null);
+                  setAssignPartnerModalOrder(targetEnq);
+                  setSelectedPartnerIdForAssign(deliveryPartners[0]?.id || '');
+                  setEstimatedDeliveryTimeInput('Punctual morning setup on ' + (targetEnq.eventDate || 'event day'));
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold transition shadow-sm flex items-center justify-center gap-1.5"
+              >
+                <Truck className="w-4 h-4 text-amber-300" />
+                <span>Connect to Driver for this Location</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLocationModalEnquiry(null)}
+                className="px-4 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

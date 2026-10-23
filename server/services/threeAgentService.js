@@ -998,11 +998,13 @@ function getSystemOverview() {
       timestamp: new Date().toISOString(),
       activeAgentsCount: 3,
       totalEventsRecorded: (db.agentEvents || []).length,
-      recentErrorsCount: (db.agentEvents || []).filter(e => e.severity === 'error').length
+      recentErrorsCount: (db.agentEvents || []).filter(e => e.severity === 'error').length,
+      masterAgentTrainingCount: (db.masterAgentTrainingData || []).length
     },
     handoffs,
     recentEvents,
-    recentAuditLogs: auditLogs
+    recentAuditLogs: auditLogs,
+    masterAgentTrainingData: (db.masterAgentTrainingData || []).slice(0, 10)
   };
 }
 

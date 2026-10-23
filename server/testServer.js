@@ -1655,6 +1655,152 @@ const runTests = async () => {
     }
     console.log('• Verified full Delivery Fleet lifecycle, Zomato order approval, driver dispatch and live customer tracking.');
 
+    // --- Test 41: Lucknow Geolocation, Route Distance, and Client Agent -> Admin Agent Inter-communication ---
+    console.log('\n--- Test 41: Lucknow Geolocation, Route Distance & Agent Inter-communication ---');
+
+    // 41.1 Submit order enquiry with Lucknow locality Alambagh
+    const geolocOrderRes = await testEndpoint('/api/enquiries', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${customerToken}` },
+      body: {
+        enquiryType: 'rental',
+        customerName: 'Pradeep Rastogi',
+        phone: '9839099887',
+        whatsappNumber: '9839099887',
+        locality: 'Alambagh / Singar Nagar',
+        eventVenueAddress: 'Near Singar Nagar Metro, Alambagh, Lucknow',
+        eventDate: '2026-11-28',
+        guestCount: 300,
+        items: [
+          {
+            itemId: 'itm-deluxe-banquet-chair',
+            name: 'VIP Cushion Banquet Chair',
+            quantity: 200,
+            unitRate: 50
+          }
+        ],
+        consentGiven: true
+      }
+    });
+
+    console.log(`[Geoloc Order] POST /api/enquiries: HTTP ${geolocOrderRes.status} | Ref: ${geolocOrderRes.data.referenceId}`);
+    if (geolocOrderRes.status !== 201 || !geolocOrderRes.data.success) {
+      throw new Error('Failed to submit order with geolocation');
+    }
+
+    const geolocOrderId = geolocOrderRes.data.referenceId;
+    const storedEnquiry = geolocOrderRes.data.data;
+
+    // Verify distance resolution: Depot (Pillar 37 Kanpur Rd) to Alambagh is 6.8 km
+    if (!storedEnquiry.locationInfo || storedEnquiry.distanceKm !== 6.8) {
+      throw new Error(`Expected distance 6.8 km for Alambagh, received: ${storedEnquiry.distanceKm}`);
+    }
+    console.log(`• Resolved Route: Depot (${storedEnquiry.locationInfo.origin.name}) -> Destination (${storedEnquiry.locationInfo.destination.address}) | Distance: ${storedEnquiry.distanceKm} km | Transit: ${storedEnquiry.transitMinutes} mins`);
+
+    // 41.2 Verify Route Information Endpoint
+    const routeInfoRes = await testEndpoint(`/api/enquiries/${geolocOrderId}/route`);
+    console.log(`[Route Info] GET /api/enquiries/${geolocOrderId}/route: HTTP ${routeInfoRes.status}`);
+    if (routeInfoRes.status !== 200 || !routeInfoRes.data.locationInfo || routeInfoRes.data.locationInfo.distanceKm !== 6.8) {
+      throw new Error('Failed to retrieve accurate route information');
+    }
+
+    // 41.3 Verify Client Agent informed Admin Agent via Event Bus
+    const agentOverviewHandoffRes = await testEndpoint('/api/agents/master/overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    console.log(`[Agent Overview] GET /api/agents/master/overview: HTTP ${agentOverviewHandoffRes.status}`);
+    const events = agentOverviewHandoffRes.data.data?.recentEvents || [];
+    const clientHandoffEvent = events.find(e => 
+      e.eventType === 'new_order_enquiry' && 
+      e.sourceAgent === 'client_agent' && 
+      e.targetAgent === 'admin_agent' &&
+      e.data?.enquiryId === geolocOrderId
+    );
+
+    if (!clientHandoffEvent) {
+      throw new Error(`Missing expected inter-agent event from client_agent to admin_agent for enquiry ${geolocOrderId}`);
+    }
+    console.log(`• Inter-Agent Handshake Verified: Event ID: ${clientHandoffEvent.id} | Action: ${clientHandoffEvent.data.actionRequired}`);
+    console.log(`• Admin Copilot Prompt Text: "${clientHandoffEvent.data.promptText}"`);
+
+    // --- Test 42: Driver Connection, Driver Approval / Direct Accept with Quoted Time, WhatsApp Link & Master Agent Training ---
+    console.log('\n--- Test 42: Driver Connection, Driver Approval / Direct Accept, WhatsApp Link & Master Agent Training ---');
+
+    // 42.1 Connect order to driver
+    const connectDriverRes = await testEndpoint('/api/delivery-partners/connect-driver', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: geolocOrderId,
+        partnerId: 'part-del-1',
+        quotedDeliveryTime: 'Tomorrow morning 8:30 AM'
+      }
+    });
+    console.log(`[Connect Driver] POST /api/delivery-partners/connect-driver: HTTP ${connectDriverRes.status} | Driver: ${connectDriverRes.data.data?.driver?.name}`);
+    if (connectDriverRes.status !== 200 || !connectDriverRes.data.success) {
+      throw new Error('Failed to connect order to driver');
+    }
+
+    // 42.2 Driver Approves / Admin Directly Accepts with Quoted Delivery Time
+    const driverApproveOrderRes = await testEndpoint('/api/delivery-partners/approve-order', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` },
+      body: {
+        enquiryId: geolocOrderId,
+        partnerId: 'part-del-1',
+        quotedDeliveryTime: 'Morning 8:30 AM on event day',
+        action: 'accept'
+      }
+    });
+
+    console.log(`[Driver Approve / Accept] POST /api/delivery-partners/approve-order: HTTP ${driverApproveOrderRes.status}`);
+    if (
+      driverApproveOrderRes.status !== 200 || 
+      !driverApproveOrderRes.data.success || 
+      driverApproveOrderRes.data.data?.status !== 'Approved' ||
+      !driverApproveOrderRes.data.customerWhatsAppLink
+    ) {
+      throw new Error('Failed to approve order and generate customer WhatsApp link');
+    }
+
+    console.log(`• Order Approved & Assigned to: ${driverApproveOrderRes.data.driver.name} (${driverApproveOrderRes.data.driver.vehicleNumber})`);
+    console.log(`• Quoted Delivery Schedule: ${driverApproveOrderRes.data.data.quotedDeliveryTime}`);
+    console.log(`• Customer WhatsApp Dispatch Link Generated: ${driverApproveOrderRes.data.customerWhatsAppLink.substring(0, 80)}...`);
+
+    // 42.3 Verify Customer Live Notification was created
+    const custNotifsRes = await testEndpoint('/api/notifications/my-notifications', {
+      headers: { 'Authorization': `Bearer ${customerToken}` }
+    });
+    const latestNotif = (custNotifsRes.data.data || [])[0];
+    console.log(`[Customer Notification] Latest: "${latestNotif?.title}" - "${latestNotif?.message}"`);
+    if (!latestNotif || (!latestNotif.title?.includes('Accepted') && !latestNotif.title?.includes('Driver'))) {
+      throw new Error('Customer did not receive real-time order acceptance notification');
+    }
+
+    // 42.4 Verify Public Live Tracking Endpoint includes Driver and Bill
+    const geolocTrackOrderRes = await testEndpoint(`/api/delivery-partners/track/${geolocOrderId}`);
+    console.log(`[Public Tracker] GET /api/delivery-partners/track/${geolocOrderId}: HTTP ${geolocTrackOrderRes.status}`);
+    const trackData = geolocTrackOrderRes.data.data;
+    if (
+      geolocTrackOrderRes.status !== 200 || 
+      !trackData.deliveryPartner || 
+      trackData.deliveryPartner.id !== 'part-del-1' ||
+      !trackData.estimatedDeliveryTime
+    ) {
+      throw new Error('Public tracking screen failed to reflect assigned driver and quoted delivery time');
+    }
+
+    // 42.5 Verify Master Agent Training Store Contains Operational Metadata
+    const masterOverviewAfterRes = await testEndpoint('/api/agents/master/overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const trainingData = masterOverviewAfterRes.data.data?.masterAgentTrainingData || [];
+    const trainingRecord = trainingData.find(t => t.enquiryId === geolocOrderId);
+    if (!trainingRecord || trainingRecord.status !== 'accepted' || trainingRecord.assignedDriverId !== 'part-del-1') {
+      throw new Error('Master Agent training store missing accepted order record or driver assignment metadata');
+    }
+    console.log(`• Master Agent Training Record Verified: Enquiry #${trainingRecord.enquiryId} | Locality: ${trainingRecord.locality} | Distance: ${trainingRecord.distanceKm} km | Headcount: ${trainingRecord.guestCount} | Status: ${trainingRecord.status}`);
+
     console.log('\n======================================================');
     console.log('  ALL AUTOMATED VERIFICATION SUITE TESTS PASSED (100%) ');
     console.log('======================================================\n');
