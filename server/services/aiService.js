@@ -1,9 +1,14 @@
 /**
- * AI Service Adapter for Kandhari Tent & Caterers & Dwarka Shri Lawn
- * Supports:
- * 1. Google Gemini API via @google/genai when GEMINI_API_KEY is configured
- * 2. Intelligent, conversational rule-based NLP engine supporting Hindi, Hinglish, & English
- * Strictly adheres to ground-truth constraints (no invented prices, menus, or capacities).
+ * Kandhari Event Concierge — Production AI Service Adapter
+ * Kandhari Tent House / Kandhari Tent & Caterers & Dwaraka Shree Lawn, Lucknow
+ *
+ * Adheres strictly to the Antigravity Website AI Agent Production Behavior Instructions:
+ * - 2-3 short sentences maximum per response.
+ * - 1 focused question at a time.
+ * - 5 Intent Categories (A: Bereavement, B: Birthday, C: Dwaraka Shree Lawn, D: Rentals/Catering, E: General/Fallback).
+ * - Priority rule for bereavement / condolence gatherings.
+ * - Page-aware & context-aware behavior.
+ * - Ground truth verified rates & availability.
  */
 
 let GoogleGenAI = null;
@@ -11,7 +16,7 @@ try {
   const genaiModule = require('@google/genai');
   GoogleGenAI = genaiModule.GoogleGenAI;
 } catch (e) {
-  // Graceful fallback if not yet installed
+  // Graceful fallback if not installed
 }
 
 // Category mapping helper for 5-photo gallery retrieval
@@ -20,7 +25,7 @@ const normalizeGalleryCategory = (text = '') => {
   if (lower.includes('wedding') || lower.includes('reception') || lower.includes('shaadi') || lower.includes('setup')) {
     return 'Actual wedding and reception setups';
   }
-  if (lower.includes('lawn') || lower.includes('venue') || lower.includes('ground') || lower.includes('dwarka') || lower.includes('garden')) {
+  if (lower.includes('lawn') || lower.includes('venue') || lower.includes('ground') || lower.includes('dwarka') || lower.includes('dwaraka') || lower.includes('garden')) {
     return 'Dwarka Shri Lawn venue and grounds';
   }
   if (lower.includes('stage') || lower.includes('mandap') || lower.includes('jaimala') || lower.includes('gate') || lower.includes('entrance') || lower.includes('entry')) {
@@ -41,86 +46,93 @@ const normalizeGalleryCategory = (text = '') => {
   return 'Dwarka Shri Lawn venue and grounds';
 };
 
-// Intent Classification
-const classifyIntent = (text = '') => {
+// Intent Classification Engine (Categories A to E + Priority Rule)
+const classifyIntent = (text = '', pageContext = {}) => {
   const lower = text.toLowerCase();
-  
-  // Gallery request
+
+  // PRIORITY RULE: Bereavement, Condolence, Chautha, Shradh (Category A)
+  // When the visitor mentions a death or condolence gathering, handle sensitively under Category A,
+  // even if equipment, chairs, or catering is also requested.
+  const bereavementKeywords = [
+    'chautha', 'shradh', 'shradha', 'terhavi', 'tehrvi', 'condolence', 'passed away',
+    'death', 'expired', 'guzar gaye', 'shanti path', 'shok sabha', 'rip', 'funeral',
+    'shradhanjali', 'barsi', 'antyeshti', 'antim kriya'
+  ];
+  if (bereavementKeywords.some(kw => lower.includes(kw))) {
+    return {
+      category: 'A',
+      intent: 'category_a_bereavement',
+      label: 'Condolence / Chautha / Shradh',
+      isUrgent: lower.includes('today') || lower.includes('aaj') || lower.includes('tonight') || lower.includes('tomorrow') || lower.includes('kal') || lower.includes('urgent')
+    };
+  }
+
+  // 5-Photo Gallery Request
   if (
     lower.includes('photo') || lower.includes('pic') || lower.includes('image') ||
     lower.includes('tasveer') || lower.includes('gallery') || lower.includes('dikhaye') ||
     lower.includes('dekhi') || lower.includes('show me') || lower.includes('look at')
   ) {
-    return { intent: 'gallery_request', category: normalizeGalleryCategory(text) || 'Lawn and venue' };
+    return {
+      category: 'D',
+      intent: 'gallery_request',
+      galleryCategory: normalizeGalleryCategory(text) || 'Lawn and venue'
+    };
   }
 
-  // Catering menu or food
+  // Catering Menu & Dishes
   if (
     lower.includes('menu') || lower.includes('khana') || lower.includes('khaane') ||
     lower.includes('cater') || lower.includes('food') || lower.includes('dish') ||
     lower.includes('snack') || lower.includes('rasoi') || lower.includes('lunch') || lower.includes('dinner')
   ) {
-    return { intent: 'catering_menu', category: 'Catering' };
+    return {
+      category: 'D',
+      intent: 'catering_menu',
+      label: 'Catering Menu'
+    };
   }
 
-  // Lawn & venue booking
-  if (
-    lower.includes('lawn') || lower.includes('venue') || lower.includes('dwarka') ||
-    lower.includes('ground') || lower.includes('book lawn') || lower.includes('lawn booking') ||
-    lower.includes('lawn ki')
-  ) {
-    return { intent: 'lawn_booking', category: 'Lawn and venue' };
+  // Category B: Birthday, Anniversary, Family Celebration
+  const birthdayKeywords = [
+    'birthday', 'bday', 'janamdin', 'first birthday', '1st birthday', '2nd birthday',
+    'anniversary', 'salgirah', 'baby shower', 'godh bharai', 'naming ceremony', 'mundan',
+    'kitty party', 'small celebration', 'family function'
+  ];
+  if (birthdayKeywords.some(kw => lower.includes(kw))) {
+    return {
+      category: 'B',
+      intent: 'category_b_birthday',
+      label: 'Birthday / Social Celebration'
+    };
   }
 
-  // Tent & canopies
-  if (
-    lower.includes('tent') || lower.includes('hangar') || lower.includes('shamiana') ||
-    lower.includes('canopy') || lower.includes('waterproof') || lower.includes('tambu')
-  ) {
-    return { intent: 'tent_rental', category: 'Tent structures' };
+  // Category C: Wedding, Reception, Sangeet, Dwaraka Shree Lawn
+  const weddingLawnKeywords = [
+    'lawn', 'venue', 'dwarka', 'dwaraka', 'shree lawn', 'shri lawn',
+    'wedding', 'shaadi', 'shadi', 'marriage', 'reception', 'sangeet', 'mehendi', 'haldi',
+    'varmala', 'jaimala', 'engagement', 'roka', 'ring ceremony', 'mandap'
+  ];
+  if (weddingLawnKeywords.some(kw => lower.includes(kw))) {
+    return {
+      category: 'C',
+      intent: 'category_c_wedding_lawn',
+      label: 'Wedding / Lawn Booking'
+    };
   }
 
-  // Floral decoration
-  if (
-    lower.includes('floral') || lower.includes('flower') || lower.includes('phool') ||
-    lower.includes('genda') || lower.includes('marigold') || lower.includes('rose')
-  ) {
-    return { intent: 'floral_decoration', category: 'Floral decoration' };
-  }
-
-  // Stage, mandap, entrance
-  if (
-    lower.includes('stage') || lower.includes('mandap') || lower.includes('gate') ||
-    lower.includes('entrance') || lower.includes('jaimala') || lower.includes('sofa')
-  ) {
-    return { intent: 'stage_mandap_entrance', category: 'Stage and mandap' };
-  }
-
-  // Lighting & sound
-  if (
-    lower.includes('light') || lower.includes('sound') || lower.includes('dj') ||
-    lower.includes('speaker') || lower.includes('roshni') || lower.includes('truss') || lower.includes('focus')
-  ) {
-    return { intent: 'lighting_sound', category: 'Lighting' };
-  }
-
-  // Equipment / furniture rental rates
-  if (
-    lower.includes('chair') || lower.includes('kursi') || lower.includes('sofa') ||
-    lower.includes('table') || lower.includes('mez') || lower.includes('carpet') ||
-    lower.includes('takhat') || lower.includes('gadda') || lower.includes('drum') ||
-    (lower.includes('rent') && !lower.includes('tent'))
-  ) {
-    return { intent: 'equipment_rates', category: 'Seating and furniture arrangements' };
-  }
-
-  // Pricing or package enquiries
-  if (
-    lower.includes('price') || lower.includes('cost') || lower.includes('package') ||
-    lower.includes('rate') || lower.includes('kitna') || lower.includes('charges') ||
-    lower.includes('estimate') || lower.includes('budget') || lower.includes('quote')
-  ) {
-    return { intent: 'pricing_package', category: null };
+  // Category D: Tent, Equipment Rental, Furniture, Lighting, Sound
+  const rentalKeywords = [
+    'tent', 'pandal', 'hangar', 'canopy', 'shamiana', 'waterproof', 'tambu',
+    'chair', 'kursi', 'sofa', 'table', 'mez', 'carpet', 'takhat', 'gadda', 'drum',
+    'light', 'sound', 'dj', 'speaker', 'cooler', 'mist fan', 'rent', 'rental'
+  ];
+  if (rentalKeywords.some(kw => lower.includes(kw))) {
+    return {
+      category: 'D',
+      intent: 'category_d_rental_services',
+      label: 'Tent / Equipment Rental'
+    };
   }
 
   // Follow-up on existing enquiry
@@ -128,20 +140,32 @@ const classifyIntent = (text = '') => {
     lower.includes('enq-') || lower.includes('reference') || lower.includes('follow up') ||
     lower.includes('status') || lower.includes('track') || lower.includes('pichla')
   ) {
-    return { intent: 'followup_enquiry', category: null };
+    return {
+      category: 'E',
+      intent: 'followup_enquiry',
+      label: 'Enquiry Status'
+    };
   }
 
-  // Multiple services
+  // Pricing / Packages
   if (
-    (lower.includes('tent') && lower.includes('lawn')) ||
-    (lower.includes('decor') && lower.includes('catering')) ||
-    (lower.includes('tent') && lower.includes('light')) ||
-    lower.includes('complete package') || lower.includes('all services')
+    lower.includes('price') || lower.includes('cost') || lower.includes('package') ||
+    lower.includes('rate') || lower.includes('kitna') || lower.includes('charges') ||
+    lower.includes('estimate') || lower.includes('budget') || lower.includes('quote')
   ) {
-    return { intent: 'multiple_services', category: null };
+    return {
+      category: 'D',
+      intent: 'pricing_package',
+      label: 'Pricing & Packages'
+    };
   }
 
-  return { intent: 'general_planning', category: null };
+  // Category E: General or Fallback
+  return {
+    category: 'E',
+    intent: 'category_e_general',
+    label: 'General Enquiry'
+  };
 };
 
 // Information Slot Extractor
@@ -155,45 +179,45 @@ const extractSlots = (text = '', currentState = {}) => {
     updated.phone = phoneMatch[0];
   }
 
-  // 2. Guest count - check explicit guest indicators first
+  // 2. Guest count - explicit indicators
   const explicitGuestMatch = text.match(/\b(\d{2,5})\s*(?:guests?|log|people|person|aadmi|pax)\b/i) || 
                              text.match(/(?:guests?|log|people|person|aadmi|pax)\s*[:=]?\s*(\d{2,5})\b/i);
   if (explicitGuestMatch) {
     const num = parseInt(explicitGuestMatch[1], 10);
-    if (num >= 10 && num <= 10000) {
+    if (num >= 5 && num <= 10000) {
       updated.guestCount = num;
     }
   } else if (!updated.guestCount) {
-    // Fallback: check standalone 3-4 digit numbers not part of a date or phone
-    const fallbackNum = text.match(/\b([1-9]\d{2,3})\b/);
+    const fallbackNum = text.match(/\b([1-9]\d{1,3})\b/);
     if (fallbackNum) {
       const num = parseInt(fallbackNum[1], 10);
-      if (num >= 50 && num <= 5000 && num !== 2024 && num !== 2025 && num !== 2026 && num !== 2027) {
+      if (num >= 20 && num <= 5000 && num !== 2024 && num !== 2025 && num !== 2026 && num !== 2027) {
         updated.guestCount = num;
       }
     }
   }
 
   // 3. Event Type
-  if (lower.includes('wedding') || lower.includes('shaadi') || lower.includes('shadi') || lower.includes('marriage')) {
+  if (lower.includes('chautha') || lower.includes('shradh') || lower.includes('terhavi') || lower.includes('condolence') || lower.includes('death')) {
+    updated.eventType = 'Condolence / Chautha';
+  } else if (lower.includes('birthday') || lower.includes('janamdin')) {
+    updated.eventType = 'Birthday Celebration';
+  } else if (lower.includes('wedding') || lower.includes('shaadi') || lower.includes('shadi') || lower.includes('marriage')) {
     updated.eventType = 'Wedding';
   } else if (lower.includes('reception')) {
     updated.eventType = 'Reception';
   } else if (lower.includes('engagement') || lower.includes('roka') || lower.includes('ring ceremony')) {
     updated.eventType = 'Engagement / Roka';
   } else if (lower.includes('haldi') || lower.includes('mehendi') || lower.includes('sangeet')) {
-    updated.eventType = 'Pre-Wedding (Haldi/Mehendi/Sangeet)';
-  } else if (lower.includes('birthday') || lower.includes('janamdin')) {
-    updated.eventType = 'Birthday Celebration';
-  } else if (lower.includes('corporate') || lower.includes('meeting')) {
-    updated.eventType = 'Corporate Event';
-  } else if (lower.includes('mata ki chowki') || lower.includes('pooja') || lower.includes('religious') || lower.includes('katha')) {
-    updated.eventType = 'Religious Function';
+    updated.eventType = 'Pre-Wedding Ceremony';
+  } else if (lower.includes('anniversary')) {
+    updated.eventType = 'Anniversary';
   }
 
-  // 4. Date (e.g. 20 Nov, 20 November, 2026-11-20, next month, etc.)
+  // 4. Date
   const dateMatch = text.match(/\b(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})\b/) ||
-                    text.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:\s+(\d{4}))?\b/i);
+                    text.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:\s+(\d{4}))?\b/i) ||
+                    text.match(/\b(today|tonight|tomorrow|aaj|kal)\b/i);
   if (dateMatch && !updated.eventDate) {
     updated.eventDate = dateMatch[0];
   }
@@ -202,7 +226,7 @@ const extractSlots = (text = '', currentState = {}) => {
   const localities = [
     'Kanpur Road', 'Alambagh', 'Daroga Kheda', 'Gomti Nagar', 'Hazratganj', 'Indira Nagar',
     'Ashiyana', 'Krishna Nagar', 'Sarojini Nagar', 'Vrindavan Colony', 'Telibagh',
-    'Chowk', 'Mahanagar', 'Jankipuram', 'Rajajipuram', 'Transport Nagar', 'Amausi'
+    'Chowk', 'Mahanagar', 'Jankipuram', 'Rajajipuram', 'Transport Nagar', 'Amausi', 'Singar Nagar'
   ];
   for (const loc of localities) {
     if (lower.includes(loc.toLowerCase())) {
@@ -219,20 +243,14 @@ const extractSlots = (text = '', currentState = {}) => {
 
   // 7. Selected Services
   if (!updated.selectedServices) updated.selectedServices = [];
-  if ((lower.includes('tent') || lower.includes('hangar')) && !updated.selectedServices.includes('Tent House & Canopies')) {
-    updated.selectedServices.push('Tent House & Canopies');
+  if ((lower.includes('tent') || lower.includes('pandal')) && !updated.selectedServices.includes('Tent & Pandal')) {
+    updated.selectedServices.push('Tent & Pandal');
   }
-  if ((lower.includes('lawn') || lower.includes('venue')) && !updated.selectedServices.includes('Dwarka Shri Lawn Booking')) {
-    updated.selectedServices.push('Dwarka Shri Lawn Booking');
+  if ((lower.includes('chair') || lower.includes('kursi') || lower.includes('gadda') || lower.includes('mattress')) && !updated.selectedServices.includes('Seating & Mattresses')) {
+    updated.selectedServices.push('Seating & Mattresses');
   }
-  if ((lower.includes('flower') || lower.includes('floral')) && !updated.selectedServices.includes('Floral Decoration')) {
-    updated.selectedServices.push('Floral Decoration');
-  }
-  if ((lower.includes('stage') || lower.includes('mandap')) && !updated.selectedServices.includes('Stage & Mandap Setup')) {
-    updated.selectedServices.push('Stage & Mandap Setup');
-  }
-  if ((lower.includes('light') || lower.includes('sound') || lower.includes('dj')) && !updated.selectedServices.includes('Lighting & Sound')) {
-    updated.selectedServices.push('Lighting & Sound');
+  if ((lower.includes('lawn') || lower.includes('venue')) && !updated.selectedServices.includes('Dwaraka Shree Lawn')) {
+    updated.selectedServices.push('Dwaraka Shree Lawn');
   }
   if ((lower.includes('cater') || lower.includes('food') || lower.includes('khana')) && !updated.selectedServices.includes('Catering Arrangements')) {
     updated.selectedServices.push('Catering Arrangements');
@@ -241,236 +259,259 @@ const extractSlots = (text = '', currentState = {}) => {
   return updated;
 };
 
-// Natural Conversational Engine (Rules/NLP Fallback)
-const generateConversationalResponse = ({ userText, intentInfo, collectedState, galleryImages = [] }) => {
-  const isHindi = /[\u0900-\u097F]/.test(userText) || 
-                  /\b(aap|ka|ki|ke|hai|karna|chahiye|bhejiye|bataye|batao|kripya|namaste|shukriya|shadi|ha|nahi|dikhaye)\b/i.test(userText);
-  
+// Natural Conversational Engine (Strictly 2-3 sentences max, one question at a time)
+const generateConversationalResponse = ({ userText, intentInfo, collectedState, galleryImages = [], pageContext = {} }) => {
   const textTrimmed = (userText || '').trim();
   const lower = textTrimmed.toLowerCase();
+  const isHindi = /[\u0900-\u097F]/.test(userText) || 
+                  /\b(aap|ka|ki|ke|hai|karna|chahiye|bhejiye|bataye|batao|kripya|namaste|shukriya|shadi|ha|nahi|dikhaye|chautha|log|ghante)\b/i.test(userText);
 
-  // Natural greeting and casual conversation
-  const isGreeting = /^(hi|hello|hey|namaste|pranam|good\s*(morning|afternoon|evening)|kaise\s*ho|how\s*are\s*you)/i.test(lower);
-  if (isGreeting && textTrimmed.length < 25) {
-    if (isHindi && !lower.includes('how are you')) {
-      return "Namaste! Main badhiya hoon, shukriya! Aaj main aapke event planning me kis tarah madad kar sakta hoon?";
-    }
-    return "I'm doing well, thank you! How may I help you plan your event today?";
-  }
-
-  // Clarifying question on broad chair requests (e.g. "I need chairs for a wedding")
+  // Broad chair clarifying check
   const isBroadChairRequest = (lower.includes('chair') || lower.includes('kursi')) && 
                               (lower.includes('wedding') || lower.includes('shaadi') || lower.includes('need') || lower.includes('chahiye')) &&
                               !textTrimmed.match(/\b\d{2,4}\b/);
-  if (isBroadChairRequest) {
-    return "Approximately how many guests are you expecting? I can help you explore suitable chair options and prepare a rental enquiry.";
+  if (isBroadChairRequest && intentInfo.category !== 'A') {
+    return {
+      text: isHindi
+        ? "Lagbhag kitne mehmano ke liye chairs chahiye? Main aapko suitable options dikha kar enquiry note kar sakta hoon."
+        : "Approximately how many guests are you expecting? I can help you explore suitable chair options and prepare a rental enquiry.",
+      actionSuggestions: ['100 Guests', '250 Guests', '500 Guests', 'Check Availability']
+    };
   }
 
   // Follow-up to guest count (e.g. "Around 300")
   const isGuestCountFollowUp = textTrimmed.match(/(?:around|approx|about|lagbhag)?\s*(\d{2,4})\s*(?:guests?|log|people|pax)?$/i);
-  if (isGuestCountFollowUp && (lower.includes('around') || lower.includes('approx') || lower.includes('about') || lower.includes('300'))) {
+  if (isGuestCountFollowUp && intentInfo.category !== 'A' && (lower.includes('around') || lower.includes('approx') || lower.includes('about') || lower.includes('300'))) {
     const count = parseInt(isGuestCountFollowUp[1], 10);
-    return `Great. I'll help you compare suitable options for approximately ${count} guests. Do you have a preferred chair style, or would you like to see the available options first?`;
+    return {
+      text: isHindi
+        ? `Bahut badhiya. ${count} mehmano ke liye hum banquet aur PVC chairs compare kar sakte hain. Kya aap chairs ke styles dekhna chahenge?`
+        : `Great. I'll help you compare suitable options for approximately ${count} guests. Do you have a preferred chair style, or would you like to see the available options first?`,
+      actionSuggestions: ['Highback Banquet Chairs (₹70)', 'VIP Chairs (₹50)', 'PVC Chairs (₹20)', 'Send Enquiry']
+    };
   }
 
-  const { intent, category } = intentInfo;
+  // ==========================================
+  // CATEGORY A: Bereavement & Condolence Services
+  // Calm, compassionate, respectful, discreet. No celebratory emojis. No upselling.
+  // ==========================================
+  if (intentInfo.category === 'A') {
+    const isUrgent = intentInfo.isUrgent || !collectedState.eventDate || lower.includes('today') || lower.includes('tomorrow') || lower.includes('kal');
 
-  // Case 1: Gallery Request with 5 photos
-  if (intent === 'gallery_request') {
-    if (galleryImages.length > 0) {
-      if (isHindi) {
-        return `Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn ke **${category}** ke setups ki genuine photos niche present hain. Inme se kisi bhi design ko replicate karwane ke liye aap click karke pooch sakte hain. Kya aapko kisi specific event date ke liye requirement hai?`;
-      }
-      return `Here are genuine photographs of our **${category}** setups managed by Kandhari Tent & Caterers and Dwarka Shri Lawn. You can click on any setup to enquire about replicating that style. Would you also like to share your event date or guest count?`;
+    if (!collectedState.eventDate) {
+      return {
+        text: isHindi
+          ? "Is dukh ki ghadi me hamari poori samvedna aapke saath hai. Main arrangements jaldi aur shantipurvak coordinate karne me madad karunga; gathering kis date aur time par hai?"
+          : "I'm very sorry for your loss. I'll help you communicate the arrangements as quickly and respectfully as possible; what date and time is the gathering?",
+        actionSuggestions: ['Today / Tonight (Urgent)', 'Tomorrow', 'Day After Tomorrow', 'Request a Callback'],
+        isUrgent: true
+      };
     }
-  }
 
-  // Case 1.5: Floral & Stage Decor Enquiry
-  if (intent === 'floral_decoration' || lower.includes('flower') || lower.includes('floral') || lower.includes('phool')) {
-    const gallerySectionUrl = '/gallery?section=Floral%20and%20lighting%20decor';
-    if (isHindi) {
-      return `Namaste! Kandhari Tent & Caterers Dwarka Shri Lawn aur poore Lucknow me grand floral decoration provide karta hai (Fresh Rose & Marigold Mandap, Entry Gate Arch, Haldi Jhula/Baithak aur Luxury Stage Backdrop).
-
-Niche hamare recent floral aur lighting setups ki 5 genuine photos attached hain. Aap hamari **[Floral & Lighting Gallery](${gallerySectionUrl})** par click karke sabhi 50+ designs explore kar sakte hain!
-
-Aap kis event date ya celebration ke liye floral theme dekh rahe hain?`;
+    if (!collectedState.locality || !collectedState.guestCount) {
+      return {
+        text: isHindi
+          ? "Dhanyawad. Ye arrangement Lucknow me kis locality me chahiye, aur lagbhag kitne log aayenge?"
+          : "Thank you. Which locality is the arrangement needed in, and approximately how many people are expected?",
+        actionSuggestions: ['Kanpur Road', 'Alambagh', 'Ashiyana', 'Gomti Nagar', 'Request a Callback'],
+        isUrgent: true
+      };
     }
-    return `Namaste! Kandhari Tent & Caterers specializes in bespoke floral decor across Lucknow venues and at Dwarka Shri Lawn (Fresh Blossom Vedic Mandaps, Fragrant Marigold Haldi & Mehendi setups, Majestic Reception Stage Backdrops, and Illuminated Entrance Arches).
 
-Here are 5 genuine photographs of our floral and lighting setups below. You can also explore our complete collection of 50+ authentic photos directly in our **[Floral & Lighting Gallery](${gallerySectionUrl})**!
-
-What event date or celebration type are you planning for?`;
-  }
-
-  // Case 2: Catering Menu & Pricing
-  if (intent === 'catering_menu') {
-    if (isHindi) {
-      return `Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Welcome Drinks, Soups, Live Chaat, Tandoor Barbecue, Handi Paneer, Raita, Breads aur 2 Garam Desserts jaise Kesaria Jalebi-Rabri).
-
-Hamare tiered catering rates:
-• **Above 500 Guests**: Grand Veg Platter @ ₹650/vyakti | Grand Non-Veg Platter @ ₹850/vyakti
-• **250–500 Guests**: Royal Full Catering @ ₹750/vyakti (Veg) | Standard Semi Catering @ ₹250/vyakti
-• **Under 250 Guests**: Agar guests kam hote hain to per-plate rate badhta hai aur chune hue menu par nirbhar karta hai.
-• **Service Rule**: Brochure ke niyam ke anusaar sabhi snacks aur starters 2 se 2.5 ghante ke liye hi serve kiye jaate hain. Generator diesel client dwara diya jata hai.
-
-Aap kis event date aur kitne guests ke liye menu plan kar rahe hain?`;
+    if (!collectedState.selectedServices || collectedState.selectedServices.length === 0) {
+      return {
+        text: isHindi
+          ? "Kya aapko seating chairs, gadda-chatai, covered waterproof pandal, ya simple chai-paani ki zaroorat hai?"
+          : "Would you need seating, mattresses, a covered or waterproof pandal, or a combination? Is any simple food arrangement required?",
+        actionSuggestions: ['Chairs & Mattresses', 'Covered Pandal & Seating', 'Complete Simple Setup', 'Request a Callback'],
+        isUrgent: true
+      };
     }
-    return `At Kandhari Tent & Caterers, our banqueting covers 17 printed brochure courses (Welcome Drinks, Soups, Live Lucknowi Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).
 
-Our tiered catering rates:
-• **Above 500 Guests**: Grand Veg Platter @ ₹650 / person | Grand Non-Veg Platter @ ₹850 / person
-• **250 to 500 Guests**: Royal Full Catering @ ₹750 / person (Veg) | Standard Semi Catering @ ₹250 / person
-• **Under 250 Guests / Custom**: As guest count decreases, per-plate price increases and varies based on specific menu courses.
-• **Official Brochure Rule**: All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.
-
-What event date and estimated guest count are you planning for?`;
+    // Urgent human handoff
+    return {
+      text: isHindi
+        ? `Maine ${collectedState.locality || 'aapki location'} par ${collectedState.eventDate || 'shok sabha'} ke liye ${collectedState.guestCount || ''} logo ki requirements note kar li hain. Team se turant coordination ke liye kripya apna callback number share karein.`
+        : `I understand this is urgent. I've noted the requirements for ${collectedState.eventDate} in ${collectedState.locality}; please share a callback number so our team can coordinate immediately.`,
+      actionSuggestions: ['Send Urgent Enquiry', 'Call +91 9305465848', 'Edit Details'],
+      isUrgent: true
+    };
   }
 
-  // Case 2.5: Equipment Rental Rates
-  if (intent === 'equipment_rates') {
-    if (isHindi) {
-      return `Kandhari Tent House ki verified per-unit rental rates niche di gayi hain:
-• **Chairs**: Highback Banquet Chair ₹70 | VIP Chair ₹50 | PVC Chair ₹20
-• **Sofas & Tables**: Maharaja 2-Seater Sofa ₹600 | Center Table ₹300 | Mez Set (2.5x5) ₹80 | Round Table ₹150–₹200
-• **Others**: Takhat ₹80 | Gadda ₹60 | Drum ₹100 | Red/3D Carpet ₹2/sq.ft
+  // ==========================================
+  // GALLERY REQUEST (Exactly 5 Photos)
+  // ==========================================
+  if (intentInfo.intent === 'gallery_request') {
+    const cat = intentInfo.galleryCategory || 'Dwarka Shri Lawn venue and grounds';
+    return {
+      text: isHindi
+        ? `Kandhari Tent & Dwarka Shri Lawn ke ${cat} ke setups ki genuine photos niche present hain. Kisi bhi design ki availability poochne ke liye click karein.`
+        : `Here are 5 genuine photographs of our ${cat} setups in Lucknow. Share your event date and guest count to check availability.`,
+      actionSuggestions: ['Check Availability', 'Request a Quote', 'Arrange a Site Visit']
+    };
+  }
 
-Aapko apne event ke liye kitni chairs, sofas ya tables ki zaroorat hai?`;
+  // ==========================================
+  // CATERING MENU (17 Courses & Brochure Rules)
+  // ==========================================
+  if (intentInfo.intent === 'catering_menu') {
+    return {
+      text: isHindi
+        ? "Kandhari Tent & Caterers me Awadhi Banqueting hamare printed brochure ke 17 courses me provide ki jaati hai (Live Chaat, Tandoor, Paneer, Desserts). >500 guests par Veg ₹650 aur 250–500 par ₹750/person hai. Aap kis date aur kitne guests ke liye menu plan kar rahe hain?"
+        : "At Kandhari Tent & Caterers, our banqueting covers 17 printed brochure courses including live Awadhi chaat and barbecue. Rates are ₹650/person for >500 guests and ₹750/person for 250–500 guests. What event date and estimated guest count are you planning for?",
+      actionSuggestions: ['Design Menu on Catering Page', 'Check Availability', 'Request a Quote']
+    };
+  }
+
+  // ==========================================
+  // CATEGORY B: Birthday & Social Celebrations
+  // Warm, enthusiastic, creative, helpful.
+  // ==========================================
+  if (intentInfo.category === 'B') {
+    if (!collectedState.eventDate || !collectedState.guestCount) {
+      return {
+        text: isHindi
+          ? "Bahut shubh! Celebration kis date par hai, aur lagbhag kitne guests expected hain?"
+          : "Let's make your celebration special! What date is the event, and approximately how many guests are you expecting?",
+        actionSuggestions: ['50 Guests', '100 Guests', '150 Guests', 'Check Availability']
+      };
     }
-    return `Here are our official per-unit equipment rental rates from our warehouse:
-• **Chairs**: Highback Banquet Chair: ₹70 | VIP Chair: ₹50 | PVC Chair: ₹20
-• **Sofas & Tables**: Maharaja 2-Seater Sofa: ₹600 | Center Table: ₹300 | Mez Table Set (2.5×5 ft): ₹80 | Round Table with Cover: ₹150–₹200
-• **Bedding & Ground**: Takhat: ₹80 | Gadda (Mattress): ₹60 | Drum: ₹100 | Red/3D Carpet: ₹2 / sq.ft
 
-How many chairs, sofas, or tables would you like to reserve for your event?`;
-  }
-
-  // Case 3: Lawn Booking
-  if (intent === 'lawn_booking') {
-    if (isHindi) {
-      return `Dwarka Shri Lawn (Managed by Kandhari Tent & Caterers) Kanpur Road, Opp. Pillar No. 37, Daroga Kheda par sthit ek prasiddh wedding aur celebration venue hai. Yahan green lawn, bridal rooms, 100% generator backup aur grand entry gate available hai. Date availability check karne ke liye, kripya batayein aapka event kis date par hai?`;
+    if (!collectedState.specialRequests) {
+      return {
+        text: isHindi
+          ? "Kya aapka koi specific theme hai jaise cartoon, jungle, princess, ya floral décor? Hum food aur cake table bhi include kar sakte hain."
+          : "Do you have a theme in mind, such as princess, jungle, cartoon, floral, or elegant décor, or would you like me to suggest ideas?",
+        actionSuggestions: ['Jungle Theme', 'Princess Theme', 'Elegant Floral Décor', 'Suggest Themes']
+      };
     }
-    return `Dwarka Shri Lawn (Managed by Kandhari Tent & Caterers) is located right on Kanpur Road, Opp. Pillar No. 37, Daroga Kheda, Lucknow. The venue offers lush open lawns, bridal suites, 100% generator power backup, and ample parking. To check date availability, could you please tell me your planned event date and expected number of guests?`;
+
+    return {
+      text: isHindi
+        ? `Maine ${collectedState.eventDate} ko lagbhag ${collectedState.guestCount} guests ke liye aapka celebration plan note kar liya hai. Kya main ye enquiry team ko quotation aur availability ke liye bhej doon?`
+        : `Here's the plan I've noted: ${collectedState.eventType || 'Celebration'} on ${collectedState.eventDate} for ~${collectedState.guestCount} guests. Would you like me to send this enquiry to the team for availability and a quotation?`,
+      actionSuggestions: ['Send Enquiry', 'Edit Details', 'Request a Callback']
+    };
   }
 
-  // Case 4: Follow-up on existing enquiry
-  if (intent === 'followup_enquiry') {
-    if (isHindi) {
-      return `Aapke enquiry ka status check karne ke liye kripya apna Enquiry Reference Number (jaise ENQ-XXXXXX) ya register kiya hua 10-digit mobile number share karein. Hamare owner turant update share karenge.`;
+  // ==========================================
+  // CATEGORY C: Dwaraka Shree Lawn & Weddings
+  // Polished, professional, attentive, hospitality-focused. Offer site visit.
+  // ==========================================
+  if (intentInfo.category === 'C') {
+    if (!collectedState.eventDate || !collectedState.guestCount) {
+      return {
+        text: isHindi
+          ? "Dwarka Shri Lawn par shaadi ya celebration plan kar rahe hain? Kripya apni preferred event date aur lagbhag guest count share karein."
+          : "Planning an event at Dwaraka Shree Lawn? What date are you considering, and approximately how many guests will attend?",
+        actionSuggestions: ['300 Guests', '500 Guests', '800 Guests', 'Arrange a Site Visit']
+      };
     }
-    return `To look up your enquiry details, please share your Enquiry Reference ID (e.g. ENQ-XXXXXX) or your registered 10-digit mobile number. Our operations desk will be glad to give you an immediate update.`;
-  }
 
-  // Case 5: Pricing / Package
-  if (intent === 'pricing_package') {
-    if (isHindi) {
-      return `Kandhari Tent & Caterers ke official verified booking packages:
-• **Catering Packages**: >500 pax: Veg @ ₹650/vyakti | Non-Veg @ ₹850/vyakti; 250–500 pax: Full Catering @ ₹750/vyakti | Semi Catering @ ₹250/vyakti; < 250 pax par custom quote (rate increases for smaller pax).
-• **Standard Wedding Package (₹50,000)**: Complete waterproof tent canopy + lighting + fresh flower entrance/stage decor + DJ sound setup.
-• **Grand Royal Wedding Setup (₹1,10,000)**: Signature Kanpur Road setup jisme 20x200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16x24 ft Royal Stage, 16x16 ft Mandap, 2 Welcome Gates aur DJ shamil hai.
-• **Govt Contractors**: DRDO Lucknow approved seminar setup with 18% GST billing.
-
-Aap apne event ke liye kaun sa package explore karna chahenge?`;
+    if (!collectedState.selectedServices.includes('Catering Arrangements')) {
+      return {
+        text: isHindi
+          ? "Dhanyawad. Kya aapko lawn ke saath royal Awadhi catering bhi chahiye, ya food arrangement alag se karenge?"
+          : "Thank you. Will you need catering as well, or are you arranging food separately?",
+        actionSuggestions: ['Include Royal Catering', 'Lawn & Decor Only', 'Arrange a Site Visit']
+      };
     }
-    return `Here are our official verified event packages from Kandhari Tent & Caterers:
-• **Catering Packages**: >500 pax: Veg @ ₹650/person | Non-Veg @ ₹850/person; 250–500 pax: Royal Full @ ₹750/person | Semi Catering @ ₹250/person; < 250 pax: custom quotation (rate varies with menu).
-• **Standard Wedding Package**: ₹50,000 all-inclusive (Waterproof Tent + Ambient Illumination + Fresh Flower Decor + DJ Sound).
-• **Grand Royal Wedding Setup**: ₹1,10,000 all-inclusive (VIP 20×200 ft gallery with lights & flowers, 14 Maharaja Sofas, 200 Highback Chairs with covers, 16×24 ft Stage, 16×16 ft Mandap, 2 Entrance Gates, DJ).
-• **Approved Government Contractors**: D.R.D.O. Lucknow approved seminar setups with official 18% GST invoices.
 
-Which package or setup best aligns with your celebration?`;
+    return {
+      text: isHindi
+        ? `Maine Dwaraka Shree Lawn ke liye ${collectedState.eventDate} ko ${collectedState.guestCount} guests ki requirement note kar li hai. Kya aap site visit plan karna chahenge ya date availability check karein?`
+        : `I've noted your event date, guest count, and catering preference for Dwaraka Shree Lawn. Would you like me to send this to the venue team to check availability and arrange a site visit?`,
+      actionSuggestions: ['Check Availability', 'Arrange Site Visit', 'Edit Requirements']
+    };
   }
 
-  // Conversational Slot Filling Progression
-  // Check what is missing in collectedState:
-  if (!collectedState.eventType) {
-    if (isHindi) {
-      return `Namaste! Kandhari Tent & Caterers aur Dwarka Shri Lawn me aapka swagat hai. Aap kis celebration (jaise Wedding, Reception, Ring Ceremony, Birthday ya Religious Function) ke liye plan kar rahe hain?`;
+  // ==========================================
+  // CATEGORY D: Rental, Tent, Equipment & Decor
+  // Practical, solution-oriented.
+  // ==========================================
+  if (intentInfo.category === 'D') {
+    if (!collectedState.eventDate || !collectedState.locality) {
+      return {
+        text: isHindi
+          ? "Zaroor! Aapko kaun se items chahiye, kis date ke liye aur Lucknow me kis locality me requirement hai?"
+          : "Certainly, I can help with tent and equipment requirements. What items do you need, for which date, and in which locality?",
+        actionSuggestions: ['German Hangar Tent', 'Banquet Chairs & Sofas', 'Coolers & Mist Fans', 'Full Package']
+      };
     }
-    return `Welcome to Kandhari Tent & Caterers and Dwarka Shri Lawn! What type of celebration are you planning (e.g. Wedding, Reception, Engagement/Roka, Birthday, or Religious Function)?`;
+
+    return {
+      text: isHindi
+        ? `Maine ${collectedState.locality} me ${collectedState.eventDate} ke liye aapki equipment list note kar li hai. Kya main exact availability check karke quote generate karoon?`
+        : `I found the relevant equipment items in our Lucknow catalogue for ${collectedState.eventDate}. Would you like me to check exact quantities and send a quotation?`,
+      actionSuggestions: ['Request a Quote', 'Send Enquiry', 'Edit Details']
+    };
   }
 
-  if (!collectedState.eventDate) {
-    if (isHindi) {
-      return `Aapka ${collectedState.eventType} kis date ya month me planned hai? Hum venue aur tent inventory ki availability verify kar lenge.`;
-    }
-    return `That's wonderful! What date or month are you planning the ${collectedState.eventType} for, so we can verify availability?`;
+  // ==========================================
+  // CATEGORY E: General / Fallback
+  // ==========================================
+  if (lower.includes('human') || lower.includes('call me') || lower.includes('phone number') || lower.includes('contact')) {
+    return {
+      text: isHindi
+        ? "Aap hamare operations desk se direct +91 9305465848 par sampark kar sakte hain. Aap apna number bhi share kar sakte hain, hum turant callback arrange kar denge."
+        : "You can reach our team directly at +91 9305465848. Or share your phone number, and we will arrange an immediate callback.",
+      actionSuggestions: ['Call +91 9305465848', 'Request a Callback', 'Send Enquiry']
+    };
   }
 
-  if (!collectedState.guestCount) {
-    if (isHindi) {
-      return `Aapke ${collectedState.eventType} me lagbhag kitne guests (mehman) expected hain? Isse hum seating aur lawn arrangement ka sahi andaza laga payenge.`;
-    }
-    return `Approximately how many guests are you expecting for the ${collectedState.eventType}? This helps us recommend the ideal lawn layout, seating capacity, and cooling arrangements.`;
-  }
-
-  if (!collectedState.locality) {
-    if (isHindi) {
-      return `Event Lucknow me kis locality me hoga (jaise Kanpur Road, Alambagh, Gomti Nagar, Ashiyana) ya aap Dwarka Shri Lawn venue dekhna chahenge?`;
-    }
-    return `Where in Lucknow will the event take place (e.g. Kanpur Road, Alambagh, Gomti Nagar, Ashiyana), or are you looking to host it at Dwarka Shri Lawn?`;
-  }
-
-  if (!collectedState.phone) {
-    if (isHindi) {
-      return `Bahut accha! Hamare event coordinator aapko detailed proposal aur photos bhejne ke liye aapka 10-digit WhatsApp/mobile number prapt karna chahenge. Kripya apna contact number share karein.`;
-    }
-    return `Thank you! To send you a detailed customized proposal and coordinate next steps, could you please provide your 10-digit mobile or WhatsApp number?`;
-  }
-
-  // Summary and Confirmation
-  if (isHindi) {
-    return `Shukriya! Maine aapki requirements note kar li hain:\n• Event: ${collectedState.eventType || 'Event'}\n• Date: ${collectedState.eventDate || 'TBD'}\n• Guests: ${collectedState.guestCount || 'Flexible'}\n• Location: ${collectedState.locality || 'Lucknow'}\n• Contact: ${collectedState.phone}\n\nKya main ye official enquiry Kandhari Tent & Caterers ke owner ko review aur quotation ke liye submit kar doon?`;
-  }
-  return `Thank you! I have compiled your event details:\n• Event: ${collectedState.eventType || 'Celebration'}\n• Date: ${collectedState.eventDate || 'TBD'}\n• Expected Guests: ${collectedState.guestCount || 'Flexible'}\n• Location: ${collectedState.locality || 'Lucknow'}\n• Contact Number: ${collectedState.phone}\n\nWould you like me to submit this official enquiry to the owner of Kandhari Tent & Caterers for a custom proposal?`;
+  return {
+    text: isHindi
+      ? "Main event planning, Dwaraka Shree Lawn booking, aur tent-equipment rental me madad kar sakta hoon. Aap aaj kya arrange karna chahenge?"
+      : "I can help with event planning, venue enquiries, or tent and equipment rental. What are you looking to arrange?",
+    actionSuggestions: [
+      'Condolence / Chautha',
+      'Birthday Celebration',
+      'Wedding / Lawn Booking',
+      'Tent / Equipment Rental'
+    ]
+  };
 };
 
-// Gemini API Integration (if configured)
+// Gemini API Integration (with complete production system instruction)
 const callGeminiModel = async ({ messages = [], userText, intentInfo, collectedState, galleryImages = [] }) => {
   const apiKey = process.env.GEMINI_API_KEY || process.env.AI_PROVIDER_KEY;
   if (!apiKey || !GoogleGenAI) {
-    return null; // Fall back to conversational NLP
+    return null;
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
     const systemInstruction = `
-You are the official, friendly, warm, and professional AI Event Advisor for Kandhari Tent & Caterers and its associated venue Dwarka Shri Lawn, located at Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow, Uttar Pradesh.
-Official Support: Direct online quotation, consultation booking, or official business customer support line. Never expose private or personal numbers.
-Tagline: "Making Your Celebrations Memorable".
+# SYSTEM PROMPT: KANDHARI EVENT CONCIERGE
+You are Kandhari Event Concierge, the intelligent, proactive, conversion-focused AI concierge for Kandhari Tent House / Kandhari Tent & Caterers and Dwaraka Shree Lawn (managed by Kandhari Tent & Caterers) in Lucknow, Uttar Pradesh, India.
+Business Address: Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.
+Verified Telephone: +91 9305465848, +91 7355059566, +91 9307908994.
 
-OFFICIAL VERIFIED RATES & PACKAGES (QUOTE CONFIDENTLY WHEN ASKED):
-1. Tiered Catering Packages (Awadhi Banqueting across 17 printed brochure courses):
-   - Above 500 guests: Grand Veg Platter @ ₹650 / person | Grand Non-Veg Platter @ ₹850 / person.
-   - 250 to 500 guests: Royal Full Catering @ ₹750 / person (Veg) | Standard Semi Catering @ ₹250 / person.
-   - Under 250 guests: Per-plate rate increases for smaller guest counts and varies based on selected dishes.
-   - Official Service Rule: All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel provided by client.
-2. Complete Wedding Packages:
-   - Standard Wedding Package: ₹50,000 all-inclusive (Waterproof Tent + Ambient Illumination + Fresh Flower Decor + DJ Sound Setup).
-   - Grand Royal Wedding Setup (Kanpur Road Benchmark): ₹1,10,000 all-inclusive (20×200 ft illuminated passage gallery, 14 Maharaja 2-seater sofas, 200 Highback chairs with covers, round tables, grand 16×24 ft stage, 16×16 ft mandap, 2 entrance gates, DJ).
-3. Equipment Rentals (Per-Unit Verified Rates):
-   - Highback Chair: ₹70 | VIP Chair: ₹50 | PVC Chair: ₹20
-   - Maharaja 2-Seater Sofa: ₹600 | Center Table: ₹300
-   - Mez Table Set (2.5×5 ft): ₹80 | Round Table with Cover: ₹150–₹200
-   - Takhat: ₹80 | Gadda (Mattress): ₹60 | Drum: ₹100 | Red/3D Carpet: ₹2 / sq.ft
-4. Institutional / Government Credentials:
-   - Approved Government Contractors for Defence Research & Development Organisation (DRDO Lucknow). Seminars, heavy truss staging, podiums, ceremonial brass lamps, cordless audio, and 80+ LED par setups available with official 18% GST billing.
+NON-NEGOTIABLE CONVERSATION RULES:
+1. Keep EVERY response to 2–3 short sentences maximum.
+2. Ask one focused question at a time.
+3. Never ask for information already present in conversation or state.
+4. Support English, Hindi, and Hinglish. Match the visitor's language.
+5. Finish with a clear next step.
 
-CRITICAL CONVERSATIONAL GUIDELINES:
-1. Speak in English or Hindi/Hinglish depending on the customer's language. Use respectful Indian hospitality etiquette (e.g., Namaste, Ji).
-2. Quote the verified rates above accurately. Never invent arbitrary unverified prices.
-3. Keep answers concise, natural, and helpful. Ask one useful question at a time to gather missing info (event type, date, locality, guest count, contact number).
-4. Do not re-ask details the customer has already provided.
-5. If the user asks for photos or gallery, acknowledge the category.
-Current collected event state: ${JSON.stringify(collectedState)}.
-Intent detected: ${intentInfo.intent} (${intentInfo.category || 'none'}).
-    `;
+INTENT CATEGORIES & TONE:
+- Category A (Bereavement, Condolence, Chautha, Shradh): Calm, compassionate, respectful, discreet. ZERO celebratory emojis. No upselling. Urgent human handoff (+91 9305465848).
+- Category B (Birthdays, Social Celebrations): Warm, enthusiastic, creative, suggest themes (princess, jungle, cartoon, floral).
+- Category C (Dwaraka Shree Lawn, Weddings): Polished, professional, hospitality-focused. Offer site visit and date check.
+- Category D (Equipment Rental, Tents, Catering): Practical, solution-oriented. Quote genuine inventory rates.
+- Category E (General/Fallback): Approachable, offer human callback.
+
+VERIFIED GROUND-TRUTH RATES:
+- Catering (>500 guests: Veg ₹650/pp, Non-Veg ₹850/pp | 250-500 guests: Full Veg ₹750/pp, Semi ₹250/pp | <250 guests: custom). Starters served for 2 to 2.5 hours only.
+- Rentals: Highback Banquet Chair ₹70, VIP Chair ₹50, PVC Chair ₹20, Maharaja Sofa ₹600, Center Table ₹300, Mez Table ₹80, Round Table ₹150-₹200, Takhat ₹80, Gadda ₹60, Red/3D Carpet ₹2/sq.ft.
+- Packages: Standard Wedding ₹50,000, Grand Royal Setup ₹1,10,000.
+`;
 
     const chatHistory = messages.slice(-8).map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     }));
 
-    // Add current user prompt
     chatHistory.push({
       role: 'user',
       parts: [{ text: userText }]
@@ -481,12 +522,12 @@ Intent detected: ${intentInfo.intent} (${intentInfo.category || 'none'}).
       contents: chatHistory,
       config: {
         systemInstruction,
-        temperature: 0.7
+        temperature: intentInfo.category === 'A' ? 0.2 : 0.7
       }
     });
 
     if (response && response.text) {
-      return response.text;
+      return response.text.trim();
     }
   } catch (err) {
     console.warn('[Gemini AI] Call failed, falling back to local conversational NLP:', err.message);
@@ -499,50 +540,33 @@ const processChatMessage = async ({
   userText,
   conversationHistory = [],
   currentState = {},
-  availableGallery = []
+  availableGallery = [],
+  pageContext = {}
 }) => {
   // 1. Intent Classification
-  const intentInfo = classifyIntent(userText);
+  const intentInfo = classifyIntent(userText, pageContext);
 
   // 2. Extract and accumulate slots
   const collectedState = extractSlots(userText, currentState);
 
   // 3. Exactly 5 photos when gallery category is requested
   let galleryImages = [];
-  let categoryName = intentInfo.category;
+  let categoryName = intentInfo.galleryCategory;
 
   if (intentInfo.intent === 'gallery_request' || categoryName) {
-    const targetCat = categoryName || normalizeGalleryCategory(userText) || 'Lawn and venue';
-    // Filter published gallery images matching category
+    const targetCat = categoryName || normalizeGalleryCategory(userText) || 'Dwarka Shri Lawn venue and grounds';
     let matches = availableGallery.filter(item => 
       item.category && item.category.toLowerCase() === targetCat.toLowerCase()
     );
-    // If not exact match, check title/caption
     if (matches.length < 5) {
       const broader = availableGallery.filter(item => 
         (item.title && item.title.toLowerCase().includes(targetCat.toLowerCase())) ||
         (item.caption && item.caption.toLowerCase().includes(targetCat.toLowerCase()))
       );
       for (const b of broader) {
-        if (!matches.some(m => m.id === b.id)) {
-          matches.push(b);
-        }
+        if (!matches.some(m => m.id === b.id)) matches.push(b);
       }
     }
-
-    // Prioritize floral gallery assets for floral/decor inquiries
-    if (matches.length < 5 && (targetCat.toLowerCase().includes('floral') || targetCat.toLowerCase().includes('flower'))) {
-      const florals = availableGallery.filter(item => 
-        (item.category && item.category.toLowerCase().includes('floral')) ||
-        (item.title && (item.title.toLowerCase().includes('floral') || item.title.toLowerCase().includes('flower') || item.title.toLowerCase().includes('marigold') || item.title.toLowerCase().includes('light')))
-      );
-      for (const f of florals) {
-        if (!matches.some(m => m.id === f.id)) {
-          matches.push(f);
-        }
-      }
-    }
-    // If still under 5 photos, backfill from other gallery photos so user receives 5 highlights
     if (matches.length < 5) {
       for (const b of availableGallery) {
         if (!matches.some(m => m.id === b.id)) {
@@ -551,12 +575,11 @@ const processChatMessage = async ({
         }
       }
     }
-    // Take exactly 5 photos when 5 or more exist, otherwise all available
     galleryImages = matches.slice(0, 5);
     categoryName = targetCat;
   }
 
-  // 4. Generate Assistant Response (Gemini if available, else NLP engine)
+  // 4. Generate Assistant Response
   let assistantText = await callGeminiModel({
     messages: conversationHistory,
     userText,
@@ -565,21 +588,33 @@ const processChatMessage = async ({
     galleryImages
   });
 
+  let actionSuggestions = [];
+  let isUrgent = false;
+
+  const nlpResponse = generateConversationalResponse({
+    userText,
+    intentInfo,
+    collectedState,
+    galleryImages,
+    pageContext
+  });
+
   if (!assistantText) {
-    assistantText = generateConversationalResponse({
-      userText,
-      intentInfo,
-      collectedState,
-      galleryImages
-    });
+    assistantText = nlpResponse.text;
   }
+  actionSuggestions = nlpResponse.actionSuggestions || [];
+  isUrgent = nlpResponse.isUrgent || intentInfo.isUrgent || false;
 
   return {
     assistantText,
     intent: intentInfo.intent,
+    category: intentInfo.category,
+    label: intentInfo.label,
     galleryCategory: categoryName,
     galleryImages,
-    collectedState
+    collectedState,
+    actionSuggestions,
+    isUrgent
   };
 };
 

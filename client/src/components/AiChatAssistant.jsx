@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useEnquiry } from '../context/EnquiryContext';
@@ -8,7 +8,7 @@ import {
   CheckCircle, ArrowRight, Image as ImageIcon, MapPin, 
   Calendar, Phone, ExternalLink, ChevronDown, Minimize2, Maximize2,
   Lock, Mail, User, ShieldCheck, Edit3, AlertCircle, ShoppingBag, Plus,
-  Mic, MicOff
+  Mic, MicOff, HeartHandshake
 } from 'lucide-react';
 
 // Extract phone and details from text
@@ -18,7 +18,8 @@ const extractLeadInfo = (text) => {
 
   let eventType = null;
   const lower = text.toLowerCase();
-  if (lower.includes('shaadi') || lower.includes('wedding')) eventType = 'Wedding';
+  if (lower.includes('chautha') || lower.includes('shradh') || lower.includes('condolence') || lower.includes('death')) eventType = 'Condolence / Chautha';
+  else if (lower.includes('shaadi') || lower.includes('wedding')) eventType = 'Wedding';
   else if (lower.includes('reception')) eventType = 'Reception';
   else if (lower.includes('birthday') || lower.includes('bday')) eventType = 'Birthday Party';
   else if (lower.includes('haldi') || lower.includes('mehendi') || lower.includes('sangeet')) eventType = 'Pre-Wedding Ceremony';
@@ -37,97 +38,172 @@ const extractLeadInfo = (text) => {
 };
 
 // Intelligent client-side NLP fallback when server is cold or offline
+// Strictly adheres to Kandhari Event Concierge instructions: 2-3 short sentences, 5 categories, no upselling on bereavement.
 const getClientAiResponse = (text) => {
   const lower = text.toLowerCase();
   const info = extractLeadInfo(text);
 
-  if (info.phone) {
+  // Category A: Bereavement & Condolence (Priority Rule)
+  const isBereavement = ['chautha', 'shradh', 'terhavi', 'condolence', 'passed away', 'death', 'expired', 'guzar gaye', 'shanti path', 'shok sabha', 'rip', 'funeral'].some(kw => lower.includes(kw));
+  if (isBereavement) {
+    if (info.phone) {
+      return {
+        text: `I'm very sorry for your loss. We have recorded your callback number (${info.phone}) and our team will coordinate with you immediately. You can also reach our direct desk at +91 9305465848.`,
+        isUrgent: true,
+        category: 'A',
+        actionSuggestions: ['Call +91 9305465848', 'Send Urgent Enquiry']
+      };
+    }
     return {
-      text: `Shukriya! We have recorded your contact number: **${info.phone}**.\n\nOur event management team from Kandhari Tent & Caterers / Dwarka Shri Lawn will contact you shortly to understand your requirements and prepare a tailored estimate.\n\nYou can also click below to chat directly with our event desk on WhatsApp or call our toll-free helpline **1800-890-3456**.`,
-      detectedPhone: info.phone
+      text: "I'm very sorry for your loss. I'll help you communicate the arrangements as quickly and respectfully as possible; what date and time is the gathering?",
+      isUrgent: true,
+      category: 'A',
+      actionSuggestions: ['Today / Tonight (Urgent)', 'Tomorrow', 'Chairs & Mattresses', 'Request a Callback']
     };
   }
 
-  if (lower.includes('lawn') || lower.includes('dwarka') || lower.includes('venue') || lower.includes('ground') || lower.includes('location')) {
+  // Category B: Birthday & Celebrations
+  if (lower.includes('birthday') || lower.includes('bday') || lower.includes('janamdin') || lower.includes('anniversary')) {
     return {
-      text: `**Dwarka Shri Lawn (Managed by Kandhari Tent & Caterers)** is our signature event venue located Opp. Pillar No. 37, Daroga Kheda, Kanpur Road, Lucknow.\n\n• **Capacity:** 800–1000 guests\n• **Amenities:** Large lush green lawn, covered waterproof dining pavilion, AC bridal suite & rooms, safe parking.\n• **Booking:** Available for weddings, receptions, and family celebrations.\n\nWould you like to schedule an in-person visit or check available dates?`
+      text: "Let's make your celebration special! What date is the event, and approximately how many guests are you expecting?",
+      category: 'B',
+      actionSuggestions: ['Princess Theme', 'Jungle Theme', 'Cartoon Theme', 'Check Availability']
     };
   }
 
-  if (lower.includes('tent') || lower.includes('hangar') || lower.includes('waterproof') || lower.includes('canopy') || lower.includes('pandal')) {
+  // Category C: Lawn & Weddings
+  if (lower.includes('lawn') || lower.includes('dwarka') || lower.includes('dwaraka') || lower.includes('wedding') || lower.includes('shaadi') || lower.includes('reception')) {
     return {
-      text: `We are Lucknow's premier tent-house specialists!\n\n• **German Waterproof Hangar Tents:** Heavy-gauge aluminum framing, 100% weather-tight, luxury AC/cooler ducting.\n• **Pagoda & High-Peak Canopies:** Perfect for VIP lounges and food displays.\n• **Traditional Shamianas & Draped Pockets:** Royal color combinations (White & Gold, Maroon & Velvet).\n\nWhat is your event date and approximate guest count?`
+      text: "Planning an event at Dwaraka Shree Lawn? What date are you considering, and approximately how many guests will attend?",
+      category: 'C',
+      actionSuggestions: ['Check Availability', 'Arrange a Site Visit', 'Include Royal Catering']
     };
   }
 
-  if (lower.includes('cater') || lower.includes('menu') || lower.includes('food') || lower.includes('khana') || lower.includes('dish') || lower.includes('starter') || lower.includes('sweet') || lower.includes('paneer') || lower.includes('chaat')) {
+  // Category D: Catering
+  if (lower.includes('cater') || lower.includes('menu') || lower.includes('food') || lower.includes('khana')) {
     return {
-      text: `We provide authentic Awadhi banqueting across 17 printed brochure courses (Welcome Drinks, Soups, Live Chaat, Barbecue Tandoor, Handi Paneer, Subziyan, Breads, Salad Bar, and Hot Desserts like Kesaria Jalebi with Rabri).\n\n• **Above 500 Guests:** Grand Veg Platter @ ₹650 / person | Grand Non-Veg Platter @ ₹850 / person\n• **250 to 500 Guests:** Royal Full Catering @ ₹750 / person (Veg) | Semi Catering @ ₹250 / person\n• **Under 250 Guests:** Per-plate price increases and varies based on specific menu courses.\n• **Printed Brochure Rule:** All snacks & starters are served strictly for 2 to 2.5 hours only. Generator diesel to be provided by client.\n\n👉 You can design your custom menu and calculate estimates directly on our **[Catering Page](/catering)**!`
+      text: "At Kandhari Tent & Caterers, our banqueting covers 17 printed brochure courses including live Awadhi chaat and barbecue. Rates are ₹650/person for >500 guests and ₹750/person for 250–500 guests. What event date and estimated guest count are you planning for?",
+      category: 'D',
+      actionSuggestions: ['Design Menu on Catering Page', 'Check Availability', 'Request a Quote']
     };
   }
 
-  if (lower.includes('rate') || lower.includes('price') || lower.includes('cost') || lower.includes('budget') || lower.includes('package') || lower.includes('quotation') || lower.includes('kitna')) {
+  // Category D: Equipment / Tent Rental
+  if (lower.includes('chair') || lower.includes('sofa') || lower.includes('table') || lower.includes('tent') || lower.includes('hangar') || lower.includes('cooler') || lower.includes('rent')) {
     return {
-      text: `Here are our official, verified booking packages and contract rates:\n\n• **Catering Tiers:** >500 pax: Veg @ ₹650/pp &bull; Non-Veg @ ₹850/pp | 250–500 pax: Full @ ₹750/pp &bull; Semi @ ₹250/pp | <250 pax: Custom quotation.\n• **Standard Wedding Package (₹50,000):** Waterproof Tent + Ambient Lighting + Fresh Flower Gate & Stage Decor + DJ Sound Setup.\n• **Grand Royal Wedding Setup (₹1,10,000):** Signature Kanpur Road setup with 20×200 ft illuminated gallery, 14 Maharaja Sofas, 200 Highback Chairs, 16×24 ft Stage, 16×16 ft Mandap, 2 Gates & DJ.\n• **Approved Govt Contractors:** DRDO Lucknow seminar setups with 18% GST billing.\n\nWould you like a tailored quotation for your specific event date?`
+      text: "Certainly, I can help with tent and equipment requirements. What items do you need, for which date, and in which locality?",
+      category: 'D',
+      actionSuggestions: ['German Hangar Tent', 'VIP & Banquet Chairs', 'Coolers & Mist Fans', 'Request a Quote']
     };
   }
 
-  if (lower.includes('chair') || lower.includes('sofa') || lower.includes('table') || lower.includes('kursi') || lower.includes('furniture') || lower.includes('carpet') || lower.includes('takhat') || lower.includes('gadda') || (lower.includes('rent') && !lower.includes('tent'))) {
+  // Contact / Human request
+  if (lower.includes('human') || lower.includes('call') || lower.includes('number') || lower.includes('contact') || info.phone) {
     return {
-      text: `Here are our verified per-unit equipment rental rates from our Lucknow warehouse:\n\n• **Highback Banquet Chair:** ₹70 / pc\n• **VIP Chair:** ₹50 / pc | **PVC Chair:** ₹20 / pc\n• **Maharaja 2-Seater Sofa:** ₹600 / pc\n• **Center Table:** ₹300 / pc\n• **Mez Set (Table 2.5×5 ft):** ₹80 / set\n• **Round Table with Cover:** ₹150 – ₹200 / pc\n• **Takhat:** ₹80 | **Gadda (Mattress):** ₹60 | **Drum:** ₹100\n• **Red / 3D Carpet:** ₹2 / sq.ft\n\nAdd any item to your list in our **[Catalogue](/catalogue)** for an instant estimate!`
+      text: "You can reach our team directly at +91 9305465848. Or share your phone number, and we will arrange an immediate callback.",
+      actionSuggestions: ['Call +91 9305465848', 'Request a Callback', 'Send Enquiry']
     };
   }
 
-  if (lower.includes('stage') || lower.includes('decor') || lower.includes('mandap') || lower.includes('flower') || lower.includes('light')) {
-    return {
-      text: `Our decoration setups include:\n\n• Grand floral mandaps (Fresh & Artificial floral styling)\n• Royal reception stage backdrops with crystal chandeliers\n• Welcoming entrance arches with fairy light tunnels\n• Cold pyros, dry ice fog, and ambient LED lighting\n\nPlease check our Gallery page or let us know your preferred theme!`
-    };
-  }
-
-  if (lower.includes('gallery') || lower.includes('photo') || lower.includes('picture') || lower.includes('real image') || lower.includes('album') || lower.includes('video')) {
-    return {
-      text: `Explore over 220 authentic Lucknow event photographs and video walkthrough reels in our **[Event & Venue Gallery](/gallery)** across 8 dedicated sections:\n\n1. Wedding and reception setups\n2. Dwarka Shri Lawn venue and grounds\n3. Stage and mandap designs\n4. Tent structures and canopy layouts\n5. Seating and furniture arrangements\n6. Floral decoration and lighting\n7. Catering and food counters\n8. Other event photographs\n\nAll photos and walkthrough reels feature genuine setups from our warehouse and Kanpur Road venue!`
-    };
-  }
-
+  // General Fallback (Category E)
   return {
-    text: `Namaste! Kandhari Tent & Caterers & Dwarka Shri Lawn are ready to assist with your wedding, reception, or family function in Lucknow.\n\nPlease share your event date, approximate guest count, or phone number so we can check availability and provide the best package.`
+    text: "I can help with event planning, venue enquiries, or tent and equipment rental. What are you looking to arrange?",
+    category: 'E',
+    actionSuggestions: ['Condolence / Chautha', 'Birthday Celebration', 'Wedding / Lawn Booking', 'Tent / Equipment Rental']
   };
 };
 
-const createInitialState = (id = 'conv-init-' + Date.now()) => ({
-  id,
-  status: 'active',
-  recognizedIntent: 'general_inquiry',
-  collectedState: {
-    customerName: '',
-    phone: '',
-    whatsappNumber: '',
-    preferredContactMethod: 'Phone',
-    eventType: '',
-    eventDate: '',
-    locality: 'Lucknow, Uttar Pradesh',
-    guestCount: 0,
-    selectedServices: [],
-    budget: '',
-    specialRequests: '',
-    enquiryReference: null
-  },
-  messages: [
-    {
-      id: 'msg-welcome',
-      role: 'assistant',
-      content: 'Namaste! I am the AI Event Advisor for Kandhari Tent & Caterers & Dwarka Shri Lawn, Lucknow.\n\nHow may I assist you with your celebration today? You can ask about our wedding lawn availability, German waterproof tents, stage & mandap decor, or catering coordination.',
-      timestamp: new Date()
-    }
-  ]
-});
+const getWelcomeMessage = (pathname = '/') => {
+  if (pathname.includes('/lawn')) {
+    return {
+      content: "Welcome to Dwaraka Shree Lawn. Are you planning a wedding, reception, or another event? Share your preferred date and approximate guest count, and I'll help you with the next step.",
+      category: 'C',
+      actionSuggestions: [
+        'Wedding & Reception',
+        'Sangeet & Mehendi',
+        'Arrange a Site Visit',
+        'Check Date Availability'
+      ]
+    };
+  }
+  if (pathname.includes('/catalogue')) {
+    return {
+      content: "Looking for event equipment? Tell me what you're arranging and your event date, and I'll help identify the relevant items and availability.",
+      category: 'D',
+      actionSuggestions: [
+        'German Hangar Tents',
+        'VIP & Banquet Chairs',
+        'Coolers & Mist Fans',
+        'Full Stage & Mandap Setup'
+      ]
+    };
+  }
+  if (pathname.includes('/catering')) {
+    return {
+      content: "Welcome to our Royal Catering Desk. What event date and estimated guest count are you planning for?",
+      category: 'D',
+      actionSuggestions: [
+        '>500 Guests (₹650/pp)',
+        '250-500 Guests (₹750/pp)',
+        'Design Custom Menu',
+        'Check Availability'
+      ]
+    };
+  }
+  return {
+    content: "Welcome to Kandhari Event Concierge! What can I help you arrange today?",
+    category: 'E',
+    actionSuggestions: [
+      '🕊️ Condolence / Chautha / Shradh',
+      '🎂 Birthday / Social Celebration',
+      '🎪 Wedding / Lawn Booking',
+      '⛺ Tent / Equipment Rental',
+      '📋 Other Event / Enquiry'
+    ]
+  };
+};
+
+const createInitialState = (id = 'conv-init-' + Date.now(), pathname = '/') => {
+  const welcome = getWelcomeMessage(pathname);
+  return {
+    id,
+    status: 'active',
+    recognizedIntent: 'general_inquiry',
+    collectedState: {
+      customerName: '',
+      phone: '',
+      whatsappNumber: '',
+      preferredContactMethod: 'Phone',
+      eventType: '',
+      eventDate: '',
+      locality: 'Lucknow, Uttar Pradesh',
+      guestCount: 0,
+      selectedServices: [],
+      budget: '',
+      specialRequests: '',
+      enquiryReference: null
+    },
+    messages: [
+      {
+        id: 'msg-welcome',
+        role: 'assistant',
+        content: welcome.content,
+        actionSuggestions: welcome.actionSuggestions,
+        category: welcome.category,
+        timestamp: new Date()
+      }
+    ]
+  };
+};
 
 const AiChatAssistant = () => {
+  const location = useLocation();
+  const currentPath = location?.pathname || '/';
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [conversation, setConversation] = useState(() => createInitialState());
-  const [messages, setMessages] = useState(() => createInitialState().messages);
+  const [conversation, setConversation] = useState(() => createInitialState('conv-init-' + Date.now(), typeof window !== 'undefined' ? window.location.pathname : '/'));
+  const [messages, setMessages] = useState(() => createInitialState('conv-init-' + Date.now(), typeof window !== 'undefined' ? window.location.pathname : '/').messages);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [submittingEnquiry, setSubmittingEnquiry] = useState(false);
@@ -272,7 +348,7 @@ const AiChatAssistant = () => {
   };
 
   const startNewChat = async () => {
-    const fresh = createInitialState('conv-' + Date.now());
+    const fresh = createInitialState('conv-' + Date.now(), currentPath);
     setConversation(fresh);
     setMessages(fresh.messages);
     setSubmittedRef(null);
@@ -391,9 +467,12 @@ const AiChatAssistant = () => {
           role: 'assistant',
           content: agentData.reply,
           suggestedQuestions: agentData.suggestedQuestions,
+          actionSuggestions: agentData.actionSuggestions || agentData.suggestedQuestions,
           recommendedItems: agentData.recommendedItems,
           galleryPhotos: agentData.galleryPhotos,
           action: agentData.action,
+          category: agentData.category,
+          isUrgent: agentData.isUrgent,
           timestamp: new Date()
         };
 
@@ -445,6 +524,9 @@ const AiChatAssistant = () => {
         id: 'ast-' + Date.now(),
         role: 'assistant',
         content: fallbackResult.text,
+        actionSuggestions: fallbackResult.actionSuggestions,
+        category: fallbackResult.category,
+        isUrgent: fallbackResult.isUrgent,
         timestamp: new Date()
       };
 
@@ -631,15 +713,41 @@ const AiChatAssistant = () => {
   // Check if pending inquiry is stored in sessionStorage
   const hasPendingInquiry = !submittedRef && typeof window !== 'undefined' && !!sessionStorage.getItem('kandhari_pending_chat_enquiry');
 
-  // Quick Action Chips
-  const quickActions = [
-    'Aapke lawn ki photos hain?',
-    'Catering package & menu rate?',
-    'Wedding packages bataiye (₹50k / ₹1.1L)',
-    'Chairs & sofa rental rates kya hain?',
-    'German hangar tent chahiye',
-    'Stage aur mandap decor dikhayein'
-  ];
+  // Dynamic Quick Action Chips matching page context
+  const quickActions = currentPath.includes('/lawn')
+    ? [
+        'Check Lawn Availability',
+        'Arrange a Site Visit',
+        'Wedding & Reception Packages',
+        'Lawn Capacity & Photos',
+        'Include Awadhi Catering'
+      ]
+    : currentPath.includes('/catalogue')
+    ? [
+        'German Hangar Tent',
+        'VIP Chairs & Sofas',
+        'Coolers & Mist Fans',
+        'Mandap & Stage Decor',
+        'Add Items to Enquiry'
+      ]
+    : currentPath.includes('/catering')
+    ? [
+        'Catering Rates (₹650/₹750)',
+        'Awadhi Live Chaat Counter',
+        '17 Course Royal Menu',
+        'Schedule Food Tasting'
+      ]
+    : [
+        '🕊️ Condolence / Chautha',
+        '🎂 Birthday Celebration',
+        '🎪 Wedding / Lawn Booking',
+        '⛺ Tent / Equipment Rental',
+        '📞 Direct Helpline (+91 9305465848)'
+      ];
+
+  const isCategoryAActive = 
+    conversation?.recognizedIntent === 'bereavement_urgent' || 
+    messages.some(m => m.category === 'A' || m.isUrgent);
 
   return (
     <>
@@ -648,13 +756,13 @@ const AiChatAssistant = () => {
         <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 bg-white px-3.5 py-2 rounded-full shadow-lg border border-purple-200/60 text-xs font-semibold text-brand-primary animate-bounce">
             <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-            <span>Chat with AI Event Advisor</span>
+            <span>Chat with Kandhari Event Concierge</span>
           </div>
 
           <button
             onClick={() => setIsOpen(true)}
             className="w-14 h-14 rounded-full bg-gradient-to-tr from-brand-primary to-brand-purple text-white shadow-xl hover:shadow-2xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95 border-2 border-brand-gold/40 relative"
-            title="Open AI Event Assistant"
+            title="Open Kandhari Event Concierge"
           >
             <MessageSquare className="w-6 h-6" />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white" />
@@ -677,29 +785,29 @@ const AiChatAssistant = () => {
               </div>
               <div>
                 <h3 className="font-serif text-sm font-bold leading-tight">
-                  Kandhari AI Event Advisor
+                  Kandhari Event Concierge
                 </h3>
                 <div className="flex items-center gap-1.5 text-[11px] text-neutral-300">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Online • English & हिन्दी</span>
+                  <span>Dwaraka Shree Lawn & Kandhari Tent House</span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-1 text-neutral-300">
               <a
-                href="/contact"
+                href="tel:+919305465848"
                 className="p-1.5 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-amber-300"
-                title="Toll-Free Helpline (1800-890-3456)"
+                title="Direct Helpline (+91 9305465848)"
               >
                 <Phone className="w-4 h-4" />
               </a>
               <a
-                href="https://wa.me/??text=Namaste!%20I%20am%20chatting%20on%20your%20website%20and%20need%20assistance%20for%20my%20event."
+                href="https://wa.me/919305465848?text=Namaste!%20I%20am%20chatting%20with%20Kandhari%20Event%20Concierge%20and%20need%20assistance%20for%20my%20event."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-emerald-400"
-                title="Official WhatsApp Support"
+                title="Official WhatsApp Support (+91 9305465848)"
               >
                 <MessageSquare className="w-4 h-4" />
               </a>
@@ -730,6 +838,23 @@ const AiChatAssistant = () => {
           {!isMinimized && (
             <div className="flex-1 flex flex-col relative overflow-hidden">
               
+              {/* Category A Bereavement Priority Banner */}
+              {isCategoryAActive && (
+                <div className="bg-stone-100 border-b border-stone-300 px-3 py-2 flex items-center justify-between text-xs text-stone-800">
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <HeartHandshake className="w-4 h-4 text-stone-700 shrink-0" />
+                    <span>🕊️ Priority Condolence Desk • Direct Helpline:</span>
+                    <a href="tel:+919305465848" className="font-bold underline text-stone-900">+91 9305465848</a>
+                  </div>
+                  <a
+                    href="tel:+919305465848"
+                    className="px-2.5 py-1 bg-stone-900 text-white rounded-lg text-[10px] font-semibold hover:bg-black transition-colors shrink-0 ml-2"
+                  >
+                    Call Helpline
+                  </a>
+                </div>
+              )}
+
               {/* Pending Inquiry Resume Banner */}
               {hasPendingInquiry && !authModalOpen && !reviewModalOpen && (
                 <div className="bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-amber-500/10 border-b border-amber-200/80 px-4 py-2 flex items-center justify-between text-xs text-neutral-800">
@@ -905,18 +1030,49 @@ const AiChatAssistant = () => {
                         </div>
                       )}
 
-                      {/* Display Suggested Question Chips */}
-                      {msg.suggestedQuestions && msg.suggestedQuestions.length > 0 && (
+                      {/* Display Action Suggestions & Conversion Next Steps */}
+                      {((msg.actionSuggestions && msg.actionSuggestions.length > 0) || (msg.suggestedQuestions && msg.suggestedQuestions.length > 0)) && (
                         <div className="mt-2.5 flex flex-wrap gap-1.5">
-                          {msg.suggestedQuestions.map((sq, i) => (
-                            <button
-                              key={i}
-                              onClick={() => handleSend(sq)}
-                              className="text-[10px] px-2.5 py-1 rounded-full bg-purple-50 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple hover:text-white transition font-medium"
-                            >
-                              {sq}
-                            </button>
-                          ))}
+                          {(msg.actionSuggestions || msg.suggestedQuestions || []).map((actionText, i) => {
+                            const lowerAction = actionText.toLowerCase();
+                            const isCall = actionText.includes('9305465848') || lowerAction.includes('call') || lowerAction.includes('helpline');
+                            const isEnquiry = lowerAction.includes('send enquiry') || lowerAction.includes('submit enquiry');
+                            const isEdit = lowerAction.includes('edit details');
+                            const isCateringPage = lowerAction.includes('catering page');
+                            const isSiteVisit = lowerAction.includes('site visit');
+
+                            return (
+                              <button
+                                key={i}
+                                onClick={() => {
+                                  if (isCall) {
+                                    window.open('tel:+919305465848');
+                                  } else if (isEnquiry) {
+                                    handleInitiateSubmission();
+                                  } else if (isEdit) {
+                                    prepareReviewForm();
+                                    setReviewModalOpen(true);
+                                  } else if (isCateringPage) {
+                                    setIsOpen(false);
+                                    navigate('/catering');
+                                  } else {
+                                    handleSend(actionText);
+                                  }
+                                }}
+                                className={`text-[10px] px-2.5 py-1 rounded-full border transition font-medium flex items-center gap-1 ${
+                                  isCall
+                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-600 hover:text-white'
+                                    : isEnquiry
+                                    ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-brand-primary hover:text-white'
+                                    : 'bg-purple-50 text-brand-purple border-brand-purple/20 hover:bg-brand-purple hover:text-white'
+                                }`}
+                              >
+                                {isCall && <Phone className="w-2.5 h-2.5" />}
+                                {isSiteVisit && <MapPin className="w-2.5 h-2.5" />}
+                                <span>{actionText}</span>
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

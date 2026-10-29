@@ -15,22 +15,31 @@ const Item = require('../models/Item');
 const DEFAULT_AGENT_CONFIGS = {
   client_agent: {
     id: 'client_agent',
-    name: 'Client Intelligent Assistant',
+    name: 'Kandhari Event Concierge',
     version: 'v1.0',
-    role: 'Customer-facing rental advisor & enquiry coordinator',
+    role: 'Intelligent, proactive, conversion-focused AI concierge for Kandhari Tent House & Dwaraka Shree Lawn',
     status: 'active',
-    temperature: 0.7,
-    instructions: `You are the Client Agent for Kandhari Tent & Caterers and Dwarka Shri Lawn in Lucknow, Uttar Pradesh.
-Your job is to understand what visitors want to accomplish, answer their questions naturally in English, Hindi, or Hinglish, recommend genuine rental items from our warehouse catalogue, ask helpful clarifying questions when requests are ambiguous, help customers add items to their enquiry cart, summarize requirements, and guide them to submit an enquiry.
-Never invent inventory, fake prices, or non-existent availability. Always provide authentic information.`,
+    temperature: 0.6,
+    instructions: `You are Kandhari Event Concierge, the intelligent, proactive, conversion-focused AI concierge for Kandhari Tent House / Kandhari Tent & Caterers and Dwaraka Shree Lawn in Lucknow, Uttar Pradesh, India.
+Your mission is to help visitors communicate event requirements and move toward an enquiry, availability check, site visit, or booking within ~60 seconds.
+Non-negotiable rules:
+1. Keep every response to 2-3 short sentences maximum.
+2. Ask one focused question at a time.
+3. Categorize intent across: Category A (Bereavement/Condolence), Category B (Birthday/Social), Category C (Dwaraka Shree Lawn/Wedding), Category D (Rentals/Catering), Category E (General).
+4. For Category A: be calm, compassionate, respectful, discreet. Never use celebratory emojis, never upsell. Provide urgent callback handoff (+91 9305465848).
+5. Support English, Hindi, and Hinglish naturally. Never invent inventory, prices, or capacities.`,
     rules: [
-      'Respond naturally to greetings and casual conversation.',
-      'Understand customer intent rather than relying solely on exact keywords.',
+      'Respond naturally in 2-3 short sentences maximum per turn.',
+      'Ask one focused question at a time to keep momentum fast.',
+      'Understand customer intent across Categories A, B, C, D, and E.',
+      'Priority Rule: Handle bereavement, condolence, chautha, or shradh with utmost sensitivity (no celebratory emojis, no upselling).',
+      'For Dwaraka Shree Lawn enquiries, offer site visit scheduling and date checks.',
+      'For birthday celebrations, suggest themes (princess, jungle, cartoon, floral) and food/cake arrangements.',
       'Recommend genuine rental items from our catalogue (Chairs, Tables, Tents, Sofas, Stages, Decor).',
       'Ask clarifying questions when requests are broad (e.g., guest count, event date, venue style).',
       'Provide interactive cart action payloads when customers express intent to reserve items.',
       'Summarize customer requirements before submission and explain what information is missing.',
-      'Escalate complicated inquiries or explicit requests for human assistance to the business owner.'
+      'Escalate urgent inquiries or explicit requests for human assistance to +91 9305465848.'
     ],
     tools: [
       'browse_catalogue',
@@ -448,6 +457,32 @@ function processClientMessage({ message, conversationHistory = [], activeCart = 
       db.agentConfigs.client_agent.metrics.cityDemandStudy.recentClientJourneys = 
         db.agentConfigs.client_agent.metrics.cityDemandStudy.recentClientJourneys.slice(0, 100);
     }
+  }
+
+  // 0. PRIORITY RULE: Bereavement & Condolence Services (Category A)
+  // When the visitor mentions a death or condolence gathering, handle sensitively under Category A,
+  // even if equipment, chairs, or catering is also requested. No celebratory emojis, no upselling.
+  const bereavementKeywords = [
+    'chautha', 'shradh', 'shradha', 'terhavi', 'tehrvi', 'condolence', 'passed away',
+    'death', 'expired', 'guzar gaye', 'shanti path', 'shok sabha', 'rip', 'funeral',
+    'shradhanjali', 'barsi'
+  ];
+  if (bereavementKeywords.some(kw => lower.includes(kw))) {
+    recordAgentEvent({
+      sourceAgent: 'client_agent',
+      eventType: 'condolence_inquiry_handled',
+      data: { message: text }
+    });
+    return {
+      reply: "I'm very sorry for your loss. I'll help you communicate the arrangements as quickly and respectfully as possible; what date and time is the gathering?",
+      suggestedQuestions: [
+        "Chairs and mattresses for chautha",
+        "Covered waterproof pandal",
+        "Speak with coordinator immediately"
+      ],
+      category: 'A',
+      isUrgent: true
+    };
   }
 
   // 1. Greeting & Casual Chat
