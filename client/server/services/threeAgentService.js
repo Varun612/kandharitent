@@ -736,15 +736,61 @@ Please provide your event date and contact number so our team can verify stock a
     };
   }
 
+  // 7.5 Category B: Birthday & Celebrations
+  if (lower.includes('birthday') || lower.includes('bday') || lower.includes('janamdin') || lower.includes('anniversary')) {
+    return {
+      reply: "Let's plan your celebration! What date is the party, and approximately how many guests are you expecting?",
+      suggestedQuestions: [
+        "Princess Theme",
+        "Jungle Theme",
+        "Cartoon Theme",
+        "Check Availability"
+      ],
+      actionSuggestions: [
+        "Princess Theme",
+        "Jungle Theme",
+        "Cartoon Theme",
+        "Check Availability"
+      ],
+      category: 'B'
+    };
+  }
+
+  // 7.6 Category C: Dwaraka Shree Lawn & Weddings
+  if (lower.includes('lawn') || lower.includes('dwarka') || lower.includes('dwaraka') || lower.includes('venue') || lower.includes('shaadi') || lower.includes('reception')) {
+    return {
+      reply: "Welcome to Dwaraka Shree Lawn. What date are you considering, and approximately how many guests will attend?",
+      suggestedQuestions: [
+        "Check Date Availability",
+        "Arrange a Site Visit",
+        "Wedding & Reception Packages",
+        "Include Awadhi Catering"
+      ],
+      actionSuggestions: [
+        "Check Availability",
+        "Arrange a Site Visit",
+        "Send Enquiry"
+      ],
+      category: 'C'
+    };
+  }
+
   // 8. Default intelligent fallback grounded in business facts
   return {
-    reply: "Kandhari Tent & Caterers & Dwarka Shri Lawn are ready to assist with your wedding, reception, or family function in Lucknow. We provide chairs, luxury sofas, waterproof German hangars, shamianas, modular stages, floral decor, and full Awadhi catering.\n\nCould you please share your planned event date, approximate guest count, or the specific equipment you need?",
+    reply: "Welcome to Kandhari Event Concierge. What can I help you arrange today?",
     suggestedQuestions: [
-      "I need chairs for a wedding",
-      "Show waterproof German hangar tents",
-      "What are your catering rates?",
-      "Connect me to Mr. Kandhari"
-    ]
+      "🕊️ Condolence / Chautha",
+      "🎂 Birthday Celebration",
+      "🎪 Wedding / Lawn Booking",
+      "⛺ Tent / Equipment Rental"
+    ],
+    actionSuggestions: [
+      "Check Availability",
+      "Request a Quote",
+      "Arrange a Site Visit",
+      "Request a Callback"
+    ],
+    category: 'E'
   };
 }
 
