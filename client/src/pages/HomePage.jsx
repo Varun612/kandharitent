@@ -37,6 +37,8 @@ import FounderSection from '../components/FounderSection';
 import PhoneCallModal from '../components/PhoneCallModal';
 import TestimonialsSection from '../components/TestimonialsSection';
 import ThreeVenueExperience from '../components/ThreeVenueExperience';
+import ScrollReveal from '../components/common/ScrollReveal';
+import Tilt3DCard from '../components/common/Tilt3DCard';
 import SEO from '../components/SEO';
 
 const HomePage = () => {
@@ -196,12 +198,16 @@ const HomePage = () => {
       <EventDiscoveryMatrix onOpenEnquiryWithCategory={(cat) => openDrawer()} />
 
       {/* 1.25. FOUNDER & BRAND IDENTITY SECTION: SHRI MAHENDRA KANDHARI */}
-      <FounderSection onOpenDrawer={openDrawer} />
+      <ScrollReveal direction="up" delay={60}>
+        <FounderSection onOpenDrawer={openDrawer} />
+      </ScrollReveal>
 
       {/* 1.5. EDITORIAL EVENT GALLERY SHOWCASE */}
-      <EditorialEventGallery
-        onOpenEnquiryWithItem={(item) => addItem(item, 1)}
-      />
+      <ScrollReveal direction="up" delay={60}>
+        <EditorialEventGallery
+          onOpenEnquiryWithItem={(item) => addItem(item, 1)}
+        />
+      </ScrollReveal>
 
 
       {/* 2. EDITORIAL BRAND STORY: THE HERITAGE OF KANDHARI TENT */}
@@ -507,8 +513,9 @@ const HomePage = () => {
       </section>
 
       {/* 4.8 SIGNATURE PACKAGES WITH VERIFIED RATES */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-brand-cream/50 rounded-3xl p-8 sm:p-12 border border-brand-border/80 shadow-luxury space-y-10">
+      <ScrollReveal direction="up" delay={50}>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-brand-cream/50 rounded-3xl p-8 sm:p-12 border border-brand-border/80 shadow-luxury space-y-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-brand-border/80 pb-6">
             <div className="max-w-2xl space-y-2">
               <div className="flex items-center gap-2">
@@ -801,6 +808,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 5. CELEBRATION SHOWCASE & RENTAL CATEGORIES */}
       <section id="celebrations" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -10,10 +10,11 @@ import {
   ShieldCheck, 
   MapPin,
   Award,
-  Film,
   Camera,
   ArrowRight,
-  Compass
+  Compass,
+  Play,
+  Pause
 } from 'lucide-react';
 
 export const HERO_SETUPS = [
@@ -67,57 +68,24 @@ export const HERO_SETUPS = [
 const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
   const [activeSetupIndex, setActiveSetupIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isVideoMode, setIsVideoMode] = useState(true);
-  const [activeVideoSrc, setActiveVideoSrc] = useState('/media/lawn/DwarakaShreevideo.mp4');
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
+  // Auto-advance setup spotlight every 5.5 seconds
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    if (mediaQuery.matches) {
-      setIsVideoMode(false);
-    }
-    const handler = (e) => {
-      setPrefersReducedMotion(e.matches);
-      if (e.matches) setIsVideoMode(false);
-    };
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-
-  // Auto-advance setup spotlight every 6 seconds if user hasn't interacted and video is off
-  useEffect(() => {
-    if (!isAutoPlaying || isVideoMode) return;
+    if (!isAutoPlaying) return;
     const interval = setInterval(() => {
       setActiveSetupIndex((prev) => (prev + 1) % HERO_SETUPS.length);
-    }, 6000);
+    }, 5500);
     return () => clearInterval(interval);
-  }, [isAutoPlaying, isVideoMode]);
+  }, [isAutoPlaying]);
 
   const currentSetup = HERO_SETUPS[activeSetupIndex];
 
   return (
     <section className="relative w-full min-h-[620px] sm:min-h-[720px] lg:min-h-[780px] bg-[#090312] flex flex-col justify-between overflow-hidden">
       
-      {/* Background Photography & Video Layers */}
+      {/* Background Scenic Real-Photography Layer (No Video in Background) */}
       <div className="absolute inset-0 z-0">
-        {/* Cinematic Scenic Video Layer */}
-        {isVideoMode && !prefersReducedMotion && (
-          <video
-            key={activeVideoSrc}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000"
-            poster={currentSetup.image}
-          >
-            <source src={activeVideoSrc} type="video/mp4" />
-          </video>
-        )}
-
-        {/* Photography Slideshow (Active when isVideoMode is false or user prefers reduced motion) */}
-        {(!isVideoMode || prefersReducedMotion) && HERO_SETUPS.map((setup, index) => (
+        {HERO_SETUPS.map((setup, index) => (
           <div
             key={setup.id}
             className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
@@ -133,9 +101,18 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
           </div>
         ))}
 
-        {/* High-Contrast Obsidian & Royal Gold Framing Vignette (No Cloudy Glass) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#090312] via-black/40 to-black/50 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#090312]/90 via-[#090312]/50 to-transparent pointer-events-none" />
+        {/* Floating Celebration Particles (Pure CSS Hardware-Accelerated) */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="scenic-particle" style={{ top: '65%', left: '15%', animationDelay: '0s' }} />
+          <div className="scenic-particle" style={{ top: '45%', left: '35%', animationDelay: '1.2s' }} />
+          <div className="scenic-particle" style={{ top: '75%', left: '55%', animationDelay: '2.5s' }} />
+          <div className="scenic-particle" style={{ top: '55%', left: '75%', animationDelay: '3.8s' }} />
+          <div className="scenic-particle" style={{ top: '80%', left: '88%', animationDelay: '0.8s' }} />
+        </div>
+
+        {/* High-Contrast Obsidian & Royal Gold Framing Vignette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#090312] via-black/45 to-black/55 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#090312]/95 via-[#090312]/60 to-transparent pointer-events-none" />
       </div>
 
       {/* Top Brand Banner & Founder Heritage Badge */}
@@ -160,50 +137,19 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
               <span>Kanpur Road, Opp. Pillar No. 37</span>
             </span>
 
-            {/* Scenic Video & Photo Tour Toggles */}
-            <div className="flex items-center gap-1.5 bg-black/70 p-1 rounded-xl border border-amber-400/30">
+            {/* Scenic Setup Navigation Controls */}
+            <div className="flex items-center gap-1.5 bg-black/75 px-3 py-1.5 rounded-xl border border-amber-400/30">
+              <Camera className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-neutral-200 font-serif font-bold text-xs">
+                Setup {activeSetupIndex + 1} of {HERO_SETUPS.length}
+              </span>
               <button
                 type="button"
-                onClick={() => {
-                  setIsVideoMode(true);
-                  setActiveVideoSrc('/media/lawn/DwarakaShreevideo.mp4');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
-                  isVideoMode && activeVideoSrc.includes('DwarakaShree')
-                    ? 'bg-amber-500 text-black shadow-sm'
-                    : 'text-neutral-300 hover:text-white'
-                }`}
+                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                className="ml-2 text-neutral-400 hover:text-white transition p-0.5"
+                title={isAutoPlaying ? 'Pause Slideshow' : 'Resume Slideshow'}
               >
-                <Film className="w-3 h-3" />
-                <span>Drone View</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setIsVideoMode(true);
-                  setActiveVideoSrc('/media/lawn/reels/01_Grand_Entrance.mp4');
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
-                  isVideoMode && activeVideoSrc.includes('Entrance')
-                    ? 'bg-amber-500 text-black shadow-sm'
-                    : 'text-neutral-300 hover:text-white'
-                }`}
-              >
-                <span>Grand Gate</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsVideoMode(false)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 ${
-                  !isVideoMode
-                    ? 'bg-amber-500 text-black shadow-sm'
-                    : 'text-neutral-300 hover:text-white'
-                }`}
-              >
-                <Camera className="w-3 h-3" />
-                <span>Photos</span>
+                {isAutoPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 text-amber-400" />}
               </button>
             </div>
           </div>
@@ -211,28 +157,29 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
         </div>
       </div>
 
-      {/* Main Editorial Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 w-full flex-1 flex flex-col justify-center">
-        <div className="max-w-2xl lg:max-w-3xl space-y-4 sm:space-y-5 animate-fade-in bg-[#0e061c]/95 p-6 sm:p-9 rounded-3xl border-2 border-amber-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
+      {/* Center Hero Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 w-full flex-1 flex flex-col justify-center">
+        <div className="max-w-3xl space-y-4 sm:space-y-6">
           
           {/* Active Setup Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold uppercase tracking-widest shadow-md">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-200 text-xs font-semibold tracking-wide uppercase shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>{currentSetup.tag}</span>
-            <span className="text-amber-400">&bull;</span>
-            <span className="text-neutral-200 text-[11px] font-medium">{currentSetup.locality}</span>
+            <span className="text-neutral-500">&bull;</span>
+            <span className="text-neutral-300 capitalize">{currentSetup.locality}</span>
           </div>
 
-          {/* Majestic Heading */}
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-black tracking-tight text-white leading-[1.2] drop-shadow-xl">
+          {/* Main Headline */}
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-white tracking-tight leading-[1.15] drop-shadow-md">
             {currentSetup.title}
           </h1>
 
-          {/* Subtitle / Description */}
-          <p className="text-xs sm:text-sm lg:text-base text-neutral-100 leading-relaxed max-w-2xl font-medium drop-shadow-md">
+          {/* Subtitle Description */}
+          <p className="text-sm sm:text-base lg:text-lg text-neutral-200/90 font-normal leading-relaxed max-w-2xl drop-shadow-sm">
             {currentSetup.subtitle}
           </p>
 
-          {/* Primary Action Buttons (Phase 3 Requirement) */}
+          {/* Primary Action Buttons */}
           <div className="flex flex-wrap items-center gap-3 pt-3">
             <button
               onClick={onOpenDrawer}
@@ -317,7 +264,7 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
                   setActiveSetupIndex(idx);
                   setIsAutoPlaying(false);
                 }}
-                className={`group px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 ${
+                className={`group px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                   idx === activeSetupIndex
                     ? 'bg-brand-gold text-brand-dark font-bold shadow-md scale-102'
                     : 'bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10'
@@ -329,8 +276,9 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
             ))}
           </div>
 
-          <div className="text-[10px] text-neutral-400 font-medium hidden lg:block">
-            {currentSetup.capacity}
+          <div className="text-[11px] text-neutral-400 hidden lg:flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Capacity: {currentSetup.capacity}</span>
           </div>
 
         </div>

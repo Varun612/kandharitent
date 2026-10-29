@@ -18,6 +18,7 @@ import { useEnquiry } from '../context/EnquiryContext';
 import { useAuth } from '../context/AuthContext';
 import PhoneCallModal from './PhoneCallModal';
 import TrackOrderModal from './TrackOrderModal';
+import ThemeSwitcher from './ThemeSwitcher';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -125,6 +126,11 @@ const Navbar = () => {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ring-2 ring-neutral-900" title={`${unreadNotifsCount} new updates`} />
               )}
             </Link>
+
+            {/* Palace Atmosphere Color Theme Switcher */}
+            <div className="ml-2">
+              <ThemeSwitcher />
+            </div>
           </div>
         </div>
       </div>
@@ -365,6 +371,11 @@ const Navbar = () => {
             </Link>
 
             <div className="pt-4 border-t border-neutral-100 flex flex-col gap-2">
+              <div className="flex items-center justify-between px-2 py-1.5 rounded-xl bg-neutral-100/80 mb-1">
+                <span className="text-xs font-semibold text-neutral-600">Palace Theme:</span>
+                <ThemeSwitcher />
+              </div>
+
               <Link
                 to="/lawn"
                 onClick={() => setMobileMenuOpen(false)}

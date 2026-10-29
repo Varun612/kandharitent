@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { EnquiryProvider } from './context/EnquiryContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Components
 import Navbar from './components/Navbar';
@@ -48,62 +49,64 @@ const ScrollToTop = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <EnquiryProvider>
-        <Router>
-          <ScrollToTop />
-          <div className="min-h-screen flex flex-col bg-brand-cream text-neutral-800 font-sans">
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/catalogue" element={<CataloguePage />} />
-                <Route path="/lawn" element={<LawnPage />} />
-                <Route path="/catering" element={<CateringPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/tools" element={<ToolsPage />} />
-                <Route path="/tools/creative-director" element={<AiCreativeDirectorPage />} />
-                <Route path="/gallery" element={<GalleryPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                <Route path="/track" element={<OrderTrackingPage />} />
-                <Route path="/track/:orderId" element={<OrderTrackingPage />} />
-                
-                {/* Customer Account & Portal Routes */}
-                <Route path="/account/login" element={<CustomerAuthPage />} />
-                <Route 
-                  path="/account" 
-                  element={
-                    <ProtectedRoute role="customer">
-                      <CustomerPortalPage />
-                    </ProtectedRoute>
-                  } 
-                />
+    <ThemeProvider>
+      <AuthProvider>
+        <EnquiryProvider>
+          <Router>
+            <ScrollToTop />
+            <div className="min-h-screen flex flex-col bg-[#0A0314] text-neutral-100 font-sans transition-colors duration-500">
+              <Navbar />
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/catalogue" element={<CataloguePage />} />
+                  <Route path="/lawn" element={<LawnPage />} />
+                  <Route path="/catering" element={<CateringPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/tools" element={<ToolsPage />} />
+                  <Route path="/tools/creative-director" element={<AiCreativeDirectorPage />} />
+                  <Route path="/gallery" element={<GalleryPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/track" element={<OrderTrackingPage />} />
+                  <Route path="/track/:orderId" element={<OrderTrackingPage />} />
+                  
+                  {/* Customer Account & Portal Routes */}
+                  <Route path="/account/login" element={<CustomerAuthPage />} />
+                  <Route 
+                    path="/account" 
+                    element={
+                      <ProtectedRoute role="customer">
+                        <CustomerPortalPage />
+                      </ProtectedRoute>
+                    } 
+                  />
 
-                {/* Admin Management Routes */}
-                <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route 
-                  path="/admin/dashboard" 
-                  element={
-                    <ProtectedRoute role="admin">
-                      <AdminDashboardPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                <Route path="*" element={<HomePage />} />
-              </Routes>
-            </main>
-            <Footer />
-            <EnquiryDrawer />
-            <AiChatAssistant />
-            <AuthModal />
-          </div>
-        </Router>
-      </EnquiryProvider>
-    </AuthProvider>
+                  {/* Admin Management Routes */}
+                  <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                  <Route path="/admin/login" element={<AdminLoginPage />} />
+                  <Route 
+                    path="/admin/dashboard" 
+                    element={
+                      <ProtectedRoute role="admin">
+                        <AdminDashboardPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
+                  <Route path="*" element={<HomePage />} />
+                </Routes>
+              </main>
+              <Footer />
+              <EnquiryDrawer />
+              <AiChatAssistant />
+              <AuthModal />
+            </div>
+          </Router>
+        </EnquiryProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

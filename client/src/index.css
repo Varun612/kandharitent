@@ -200,3 +200,95 @@
   background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(223, 190, 124, 0.3) 50%, rgba(255,255,255,0) 100%);
   animation: shimmer 2.8s infinite;
 }
+
+/* ========================================================================= */
+/* Scroll-Reveal Animation Engine */
+/* ========================================================================= */
+.scroll-reveal {
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-duration: 0.75s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translate(0, 0) scale(1) !important;
+}
+
+/* ========================================================================= */
+/* Luxury Color Theme System (Obsidian, Imperial Ivory, Emerald Palace) */
+/* ========================================================================= */
+:root, [data-theme="royal-obsidian"] {
+  --theme-bg-base: #0B0414;
+  --theme-card-bg: radial-gradient(circle at 50% 0%, #1e0d36 0%, #0d041a 100%);
+  --theme-border: rgba(212, 175, 55, 0.28);
+  --theme-text-primary: #FAF7F2;
+  --theme-accent: #C5A059;
+}
+
+[data-theme="imperial-ivory"] {
+  --theme-bg-base: #FAF7F2;
+  --theme-card-bg: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #F5EFE6 100%);
+  --theme-border: rgba(180, 130, 40, 0.35);
+  --theme-text-primary: #1C120C;
+  --theme-accent: #8C1D40;
+}
+
+[data-theme="imperial-ivory"] .cinematic-card {
+  background: radial-gradient(circle at 50% 0%, #FFFFFF 0%, #F6EFE5 100%) !important;
+  border-color: rgba(180, 130, 40, 0.35) !important;
+  box-shadow: 0 15px 35px -5px rgba(60, 40, 20, 0.12), 0 0 1px 1px rgba(180, 130, 40, 0.18) !important;
+}
+
+[data-theme="imperial-ivory"] .cinematic-card h3 {
+  color: #1C120C !important;
+}
+
+[data-theme="imperial-ivory"] .cinematic-card p {
+  color: #5C4A3E !important;
+}
+
+[data-theme="emerald-palace"] {
+  --theme-bg-base: #041611;
+  --theme-card-bg: radial-gradient(circle at 50% 0%, #0D3328 0%, #051A14 100%);
+  --theme-border: rgba(212, 175, 55, 0.4);
+  --theme-text-primary: #F5FAF7;
+  --theme-accent: #D4AF37;
+}
+
+[data-theme="emerald-palace"] .cinematic-card {
+  background: radial-gradient(circle at 50% 0%, #0E352A 0%, #051A14 100%) !important;
+  border-color: rgba(212, 175, 55, 0.45) !important;
+  box-shadow: 0 15px 35px -5px rgba(0, 25, 18, 0.7), 0 0 15px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Scenic Hero Golden Float Particles */
+@keyframes float-mote {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  70% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-90px) translateX(25px);
+    opacity: 0;
+  }
+}
+
+.scenic-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #F5E6CA 0%, #C5A059 80%, transparent 100%);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: float-mote 6s infinite ease-in-out;
+}
+

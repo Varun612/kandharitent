@@ -4,6 +4,7 @@ import { Plus, Eye, CheckCircle2, AlertTriangle, XCircle, Sparkles, Lock, Users 
 import { useEnquiry } from '../context/EnquiryContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import Tilt3DCard from './common/Tilt3DCard';
 
 const ItemCard = ({ item, onSelectDetail }) => {
   const { addItem } = useEnquiry();
@@ -106,10 +107,11 @@ const ItemCard = ({ item, onSelectDetail }) => {
   const specMaterial = nameLow.includes('pvc') ? 'Virgin High-Density PVC' : nameLow.includes('velvet') ? 'Plush Velvet & Steel' : nameLow.includes('tent') ? 'Weatherproof German Fabric' : 'Commercial Event Grade';
 
   return (
-    <div 
-      ref={cardRef}
-      className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm hover:shadow-royal transition-all duration-300 flex flex-col justify-between h-full"
-    >
+    <Tilt3DCard maxTilt={5} scale={1.018} glareIntensity={0.16} className="h-full rounded-2xl">
+      <div 
+        ref={cardRef}
+        className="group bg-white rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm hover:shadow-royal transition-all duration-300 flex flex-col justify-between h-full"
+      >
       {/* Image & Badges */}
       <div className="relative aspect-4/3 overflow-hidden bg-neutral-100">
         <img
@@ -236,7 +238,8 @@ const ItemCard = ({ item, onSelectDetail }) => {
         </div>
       </div>
     </div>
-  );
+  </Tilt3DCard>
+);
 };
 
 export default ItemCard;
