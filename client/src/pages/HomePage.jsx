@@ -36,6 +36,7 @@ import EditorialEventGallery from '../components/EditorialEventGallery';
 import FounderSection from '../components/FounderSection';
 import PhoneCallModal from '../components/PhoneCallModal';
 import TestimonialsSection from '../components/TestimonialsSection';
+import ThreeVenueExperience from '../components/ThreeVenueExperience';
 import SEO from '../components/SEO';
 
 const HomePage = () => {
@@ -367,6 +368,9 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* 3.5. 3D INTERACTIVE TWILIGHT VENUE SIMULATION */}
+      <ThreeVenueExperience onOpenEnquiry={openDrawer} />
 
       {/* 4. REAL VIDEO WALKTHROUGH REEL */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

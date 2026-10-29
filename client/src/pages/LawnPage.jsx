@@ -33,6 +33,7 @@ import {
 import { api } from '../services/api';
 import { FALLBACK_VENUE } from '../data/seedItems';
 import { useEnquiry } from '../context/EnquiryContext';
+import ThreeVenueExperience from '../components/ThreeVenueExperience';
 import SEO from '../components/SEO';
 
 const LawnPage = () => {
@@ -438,6 +439,9 @@ const LawnPage = () => {
           </div>
         </div>
       </section>
+
+      {/* 1.5. REAL-TIME 3D SPATIAL VENUE WALKTHROUGH */}
+      <ThreeVenueExperience onOpenEnquiry={openDrawer} />
 
       {/* ========================================================================= */}
       {/* 2. PROMOTIONAL REELS GALLERY (6-7 FINISHED MP4 VIDEOS) */}

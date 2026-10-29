@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   HeartHandshake, 
   Sparkles, 
@@ -13,6 +13,70 @@ import {
   ShieldCheck,
   CheckCircle2
 } from 'lucide-react';
+
+/**
+ * 3D Interactive Perspective Tilt Card with Dynamic Specular Glare
+ * Implements modern spatial UI/UX principles (Awwwards / Apple / Stripe style)
+ */
+const Tilt3DCard = ({ children, className = '', isPriority = false }) => {
+  const cardRef = useRef(null);
+  const [tiltStyle, setTiltStyle] = useState({});
+  const [glareStyle, setGlareStyle] = useState({ opacity: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // Calculate rotation (-6 to +6 degrees)
+    const rotateX = ((y - centerY) / centerY) * -6.5;
+    const rotateY = ((x - centerX) / centerX) * 6.5;
+
+    setTiltStyle({
+      transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`,
+      transition: 'transform 0.08s ease-out',
+      transformStyle: 'preserve-3d',
+    });
+
+    setGlareStyle({
+      opacity: isPriority ? 0.08 : 0.22,
+      background: `radial-gradient(circle at ${x}px ${y}px, rgba(212, 175, 55, 0.45) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(0, 0, 0, 0) 70%)`,
+      transition: 'opacity 0.15s ease-out',
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTiltStyle({
+      transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
+      transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
+      transformStyle: 'preserve-3d',
+    });
+    setGlareStyle({
+      opacity: 0,
+      transition: 'opacity 0.35s ease-out',
+    });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={tiltStyle}
+      className={`relative overflow-hidden ${className}`}
+    >
+      {children}
+      {/* Dynamic Specular Glare Overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200"
+        style={glareStyle}
+      />
+    </div>
+  );
+};
 
 export const DISCOVERY_CATEGORIES = [
   {
@@ -70,51 +134,51 @@ export const DISCOVERY_CATEGORIES = [
     eventType: 'Dwaraka Shree Lawn',
     tag: 'Associated Luxury Venue',
     title: 'Dwaraka Shree Lawn, Kanpur Road',
-    tagline: 'Spacious natural grounds managed by Kandhari Tent & Caterers',
-    desc: 'Accommodates 800–1,000+ guests opposite Pillar No. 37, Daroga Kheda. Features AC bridal suites, covered dining pavilion, and dedicated guest parking.',
+    tagline: 'Spacious celebration grounds for up to 1,200 guests',
+    desc: 'Lush open-air manicured grounds opposite Pillar No. 37, Daroga Kheda. Dedicated bride/groom suites, paved food court, and ample parking.',
     image: '/media/lawns/lawn-main.jpg',
-    badge: '📍 Opp. Pillar 37, Daroga Kheda',
+    badge: '🏰 25,000+ Sq.Ft Lawn & Hall',
     badgeColor: 'bg-emerald-950/80 text-emerald-200 border-emerald-500/40',
-    primaryAction: 'Check Date Availability',
-    initialMessage: 'What is the date availability and booking procedure for Dwaraka Shree Lawn?',
+    primaryAction: 'Check Lawn Dates',
+    initialMessage: 'I want to check date availability and booking rates for Dwaraka Shree Lawn.',
     isPriority: false,
-    highlights: ['800–1,000 guest capacity', 'Private AC dressing suites', 'Heavy silent generator backup']
+    highlights: ['Capacity for 1,200+ guests', 'Covered dining hall + lawn', 'Bridal dressing rooms included']
   },
   {
     id: 'rentals',
     categoryKey: 'D',
-    eventType: 'Tent / Equipment Rental',
-    tag: 'In-House Warehouse Inventory',
-    title: 'Waterproof German Hangars & Equipment',
-    tagline: 'Direct warehouse rates with zero middleman markup',
-    desc: 'Engineered all-weather German hangars, VIP Maharaja sofas, 10,000+ commercial PVC chairs (₹20/pc), outdoor jumbo coolers, and heavy staging.',
-    image: '/media/rich-decor/decor-1.jpg',
-    badge: '⛺ DRDO Approved Vendor',
+    eventType: 'Equipment Rental',
+    tag: 'Direct Warehouse Inventory',
+    title: 'Tent, Furniture & Sound Rentals',
+    tagline: 'Transparent catalog pricing with verified live stock',
+    desc: 'Banquet chairs, VIP sofas, round dining tables, sound setups, mist fans, and Haldi/Mehendi props available with prompt Kanpur Road dispatch.',
+    image: '/media/tent/tent-1.jpg',
+    badge: '⛺ 31+ Items in Live Stock',
     badgeColor: 'bg-blue-950/80 text-blue-200 border-blue-500/40',
-    primaryAction: 'Browse Equipment & Rates',
-    initialMessage: 'I need rental equipment rates for chairs, sofas, and German hangar tents.',
+    primaryAction: 'Browse Rental Catalog',
+    initialMessage: 'I need to rent chairs, tables, and tent equipment for an upcoming gathering.',
     isPriority: false,
-    highlights: ['Waterproof German hangars', 'White PVC chairs @ ₹20/pc', 'Outdoor mist fans & coolers']
+    highlights: ['Verified commercial stock', 'Dispatched from Daroga Kheda', 'Flexible daily hire rates']
   },
   {
     id: 'catering',
     categoryKey: 'D',
-    eventType: 'Catering',
-    tag: 'Royal Awadhi Cuisine',
-    title: 'Awadhi Banqueting & Live Chaat Counters',
-    tagline: '100% Pure Vegetarian 17-course wedding feast',
-    desc: 'Authentic Lucknowi live counters: Matar Ki Chaat, Paneer Tikka Angara, Dal Bukhara, Kesaria Jalebi with Rabri, and Dum Biryani. Verified rates: ₹650 / ₹750.',
-    image: '/media/catering/catering-1.jpg',
-    badge: '🍲 17 Printed Courses • ₹650 / ₹750',
-    badgeColor: 'bg-red-950/80 text-red-200 border-red-500/40',
-    primaryAction: 'Design Catering Menu',
-    initialMessage: 'Please share your royal catering menu packages and per-plate pricing.',
+    eventType: 'Catering Enquiry',
+    tag: 'Authentic Awadhi Kitchen',
+    title: 'Royal Awadhi & Pure Veg Catering',
+    tagline: 'Live tawa chaat, Shahi Paneer, and hot Imarti Rabri',
+    desc: 'Custom pure vegetarian event menus prepared with authentic Awadhi dum pukht methods. Live counters, uniformed service staff, and cutlery included.',
+    image: '/media/food/dal-makhani.jpg',
+    badge: '🍽️ 125 Dishes • 8 Packages',
+    badgeColor: 'bg-amber-900/80 text-amber-200 border-amber-500/40',
+    primaryAction: 'View Catering Packages',
+    initialMessage: 'Namaste, please share your catering menu and per-plate packages.',
     isPriority: false,
-    highlights: ['Live Awadhi chaat & tandoor', 'Illuminated laser-cut buffet lines', 'Bone china crockery & table service']
+    highlights: ['100% Pure vegetarian kitchen', 'Live Chaat & Dosa stalls', 'Customizable tasting menus']
   }
 ];
 
-const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
+export const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
   const [activeTab, setActiveTab] = useState('all');
 
   const handleCardClick = (item) => {
@@ -143,13 +207,13 @@ const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
         <div className="space-y-3 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-amber-500/10 text-amber-400 border border-amber-500/30">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Interactive Event Discovery</span>
+            <span>Interactive 3D Event Discovery</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-black text-white leading-tight">
             What Are You Planning Today?
           </h2>
           <p className="text-sm text-neutral-300 leading-relaxed">
-            Select your event type to launch an instant, tailored coordination session with the <strong>Kandhari Event Concierge</strong>. No repetitive forms—your choice is preserved instantly.
+            Select your event type to launch an instant, tailored coordination session with the <strong>Kandhari Event Concierge</strong>. Move cursor over any card to experience interactive 3D spatial depth.
           </p>
         </div>
 
@@ -173,7 +237,7 @@ const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
                 : 'text-neutral-300 hover:text-white'
             }`}
           >
-            🕊️ Condolence (Priority)
+            🕊️ Bereavement Desk
           </button>
           <button
             onClick={() => setActiveTab('B')}
@@ -208,12 +272,13 @@ const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
         </div>
       </div>
 
-      {/* Grid of 6 Luxury Event Discovery Cards */}
+      {/* Grid of 6 Luxury Event Discovery Cards with 3D Spatial Tilt */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
         {filteredCategories.map((item) => (
-          <div
+          <Tilt3DCard
             key={item.id}
-            className={`cinematic-card rounded-3xl overflow-hidden flex flex-col justify-between group transition-all duration-500 relative ${
+            isPriority={item.isPriority}
+            className={`cinematic-card rounded-3xl overflow-hidden flex flex-col justify-between group ${
               item.isPriority 
                 ? 'border-stone-500/60 bg-gradient-to-b from-[#181318] to-[#0c0a0c]' 
                 : 'border-amber-500/30'
@@ -233,7 +298,7 @@ const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0e041a] via-black/40 to-transparent" />
               
               {/* Top Badge */}
-              <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2">
+              <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold border backdrop-blur-md shadow-md ${item.badgeColor}`}>
                   {item.badge}
                 </span>
@@ -245,7 +310,7 @@ const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
               </div>
 
               {/* Tag Over Image */}
-              <div className="absolute bottom-3 left-4">
+              <div className="absolute bottom-3 left-4 z-10">
                 <span className="text-[11px] font-serif font-bold text-amber-300 tracking-wide uppercase">
                   {item.tag}
                 </span>
@@ -311,7 +376,7 @@ const EventDiscoveryMatrix = ({ onOpenEnquiryWithCategory }) => {
                 )}
               </div>
             </div>
-          </div>
+          </Tilt3DCard>
         ))}
       </div>
     </section>
