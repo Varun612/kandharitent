@@ -8,7 +8,7 @@ import {
   CheckCircle, ArrowRight, Image as ImageIcon, MapPin, 
   Calendar, Phone, ExternalLink, ChevronDown, Minimize2, Maximize2,
   Lock, Mail, User, ShieldCheck, Edit3, AlertCircle, ShoppingBag, Plus,
-  Mic, MicOff, HeartHandshake
+  Mic, MicOff, HeartHandshake, Volume2, VolumeX, Square, RotateCcw, AudioLines
 } from 'lucide-react';
 
 // Extract phone and details from text
@@ -247,15 +247,132 @@ const AiChatAssistant = () => {
     scrollToBottom();
   }, [messages, loading]);
 
-  // Listen for custom event to open chat with specific conversation or service intent
+  // Voice Concierge Engine State (Speech-to-Text & Text-to-Speech)
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceState, setVoiceState] = useState('idle'); // 'idle' | 'listening' | 'thinking' | 'speaking' | 'error'
+  const [currentlySpeakingId, setCurrentlySpeakingId] = useState(null);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [voiceError, setVoiceError] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  // Stop ongoing speech synthesis immediately
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+    setCurrentlySpeakingId(null);
+    if (voiceState === 'speaking') {
+      setVoiceState('idle');
+    }
+  };
+
+  // Speak assistant response aloud with fluent Indian English / Hindi voice
+  const speakResponse = (text, messageId = null) => {
+    if (isAudioMuted || typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    try {
+      window.speechSynthesis.cancel();
+
+      // Clean text for speech: remove markdown symbols, bullets, bracketed links, emojis
+      const cleanText = (text || '')
+        .replace(/[*#_~`>]/g, '')
+        .replace(/https?:\/\/\S+/g, '')
+        .replace(/[🕊️🎂🎪⛺📋✨👑📍📞💡⭐]/g, '')
+        .replace(/₹(\d+)/g, 'Rupees $1')
+        .replace(/\b([6-9]\d{9})\b/g, (num) => num.split('').join(' '))
+        .trim();
+
+      if (!cleanText) return;
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+
+      // Select natural voice (prefers Indian English, Hindi, or pleasant female/male voice)
+      const voices = window.speechSynthesis.getVoices() || [];
+      const preferredVoice = voices.find(v => 
+        v.lang === 'hi-IN' || 
+        v.lang === 'en-IN' || 
+        v.name.toLowerCase().includes('india') || 
+        v.name.toLowerCase().includes('hindi') ||
+        v.name.toLowerCase().includes('swara') ||
+        v.name.toLowerCase().includes('heera')
+      ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      utterance.rate = 0.95; // Warm, dignified cadence
+      utterance.pitch = 1.0;
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        setCurrentlySpeakingId(messageId);
+        setVoiceState('speaking');
+      };
+
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setCurrentlySpeakingId(null);
+        setVoiceState('idle');
+      };
+
+      utterance.onerror = (e) => {
+        console.warn('Speech synthesis event notice:', e);
+        setIsSpeaking(false);
+        setCurrentlySpeakingId(null);
+        setVoiceState('idle');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.warn('Speech synthesis could not speak:', err);
+      setIsSpeaking(false);
+      setCurrentlySpeakingId(null);
+      setVoiceState('idle');
+    }
+  };
+
+  // Cleanup speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+    };
+  }, []);
+
+  // Listen for custom event to open chat with specific conversation, category, or service intent
   useEffect(() => {
     const handleOpenChat = (event) => {
       setIsOpen(true);
       setIsMinimized(false);
+
+      if (event.detail?.eventType) {
+        setConversation(prev => ({
+          ...prev,
+          collectedState: {
+            ...(prev?.collectedState || {}),
+            eventType: event.detail.eventType
+          }
+        }));
+      }
+
       if (event.detail?.conversationId) {
         loadConversation(event.detail.conversationId);
       } else if (event.detail?.initialMessage) {
         initAndSendMessage(event.detail.initialMessage);
+      }
+
+      if (event.detail?.mode === 'voice') {
+        setTimeout(() => {
+          toggleListening();
+        }, 400);
       }
     };
 
@@ -263,52 +380,79 @@ const AiChatAssistant = () => {
     return () => window.removeEventListener('open-ai-chat', handleOpenChat);
   }, []);
 
-  // Voice Dictation (Web Speech API)
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef(null);
-
+  // Voice Dictation (Web Speech API with live transcript and error handling)
   const toggleListening = () => {
+    stopSpeaking(); // Interrupt ongoing assistant speech
+    setVoiceError('');
+
     if (isListening) {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try { recognitionRef.current.stop(); } catch (e) {}
       }
       setIsListening(false);
+      setVoiceState('idle');
       return;
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Voice input is not supported in this browser. Please type your query directly.");
+      setVoiceError("Voice recognition is not supported in this browser. Please type your query.");
       return;
     }
 
     try {
       const recognition = new SpeechRecognition();
       recognition.lang = 'hi-IN';
-      recognition.interimResults = false;
+      recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
         setIsListening(true);
+        setVoiceState('listening');
+        setLiveTranscript('');
       };
 
       recognition.onresult = (event) => {
-        const spoken = event.results[0][0].transcript;
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript;
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+        const spoken = final || interim;
         if (spoken) {
+          setLiveTranscript(spoken);
           setInputText(spoken);
+        }
+        if (final) {
+          setIsListening(false);
+          setVoiceState('thinking');
           setTimeout(() => {
-            handleSend(spoken);
-          }, 350);
+            handleSend(final);
+            setLiveTranscript('');
+          }, 250);
         }
       };
 
       recognition.onerror = (event) => {
         console.warn('Speech recognition notice:', event.error);
         setIsListening(false);
+        setVoiceState('idle');
+        if (event.error === 'not-allowed') {
+          setVoiceError('Microphone permission was denied. Please allow microphone access.');
+        } else if (event.error === 'no-speech') {
+          setVoiceError('No speech was detected. Please tap the mic and speak again.');
+        }
       };
 
       recognition.onend = () => {
         setIsListening(false);
+        if (voiceState === 'listening') {
+          setVoiceState('idle');
+        }
       };
 
       recognitionRef.current = recognition;
@@ -316,6 +460,8 @@ const AiChatAssistant = () => {
     } catch (e) {
       console.warn('Could not start speech recognition:', e);
       setIsListening(false);
+      setVoiceState('idle');
+      setVoiceError('Unable to activate microphone. Please type your request.');
     }
   };
 
@@ -413,9 +559,46 @@ const AiChatAssistant = () => {
     }
   }, [isOpen]);
 
+// Contextual Visual Enrichment based on event intent (Phase 6)
+const getContextualVisuals = (userText = '', replyText = '') => {
+  const combined = (userText + ' ' + replyText).toLowerCase();
+  
+  if (combined.includes('lawn') || combined.includes('dwarka') || combined.includes('dwaraka') || combined.includes('venue')) {
+    return [
+      { id: 'v-lawn-1', imageUrl: '/media/lawns/lawn-main.jpg', title: 'Dwarka Shri Lawn Grounds (800–1000 Pax)' },
+      { id: 'v-lawn-2', imageUrl: '/media/weddings/wedding-1.jpg', title: 'Grand Wedding & Hangar Layout' }
+    ];
+  }
+  if (combined.includes('mandap') || combined.includes('stage') || combined.includes('phera')) {
+    return [
+      { id: 'v-mandap-1', imageUrl: '/media/mandap/mandap-1.jpg', title: 'Vedic Rose & Marigold Mandap' },
+      { id: 'v-stage-1', imageUrl: '/media/stage/stage-1.jpg', title: '30ft Elevated Carved Palace Stage' }
+    ];
+  }
+  if (combined.includes('birthday') || combined.includes('bday') || combined.includes('party')) {
+    return [
+      { id: 'v-bday-1', imageUrl: '/media/rich-decor/decor-2.jpg', title: 'Themed Birthday Balloon & Light Decor' }
+    ];
+  }
+  if (combined.includes('cater') || combined.includes('menu') || combined.includes('khana') || combined.includes('chaat') || combined.includes('plate')) {
+    return [
+      { id: 'v-cat-1', imageUrl: '/media/catering/catering-1.jpg', title: 'Laser-Cut Illuminated Buffet Line' },
+      { id: 'v-cat-2', imageUrl: '/media/catering/catering-2.jpg', title: 'Starlight Open-Air Food Counters' }
+    ];
+  }
+  if (combined.includes('hangar') || combined.includes('tent') || combined.includes('waterproof') || combined.includes('pandal')) {
+    return [
+      { id: 'v-tent-1', imageUrl: '/media/rich-decor/decor-1.jpg', title: 'Waterproof German Hangar Pavilion' }
+    ];
+  }
+  return null;
+};
+
   const handleSend = async (textToSend = inputText, convId = null) => {
     const text = (textToSend || '').trim();
     if (!text || loading) return;
+
+    stopSpeaking(); // Interrupt ongoing voice response
 
     const activeConvId = convId || conversation?.id || localStorage.getItem('kandhari_active_conv_id') || ('conv-local-' + Date.now());
     setInputText('');
@@ -462,6 +645,10 @@ const AiChatAssistant = () => {
           agentData.action.items.forEach(it => addItem(it, it.quantity || 1));
         }
 
+        const contextualVisuals = (!agentData.galleryPhotos || agentData.galleryPhotos.length === 0) 
+          ? getContextualVisuals(text, agentData.reply)
+          : null;
+
         const assistantMsg = {
           id: 'ast-' + Date.now(),
           role: 'assistant',
@@ -469,7 +656,7 @@ const AiChatAssistant = () => {
           suggestedQuestions: agentData.suggestedQuestions,
           actionSuggestions: agentData.actionSuggestions || agentData.suggestedQuestions,
           recommendedItems: agentData.recommendedItems,
-          galleryPhotos: agentData.galleryPhotos,
+          galleryPhotos: agentData.galleryPhotos || contextualVisuals,
           action: agentData.action,
           category: agentData.category,
           isUrgent: agentData.isUrgent,
@@ -480,6 +667,9 @@ const AiChatAssistant = () => {
           const filtered = prev.filter(m => m.id !== tempUserMsg.id);
           return [...filtered, tempUserMsg, assistantMsg];
         });
+
+        // Speak aloud using Voice Concierge TTS
+        speakResponse(assistantMsg.content, assistantMsg.id);
 
         // Fire-and-forget sync to persistent conversation
         try {
@@ -496,10 +686,21 @@ const AiChatAssistant = () => {
     try {
       const res = await api.sendChatMessage(activeConvId, text);
       if (res && res.success) {
+        const assistantWithVisuals = {
+          ...res.assistantMessage,
+          id: res.assistantMessage.id || ('ast-' + Date.now()),
+          actionSuggestions: res.assistantMessage.actionSuggestions || res.assistantMessage.suggestedQuestions,
+          galleryImages: res.assistantMessage.galleryImages || getContextualVisuals(text, res.assistantMessage.content)
+        };
+
         setMessages(prev => {
           const filtered = prev.filter(m => m.id !== tempUserMsg.id);
-          return [...filtered, res.userMessage, res.assistantMessage];
+          return [...filtered, res.userMessage, assistantWithVisuals];
         });
+
+        // Speak response aloud
+        speakResponse(assistantWithVisuals.content, assistantWithVisuals.id);
+
         if (res.collectedState) {
           setConversation(prev => ({
             ...prev,
@@ -519,18 +720,23 @@ const AiChatAssistant = () => {
     try {
       const fallbackResult = getClientAiResponse(text);
       const leadInfo = extractLeadInfo(text);
+      const contextualVisuals = getContextualVisuals(text, fallbackResult.text);
 
       const assistantMsg = {
         id: 'ast-' + Date.now(),
         role: 'assistant',
         content: fallbackResult.text,
         actionSuggestions: fallbackResult.actionSuggestions,
+        galleryPhotos: contextualVisuals,
         category: fallbackResult.category,
         isUrgent: fallbackResult.isUrgent,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, assistantMsg]);
+
+      // Speak fallback response aloud
+      speakResponse(assistantMsg.content, assistantMsg.id);
 
       // If user provided a phone number, update state & auto-submit enquiry into database and notes
       if (leadInfo.phone) {
@@ -751,21 +957,29 @@ const AiChatAssistant = () => {
 
   return (
     <>
-      {/* Floating Trigger Button */}
+      {/* Floating Trigger Button with Luxury Voice Concierge Orb */}
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-white px-3.5 py-2 rounded-full shadow-lg border border-purple-200/60 text-xs font-semibold text-brand-primary animate-bounce">
-            <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-            <span>Chat with Kandhari Event Concierge</span>
-          </div>
+          <button
+            onClick={() => setIsOpen(true)}
+            className="hidden sm:flex items-center gap-2.5 bg-[#140726] text-amber-200 px-4 py-2.5 rounded-full shadow-2xl border border-amber-500/40 text-xs font-semibold hover:border-amber-400 transition-all cursor-pointer group"
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
+            <span>Voice &amp; Text AI Concierge</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono">
+              Hi/En
+            </span>
+          </button>
 
           <button
             onClick={() => setIsOpen(true)}
-            className="w-14 h-14 rounded-full bg-gradient-to-tr from-brand-primary to-brand-purple text-white shadow-xl hover:shadow-2xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95 border-2 border-brand-gold/40 relative"
-            title="Open Kandhari Event Concierge"
+            className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#1b072e] via-[#4A0E2E] to-[#8C1D40] text-amber-300 shadow-2xl hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] flex items-center justify-center transition-all hover:scale-105 active:scale-95 border-2 border-amber-400/50 relative cursor-pointer"
+            title="Open Kandhari Voice & Text Concierge"
           >
-            <MessageSquare className="w-6 h-6" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white" />
+            <MessageSquare className="w-6 h-6 text-amber-200" />
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#140726]" />
+            <span className="absolute inset-0 rounded-full border border-amber-400/30 animate-ping opacity-40" />
           </button>
         </div>
       )}
@@ -780,21 +994,39 @@ const AiChatAssistant = () => {
           {/* Header */}
           <div className="bg-brand-primary text-white p-4 flex items-center justify-between border-b border-purple-900/40 select-none">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-brand-purple/40 border border-brand-gold/30 flex items-center justify-center text-brand-gold">
+              <div className="w-9 h-9 rounded-xl bg-brand-purple/40 border border-brand-gold/30 flex items-center justify-center text-brand-gold relative">
                 <Sparkles className="w-4 h-4" />
+                {isSpeaking && <span className="listening-pulse-ring" />}
               </div>
               <div>
                 <h3 className="font-serif text-sm font-bold leading-tight">
                   Kandhari Event Concierge
                 </h3>
                 <div className="flex items-center gap-1.5 text-[11px] text-neutral-300">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Dwaraka Shree Lawn & Kandhari Tent House</span>
+                  <span className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
+                  <span>{isSpeaking ? 'Speaking response...' : 'Voice & Text Active'}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-1 text-neutral-300">
+              {/* Spoken Voice Mute / Unmute Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (isSpeaking) stopSpeaking();
+                  setIsAudioMuted(!isAudioMuted);
+                }}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  isAudioMuted 
+                    ? 'text-neutral-400 hover:text-white hover:bg-white/10' 
+                    : 'text-amber-300 hover:text-white hover:bg-white/10'
+                }`}
+                title={isAudioMuted ? "Unmute Voice AI Responses (Speech is currently OFF)" : "Mute Voice AI Responses (Speech is currently ON)"}
+              >
+                {isAudioMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </button>
+
               <a
                 href="tel:+919305465848"
                 className="p-1.5 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-amber-300"
@@ -826,7 +1058,10 @@ const AiChatAssistant = () => {
                 {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  stopSpeaking();
+                  setIsOpen(false);
+                }}
                 className="p-1.5 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 title="Close"
               >
@@ -837,6 +1072,47 @@ const AiChatAssistant = () => {
 
           {!isMinimized && (
             <div className="flex-1 flex flex-col relative overflow-hidden">
+              
+              {/* Live Spoken Voice Waveform Banner */}
+              {isSpeaking && (
+                <div className="bg-[#140726] text-amber-200 border-b border-amber-500/30 px-3.5 py-2 flex items-center justify-between text-xs animate-fadeIn">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center h-4">
+                      <span className="voice-wave-bar" />
+                      <span className="voice-wave-bar" />
+                      <span className="voice-wave-bar" />
+                      <span className="voice-wave-bar" />
+                      <span className="voice-wave-bar" />
+                    </div>
+                    <span className="text-[11px] font-bold text-amber-300">Speaking response aloud...</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={stopSpeaking}
+                    className="px-2.5 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-[10px] font-semibold flex items-center gap-1 border border-white/20 cursor-pointer"
+                    title="Stop speaking"
+                  >
+                    <Square className="w-2.5 h-2.5 fill-current" />
+                    <span>Stop</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Voice Notice / Error Banner */}
+              {voiceError && (
+                <div className="bg-rose-900/90 text-white text-xs px-3.5 py-2 flex items-center justify-between border-b border-rose-500/30">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+                    <span>{voiceError}</span>
+                  </div>
+                  <button 
+                    onClick={() => setVoiceError('')}
+                    className="text-[10px] underline hover:text-rose-200"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
               
               {/* Category A Bereavement Priority Banner */}
               {isCategoryAActive && (
@@ -1077,9 +1353,26 @@ const AiChatAssistant = () => {
                       )}
                     </div>
 
-                    <span className="text-[9px] text-neutral-400 mt-1 px-1">
-                      {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                    <div className="flex items-center justify-between mt-1 px-1">
+                      {msg.role === 'assistant' && (
+                        <button
+                          type="button"
+                          onClick={() => speakResponse(msg.content, msg.id)}
+                          className={`px-1.5 py-0.5 rounded text-[10px] flex items-center gap-1 font-medium transition cursor-pointer ${
+                            currentlySpeakingId === msg.id 
+                              ? 'text-amber-700 bg-amber-100/80 font-bold shadow-xs' 
+                              : 'text-neutral-500 hover:text-brand-purple hover:bg-neutral-100'
+                          }`}
+                          title="Read message aloud"
+                        >
+                          <Volume2 className="w-3 h-3" />
+                          <span>{currentlySpeakingId === msg.id ? 'Speaking...' : 'Listen'}</span>
+                        </button>
+                      )}
+                      <span className="text-[9px] text-neutral-400">
+                        {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
                   </div>
                 ))}
 
@@ -1182,19 +1475,22 @@ const AiChatAssistant = () => {
                 ))}
               </div>
 
-              {/* Voice recognition status banner */}
+              {/* Voice recognition status banner with live speech transcript */}
               {isListening && (
-                <div className="px-3 py-1.5 bg-rose-50 border-t border-rose-200 text-rose-700 text-[11px] font-semibold flex items-center justify-between animate-pulse">
-                  <div className="flex items-center gap-1.5">
-                    <Mic className="w-3.5 h-3.5 text-rose-600 animate-spin" />
-                    <span>Listening... speak items like "100 pvc chair", "20*40 pandal", "mandap"</span>
+                <div className="px-3.5 py-2 bg-gradient-to-r from-rose-900 to-[#24081c] text-white text-[11px] font-semibold flex items-center justify-between border-t border-rose-500/40 animate-pulse">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping shrink-0" />
+                    <Mic className="w-4 h-4 text-rose-300 shrink-0" />
+                    <span className="truncate text-rose-100">
+                      {liveTranscript ? `"${liveTranscript}"` : 'Listening... Speak in Hindi or English (e.g. "Lawn booking", "100 chairs")'}
+                    </span>
                   </div>
                   <button 
                     type="button"
                     onClick={toggleListening}
-                    className="text-[10px] text-rose-800 underline font-bold"
+                    className="text-[10px] px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 text-white font-bold shrink-0 ml-2"
                   >
-                    Stop
+                    Done
                   </button>
                 </div>
               )}

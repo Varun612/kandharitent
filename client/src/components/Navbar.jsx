@@ -62,7 +62,7 @@ const Navbar = () => {
   ];
 
   const isActive = (path) => {
-    if (path === '/') return location.pathname === '';
+    if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
 

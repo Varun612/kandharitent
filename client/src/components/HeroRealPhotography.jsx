@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Calendar, 
   Eye, 
@@ -10,7 +11,9 @@ import {
   MapPin,
   Award,
   Film,
-  Camera
+  Camera,
+  ArrowRight,
+  Compass
 } from 'lucide-react';
 
 export const HERO_SETUPS = [
@@ -229,23 +232,31 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
             {currentSetup.subtitle}
           </p>
 
-          {/* Primary Action Buttons */}
+          {/* Primary Action Buttons (Phase 3 Requirement) */}
           <div className="flex flex-wrap items-center gap-3 pt-3">
             <button
               onClick={onOpenDrawer}
               className="px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs sm:text-sm shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-black" />
-              <span>Plan Your Event</span>
+              <span>Plan an Event</span>
             </button>
 
-            <button
-              onClick={onScrollToCelebrations}
+            <a
+              href="#event-discovery"
               className="px-6 py-3.5 rounded-xl bg-white hover:bg-neutral-100 text-[#140726] font-bold text-xs sm:text-sm shadow-md transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
             >
-              <Eye className="w-4 h-4 text-[#140726]" />
-              <span>Explore Real Setups</span>
-            </button>
+              <Compass className="w-4 h-4 text-[#140726]" />
+              <span>Explore Services</span>
+            </a>
+
+            <Link
+              to="/lawn"
+              className="px-6 py-3.5 rounded-xl bg-[#2a1145] hover:bg-[#38165c] text-amber-200 border border-amber-400/40 font-bold text-xs sm:text-sm shadow-md transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+            >
+              <MapPin className="w-4 h-4 text-amber-400" />
+              <span>Explore Dwaraka Shree Lawn</span>
+            </Link>
 
             <a
               href="https://wa.me/919305465848?text=Namaste%20Kandhari%20Tent!%20I%20am%20exploring%20your%20wedding%20website%20and%20would%20like%20to%20discuss%20decor%2C%20catering%2C%20and%20lawn%20booking."
@@ -254,7 +265,7 @@ const HeroRealPhotography = ({ onOpenDrawer, onScrollToCelebrations }) => {
               className="px-4 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition flex items-center gap-2 shadow-md"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Desk</span>
+              <span>WhatsApp</span>
             </a>
 
             <a

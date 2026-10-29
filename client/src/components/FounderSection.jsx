@@ -81,10 +81,10 @@ const FounderSection = ({ onOpenDrawer }) => {
 
             <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30">
               <p className="text-xs sm:text-sm text-neutral-200 italic leading-relaxed font-serif">
-                &ldquo;A wedding is not just a business orderâ€”it is an auspicious family milestone. When a father or mother trusts us with their son or daughter&apos;s marriage, our setups, food, and punctuality must honor that trust with royal perfection.&rdquo;
+                &ldquo;A wedding is not just a business order—it is an auspicious family milestone. When a father or mother trusts us with their son or daughter&apos;s marriage, our setups, food, and punctuality must honor that trust with royal perfection.&rdquo;
               </p>
               <span className="block text-right text-[11px] font-bold text-amber-400 mt-2">
-                â€” Late/Shri Mahendra Kandhari, Founder
+                — Shri Mahendra Kandhari, Founder
               </span>
             </div>
 

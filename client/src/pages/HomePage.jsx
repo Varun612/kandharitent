@@ -31,6 +31,7 @@ import LawnEnquiryModal from '../components/LawnEnquiryModal';
 import ItemCard from '../components/ItemCard';
 import ItemDetailModal from '../components/ItemDetailModal';
 import HeroRealPhotography from '../components/HeroRealPhotography';
+import EventDiscoveryMatrix from '../components/EventDiscoveryMatrix';
 import EditorialEventGallery from '../components/EditorialEventGallery';
 import FounderSection from '../components/FounderSection';
 import PhoneCallModal from '../components/PhoneCallModal';
@@ -189,6 +190,9 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* 1.15. VISUAL & ACTION-ORIENTED EVENT DISCOVERY MATRIX (PHASE 4) */}
+      <EventDiscoveryMatrix onOpenEnquiryWithCategory={(cat) => openDrawer()} />
 
       {/* 1.25. FOUNDER & BRAND IDENTITY SECTION: SHRI MAHENDRA KANDHARI */}
       <FounderSection onOpenDrawer={openDrawer} />
